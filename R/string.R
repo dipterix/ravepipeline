@@ -1,4 +1,3 @@
-
 str2lang_alt <- function (s) {
   s <- sprintf("quote(%s)", trimws(s))
   eval(parse(text = s))

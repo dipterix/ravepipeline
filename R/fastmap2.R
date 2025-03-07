@@ -1,3 +1,5 @@
+# This file is licensed under MIT by Zhengjia Wang
+
 fastmap2 <- function(missing_default = NULL){
   map <- fastmap::fastmap(missing_default = missing_default)
   class(map) <- c('ravepipeline_fastmap2', 'fastmap2', 'list')

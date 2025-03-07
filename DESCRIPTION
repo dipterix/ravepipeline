@@ -21,8 +21,9 @@ Copyright: Trustees of University of Pennsylvania, owns the copyright of
     the package unless otherwise stated. Zhengjia Wang owns the copyright of 
     all the low-level functions included in 'R/common.R', 'R/fastmap2', 
     'R/fastqueue2.R', 'R/filesys.R', 'R/fst.R', 'R/json.R', 'R/os_info.R', 
-    'R/parallel.R', 'R/progress.R', 'R/simplelocker.R', 'R/string.R', 
-    'R/yaml.R', licensed under 'MIT' license.
+    'R/parallel.R', 'R/progress.R', 'R/simplelocker.R', 
+    'R/yaml.R', and all the template files under 'inst/rave-pipelines' and
+    'inst/rave-modules', all licensed under 'MIT' license.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -46,7 +47,8 @@ Imports:
     future,
     fastmap,
     rlang,
-    base64url
+    base64url,
+    fst (>= 0.9.8)
 Suggests:
     filearray,
     future.apply,

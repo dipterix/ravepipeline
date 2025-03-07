@@ -237,7 +237,7 @@ tfmtreg_user_defined_python <- function() {
             data_signature <- NULL
           }
           ravepipeline$save_yaml(
-            list(
+            x = list(
               null_value = null_value,
               script_signature = script_signature,
               data_signature = data_signature
@@ -333,11 +333,15 @@ tfmtreg_user_defined_r <- function() {
           }
 
           script_signature <- digest::digest(file = spath)
-          ravepipeline$save_yaml(list(
-            null_value = null_value,
-            script_signature = script_signature,
-            data_signature = data_signature
-          ), file = path, sorted = TRUE)
+          ravepipeline$save_yaml(
+            x = list(
+              null_value = null_value,
+              script_signature = script_signature,
+              data_signature = data_signature
+            ),
+            file = path,
+            sorted = TRUE
+          )
 
 
         },
@@ -536,7 +540,8 @@ tfmtreg_rave_subject <- function() {
       # RAVE subject is defined in `raveio` which is not a available on CRAN right now
       # so checks the package
       ns <- require_package("raveio", return_namespace = TRUE)
-      re <- ieegio::io_read_yaml(con = path)
+      ravepipeline <- asNamespace("ravepipeline")
+      re <- ravepipeline$read_yaml(path)
       if(!isTRUE(re$instance_class %in% c("RAVESubject", "RAVEPreprocessSettings"))) {
         stop("Cannot restore RAVE subject as the instance class must be either `RAVESubject` or `RAVEPreprocessSettings`")
       }
@@ -548,7 +553,7 @@ tfmtreg_rave_subject <- function() {
     },
     write = function(object, path, target_export = NULL) {
 
-      ns <- require_package("raveio", return_namespace = TRUE)
+      ravepipeline <- asNamespace("ravepipeline")
 
       cls <- NULL
       subject_id <- NULL
@@ -562,9 +567,9 @@ tfmtreg_rave_subject <- function() {
         stop("To save/load as `rave-subject`, the class must be either `RAVESubject` or `RAVEPreprocessSettings`")
       }
 
-      ieegio::io_write_yaml(
+      ravepipeline$save_yaml(
         x = list(subject_id = subject_id, instance_class = cls),
-        con = path,
+        file = path,
         sorted = TRUE
       )
     }
@@ -814,7 +819,8 @@ tfmtreg_rave_prepare_power <- function() {
                     target_expr = NULL,
                     target_depends = NULL) {
       ns <- require_package("raveio", return_namespace = TRUE)
-      re <- ieegio::io_read_yaml(path)
+      ravepipeline <- asNamespace("ravepipeline")
+      re <- ravepipeline$read_yaml(path)
       if(!isTRUE(re$instance_class %in% c("rave_prepare_power"))) {
         stop("Cannot restore RAVE repository (power) as the instance class must be either `rave_prepare_power`")
       }
@@ -833,7 +839,7 @@ tfmtreg_rave_prepare_power <- function() {
         stop("The object to save as target is not a valid RAVE repository (power)")
       }
       ns <- asNamespace("ravepipeline")
-      ieegio::io_write_yaml(
+      ns$save_yaml(
         x = list(
           instance_class = "rave_prepare_power",
           signal_data = "power",
@@ -843,7 +849,7 @@ tfmtreg_rave_prepare_power <- function() {
           reference_name = object$reference_name,
           time_window = object$time_windows
         ),
-        con = path,
+        file = path,
         sorted = TRUE
       )
     }
@@ -858,7 +864,8 @@ tfmtreg_rave_prepare_phase <- function() {
                     target_expr = NULL,
                     target_depends = NULL) {
       ns <- require_package("raveio", return_namespace = TRUE)
-      re <- ieegio::io_read_yaml(path)
+      ravepipeline <- asNamespace("ravepipeline")
+      re <- ravepipeline$read_yaml(path)
       if(!isTRUE(re$instance_class %in% c("rave_prepare_phase"))) {
         stop("Cannot restore RAVE repository (phase) as the instance class must be either `rave_prepare_phase`")
       }
@@ -877,7 +884,7 @@ tfmtreg_rave_prepare_phase <- function() {
         stop("The object to save as target is not a valid RAVE repository (phase)")
       }
       ns <- asNamespace("ravepipeline")
-      ieegio::io_write_yaml(
+      ns$save_yaml(
         x = list(
           instance_class = "rave_prepare_phase",
           signal_data = "phase",
@@ -887,7 +894,7 @@ tfmtreg_rave_prepare_phase <- function() {
           reference_name = object$reference_name,
           time_window = object$time_windows
         ),
-        con = path,
+        file = path,
         sorted = TRUE
       )
     }
@@ -902,7 +909,8 @@ tfmtreg_rave_prepare_wavelet <- function() {
                     target_expr = NULL,
                     target_depends = NULL) {
       ns <- require_package("raveio", return_namespace = TRUE)
-      re <- ieegio::io_read_yaml(path)
+      ravepipeline <- asNamespace("ravepipeline")
+      re <- ravepipeline$read_yaml(path)
       if(!isTRUE(re$instance_class %in% c("rave_prepare_wavelet"))) {
         stop("Cannot restore RAVE repository (wavelet coefficients) as the instance class must be either `rave_prepare_wavelet`")
       }
@@ -921,7 +929,7 @@ tfmtreg_rave_prepare_wavelet <- function() {
         stop("The object to save as target is not a valid RAVE repository (wavelet coefficients)")
       }
       ns <- asNamespace("ravepipeline")
-      ieegio::io_write_yaml(
+      ns$save_yaml(
         x = list(
           instance_class = "rave_prepare_wavelet",
           signal_data = "wavelet-coefficient",
@@ -931,7 +939,7 @@ tfmtreg_rave_prepare_wavelet <- function() {
           reference_name = object$reference_name,
           time_window = object$time_windows
         ),
-        con = path,
+        file = path,
         sorted = TRUE
       )
     }
@@ -947,7 +955,8 @@ tfmtreg_rave_prepare_subject_voltage_with_epoch <- function() {
                     target_expr = NULL,
                     target_depends = NULL) {
       ns <- require_package("raveio", return_namespace = TRUE)
-      re <- ieegio::io_read_yaml(path)
+      ravepipeline <- asNamespace("ravepipeline")
+      re <- ravepipeline$read_yaml(path)
       if(!isTRUE(re$instance_class %in% c("rave_prepare_subject_voltage_with_epoch"))) {
         stop("Cannot restore RAVE repository (phase) as the instance class must be either `rave_prepare_subject_voltage_with_epoch`")
       }
@@ -966,7 +975,7 @@ tfmtreg_rave_prepare_subject_voltage_with_epoch <- function() {
         stop("The object to save as target is not a valid RAVE repository (voltage with epoch)")
       }
       ns <- asNamespace("ravepipeline")
-      ieegio::io_write_yaml(
+      ns$save_yaml(
         x = list(
           instance_class = "rave_prepare_subject_voltage_with_epoch",
           signal_data = "voltage",
@@ -976,7 +985,7 @@ tfmtreg_rave_prepare_subject_voltage_with_epoch <- function() {
           reference_name = object$reference_name,
           time_window = object$time_windows
         ),
-        con = path,
+        file = path,
         sorted = TRUE
       )
     }

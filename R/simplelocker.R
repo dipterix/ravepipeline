@@ -1,3 +1,5 @@
+# This file is licensed under MIT by Zhengjia Wang
+
 locker_key <- function (name, set_default = FALSE, unset = FALSE) {
   if (length(name) != 1) {
     return()

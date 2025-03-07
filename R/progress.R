@@ -1,3 +1,4 @@
+# This file is licensed under MIT by Zhengjia Wang
 
 rave_progress <- function(title, max = 1, ..., quiet = FALSE,
                        session = get_shiny_session(),

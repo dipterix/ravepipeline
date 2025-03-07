@@ -1,3 +1,5 @@
+# This file is licensed under MIT by Zhengjia Wang
+
 save_json <- function (x, con = stdout(), ..., digits = ceiling(-log10(.Machine$double.eps)),
                        pretty = TRUE, serialize = TRUE) {
   if (serialize) {

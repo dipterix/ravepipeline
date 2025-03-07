@@ -1,3 +1,5 @@
+# This file is licensed under MIT by Zhengjia Wang
+
 `%OF%` <- function (lhs, rhs) {
   if (length(rhs)) {
     de <- rhs[[1]]

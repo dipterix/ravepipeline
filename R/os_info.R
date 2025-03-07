@@ -1,3 +1,5 @@
+# This file is licensed under MIT by Zhengjia Wang
+
 time_delta <- function (t1, t2, units = "secs") {
   as.numeric(t2 - t1, units = units)
 }

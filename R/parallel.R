@@ -1,3 +1,6 @@
+# This file is licensed under MIT by Zhengjia Wang
+
+
 make_forked_clusters <- function (
     workers = future::availableCores(),
     on_failure = getOption("dipsaus.cluster.backup", "sequential"), clean = FALSE, ...) {

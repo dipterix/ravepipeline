@@ -1,3 +1,5 @@
+# This file is licensed under MIT by Zhengjia Wang
+
 backup_file <- function(path, remove = FALSE, quiet = FALSE) {
 
   if(length(path) != 1 || is.na(path)) {

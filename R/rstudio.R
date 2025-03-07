@@ -1,3 +1,4 @@
+
 rs_avail <- function (version_needed = "1.3", child_ok = FALSE, shiny_ok = FALSE) {
   if (!shiny_ok && shiny_is_running()) {
     return(FALSE)

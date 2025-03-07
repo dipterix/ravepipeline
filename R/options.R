@@ -1,4 +1,3 @@
-
 default_settings <- local({
   defaults <- list()
 

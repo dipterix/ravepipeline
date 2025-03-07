@@ -1,3 +1,5 @@
+# This file is licensed under MIT by Zhengjia Wang
+
 fastqueue2 <- function(init = 20L, missing_default = NULL){
   queue <- fastmap::fastqueue(init = init, missing_default = missing_default)
   head <- 0

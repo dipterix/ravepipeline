@@ -15,7 +15,8 @@ Pipeline result object
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
-\item{\code{progressor}}{progress bar object, usually generated from \code{\link[dipsaus]{progress2}}}
+\item{\code{progressor}}{progress bar object, usually generated a progress
+instance}
 
 \item{\code{promise}}{a \code{\link[promises]{promise}} instance that monitors
 the pipeline progress}

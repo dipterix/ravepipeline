@@ -1,3 +1,5 @@
+# This file is licensed under MIT by Zhengjia Wang
+
 load_yaml <- function(file, ..., map = NULL){
   re <- yaml::read_yaml(file = file, ...)
   if(!inherits(map, 'fastmap2')){
