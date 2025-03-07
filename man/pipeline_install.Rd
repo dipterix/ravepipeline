@@ -52,3 +52,19 @@ nothing
 \description{
 Install 'RAVE' pipelines
 }
+\examples{
+
+\dontrun{
+
+
+pipeline_install_github("rave-ieeg/pipelines")
+
+
+# or download github.com/rave-ieeg/pipelines repository, extract
+# to a folder, and call
+pipeline_install_local("path/to/pipeline/folder")
+
+}
+
+
+}

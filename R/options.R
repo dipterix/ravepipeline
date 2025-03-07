@@ -272,8 +272,8 @@ load_setting <- function(reset_temp = TRUE){
 }
 
 
-
-#' Set/Get 'RAVE' option
+#' @name raveio-option
+#' @title Set/Get 'RAVE' option
 #' @description Persist settings on local configuration file
 #' @param key character, option name
 #' @param value character or logical of length 1, option value
@@ -315,7 +315,19 @@ load_setting <- function(reset_temp = TRUE){
 #'
 #' If set \code{all=TRUE}, \code{raveio_resetopt} resets all keys including
 #' non-standard ones. However \code{"session_string"} will never reset.
-#' @name raveio-option
+#'
+#' @examples
+#'
+#' # get one RAVE option
+#' ncore <- raveio_getopt("max_worker")
+#' print(ncore)
+#'
+#' # get all options
+#' raveio_getopt()
+#'
+#' # set option
+#' raveio_setopt("disable_fork_clusters", FALSE)
+#'
 NULL
 
 #' @rdname raveio-option

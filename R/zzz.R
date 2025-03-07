@@ -8,10 +8,6 @@
     s <- c(pkg$.startup_msg, "")
   }
 
-  # if(isTRUE(system.file(package = "rhdf5") == "")){
-  #   s <- c(s, "Package `raveio` has been successfully loaded. \nHowever, BioConductor package `rhdf5` has not been installed. \nPlease run the following command:\n\n  BiocManager::install('rhdf5', update = FALSE, type = 'source')\n")
-  # }
-
   if(length(s)){
     s <- paste(s, collapse = "\n")
     packageStartupMessage(s)

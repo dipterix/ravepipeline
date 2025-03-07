@@ -28,13 +28,7 @@
 #'
 #' @examples
 #'
-#' # Require access to Github repository rave-ieeg/rave-pipelines
-#' if(interactive()) {
-#'
 #' library(ravepipeline)
-#'
-#' # get current registries
-#' get_modules_registries(FALSE)
 #'
 #' # create your own registry
 #' module_registry(
@@ -47,13 +41,20 @@
 #'   modules = "brain_viewer"
 #' )
 #'
+#'
+#' \dontrun{
+#'
+#' # This example will need access to Github and will open an email link
+#'
+#' # get current registries
+#' get_modules_registries(FALSE)
+#'
 #' # If your repository is on Github and RAVE-CONFIG file exists
 #' module_registry2("rave-ieeg/rave-pipelines")
 #'
 #' # send a request to add your registry
-#'
-#' reg <- module_registry2("rave-ieeg/rave-pipelines")
-#' add_module_registry(reg)
+#' registry <- module_registry2("rave-ieeg/rave-pipelines")
+#' add_module_registry(registry)
 #'
 #' }
 #'
@@ -238,7 +239,7 @@ get_modules_registries <- function(update = NA) {
     if(!is.na(update) && is.character(update)) {
       url <- update
     } else {
-      url <- "https://raw.githubusercontent.com/beauchamplab/raveio/master/inst/module-registry.yaml"
+      url <- "https://raw.githubusercontent.com/dipterix/ravepipeline/master/inst/module-registry.yaml"
     }
   } else if(file.exists(registry_path)){
     updated <- FALSE
@@ -379,24 +380,23 @@ add_module_registry <- function(title, repo, modules, authors, url,
   rec <- "modules@rave.wiki"
   subj <- "Request to add/change a RAVE module registry"
   body <- paste0(
-    "Dear RAVE Team,\n",
-    sprintf("I am the maintainer of the module repository [%s]. Please consider %s the registry:\n\n", reg$repo, ifelse(is_new, "adding", "changing")),
-    "```yml\n",
+    "Dear RAVE Team,%0D%0A%0D%0A",
+    sprintf("I am the maintainer of the module repository [%s]. Please consider %s the registry:%%0D%%0A%%0D%%0A", reg$repo, ifelse(is_new, "adding", "changing")),
+    "```yml%0D%0A",
     paste(
       utils::capture.output({save_yaml(list(reg), stdout())}),
-      collapse = "\n"
+      collapse = "%0D%0A"
     ),
-    "\n```\n",
-    "\n",
-    "This registry is generated from `ravepipeline::add_module_registry` with no conflict/error/modification.\n\n",
-    "Best,\n",
+    "%0D%0A```%0D%0A%0D%0A",
+    "This registry is generated from `ravepipeline::add_module_registry` with no conflict/error/modification.%0D%0A%0D%0A",
+    "Best,%0D%0A",
     sprintf(
       "%s, %s %s",
       paste(reg$maintainer$family, collapse = ""),
       paste(reg$maintainer$given, collapse = ""),
       paste(reg$maintainer$middle, collapse = "")
     ),
-    "\n"
+    "%0D%0A"
   )
 
   if(!dry_run && interactive()) {

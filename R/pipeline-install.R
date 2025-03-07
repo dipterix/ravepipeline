@@ -152,6 +152,22 @@ pipeline_install_directory <- function(
 #' @param force whether to force installing the pipelines
 #' @param ... other parameters not used
 #' @returns nothing
+#'
+#' @examples
+#'
+#' \dontrun{
+#'
+#'
+#' pipeline_install_github("rave-ieeg/pipelines")
+#'
+#'
+#' # or download github.com/rave-ieeg/pipelines repository, extract
+#' # to a folder, and call
+#' pipeline_install_local("path/to/pipeline/folder")
+#'
+#' }
+#'
+#'
 #' @export
 pipeline_install_local <- function(
     src, to = c("default", "custom", "workdir", "tempdir"),

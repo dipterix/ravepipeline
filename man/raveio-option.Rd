@@ -70,6 +70,19 @@ missing, the whole option will be returned.
 If set \code{all=TRUE}, \code{raveio_resetopt} resets all keys including
 non-standard ones. However \code{"session_string"} will never reset.
 }
+\examples{
+
+# get one RAVE option
+ncore <- raveio_getopt("max_worker")
+print(ncore)
+
+# get all options
+raveio_getopt()
+
+# set option
+raveio_setopt("disable_fork_clusters", FALSE)
+
+}
 \seealso{
 \code{R_user_dir}
 }

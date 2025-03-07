@@ -66,13 +66,7 @@ validate and send an email to the 'RAVE' development team.
 }
 \examples{
 
-# Require access to Github repository rave-ieeg/rave-pipelines
-if(interactive()) {
-
 library(ravepipeline)
-
-# get current registries
-get_modules_registries(FALSE)
 
 # create your own registry
 module_registry(
@@ -85,13 +79,20 @@ module_registry(
   modules = "brain_viewer"
 )
 
+
+\dontrun{
+
+# This example will need access to Github and will open an email link
+
+# get current registries
+get_modules_registries(FALSE)
+
 # If your repository is on Github and RAVE-CONFIG file exists
 module_registry2("rave-ieeg/rave-pipelines")
 
 # send a request to add your registry
-
-reg <- module_registry2("rave-ieeg/rave-pipelines")
-add_module_registry(reg)
+registry <- module_registry2("rave-ieeg/rave-pipelines")
+add_module_registry(registry)
 
 }
 

@@ -35,9 +35,9 @@ Run snippet code
 }
 \examples{
 
-# This example script requires internet connection to Github
+# This example script requires running in an interactive session
 
-\dontrun{
+if(interactive()){
 
 # ---- Example 1: Install built-in pipeline snippets ------------
 update_local_snippet(force = TRUE)

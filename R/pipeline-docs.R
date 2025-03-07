@@ -1,4 +1,4 @@
-#' @title 'RAVE' pipeline functions
+#' @title Low-level 'RAVE' pipeline functions
 #' @name rave-pipeline
 #' @description Utility functions for 'RAVE' pipelines, currently designed for
 #' internal development use. The infrastructure will be deployed to 'RAVE' in

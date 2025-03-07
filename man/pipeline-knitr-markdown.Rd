@@ -42,3 +42,20 @@ Allows building 'RAVE' pipelines from \code{'rmarkdown'} files.
 Please use it in \code{'rmarkdown'} scripts only. Use
 \code{\link{pipeline_create_template}} to create an example.
 }
+\examples{
+
+configure_knitr("R")
+
+configure_knitr("python")
+
+\dontrun{
+
+# This function must be called in an Rmd file setup block
+# for example, see
+# https://rave.wiki/posts/customize_modules/python_module_01.html
+
+pipeline_setup_rmd("my_module_id")
+
+}
+
+}

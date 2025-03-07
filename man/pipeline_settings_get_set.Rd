@@ -42,3 +42,58 @@ sure the results stay within given options}
 \description{
 Get or change pipeline input parameter settings
 }
+\examples{
+
+
+
+root_path <- tempfile()
+pipeline_root_folder <- file.path(root_path, "modules")
+
+# create pipeline folder
+pipeline_path <- pipeline_create_template(
+  root_path = pipeline_root_folder, pipeline_name = "raveio_demo",
+  overwrite = TRUE, activate = FALSE, template_type = "rmd-bare")
+
+# Set initial user inputs
+yaml::write_yaml(
+  x = list(
+    n = 100,
+    pch = 16,
+    col = "steelblue"
+  ),
+  file = file.path(pipeline_path, "settings.yaml")
+)
+
+# build the pipeline for the first time
+# this is a one-time setup
+pipeline_build(pipeline_path)
+
+# get pipeline settings
+pipeline_settings_get(
+  key = "n",
+  pipeline_path = pipeline_path
+)
+
+# get variable with default if missing
+pipeline_settings_get(
+  key = "missing_variable",
+  default = "missing",
+  pipeline_path = pipeline_path
+)
+
+pipeline_settings_set(
+  missing_variable = "A",
+  pipeline_path = pipeline_path
+)
+
+pipeline_settings_get(
+  key = "missing_variable",
+  default = "missing",
+  pipeline_path = pipeline_path
+)
+
+
+unlink(root_path, recursive = TRUE)
+
+
+}

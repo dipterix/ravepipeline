@@ -32,7 +32,7 @@
 \alias{pipeline_set_preferences}
 \alias{pipeline_get_preferences}
 \alias{pipeline_has_preferences}
-\title{'RAVE' pipeline functions}
+\title{Low-level 'RAVE' pipeline functions}
 \usage{
 pipeline_root(root_path, temporary = FALSE)
 

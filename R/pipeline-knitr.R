@@ -584,6 +584,23 @@ def rave_unserialize(x, path, name):
 #' \code{\link[knitr]{opts_chunk}}
 #' @returns A function that is supposed to be called later that builds the
 #' pipeline scripts
+#'
+#' @examples
+#'
+#' configure_knitr("R")
+#'
+#' configure_knitr("python")
+#'
+#' \dontrun{
+#'
+#' # This function must be called in an Rmd file setup block
+#' # for example, see
+#' # https://rave.wiki/posts/customize_modules/python_module_01.html
+#'
+#' pipeline_setup_rmd("my_module_id")
+#'
+#' }
+#'
 #' @export
 configure_knitr <- function(languages = c("R", "python")){
 
