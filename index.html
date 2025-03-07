@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Pipeline Infastructure for Reproducible Analysis and Visualization of Intarcranial Electroencephalography (RAVE) • ravepipeline</title>
+<title>Pipeline Infrastructure for Reproducible Analysis and Visualization of Intracranial Electroencephalography (RAVE) • ravepipeline</title>
 <script src="deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Pipeline Infastructure for Reproducible Analysis and Visualization of Intarcranial Electroencephalography (RAVE)">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Pipeline Infrastructure for Reproducible Analysis and Visualization of Intracranial Electroencephalography (RAVE)">
 <meta name="description" content='Defines the underlying file structure for a RAVE pipeline; provides high-level class definition to build, compile, set, execute, and share analysis pipelines. Both R and Python are supported, with Markdown and shiny dashboard templates for extending and building customized pipelines. See the full documentations at &lt;https://rave.wiki&gt;; to cite us, check out our paper by Magnotti, Wang, and Beauchamp (2020, &lt;doi:10.1016/j.neuroimage.2020.117341&gt;), or run citation("ravepipeline") for details.'>
 <meta property="og:description" content='Defines the underlying file structure for a RAVE pipeline; provides high-level class definition to build, compile, set, execute, and share analysis pipelines. Both R and Python are supported, with Markdown and shiny dashboard templates for extending and building customized pipelines. See the full documentations at &lt;https://rave.wiki&gt;; to cite us, check out our paper by Magnotti, Wang, and Beauchamp (2020, &lt;doi:10.1016/j.neuroimage.2020.117341&gt;), or run citation("ravepipeline") for details.'>
 </head>
@@ -32,6 +32,7 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
+<li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -50,7 +51,7 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of ravepipeline is to provide infrastructure for <a href="https://rave.wiki" class="external-link">Reproducible Analysis and Visualization of Intarcranial Electroencephalography (<code>RAVE</code>)</a>. The package defines high-level class to build, compile, set, execute, and share intracranial analysis pipelines. Both <code>R</code> and <code>Python</code> are supported with <code>Markdown</code> and <code>shiny</code> dashboard templates for extending and building customized pipelines.</p>
+<p>The goal of ravepipeline is to provide infrastructure for <a href="https://rave.wiki" class="external-link">Reproducible Analysis and Visualization of Intracranial Electroencephalography (<code>RAVE</code>)</a>. The package defines high-level class to build, compile, set, execute, and share intracranial analysis pipelines. Both <code>R</code> and <code>Python</code> are supported with <code>Markdown</code> and <code>shiny</code> dashboard templates for extending and building customized pipelines.</p>
 <p>We offers several built-in pipelines, see repository <a href="https://github.com/rave-ieeg/rave-pipelines" class="external-link">rave-ieeg/rave-pipelines</a> for details.</p>
 <p>More documentation is available at <a href="https://rave.wiki" class="external-link">rave.wiki</a></p>
 <div class="section level2">
@@ -160,7 +161,10 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
+<li><a href="https://lifecycle.r-lib.org/articles/stages.html#experimental" class="external-link"><img src="https://img.shields.io/badge/lifecycle-experimental-orange.svg" alt="Lifecycle: experimental"></a></li>
 <li><a href="https://github.com/dipterix/ravepipeline/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/dipterix/ravepipeline/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://CRAN.R-project.org/package=ravepipeline" class="external-link"><img src="https://www.r-pkg.org/badges/version/ravepipeline" alt="CRAN status"></a></li>
+<li><a href="https://rave-ieeg.r-universe.dev/ravepipeline" class="external-link"><img src="https://rave-ieeg.r-universe.dev/ravepipeline/badges/version" alt="ravepipeline status badge"></a></li>
 </ul>
 </div>
 
