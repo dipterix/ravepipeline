@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Pipeline Infastructure for Reproducible Analysis and Visualization of Intarcranial Electroencephalography (RAVE)">
-<meta name="description" content='Defines the underlying file structure for a RAVE pipeline; provides high-level class definition to build, compile, set, execute, share, and serialize pipeline objects with language support on both R and Python; offers mark-down and shiny dashboard templates for extending and building customized pipelines. See the full paper by Magnotti, Wang, and Beauchamp (2020, &lt;doi:10.1016/j.neuroimage.2020.117341&gt;), or check citation("ravepipeline") for details.'>
-<meta property="og:description" content='Defines the underlying file structure for a RAVE pipeline; provides high-level class definition to build, compile, set, execute, share, and serialize pipeline objects with language support on both R and Python; offers mark-down and shiny dashboard templates for extending and building customized pipelines. See the full paper by Magnotti, Wang, and Beauchamp (2020, &lt;doi:10.1016/j.neuroimage.2020.117341&gt;), or check citation("ravepipeline") for details.'>
+<meta name="description" content='Defines the underlying file structure for a RAVE pipeline; provides high-level class definition to build, compile, set, execute, and share analysis pipelines. Both R and Python are supported, with Markdown and shiny dashboard templates for extending and building customized pipelines. See the full documentations at &lt;https://rave.wiki&gt;; to cite us, check out our paper by Magnotti, Wang, and Beauchamp (2020, &lt;doi:10.1016/j.neuroimage.2020.117341&gt;), or run citation("ravepipeline") for details.'>
+<meta property="og:description" content='Defines the underlying file structure for a RAVE pipeline; provides high-level class definition to build, compile, set, execute, and share analysis pipelines. Both R and Python are supported, with Markdown and shiny dashboard templates for extending and building customized pipelines. See the full documentations at &lt;https://rave.wiki&gt;; to cite us, check out our paper by Magnotti, Wang, and Beauchamp (2020, &lt;doi:10.1016/j.neuroimage.2020.117341&gt;), or run citation("ravepipeline") for details.'>
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -50,22 +50,78 @@
 </h1></div>
 <!-- badges: start -->
 
-<p>The goal of ravepipeline is to …</p>
+<p>The goal of ravepipeline is to provide infrastructure for <a href="https://rave.wiki" class="external-link">Reproducible Analysis and Visualization of Intarcranial Electroencephalography (<code>RAVE</code>)</a>. The package defines high-level class to build, compile, set, execute, and share intracranial analysis pipelines. Both <code>R</code> and <code>Python</code> are supported with <code>Markdown</code> and <code>shiny</code> dashboard templates for extending and building customized pipelines.</p>
+<p>We offers several built-in pipelines, see repository <a href="https://github.com/rave-ieeg/rave-pipelines" class="external-link">rave-ieeg/rave-pipelines</a> for details.</p>
+<p>More documentation is available at <a href="https://rave.wiki" class="external-link">rave.wiki</a></p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of ravepipeline from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
+<p>Please check out our <a href="https://rave.wiki/posts/installation/installation.html" class="external-link">full installation guide on how to install ‘RAVE’</a></p>
+<p>For developers, or those who do not need the integrated features, you can install the development version from <a href="https://github.com/dipterix/ravepipeline" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
-<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"dipterix/ravepipeline"</span><span class="op">)</span></span></code></pre></div>
+<span></span>
+<span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"dipterix/ravepipeline"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Download built-in pipelines</span></span>
+<span><span class="fu">ravepipeline</span><span class="fu">::</span><span class="fu"><a href="reference/ravepipeline_finalize_installation.html">ravepipeline_finalize_installation</a></span><span class="op">(</span><span class="st">"always"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="example">Example<a class="anchor" aria-label="anchor" href="#example"></a>
+<h2 id="run-analysis-pipelines">Run analysis pipelines<a class="anchor" aria-label="anchor" href="#run-analysis-pipelines"></a>
 </h2>
-<p>This is a basic example which shows you how to solve a common problem:</p>
+<p><em>This example requires you to download RAVE demo data, which comes with the full installations.</em></p>
+<p>The built-in pipelines include Power Explorer, a powerful tool to group stimuli for time-frequency analysis and visualization. Here’s an example of how to use it on our demo data set:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dipterix.org/ravepipeline/" class="external-link">ravepipeline</a></span><span class="op">)</span></span>
-<span><span class="co">## basic example code</span></span></code></pre></div>
+<span></span>
+<span><span class="co"># list all the pipelines</span></span>
+<span><span class="fu"><a href="reference/rave-pipeline.html">pipeline_list</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Run power explorer</span></span>
+<span><span class="va">power_explorer</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/pipeline.html">pipeline</a></span><span class="op">(</span><span class="st">"power_explorer"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># List all runnable pipeline targets</span></span>
+<span><span class="va">power_explorer</span><span class="op">$</span><span class="va">target_table</span></span>
+<span></span>
+<span><span class="co"># set inputs for analysis</span></span>
+<span><span class="va">power_explorer</span><span class="op">$</span><span class="fu">set_settings</span><span class="op">(</span></span>
+<span>  project_name <span class="op">=</span> <span class="st">"demo"</span>, </span>
+<span>  subject_code <span class="op">=</span> <span class="st">"DemoSubject"</span>, </span>
+<span>  loaded_electrodes <span class="op">=</span> <span class="st">"13-16,24"</span>, </span>
+<span>  epoch_choice <span class="op">=</span> <span class="st">"auditory_onset"</span>, </span>
+<span>  epoch_choice__trial_starts <span class="op">=</span> <span class="op">-</span><span class="fl">1L</span>, </span>
+<span>  epoch_choice__trial_ends <span class="op">=</span> <span class="fl">2L</span>, </span>
+<span>  reference_name <span class="op">=</span> <span class="st">"default"</span>, </span>
+<span>  baseline_settings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    window <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="op">-</span><span class="fl">0.5</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    scope <span class="op">=</span> <span class="st">"Per frequency, trial, and electrode"</span>, </span>
+<span>    unit_of_analysis <span class="op">=</span> <span class="st">"decibel"</span><span class="op">)</span>, </span>
+<span>  analysis_electrodes <span class="op">=</span> <span class="st">"14"</span>, </span>
+<span>  first_condition_groupings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"audio_visual"</span>, conditions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"known_av"</span>, <span class="st">"meant_av"</span>, <span class="st">"last_av"</span>, <span class="st">"drive_av"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"auditory_only"</span>, conditions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"last_a"</span>, <span class="st">"drive_a"</span>, <span class="st">"known_a"</span>, <span class="st">"meant_a"</span><span class="op">)</span><span class="op">)</span>, </span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"visual_only"</span>, conditions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"last_v"</span>, <span class="st">"drive_v"</span>, <span class="st">"known_v"</span>, <span class="st">"meant_v"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>, </span>
+<span>  condition_variable <span class="op">=</span> <span class="st">"Condition"</span>, </span>
+<span>  analysis_settings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>    <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>label <span class="op">=</span> <span class="st">"AudStart"</span>, event <span class="op">=</span> <span class="st">"Trial Onset"</span>, </span>
+<span>         time <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">1</span>, frequency <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">70L</span>, <span class="fl">150L</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  enable_second_condition_groupings <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>  enable_custom_ROI <span class="op">=</span> <span class="cn">FALSE</span>, </span>
+<span>  omnibus_includes_all_electrodes <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span></span>
+<span><span class="co"># Run pipeline to obtain the power of frequency over time</span></span>
+<span><span class="va">time_freq_data</span> <span class="op">&lt;-</span> <span class="va">power_explorer</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span><span class="st">"by_frequency_over_time_data"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Load up custom pipeline functions</span></span>
+<span><span class="va">pipeline_functions</span> <span class="op">&lt;-</span> <span class="va">power_explorer</span><span class="op">$</span><span class="fu">shared_env</span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># plot the result</span></span>
+<span><span class="va">pipeline_functions</span><span class="op">$</span><span class="fu">plot_by_frequency_over_time</span><span class="op">(</span><span class="va">time_freq_data</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># visualize the results</span></span>
+<span><span class="va">power_explorer</span><span class="op">$</span><span class="fu">visualize</span><span class="op">(</span>glimpse <span class="op">=</span> <span class="cn">TRUE</span>, aspect_ratio <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
