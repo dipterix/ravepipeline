@@ -69,7 +69,7 @@ simple_lock <- function (name, timeout = 10, exclusive = TRUE) {
 
   debug(sprintf("[timeout=%.1f] using name [%s] \n\t--> key [%s]", timeout, name, lkey))
 
-  root_path <- file.path(R_user_dir("raveio", which = "cache"), "file_locks")
+  root_path <- ravepipeline_cache_dir("file_locks")
   lock_path <- file.path(root_path, name)
   if (!dir.exists(root_path)) {
     dir.create(root_path, showWarnings = FALSE, recursive = TRUE)
@@ -167,7 +167,7 @@ simple_unlock <- function (name, timeout = 10, exclusive = TRUE) {
     timeout <- 0
   }
   name <- gsub("[^a-zA-Z0-9]", "", name)
-  cache_dir <- R_user_dir("raveio", which = "cache")
+  cache_dir <- ravepipeline_cache_dir()
   root_path <- file.path(cache_dir, "file_locks")
   lock_path <- file.path(root_path, name)
   unlocked <- function() {

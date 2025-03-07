@@ -231,7 +231,7 @@ validate_modules_registries <- function(registries, verbose = TRUE) {
 #' @rdname module_registry
 #' @export
 get_modules_registries <- function(update = NA) {
-  conf_root <- R_user_dir("raveio", which = "config")
+  conf_root <- ravepipeline_config_dir()
   registry_path <- file.path(conf_root, "module-registry.yaml")
   updated <- TRUE
   if(!isFALSE(update)) {

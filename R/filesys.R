@@ -174,6 +174,15 @@ ravepipeline_data_dir <- function(...) {
   file.path(R_user_dir("raveio", "data"), ...)
 }
 
+ravepipeline_config_dir <- function(...) {
+  file.path(R_user_dir("raveio", "config"), ...)
+}
+
+ravepipeline_cache_dir <- function(...) {
+  file.path(R_user_dir("raveio", "cache"), ...)
+}
+
+
 temporary_session_root <- function(){
   d <- raveio_getopt('tensor_temp_path')
   if(!dir.exists(d)){

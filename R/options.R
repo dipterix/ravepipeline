@@ -248,7 +248,7 @@ load_setting <- function(reset_temp = TRUE){
   s <- get0('.settings', ifnotfound = default_settings())
   tmp <- s$..temp
   sess_str <- get('.session_string')
-  conf_path <- R_user_dir(package = "raveio", which = 'config')
+  conf_path <- ravepipeline_config_dir()
   conf_file <- file.path(conf_path, 'settings.yaml')
   if(file.exists(conf_file)){
     tryCatch({
@@ -333,7 +333,7 @@ raveio_setopt <- function(key, value, .save = TRUE){
   stopifnot2(!key %in% c('session_string'),
              msg = sprintf('Key %s is read-only', sQuote(key)))
 
-  conf_path <- R_user_dir(package = "raveio", which = 'config')
+  conf_path <- ravepipeline_config_dir()
   conf_file <- file.path(conf_path, 'settings.yaml')
   s <- load_setting(reset_temp = FALSE)
 
@@ -372,7 +372,7 @@ raveio_resetopt <- function(all = FALSE){
 
   # remove some temporary settings
   .subset2(s, 'remove')('tensor_temp_path')
-  conf_path <- R_user_dir(package = "raveio", which = 'config')
+  conf_path <- ravepipeline_config_dir()
   conf_file <- file.path(conf_path, 'settings.yaml')
 
   if(all && file.exists(conf_file)){
@@ -456,8 +456,7 @@ raveio_getopt <- function(key, default = NA, temp = TRUE){
 #' @rdname raveio-option
 #' @export
 raveio_confpath <- function(cfile = 'settings.yaml'){
-  d <- R_user_dir("raveio", 'config')
-  normalizePath(file.path(d, cfile), mustWork = FALSE)
+  normalizePath(ravepipeline_config_dir(cfile), mustWork = FALSE)
 }
 
 
@@ -477,7 +476,7 @@ global_preferences <- function(name = "default", ..., .initial_prefs = list(),
     stop("Invalid preference name [", name, "]. Must be non-hidden file name")
   }
 
-  pref_path <- file.path(R_user_dir("raveio", which = "config"), "preferences", name)
+  pref_path <- ravepipeline_config_dir("preferences", name)
 
   preference <- tryCatch({
     preference <- rds_map(pref_path)

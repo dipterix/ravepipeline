@@ -62,7 +62,7 @@ NULL
 #' @rdname rave-snippet
 #' @export
 update_local_snippet <- function(force = TRUE) {
-  root_path <- R_user_dir(package = "raveio", which = "cache")
+  root_path <- ravepipeline_cache_dir()
   snippet_path <- file.path(root_path, "rave-gists-main")
   if(!force && dir.exists(snippet_path)) {
     return(invisible())
@@ -82,7 +82,7 @@ update_local_snippet <- function(force = TRUE) {
 #' @rdname rave-snippet
 #' @export
 install_snippet <- function(path) {
-  root_path <- R_user_dir(package = "raveio", which = "cache")
+  root_path <- ravepipeline_cache_dir()
   snippet_path <- file.path(root_path, "rave-gists-main")
   if( endsWith(tolower(path), ".zip") ) {
     dir_create2(tempdir())
@@ -127,7 +127,7 @@ install_snippet <- function(path) {
 #' @rdname rave-snippet
 #' @export
 list_snippets <- function() {
-  root <- file.path(R_user_dir(package = "raveio", which = "cache"), "rave-gists-main")
+  root <- ravepipeline_cache_dir("rave-gists-main")
   if(!dir.exists(root)) { return(character(0L)) }
 
   topics <- list.files(root, pattern = "\\.R", ignore.case = TRUE, include.dirs = FALSE, recursive = FALSE, no.. = TRUE, all.files = FALSE, full.names = FALSE)
@@ -145,7 +145,7 @@ load_snippet <- function(topic, local = TRUE) {
   if(!isFALSE(local)) {
     if(isTRUE(local)) {
       update_local_snippet(force = FALSE)
-      path <- file.path(R_user_dir(package = "raveio", which = "cache"), "rave-gists-main", fname)
+      path <- ravepipeline_cache_dir("rave-gists-main", fname)
     } else {
       path <- file.path(local, fname)
     }
@@ -202,9 +202,7 @@ load_snippet <- function(topic, local = TRUE) {
   class(f) <- c("rave_snippet", class(f))
 
   if( save_snippet ) {
-    snippet_path <- dir_create2(file.path(
-      R_user_dir(package = "raveio", which = "cache"),
-      "rave-gists-main"))
+    snippet_path <- dir_create2(ravepipeline_cache_dir("rave-gists-main"))
     writeLines(s, con = file.path(snippet_path, basename(fname)))
   }
 
