@@ -11,8 +11,8 @@ target_user_path <- function(target_export = "", check = FALSE) {
 target_format <- function(name) {
   if(length(name) != 1) { return(targets::tar_option_get("format")) }
   flist <- get(".target_formats")
-  if(flist$`@has`(name)) {
-    re <- flist[[name]]
+  re <- flist[[name]]
+  if(length(re)) {
     return(re)
   } else {
     return(name)
@@ -26,7 +26,7 @@ target_format_dynamic <- function(
   backup_format <- target_format(name)
   if(is.character(backup_format)) { return(backup_format) }
 
-  read <- dipsaus::new_function2(
+  read <- new_function2(
     args = alist(path = ), quote_type = "quote", env = baseenv(),
     body = bquote({
       ns <- asNamespace("ravepipeline")
@@ -36,7 +36,7 @@ target_format_dynamic <- function(
                target_depends = .(target_depends))
     })
   )
-  write <- dipsaus::new_function2(
+  write <- new_function2(
     args = alist(object =, path = ), quote_type = "quote", env = baseenv(),
     body = bquote({
       ns <- asNamespace("ravepipeline")
@@ -46,7 +46,7 @@ target_format_dynamic <- function(
     })
   )
 
-  marshal <- dipsaus::new_function2(
+  marshal <- new_function2(
     args = alist(object = ), quote_type = "quote", env = baseenv(),
     body = bquote({
       ns <- asNamespace("ravepipeline")
@@ -59,7 +59,7 @@ target_format_dynamic <- function(
     })
   )
 
-  unmarshal <- dipsaus::new_function2(
+  unmarshal <- new_function2(
     args = alist(object = ), quote_type = "quote", env = baseenv(),
     body = bquote({
       ns <- asNamespace("ravepipeline")
@@ -96,8 +96,8 @@ target_format_register <- function(name, read, write, marshal = NULL, unmarshal 
 target_format_unregister <- function(name) {
   stopifnot(length(name) == 1 && nzchar(name))
   flist <- get(".target_formats")
-  if(flist$`@has`(name)) {
-    flist$`@remove`(name)
+  if( exists(x = name, envir = flist) ) {
+    rm(list = name, envir = flist, inherits = FALSE)
   }
   return(invisible(NULL))
 }
@@ -107,119 +107,151 @@ target_format_unregister <- function(name) {
 tfmtreg_user_defined_python <- function() {
   target_format_register(
     name = "user-defined-python",
-    read = function(path, target_export = NULL,
-                    target_expr = NULL,
-                    target_depends = NULL) {
-
-      ravepipeline <- asNamespace("ravepipeline")
-      config <- ravepipeline$load_yaml(file = path)
-      if(isTRUE(config$null_value)) {
-        return(NULL)
-      }
-
-      py_error_handler <- function(e) {
-        e2 <- asNamespace("reticulate")$py_last_error()
-        if(!is.null(e2)) {
-          e <- e2
+    read = new_function2(
+      quote_type = "quote",
+      env = baseenv(),
+      args = alist(path = , target_export = NULL,
+                   target_expr = NULL,
+                   target_depends = NULL),
+      body = quote({
+        ravepipeline <- asNamespace("ravepipeline")
+        config <- ravepipeline$load_yaml(file = path)
+        if(isTRUE(config$null_value)) {
+          return(NULL)
         }
-        stop(sprintf(
-          "Unable to load user-defined python object [%s]. \nUnserializer reports this error:\n  %s", target_export, paste(e$message, collapse = "\n")
-        ), call. = FALSE)
-      }
 
-
-      tryCatch(
-        {
-          py_module <- ravepipeline$pipeline_py_module(convert = FALSE, must_work = TRUE)
-          unserialize_func <- py_module$rave_pipeline_adapters$rave_unserialize
-          if(!inherits(unserialize_func, "python.builtin.function")) {
-            stop(sprintf("Unable to find unserialization function for user-defined python objects: %s", paste(target_export, collapse = ",")))
+        py_error_handler <- function(e) {
+          e2 <- asNamespace("reticulate")$py_last_error()
+          if(!is.null(e2)) {
+            e <- e2
           }
-          message("Unserializing [", target_export, "] using Python module [", py_module$`__name__`, "]")
-          path2 <- ravepipeline$target_user_path(target_export = target_export, check = TRUE)
-          re <- unserialize_func(path2, target_export)
-          py <- rpymat::import_main(convert = FALSE)
-          py[[ target_export ]] <- re
-          return(re)
-
-        },
-        python.builtin.BaseException = py_error_handler,
-        python.builtin.Exception = py_error_handler,
-        py_error = py_error_handler,
-        error = function(e) {
-          traceback(e)
-          stop(e$message, call. = FALSE)
+          stop(sprintf(
+            "Unable to load user-defined python object [%s]. \nUnserializer reports this error:\n  %s", target_export, paste(e$message, collapse = "\n")
+          ), call. = FALSE)
         }
-      )
 
-    },
-    write = function(object, path, target_export = NULL) {
 
-      ravepipeline <- asNamespace("ravepipeline")
+        tryCatch(
+          {
+            py_module <- ravepipeline$pipeline_py_module(convert = FALSE, must_work = TRUE)
+            unserialize_func <- py_module$rave_pipeline_adapters$rave_unserialize
+            if(!inherits(unserialize_func, "python.builtin.function")) {
+              stop(sprintf("Unable to find unserialization function for user-defined python objects: %s", paste(target_export, collapse = ",")))
+            }
+            message("Unserializing [", target_export, "] using Python module [", py_module$`__name__`, "]")
+            path2 <- ravepipeline$target_user_path(target_export = target_export, check = TRUE)
+            re <- unserialize_func(path2, target_export)
+            py <- rpymat::import_main(convert = FALSE)
+            py[[ target_export ]] <- re
+            return(re)
 
-      py_error_handler <- function(e) {
-        e2 <- asNamespace("reticulate")$py_last_error()
-        if(!is.null(e2)) {
-          e <- e2
+          },
+          python.builtin.BaseException = py_error_handler,
+          python.builtin.Exception = py_error_handler,
+          py_error = py_error_handler,
+          error = function(e) {
+            traceback(e)
+            stop(e$message, call. = FALSE)
+          }
+        )
+      })
+    ),
+    write = new_function2(
+      quote_type = "quote",
+      env = baseenv(),
+      args = alist(object = , path = , target_export = NULL),
+      body = quote({
+        ravepipeline <- asNamespace("ravepipeline")
+
+        py_error_handler <- function(e) {
+          e2 <- asNamespace("reticulate")$py_last_error()
+          if (!is.null(e2)) {
+            e <- e2
+          }
+          stop(
+            sprintf(
+              "Unable to save user-defined python object [%s]. \nSerializer reports this error:\n  %s",
+              target_export,
+              paste(e$message, collapse = "\n")
+            ),
+            call. = FALSE
+          )
         }
-        stop(sprintf(
-          "Unable to save user-defined python object [%s]. \nSerializer reports this error:\n  %s",
-          target_export, paste(e$message, collapse = "\n")
-        ), call. = FALSE)
-      }
 
-      tryCatch(
-        {
+        tryCatch({
           info_module <- ravepipeline$pipeline_py_info(must_work = TRUE)
           py_module <- ravepipeline$pipeline_py_module(convert = FALSE, must_work = TRUE)
           serialize_func <- py_module$rave_pipeline_adapters$rave_serialize
-          if(!inherits(serialize_func, "python.builtin.function")) {
-            stop(sprintf("Unable to find serialization function for user-defined python objects: %s", paste(target_export, collapse = ",")))
+          if (!inherits(serialize_func, "python.builtin.function")) {
+            stop(
+              sprintf(
+                "Unable to find serialization function for user-defined python objects: %s",
+                paste(target_export, collapse = ",")
+              )
+            )
           }
-          script_signature <- dipsaus::digest(file = file.path(info_module$target_path, sprintf("pipeline_target_%s.py", target_export)))
-          message("Serializing [", target_export, "] using Python module [", py_module$`__name__`, "]")
+          script_signature <- digest::digest(file = file.path(
+            info_module$target_path,
+            sprintf("pipeline_target_%s.py", target_export)
+          ))
+          message(
+            "Serializing [",
+            target_export,
+            "] using Python module [",
+            py_module$`__name__`,
+            "]"
+          )
           path2 <- ravepipeline$target_user_path(target_export = target_export, check = TRUE)
           message(path2)
-          path3 <- serialize_func(object, normalizePath(path2, mustWork = FALSE),
+          path3 <- serialize_func(object,
+                                  normalizePath(path2, mustWork = FALSE),
                                   target_export)
           message(path3)
-          if(!is.null(path3) && !inherits(path3, "python.builtin.NoneType")) {
+          if (!is.null(path3) &&
+              !inherits(path3, "python.builtin.NoneType")) {
             path3 <- rpymat::py_to_r(path3)
-            if(is.character(path3) && length(path3) == 1 &&
-               !is.na(path3) && file.exists(path3)) {
+            if (is.character(path3) && length(path3) == 1 &&
+                !is.na(path3) && file.exists(path3)) {
               path2 <- path3
             }
           }
 
           null_value <- FALSE
-          if(dir.exists(path2)) {
-            fs <- list.files(path2, all.files = FALSE, recursive = TRUE, full.names = TRUE, include.dirs = FALSE, no.. = TRUE)
+          if (dir.exists(path2)) {
+            fs <- list.files(
+              path2,
+              all.files = FALSE,
+              recursive = TRUE,
+              full.names = TRUE,
+              include.dirs = FALSE,
+              no.. = TRUE
+            )
             data_signature <- lapply(sort(fs), function(f) {
-              dipsaus::digest(file = f)
+              digest::digest(file = f)
             })
-            data_signature <- dipsaus::digest(object = data_signature)
-          } else if( file.exists(path2) ){
-            data_signature <- dipsaus::digest(file = path2)
+            data_signature <- digest::digest(object = data_signature)
+          } else if (file.exists(path2)) {
+            data_signature <- digest::digest(file = path2)
           } else {
             null_value <- TRUE
             data_signature <- NULL
           }
-          ravepipeline$save_yaml(list(
-            null_value = null_value,
-            script_signature = script_signature,
-            data_signature = data_signature
-          ), file = path, sorted = TRUE)
-        },
-        python.builtin.BaseException = py_error_handler,
-        python.builtin.Exception = py_error_handler,
-        py_error = py_error_handler,
-        error = function(e) {
+          ravepipeline$save_yaml(
+            list(
+              null_value = null_value,
+              script_signature = script_signature,
+              data_signature = data_signature
+            ),
+            file = path,
+            sorted = TRUE
+          )
+        }, python.builtin.BaseException = py_error_handler, python.builtin.Exception = py_error_handler, py_error = py_error_handler, error = function(e) {
           traceback(e)
           stop(e$message, call. = FALSE)
-        }
-      )
-      return()
-    }
+        })
+        return()
+      })
+    )
   )
 }
 
@@ -290,17 +322,17 @@ tfmtreg_user_defined_r <- function() {
           if(dir.exists(path2)) {
             fs <- list.files(path2, all.files = FALSE, recursive = TRUE, full.names = TRUE, include.dirs = FALSE, no.. = TRUE)
             data_signature <- lapply(sort(fs), function(f) {
-              dipsaus::digest(file = f)
+              digest::digest(file = f)
             })
-            data_signature <- dipsaus::digest(object = data_signature)
+            data_signature <- digest::digest(object = data_signature)
           } else if( file.exists(path2) ){
-            data_signature <- dipsaus::digest(file = path2)
+            data_signature <- digest::digest(file = path2)
           } else {
             null_value <- TRUE
             data_signature <- NULL
           }
 
-          script_signature <- dipsaus::digest(file = spath)
+          script_signature <- digest::digest(file = spath)
           ravepipeline$save_yaml(list(
             null_value = null_value,
             script_signature = script_signature,
@@ -462,7 +494,7 @@ tfmtreg_filearray <- function() {
       }
       signature <- headers2$signature
       if(!length(signature)) {
-        signature <- dipsaus::digest(object)
+        signature <- digest::digest(object)
         headers2$signature <- signature
       }
       if(!is.function(headers2$on_missing)) {
@@ -611,7 +643,7 @@ tfmtreg_rave_brain <- function() {
 
         # load subjects' brain
         blist <- lapply(individual_params, restore_brain)
-        blist <- dipsaus::drop_nulls(blist)
+        blist <- blist[!vapply(blist, is.null, FUN.VALUE = logical(1))]
         if(!is.list(blist)) {
           blist <- as.list(blist)
         }
@@ -682,6 +714,10 @@ tfmtreg_rave_brain <- function() {
         params <- get_constructor(object)
       } else {
         cls <- "multi-rave-brain"
+
+        individual_params <- lapply(object$objects, get_constructor)
+        individual_params[!vapply(individual_params, is.null, FUN.VALUE = logical(1))]
+
         params <- list(
           template_params = list(
             subject_code = object$template_subject,
@@ -689,7 +725,7 @@ tfmtreg_rave_brain <- function() {
             electrode_values = object$template_object$electrodes$value_table,
             surfaces = object$surface_types
           ),
-          individual_params = dipsaus::drop_nulls(lapply(object$objects, get_constructor))
+          individual_params = individual_params
         )
       }
 
@@ -796,13 +832,13 @@ tfmtreg_rave_prepare_power <- function() {
       if(!inherits(object, "rave_prepare_power")) {
         stop("The object to save as target is not a valid RAVE repository (power)")
       }
-
+      ns <- asNamespace("ravepipeline")
       ieegio::io_write_yaml(
         x = list(
           instance_class = "rave_prepare_power",
           signal_data = "power",
           subject = object$subject$subject_id,
-          electrodes = dipsaus::deparse_svec(object$electrode_list),
+          electrodes = ns$deparse_svec(object$electrode_list),
           epoch_name = object$epoch_name,
           reference_name = object$reference_name,
           time_window = object$time_windows
@@ -840,13 +876,13 @@ tfmtreg_rave_prepare_phase <- function() {
       if(!inherits(object, "rave_prepare_phase")) {
         stop("The object to save as target is not a valid RAVE repository (phase)")
       }
-
+      ns <- asNamespace("ravepipeline")
       ieegio::io_write_yaml(
         x = list(
           instance_class = "rave_prepare_phase",
           signal_data = "phase",
           subject = object$subject$subject_id,
-          electrodes = dipsaus::deparse_svec(object$electrode_list),
+          electrodes = ns$deparse_svec(object$electrode_list),
           epoch_name = object$epoch_name,
           reference_name = object$reference_name,
           time_window = object$time_windows
@@ -884,13 +920,13 @@ tfmtreg_rave_prepare_wavelet <- function() {
       if(!inherits(object, "rave_prepare_wavelet")) {
         stop("The object to save as target is not a valid RAVE repository (wavelet coefficients)")
       }
-
+      ns <- asNamespace("ravepipeline")
       ieegio::io_write_yaml(
         x = list(
           instance_class = "rave_prepare_wavelet",
           signal_data = "wavelet-coefficient",
           subject = object$subject$subject_id,
-          electrodes = dipsaus::deparse_svec(object$electrode_list),
+          electrodes = ns$deparse_svec(object$electrode_list),
           epoch_name = object$epoch_name,
           reference_name = object$reference_name,
           time_window = object$time_windows
@@ -929,13 +965,13 @@ tfmtreg_rave_prepare_subject_voltage_with_epoch <- function() {
       if(!inherits(object, "rave_prepare_subject_voltage_with_epoch")) {
         stop("The object to save as target is not a valid RAVE repository (voltage with epoch)")
       }
-
+      ns <- asNamespace("ravepipeline")
       ieegio::io_write_yaml(
         x = list(
           instance_class = "rave_prepare_subject_voltage_with_epoch",
           signal_data = "voltage",
           subject = object$subject$subject_id,
-          electrodes = dipsaus::deparse_svec(object$electrode_list),
+          electrodes = ns$deparse_svec(object$electrode_list),
           epoch_name = object$epoch_name,
           reference_name = object$reference_name,
           time_window = object$time_windows

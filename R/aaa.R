@@ -5,8 +5,7 @@
 #' @importFrom promises %...T!%
 #' @importFrom glue glue
 #' @importFrom R6 R6Class
-#' @importFrom dipsaus %?<-%
-#' @importFrom dipsaus %OF%
+#' @importFrom digest digest
 NULL
 
 #' @export
@@ -92,7 +91,7 @@ ravepipeline_finalize_installation <- function(
   if(dir.exists(template_path)) {
     if(upgrade %in% c("never")) { return() }
     if(upgrade == "ask") {
-      ans <- dipsaus::ask_yesno(
+      ans <- utils::askYesNo(
         "Existing version of `rave-pipelines` is detected, upgrade?",
         end = "\n",
         error_if_canceled = FALSE,

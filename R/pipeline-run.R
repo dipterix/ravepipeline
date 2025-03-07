@@ -169,7 +169,7 @@ pipeline_run <- function(
       progress_max <- length(pipeline_target_names(pipe_dir = pipe_dir))
     }
   }
-  res$progressor <- dipsaus::progress2(
+  res$progressor <- rave_progress(
     progress_title, max = progress_max, shiny_auto_close = !async,
     quiet = progress_quiet
   )
@@ -202,7 +202,7 @@ pipeline_run <- function(
 sanitize_target_error <- function(e) {
   if(inherits(e, "tar_condition_run")) {
     # remove ANSI code
-    msg <- trimws(dipsaus::ansi_strip(e$message), which = "left")
+    msg <- trimws(cli::ansi_strip(e$message), which = "left")
 
     if(startsWith(msg, "Error running targets::tar_make")) {
       msg <- gsub("^Error running targets::tar_make.*help\\.html[\n \t]{0,}Last (error|error message):[\n \t]{0,1}", "", msg)

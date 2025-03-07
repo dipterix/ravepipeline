@@ -77,8 +77,7 @@
 #' @param root_path the root directory for pipeline templates
 #' @param check_interval when running in background (non-blocking mode),
 #' how often to check the pipeline
-#' @param progress_title,progress_max,progress_quiet control the progress,
-#' see \code{\link[dipsaus]{progress2}}.
+#' @param progress_title,progress_max,progress_quiet control the progress
 #' @param destroy what part of data repository needs to be cleaned
 #' @param ask whether to ask
 #' @param format format of the extended data, default is \code{'json'}, other

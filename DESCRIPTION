@@ -26,21 +26,32 @@ URL: https://dipterix.org/ravepipeline/,
 BugReports: https://github.com/dipterix/ravepipeline/issues
 Imports: 
     utils,
+    stats,
     callr,
-    dipsaus,
-    globals,
     glue,
-    ieegio,
     knitr,
     promises,
     R6,
     remotes,
-    rpymat,
-    stringr,
-    targets
+    targets,
+    digest,
+    jsonlite,
+    cli,
+    yaml,
+    future,
+    fastmap,
+    rlang,
+    base64url
 Suggests:
     filearray,
+    future.apply,
+    globals,
+    ieegio,
     threeBrain,
     rmarkdown,
+    rpymat,
+    rstudioapi,
     shidashi,
-    visNetwork
+    visNetwork,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

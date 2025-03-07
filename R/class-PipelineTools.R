@@ -802,68 +802,99 @@ PipelineTools <- R6::R6Class(
 #' @returns A \code{\link{PipelineTools}} instance
 #' @examples
 #'
-#' \dontrun{
-#'
 #' library(ravepipeline)
 #'
-#' # ------------ Set up a bare minimal example pipeline ---------------
-#' root_path <- tempdir()
-#' pipeline_root_folder <- file.path(root_path, "modules")
+#' if(interactive()) {
 #'
-#' # create pipeline folder
-#' pipeline_path <- pipeline_create_template(
-#'   root_path = pipeline_root_folder, pipeline_name = "raveio_demo",
-#'   overwrite = TRUE, activate = FALSE, template_type = "rmd-bare")
+#'   # ------------ Set up a bare minimal example pipeline ---------------
+#'   root_path <- tempdir()
+#'   pipeline_root_folder <- file.path(root_path, "modules")
 #'
-#' save_yaml(list(
-#'   n = 100, pch = 16, col = "steelblue"
-#' ), file = file.path(pipeline_path, "settings.yaml"))
+#'   # create pipeline folder
+#'   pipeline_path <- pipeline_create_template(
+#'     root_path = pipeline_root_folder, pipeline_name = "raveio_demo",
+#'     overwrite = TRUE, activate = FALSE, template_type = "rmd-bare")
 #'
-#' pipeline_build(pipeline_path)
+#'   # Set initial user inputs
+#'   ieegio::io_write_yaml(
+#'     x = list(
+#'       n = 100,
+#'       pch = 16,
+#'       col = "steelblue"
+#'     ),
+#'     con = file.path(pipeline_path, "settings.yaml")
+#'   )
 #'
-#' options("raveio.pipeline.project_root" = root_path)
+#'   # build the pipeline for the first time
+#'   # this is a one-time setup
+#'   pipeline_build(pipeline_path)
 #'
-#' # Compile the pipeline document
-#' rmarkdown::render(input = file.path(pipeline_path, "main.Rmd"),
-#'                   output_dir = pipeline_path,
-#'                   knit_root_dir = pipeline_path,
-#'                   intermediates_dir = pipeline_path, quiet = TRUE)
+#'   # Temporarily redirect the pipeline project root
+#'   # to `root_path`
+#'   options("raveio.pipeline.project_root" = root_path)
 #'
-#' # Reset options
-#' options("raveio.pipeline.project_root" = NULL)
+#'   # Compile the pipeline document
+#'   rmarkdown::render(
+#'     input = file.path(pipeline_path, "main.Rmd"),
+#'     output_dir = pipeline_path,
+#'     knit_root_dir = pipeline_path,
+#'     intermediates_dir = pipeline_path, quiet = TRUE
+#'   )
 #'
-#' utils::browseURL(file.path(pipeline_path, "main.html"))
+#'   # Reset options
+#'   options("raveio.pipeline.project_root" = NULL)
 #'
-#' # --------------------- Example starts ------------------------
+#'   \dontrun{
 #'
-#' pipeline <- pipeline(
-#'   pipeline_name = "raveio_demo",
-#'   paths = pipeline_root_folder,
-#'   temporary = TRUE
-#' )
+#'     # Open web browser to see compiled report
+#'     utils::browseURL(file.path(pipeline_path, "main.html"))
 #'
-#' pipeline$run("plot_data")
+#'   }
 #'
-#' # Run again and you will see some targets are skipped
-#' pipeline$set_settings(pch = 2)
-#' pipeline$run("plot_data")
+#'   # --------------------- Example starts ------------------------
 #'
-#' head(pipeline$read("input_data"))
+#'   # Load pipeline
+#'   pipeline <- pipeline(
+#'     pipeline_name = "raveio_demo",
+#'     paths = pipeline_root_folder,
+#'     temporary = TRUE
+#'   )
 #'
-#' # or use
-#' pipeline[c("n", "pch", "col")]
-#' pipeline[-c("input_data")]
+#'   # Check which pipeline targets to run
+#'   pipeline$target_table
 #'
-#' pipeline$target_table
+#'   # Run to `plot_data`, RAVE pipeline will automatically
+#'   # calculate which up-stream targets need to be updated
+#'   # and evaluate these targets
+#'   pipeline$run("plot_data")
 #'
-#' pipeline$result_table
+#'   # Customize settings
+#'   pipeline$set_settings(pch = 2)
 #'
-#' pipeline$progress("details")
+#'   # Run again with the new inputs, since input_data does not change,
+#'   # the pipeline will skip that target automatically
+#'   pipeline$run("plot_data")
 #'
-#' # --------------------- Clean up ------------------------
-#' unlink(pipeline_path, recursive = TRUE)
+#'   # Read intermediate data
+#'   head(pipeline$read("input_data"))
 #'
+#'   # or use `[]` to get results
+#'   pipeline[c("n", "pch", "col")]
+#'   pipeline[-c("input_data")]
+#'
+#'   # Check evaluating status
+#'   pipeline$progress("details")
+#'
+#'   # result summary & cache table
+#'   pipeline$result_table
+#'
+#'   # visualize the target dependency graph
+#'   pipeline$visualize(glimpse = TRUE)
+#'
+#'   # --------------------- Clean up ------------------------
+#'   unlink(pipeline_path, recursive = TRUE)
 #' }
+#'
 #' @export
 pipeline <- function(pipeline_name,
                      settings_file = "settings.yaml",

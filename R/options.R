@@ -25,7 +25,7 @@ default_settings <- local({
       defaults[['max_worker']] <- parallel::detectCores() - 1
       defaults[['disable_fork_clusters']] <- FALSE
       ram <- tryCatch({
-        dipsaus::get_ram() / 1024^3
+        get_ram() / 1024^3
       }, error = function(e){
         8
       })
@@ -45,14 +45,14 @@ default_settings <- local({
     defaults <<- defaults
   }
 
-  function(s = dipsaus::fastmap2()){
+  function(s = fastmap2()){
     ensure_defaults()
-    dipsaus::list_to_fastmap2(defaults, map = s)
+    list_to_fastmap2(defaults, map = s)
     s
   }
 })
 
-validate_settings <- function(s = dipsaus::fastmap2()){
+validate_settings <- function(s = fastmap2()){
   d <- default_settings()
 
   # ------------- Temporary tensor path --------------
@@ -81,7 +81,7 @@ validate_settings <- function(s = dipsaus::fastmap2()){
 
   # ------------- Raw data path --------------
   raw_dir <- s[['raw_data_dir']]
-  raw_dir <- stringr::str_trim(raw_dir)
+  raw_dir <- trimws(raw_dir)
   if(length(raw_dir) != 1 || !isTRUE(is.character(raw_dir)) || raw_dir %in% c('', '.', '/')){
     warning('raw_data_dir should be a length 1 character to root of the raw data directories')
     raw_dir <- d[['raw_data_dir']]
@@ -132,10 +132,10 @@ validate_settings <- function(s = dipsaus::fastmap2()){
   if(length(template_subject) != 1 ||
      is.na(template_subject) ||
      !is.character(template_subject) ||
-     !isTRUE(dipsaus::package_installed("threeBrain"))) {
+     !isTRUE(package_installed("threeBrain"))) {
     template_subject <- "N27"
   } else {
-    # dipsaus::package_installed("threeBrain") checks whether
+    # package_installed("threeBrain") checks whether
     # threeBrain is installed
     threeBrain <- asNamespace("threeBrain")
     temp_dir <- threeBrain$default_template_directory(check = FALSE)
@@ -174,7 +174,7 @@ flush_conf <- function(s, conf_file){
   info <- NULL
   if( valid_backup ){
     # bak exists and readable
-    info <- stringr::str_trim(readLines(bak), side = "right")
+    info <- trimws(readLines(bak), which = "right")
     info <- info[info != '']
   }
 
@@ -182,7 +182,7 @@ flush_conf <- function(s, conf_file){
   save_yaml(s, f)
 
   cmp_info <- NULL
-  cmp_info <- stringr::str_trim(readLines(f), side = "right")
+  cmp_info <- trimws(readLines(f), which = "right")
   cmp_info <- cmp_info[cmp_info != '']
 
   if( !is.null(cmp_info) && identical(cmp_info, info) ){
@@ -481,14 +481,14 @@ global_preferences <- function(name = "default", ..., .initial_prefs = list(),
   pref_path <- file.path(R_user_dir("raveio", which = "config"), "preferences", name)
 
   preference <- tryCatch({
-    preference <- dipsaus::rds_map(pref_path)
+    preference <- rds_map(pref_path)
     stopifnot(preference$is_valid)
     preference
   }, error = function(e) {
     if(file.exists(pref_path)) {
       unlink(pref_path, unlink(TRUE))
     }
-    dipsaus::rds_map(pref_path)
+    rds_map(pref_path)
   })
 
   prefix_whitelist <- unlist(.prefix_whitelist)

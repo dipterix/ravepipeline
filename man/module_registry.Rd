@@ -66,6 +66,7 @@ validate and send an email to the 'RAVE' development team.
 }
 \examples{
 
+# Require access to Github repository rave-ieeg/rave-pipelines
 if(interactive()) {
 
 library(ravepipeline)

@@ -187,7 +187,7 @@ load_snippet <- function(topic, local = TRUE) {
   }
 
   fbody <- parse(text = c("{", s, "}"))[[1]]
-  f <- dipsaus::new_function2(
+  f <- new_function2(
     args = args,
     body = fbody,
     quote_type = "quote",

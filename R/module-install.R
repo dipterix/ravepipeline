@@ -1,5 +1,8 @@
 
 #' @title Install 'RAVE' modules
+#' @description
+#' Low-level function exported for down-stream 'RAVE' packages.
+#'
 #' @param modules a vector of characters, repository names; default is to
 #' automatically determined from a public registry
 #' @param dependencies whether to update dependent packages; default is false

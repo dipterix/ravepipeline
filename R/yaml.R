@@ -1,7 +1,7 @@
 load_yaml <- function(file, ..., map = NULL){
-  re <- ieegio::io_read_yaml(con = file, ...)
+  re <- yaml::read_yaml(file = file, ...)
   if(!inherits(map, 'fastmap2')){
-    map <- dipsaus::fastmap2()
+    map <- fastmap2()
   }
   for(nm in names(re)){
     if(nm != ''){
@@ -12,13 +12,30 @@ load_yaml <- function(file, ..., map = NULL){
 }
 
 read_yaml <- function(file, ...) {
-  ieegio::io_read_yaml(con = file, ...)
+  yaml::read_yaml(file = file, ...)
 }
 
-save_yaml <- function(x, file, ..., sorted = FALSE){
-
-  ieegio::io_write_yaml(x = x, con = file, ..., sorted = sorted)
-
+save_yaml <- function(x, file, ..., sorted = FALSE) {
+  if (inherits(x, "fastmap")) {
+    x <- x$as_list(sort = sorted)
+  }
+  else if (inherits(x, "fastmap2")) {
+    x <- x[["@as_list"]](sort = sorted)
+  }
+  else if (inherits(x, c("fastqueue", "fastqueue2"))) {
+    x <- x$as_list()
+  }
+  else if (sorted) {
+    x <- as.list(x, sorted = sorted, ...)
+  }
+  else {
+    x <- as.list(x, ...)
+  }
+  yaml::write_yaml(x, file = file, ...)
+  if (!inherits(file, "connection")) {
+    file <- normalizePath(file)
+  }
+  invisible(file)
 }
 
 

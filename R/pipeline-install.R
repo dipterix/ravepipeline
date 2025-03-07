@@ -73,7 +73,7 @@ pipeline_install_directory <- function(
     module_path <- file.path(template_path, "modules")
     dir_create2(module_path)
 
-    settings <- dipsaus::fastmap2()
+    settings <- fastmap2()
     module_yaml <- file.path(template_path, "modules.yaml")
     if(file.exists(module_yaml)) {
       load_yaml(module_yaml, map = settings)
@@ -347,7 +347,7 @@ pipeline_list <- function(root_path = pipeline_root()){
       full.names = FALSE,
       recursive = FALSE
     ))
-  names <- names[!stringr::str_starts(names, "[.~_]")]
+  names <- names[!grepl("^[.~_]", names)]
   names <- names[!names %in% c("R", "src", "inst", "man", "doc")]
   names <- names[vapply(names, function(nm){
     try({

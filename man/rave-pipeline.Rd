@@ -246,8 +246,7 @@ to check all your available target names.}
 \item{check_interval}{when running in background (non-blocking mode),
 how often to check the pipeline}
 
-\item{progress_title, progress_max, progress_quiet}{control the progress,
-see \code{\link[dipsaus]{progress2}}.}
+\item{progress_title, progress_max, progress_quiet}{control the progress}
 
 \item{return_values}{whether to return pipeline target values; default is
 true; only works in \code{pipeline_run_bare} and will be ignored by

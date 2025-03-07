@@ -16,5 +16,5 @@ automatically determined from a public registry}
 nothing
 }
 \description{
-Install 'RAVE' modules
+Low-level function exported for down-stream 'RAVE' packages.
 }

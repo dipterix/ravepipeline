@@ -68,6 +68,17 @@ dir_create2 <- function(x, showWarnings = FALSE, recursive = TRUE, check = TRUE,
   invisible(normalizePath(x))
 }
 
+file_create2 <- function (x, showWarnings = FALSE, recursive = TRUE) {
+  if (!file.exists(x)) {
+    dir <- dirname(x)
+    if (recursive && !dir.exists(dir)) {
+      dir_create2(dir)
+    }
+    file.create(x, showWarnings = showWarnings)
+  }
+  invisible(normalizePath(x))
+}
+
 normalize_path <- function(path, must_work = NA) {
   path <- unlist(lapply(path, function(p) {
     if(!file.exists(p)) {
@@ -93,7 +104,7 @@ fileexts <- function(file){
 
 
 file_move <- function(from, to) {
-  if(dipsaus::package_installed("fs")) {
+  if(package_installed("fs")) {
     fs <- asNamespace("fs")
     impl <- fs$file_move
     if(is.function(impl)) {
@@ -103,6 +114,31 @@ file_move <- function(from, to) {
   }
   file.rename(from = from, to = to)
   return(invisible(to))
+}
+
+remove_empty_dir <- function (path, all.files = TRUE, recursive = FALSE, verbose = FALSE) {
+  if (!dir.exists(path)) {
+    return()
+  }
+  sub_files <- list.files(path = path, recursive = FALSE, all.files = all.files,
+                          include.dirs = TRUE, no.. = TRUE, full.names = TRUE)
+  if (recursive) {
+    if (length(sub_files) > 0L) {
+      sub_dirs <- sub_files[dir.exists(sub_files)]
+      for (dir in sub_dirs) {
+        Recall(dir, all.files = all.files, recursive = recursive)
+      }
+      sub_files <- list.files(path = path, recursive = FALSE,
+                              all.files = all.files, include.dirs = TRUE, no.. = TRUE,
+                              full.names = TRUE)
+    }
+  }
+  if (!length(sub_files)) {
+    if (verbose) {
+      message("Removing empty folder: ", path)
+    }
+    unlink(path, recursive = TRUE, force = TRUE)
+  }
 }
 
 

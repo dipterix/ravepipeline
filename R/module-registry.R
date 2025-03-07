@@ -28,6 +28,7 @@
 #'
 #' @examples
 #'
+#' # Require access to Github repository rave-ieeg/rave-pipelines
 #' if(interactive()) {
 #'
 #' library(ravepipeline)

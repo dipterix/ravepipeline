@@ -44,19 +44,3 @@ ravepipeline::pipeline_read("project_name")
 ##'
 ravepipeline::pipeline_watch()
 
-
-##' Some useful calls to add shortcuts to debug/run the pipeline
-##' Check `?dipsaus::rs_add_shortcut` for details. Make sure in the pop-up
-##' panel, search `dipsaus` and add shortcuts if necessary. Normally I would
-##' do `alt(option)+1` and `alt(option)+2`
-##'
-##' Once the shortcuts are added, you can use `alt(option)+1` to debug the module,
-##' and `alt(option)+2` to run the pipeline in production mode (non-interactive)
-
-dipsaus::rs_add_shortcut(1, {
-  ravepipeline::pipeline_debug(quick = FALSE, env = .GlobalEnv)
-})
-
-dipsaus::rs_add_shortcut(2, {
-  ravepipeline::pipeline_run()
-}, force = FALSE)

@@ -48,7 +48,8 @@
   assign('.settings', s, envir = pkg)
   cenv <- environment(.subset2(s, 'reset'))
 
-  assign(".target_formats", dipsaus::fastmap2(), envir = pkg)
+  assign(".target_formats", new.env(parent = emptyenv()), envir = pkg)
+  assign(".locker_keys", fastmap::fastmap(), envir = pkg)
 
   target_format_register_onload()
 

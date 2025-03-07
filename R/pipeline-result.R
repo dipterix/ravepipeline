@@ -25,7 +25,8 @@ PipelineResult <- R6::R6Class(
   ),
   public = list(
 
-    #' @field progressor progress bar object, usually generated from \code{\link[dipsaus]{progress2}}
+    #' @field progressor progress bar object, usually generated a progress
+    #' instance
     progressor = NULL,
 
     #' @field promise a \code{\link[promises]{promise}} instance that monitors

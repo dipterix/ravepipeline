@@ -10,7 +10,7 @@ NULL
 targets::tar_option_set(
 
   # R libraries to load
-  packages = c("ravepipeline", "raveio")
+  packages = c("ravepipeline")
 
   # memory strategy.
   # "persistent": the target stays in memory until the end of the pipeline

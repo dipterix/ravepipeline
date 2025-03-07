@@ -15,7 +15,11 @@ module_add(
 )
 }
 \arguments{
-\item{module_id}{module ID to create, must be unique}
+\item{module_id}{module ID to create, must be unique; users cannot install
+two modules with identical module ID. We recommend that
+a module ID follows snake format, starting with lab name, for example,
+\code{'beauchamplab_imaging_preprocess'}, \code{'karaslab_freez'}, or
+\code{'upenn_ese25_fooof'}.}
 
 \item{module_label}{a friendly label to display in the dashboard}
 
@@ -28,7 +32,8 @@ module_add(
 \code{'group'}, \code{'badge'}}
 
 \item{pipeline_name}{the pipeline name to create along with the module;
-default is identical to \code{module_id}}
+default is identical to \code{module_id} (strongly recommended); leave
+it default unless you know what you are doing.}
 
 \item{overwrite}{whether to overwrite existing module if module with
 same ID exists; default is false}
@@ -37,5 +42,37 @@ same ID exists; default is false}
 Nothing.
 }
 \description{
-Add new 'RAVE' (2.0) module to current project
+Creates a 'RAVE' pipeline with additional dashboard module from template.
+}
+\examples{
+
+
+# For demonstrating this example only
+project_root <- tempfile()
+dir.create(project_root, showWarnings = FALSE, recursive = TRUE)
+
+
+# Add a module
+module_id <- "mylab_my_first_module"
+module_add(
+  module_id = module_id,
+  module_label = "My Pipeline",
+  path = project_root
+)
+
+
+# show the structure
+cat(
+  list.files(
+    project_root,
+    recursive = TRUE,
+    full.names = FALSE,
+    include.dirs = TRUE
+  ),
+  sep = "\n"
+)
+
+unlink(project_root, recursive = TRUE)
+
+
 }

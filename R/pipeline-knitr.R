@@ -8,7 +8,7 @@ check_knit_packages <- function(languages = c("R", "python")){
     pkgs <- c(pkgs, 'rpymat')
   }
   # check knitr, rmarkdown, reticulate
-  pkgs <- pkgs[!dipsaus::package_installed(pkgs)]
+  pkgs <- pkgs[!package_installed(pkgs)]
 
   if(length(pkgs)){
     if(!interactive()){
@@ -26,7 +26,7 @@ check_knit_packages <- function(languages = c("R", "python")){
 }
 
 resolve_pipeline_error <- function(name, condition, expr = NULL) {
-  if(interactive() || dipsaus::shiny_is_running()) {
+  if(interactive() || shiny_is_running()) {
     expr0 <- substitute(expr)
     if( !identical(expr0, str2lang(".__target_expr__.")) ) {
       expr <- expr0
@@ -341,9 +341,9 @@ guess_py_indent <- function(code, default_count = 2L) {
     indents <- vapply(strsplit(code, white_space), function(x) {
       indents <- which(x == "")
       if(!1L %in% indents) { return(0L) }
-      indents <- dipsaus::deparse_svec(indents, concatenate = FALSE)
+      indents <- deparse_svec(indents, concatenate = FALSE)
       if(!length(indents)) { return(0L) }
-      indents <- dipsaus::parse_svec(indents[[1]])
+      indents <- parse_svec(indents[[1]])
       return(as.integer(indents[[length(indents)]]))
     }, 0L)
     indents <- unique(indents[indents > 0])
@@ -601,7 +601,7 @@ configure_knitr <- function(languages = c("R", "python")){
 
   check_knit_packages(languages)
 
-  targets <- dipsaus::fastqueue2()
+  targets <- fastqueue2()
 
   rave_knitr_engine(targets)
 
@@ -618,7 +618,7 @@ pipeline_setup_rmd <- function(
     collapse = TRUE, comment = "#>", languages = c("R", "python"),
     project_path = getOption(
       "raveio.pipeline.project_root",
-      default = dipsaus::rs_active_project(child_ok = TRUE, shiny_ok = TRUE)
+      default = rs_active_project(child_ok = TRUE, shiny_ok = TRUE)
     )) {
 
   if( length(project_path) != 1 || is.na(project_path) || !is.character(project_path) || trimws(project_path) %in% c("", "/", "NA")) {

@@ -129,8 +129,8 @@ pipeline_debug <- function(
     if(length(nms) < ii || nms[[ii]] == ""){
       nm <- "(No name)"
     } else {
-      nm <- stringr::str_split(nms[[ii]], "_")[[1]]
-      nm[[1]] <- stringr::str_to_sentence(nm[[1]])
+      nm <- strsplit(nms[[ii]], "_", fixed = TRUE)[[1]]
+      nm[[1]] <- str_to_sentence(nm[[1]])
       nm <- paste(nm, collapse = " ")
     }
 
@@ -141,10 +141,10 @@ pipeline_debug <- function(
       assign(name, v, envir = env)
     } else {
 
-      r <- w - stringr::str_length(nm) - 14
+      r <- w - nchar(nm, type = "width") - 14
       if( r <= 2 ){ r <- 2 }
       nm <- paste(c(
-        sprintf(" (%.2f s) ", dipsaus::time_delta(started, Sys.time())),
+        sprintf(" (%.2f s) ", time_delta(started, Sys.time())),
         rep("-", r), " ", nm, "\n"), collapse = "")
       catgl(nm, level = "INFO")
 
@@ -155,16 +155,16 @@ pipeline_debug <- function(
         v <- eval(...t$command$expr, new.env(parent = env))
         assign(name, v, envir = env)
         str <- deparse1(v)
-        str <- stringr::str_replace_all(str, "\t|\n", "  ")
-        r <- w - stringr::str_length(name) - 25
+        str <- gsub(x = str, pattern = "[\t\n]", replacement = "  ")
+        r <- w - nchar(name, type = "width") - 25
         if(r < 0){
-          r <- w - 5
+          r <- max(w - 5, 1)
           s <- "`{name}` <- \n    "
         } else {
           s <- "`{name}` <- "
         }
-        str <- stringr::str_sub(str, end = r)
-        delta <- dipsaus::time_delta(counter, Sys.time())
+        str <- substr(str, start = 1, stop = r)
+        delta <- time_delta(counter, Sys.time())
         catgl(sprintf("[+%6.2f s] ", delta), s, str, "\n")
         counter <- Sys.time()
       }
@@ -317,7 +317,7 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
       nm <- sprintf("[%s]", name)
     } else {
       nm <- strsplit(nms[[ii]], "_")[[1]]
-      nm[[1]] <- stringr::str_to_sentence(nm[[1]])
+      nm[[1]] <- str_to_sentence(nm[[1]])
       nm <- paste(nm, collapse = " ")
       nm <- sprintf("[%s] (%s)", name, nm)
     }
@@ -351,8 +351,8 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
 
     msg <- sprintf(
       "Evaluated - %s [%.2f sec, %s] - %s",
-      name, dipsaus::time_delta(started, ended, units = "secs"),
-      dipsaus::to_ram_size(utils::object.size(v)),
+      name, time_delta(started, ended, units = "secs"),
+      to_ram_size(utils::object.size(v)),
       paste(class(v), collapse = ", ")
     )
     catgl(msg, .envir = emptyenv(), level = "DEFAULT")
@@ -381,13 +381,13 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
   #       nm <- sprintf("[%s]", name)
   #     } else {
   #       nm <- strsplit(nms[[ii]], "_")[[1]]
-  #       nm[[1]] <- stringr::str_to_sentence(nm[[1]])
+  #       nm[[1]] <- str_to_sentence(nm[[1]])
   #       nm <- paste(nm, collapse = " ")
   #       nm <- sprintf("[%s] (%s)", name, nm)
   #     }
   #
   #     nm <- paste(c(
-  #       sprintf(" (%.2f s) ", dipsaus::time_delta(all_starts, Sys.time())),
+  #       sprintf(" (%.2f s) ", time_delta(all_starts, Sys.time())),
   #       rep("-", 2), " ", nm, "\n"), collapse = "")
   #     catgl(nm, level = "INFO")
   #
@@ -399,8 +399,8 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
   #
   #     msg <- sprintf(
   #       "%s [%.2f sec, %s] - %s",
-  #       name, dipsaus::time_delta(started, ended, units = "secs"),
-  #       dipsaus::to_ram_size(utils::object.size(v)),
+  #       name, time_delta(started, ended, units = "secs"),
+  #       to_ram_size(utils::object.size(v)),
   #       paste(class(v), collapse = ", ")
   #     )
   #     catgl(msg, .envir = emptyenv(), level = "DEFAULT")
@@ -457,17 +457,17 @@ pipeline_run_interactive <- function(
       if(desc == "") {
         desc <- "(No name)"
       } else {
-        desc <- stringr::str_split(nms[[ii]], "_")[[1]]
-        desc[[1]] <- stringr::str_to_sentence(desc[[1]])
+        desc <- strsplit(nms[[ii]], "_", perl = TRUE)[[1]]
+        desc[[1]] <- str_to_sentence(desc[[1]])
         desc <- paste(desc, collapse = " ")
       }
 
       ...t <- all_targets[[ii]]
       name <- ...t$settings$name
-      r <- w - stringr::str_length(nm) - 14
+      r <- w - nchar(nm, type = "width") - 14
       if( r <= 2 ){ r <- 2 }
       nm <- paste(c(
-        sprintf(" (%.2f s) ", dipsaus::time_delta(started, Sys.time())),
+        sprintf(" (%.2f s) ", time_delta(started, Sys.time())),
         rep("-", r), " ", nm, "\n"), collapse = "")
       catgl(nm, level = "INFO")
 
@@ -479,16 +479,16 @@ pipeline_run_interactive <- function(
           v <- eval(expr, new.env(parent = env))
           assign(name, v, envir = env)
           str <- deparse1(v)
-          str <- stringr::str_replace_all(str, "\t|\n", "  ")
-          r <- w - stringr::str_length(name) - 25
+          str <- gsub(x = str, pattern = "\t|\n", replacement = "  ")
+          r <- w - nchar(name, type = "width") - 25
           if(r < 0){
-            r <- w - 5
+            r <- max(w - 5, 1)
             s <- "`{name}` <- \n    "
           } else {
             s <- "`{name}` <- "
           }
-          str <- stringr::str_sub(str, end = r)
-          delta <- dipsaus::time_delta(counter, Sys.time())
+          str <- substr(str, start = 1, stop = r)
+          delta <- time_delta(counter, Sys.time())
           catgl(sprintf("[+%6.2f s] ", delta), s, str, "\n")
         }, error = function(e){
           e$call <- expr
@@ -910,7 +910,7 @@ pipeline_create_template <- function(
       for(sub_f in sub_fs) {
         sub_f_src <- file.path(f_src, sub_f)
         # substitude folder names
-        sub_f_dst <- stringr::str_replace_all(file.path(f, sub_f), "TEMPLATE", pipeline_name)
+        sub_f_dst <- gsub(pattern = "TEMPLATE", replacement = pipeline_name, x = file.path(f, sub_f), ignore.case = FALSE)
         sub_f_dst <- file.path(pipe_path, sub_f_dst)
         # make sure the parent directory exists
         dir_create2(dirname(sub_f_dst))
@@ -918,25 +918,25 @@ pipeline_create_template <- function(
                   overwrite = overwrite, copy.date = TRUE)
       }
     } else {
-      f_dst <- stringr::str_replace_all(f, "TEMPLATE", pipeline_name)
+      f_dst <- gsub(x = f, pattern = "TEMPLATE", replacement = pipeline_name, ignore.case = FALSE)
       file.copy(f_src, file.path(pipe_path, f_dst),
                 overwrite = overwrite, copy.date = TRUE)
     }
   }
   fs_src <- list.files(template_path, recursive = TRUE, include.dirs = FALSE)
-  fs_dst <- stringr::str_replace_all(fs_src, "TEMPLATE", pipeline_name)
+  fs_dst <- gsub(x = fs_src, pattern = "TEMPLATE", replacement = pipeline_name, ignore.case = FALSE)
   fs <- file.path(pipe_path, fs_dst)
   for(f in fs){
     s <- readLines(f)
-    s <- stringr::str_replace_all(s, "TEMPLATE_PATH", pipe_path)
-    s <- stringr::str_replace_all(s, "TEMPLATE", pipeline_name)
-    s <- stringr::str_replace_all(s, "PROJECT_NAME", "demo")
-    s <- stringr::str_replace_all(s, "SUBJECT_CODE", "DemoSubject")
+    s <- gsub(x = s, pattern = "TEMPLATE_PATH", replacement = pipe_path, ignore.case = FALSE)
+    s <- gsub(x = s, pattern = "TEMPLATE", replacement = pipeline_name, ignore.case = FALSE)
+    s <- gsub(x = s, pattern = "PROJECT_NAME", replacement = "demo", ignore.case = FALSE)
+    s <- gsub(x = s, pattern = "SUBJECT_CODE", replacement = "DemoSubject", ignore.case = FALSE)
     writeLines(s, f)
   }
   # settings <- read_yaml(file.path(pipe_path, "settings.yaml"))
   # settings$epoch <- "default"
-  # settings$electrodes <- dipsaus::deparse_svec(14L)
+  # settings$electrodes <- deparse_svec(14L)
   # settings$reference <- "default"
 
   # save_yaml(settings, file.path(pipe_path, "settings.yaml"))
@@ -980,7 +980,7 @@ pipeline_create_subject_pipeline <- function(
   )
   template_path <- system.file("rave-pipelines", template_foldername, package = "ravepipeline", mustWork = TRUE)
   fs_src <- list.files(template_path)
-  fs_dst <- stringr::str_replace_all(fs_src, "TEMPLATE", pipeline_name)
+  fs_dst <- gsub(x = fs_src, pattern = "TEMPLATE", replacement = pipeline_name, ignore.case = FALSE)
   dir_create2(pipe_path)
   pipe_path <- normalizePath(pipe_path)
   file.copy(file.path(template_path, fs_src), file.path(pipe_path, fs_dst), overwrite = overwrite, copy.date = TRUE)
@@ -988,10 +988,10 @@ pipeline_create_subject_pipeline <- function(
   fs <- file.path(pipe_path, fs_dst)
   for(f in fs){
     s <- readLines(f)
-    s <- stringr::str_replace_all(s, "TEMPLATE_PATH", pipe_path)
-    s <- stringr::str_replace_all(s, "TEMPLATE", pipeline_name)
-    s <- stringr::str_replace_all(s, "PROJECT_NAME", subject$project_name)
-    s <- stringr::str_replace_all(s, "SUBJECT_CODE", subject$subject_code)
+    s <- gsub(x = s, pattern = "TEMPLATE_PATH", replacement = pipe_path, ignore.case = FALSE)
+    s <- gsub(x = s, pattern = "TEMPLATE", replacement = pipeline_name, ignore.case = FALSE)
+    s <- gsub(x = s, pattern = "PROJECT_NAME", replacement = subject$project_name, ignore.case = FALSE)
+    s <- gsub(x = s, pattern = "SUBJECT_CODE", replacement = subject$subject_code, ignore.case = FALSE)
     writeLines(s, f)
   }
   settings <- read_yaml(file.path(pipe_path, "settings.yaml"))
@@ -1002,7 +1002,7 @@ pipeline_create_subject_pipeline <- function(
   }
 
   if(length(subject$electrodes)){
-    settings$electrodes <- dipsaus::deparse_svec(subject$electrodes)
+    settings$electrodes <- deparse_svec(subject$electrodes)
   }
 
   if(length(subject$reference_names)){
@@ -1095,7 +1095,7 @@ pipeline_settings_set <- function(
     settings[[nm]] <- args[[nm]]
 
   })
-  # dipsaus::list_to_fastmap2(args, map = settings)
+  # list_to_fastmap2(args, map = settings)
   tf <- tempfile()
   on.exit({ unlink(tf) })
   save_yaml(x = settings, file = tf, sorted = TRUE)

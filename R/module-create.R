@@ -1,16 +1,55 @@
 #' Add new 'RAVE' (2.0) module to current project
-#' @param module_id module ID to create, must be unique
+#' @description
+#' Creates a 'RAVE' pipeline with additional dashboard module from template.
+#'
+#' @param module_id module ID to create, must be unique; users cannot install
+#' two modules with identical module ID. We recommend that
+#' a module ID follows snake format, starting with lab name, for example,
+#' \code{'beauchamplab_imaging_preprocess'}, \code{'karaslab_freez'}, or
+#' \code{'upenn_ese25_fooof'}.
 #' @param module_label a friendly label to display in the dashboard
 #' @param path project root path; default is current directory
 #' @param type template to choose, options are \code{'default'} and
 #' \code{'bare'}
 #' @param pipeline_name the pipeline name to create along with the module;
-#' default is identical to \code{module_id}
+#' default is identical to \code{module_id} (strongly recommended); leave
+#' it default unless you know what you are doing.
 #' @param overwrite whether to overwrite existing module if module with
 #' same ID exists; default is false
 #' @param ... additional configurations to the module such as \code{'order'},
 #' \code{'group'}, \code{'badge'}
 #' @returns Nothing.
+#' @examples
+#'
+#'
+#' # For demonstrating this example only
+#' project_root <- tempfile()
+#' dir.create(project_root, showWarnings = FALSE, recursive = TRUE)
+#'
+#'
+#' # Add a module
+#' module_id <- "mylab_my_first_module"
+#' module_add(
+#'   module_id = module_id,
+#'   module_label = "My Pipeline",
+#'   path = project_root
+#' )
+#'
+#'
+#' # show the structure
+#' cat(
+#'   list.files(
+#'     project_root,
+#'     recursive = TRUE,
+#'     full.names = FALSE,
+#'     include.dirs = TRUE
+#'   ),
+#'   sep = "\n"
+#' )
+#'
+#' unlink(project_root, recursive = TRUE)
+#'
+#'
 #' @export
 module_add <- function(
     module_id, module_label, path = ".", type = c("default", "bare", "scheduler", "python"), ...,
@@ -27,7 +66,7 @@ module_add <- function(
   module_path <- file.path(module_root, pipeline_name)
 
   # TODO: Add template-bare
-  template_root <- system.file("rave-modules", "template", package = "raveio")
+  template_root <- system.file("rave-modules", "template", package = "ravepipeline")
 
   stopifnot(template_root != '')
 
