@@ -133,7 +133,7 @@ module_dev_create <- function(
   args <- list(...)
   catgl("Creating RAVE 2.0 Repository -", path)
 
-  template_path <- file.path(R_user_dir("raveio", "data"), "rave-pipelines")
+  template_path <- ravepipeline_data_dir("rave-pipelines")
   if(!dir.exists(template_path)) {
     ravepipeline_finalize_installation(upgrade = "never", async = FALSE)
   }

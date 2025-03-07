@@ -31,7 +31,7 @@ PipelineTools <- R6::R6Class(
                           settings_file = "settings.yaml",
                           paths = pipeline_root(), temporary = FALSE) {
 
-      default_paths <- c(".", file.path(R_user_dir("raveio", "data"), "pipelines"))
+      default_paths <- c(".", ravepipeline_data_dir("pipelines"))
 
       paths <- c(paths[dir.exists(paths)], default_paths)
 

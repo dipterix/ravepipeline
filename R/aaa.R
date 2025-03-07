@@ -87,7 +87,7 @@ ravepipeline_finalize_installation <- function(
 
   upgrade <- match.arg(upgrade)
 
-  template_path <- file.path(R_user_dir("raveio", "data"), "rave-pipelines")
+  template_path <- ravepipeline_data_dir("rave-pipelines")
   if(dir.exists(template_path)) {
     if(upgrade %in% c("never")) { return() }
     if(upgrade == "ask") {

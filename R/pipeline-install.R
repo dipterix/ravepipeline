@@ -69,7 +69,7 @@ pipeline_install_directory <- function(
       )
     })
     # copy to shidashi template
-    template_path <- file.path(R_user_dir("raveio", "data"), "shidashi_modules")
+    template_path <- ravepipeline_data_dir("shidashi_modules")
     module_path <- file.path(template_path, "modules")
     dir_create2(module_path)
 
@@ -176,13 +176,13 @@ pipeline_install_local <- function(
       dest <- normalizePath(tempdir(check = TRUE))
     },
     {
-      dest <- normalizePath(file.path(R_user_dir("raveio", "data"), "pipelines"), mustWork = FALSE)
+      dest <- normalizePath(ravepipeline_data_dir("pipelines"), mustWork = FALSE)
     }
   )
 
   if(isTRUE(set_default)) {
     fs <- list.files(src, recursive = FALSE, full.names = TRUE, all.files = TRUE)
-    template_path <- file.path(R_user_dir("raveio", "data"), "rave-pipelines")
+    template_path <- ravepipeline_data_dir("rave-pipelines")
 
     if(dir.exists(template_path)) {
       try({
@@ -283,7 +283,7 @@ pipeline_install_github <- function(
   }
   # if(identical(repo, "rave-ieeg/rave-pipelines")) {
   #   fs <- list.files(src, recursive = FALSE, full.names = TRUE, all.files = TRUE)
-  #   template_path <- file.path(R_user_dir("raveio", "data", "rave-pipelines")
+  #   template_path <- ravepipeline_data_dir("rave-pipelines")
   #
   #   if(dir.exists(template_path)) {
   #     try({
@@ -329,7 +329,7 @@ pipeline_root <- local({
       }
     } else {
       if(is.null(re)){
-        re <- c(".", file.path(R_user_dir("raveio", "data"), "pipelines"))
+        re <- c(".", ravepipeline_data_dir("pipelines"))
         root <<- re
       }
     }

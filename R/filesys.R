@@ -170,6 +170,10 @@ R_user_dir <- function (package, which = c("data", "config", "cache")) {
   file.path(path, "R", package)
 }
 
+ravepipeline_data_dir <- function(...) {
+  file.path(R_user_dir("raveio", "data"), ...)
+}
+
 temporary_session_root <- function(){
   d <- raveio_getopt('tensor_temp_path')
   if(!dir.exists(d)){
