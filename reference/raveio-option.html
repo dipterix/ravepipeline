@@ -125,6 +125,102 @@ non-standard ones. However <code>"session_string"</code> will never reset.</p>
     <div class="dont-index"><p><code>R_user_dir</code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># get one RAVE option</span></span></span>
+<span class="r-in"><span><span class="va">ncore</span> <span class="op">&lt;-</span> <span class="fu">raveio_getopt</span><span class="op">(</span><span class="st">"max_worker"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ncore</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># get all options</span></span></span>
+<span class="r-in"><span><span class="fu">raveio_getopt</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $threeBrain_template_subject</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "N27"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $session_string</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "a955c28929c46b8"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $py_virtualenv</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ""</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $py3_path</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ""</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $py2_path</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ""</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $matlab_path</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/Applications/MATLAB_R2016b.app/bin"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $suma_nodes_per_electrodes</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 42</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $server_time_zone</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "America/Chicago"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $max_mem</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15.6152687072754</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $disable_fork_clusters</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $max_worker</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $disable_startup_speed_check</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $drive_speed</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 50 20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $image_height</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 768</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $image_width</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1280</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $fast_cache</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $test_mode</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $delay_input</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 20</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $module_lookup_file</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "~/rave_modules/modules.csv"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $module_root_dir</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "~/rave_modules/"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $file_structure</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "native"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $bids_data_dir</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/home/runner/rave_data/bids_dir/"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $data_dir</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/home/runner/rave_data/data_dir/"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $raw_data_dir</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/home/runner/rave_data/raw_dir/"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $verbose_level</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "DEBUG"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $tensor_temp_path</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "~/rave_data/cache_dir/"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $..temp</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># set option</span></span></span>
+<span class="r-in"><span><span class="fu">raveio_setopt</span><span class="op">(</span><span class="st">"disable_fork_clusters"</span>, <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 
