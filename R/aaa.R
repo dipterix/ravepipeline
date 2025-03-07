@@ -101,6 +101,13 @@ ravepipeline_finalize_installation <- function(
     }
   }
 
+  options("ravepipelines.install.yes_to_all" = TRUE)
+  on.exit({
+    options("ravepipelines.install.yes_to_all" = FALSE)
+  })
+
+
+
   # update_sample_data <- FALSE
   # if(upgrade %in% c("always", "data-only")) {
   #   update_sample_data <- TRUE

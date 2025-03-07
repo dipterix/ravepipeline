@@ -235,6 +235,9 @@ pipeline_install_github <- function(
   remote <- do.call(remotes::github_remote, remote_args)
   exdir <- tempfile()
   timeout <- options(timeout = 3600)
+  # CRAB policy requires resettings options
+  on.exit({ options(timeout) })
+
   res <- tryCatch({
     message("Trying to use Github API")
     tarball <- remotes::remote_download(remote)
@@ -253,7 +256,6 @@ pipeline_install_github <- function(
   }
 
   on.exit({
-    do.call(options, timeout)
     unlink(tarball)
     unlink(exdir, recursive = TRUE, force = TRUE)
   }, add = TRUE)

@@ -12,18 +12,19 @@ Authors@R: c(
     )
 Description: Defines the underlying file structure for a 'RAVE' pipeline;
     provides high-level class definition to build, compile, set, execute, 
-    share, and serialize pipeline objects with language support on both R and 
-    'Python'; offers mark-down and 'shiny' dashboard templates for extending
-    and building customized pipelines. See the full paper by Magnotti, 
-    Wang, and Beauchamp (2020, <doi:10.1016/j.neuroimage.2020.117341>), or 
-    check 'citation("ravepipeline")' for details.
-Copyright: Trustees of University of Pennsylvania, owns the copyright of
+    and share analysis pipelines. Both R and 'Python' are supported, with 
+    'Markdown' and 'shiny' dashboard templates for extending
+    and building customized pipelines. See the full documentations at 
+    <https://rave.wiki>; to cite us, check out our paper by Magnotti, Wang, 
+    and Beauchamp (2020, <doi:10.1016/j.neuroimage.2020.117341>), or run 
+    'citation("ravepipeline")' for details.
+Copyright: Trustees of University of Pennsylvania owns the copyright of
     the package unless otherwise stated. Zhengjia Wang owns the copyright of 
     all the low-level functions included in 'R/common.R', 'R/fastmap2', 
     'R/fastqueue2.R', 'R/filesys.R', 'R/fst.R', 'R/json.R', 'R/os_info.R', 
     'R/parallel.R', 'R/progress.R', 'R/simplelocker.R', 
     'R/yaml.R', and all the template files under 'inst/rave-pipelines' and
-    'inst/rave-modules', all licensed under 'MIT' license.
+    'inst/rave-modules', these files are licensed under 'MIT'.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)

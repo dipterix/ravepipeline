@@ -26,25 +26,34 @@ guess_libpath <- function() {
 }
 
 install_deps <- function(root, upgrade = FALSE, force = FALSE, lib = guess_libpath(), ...) {
-  # Installing packages should be under interactive session and should ask users
-  if(!interactive()) {
-    stop("`install_deps`: must run under interactive session")
+  if( !isTRUE(getOption("ravepipelines.install.yes_to_all", FALSE)) ) {
+    # Installing packages should be under interactive session and should ask users
+    if(!interactive()) {
+      stop("`install_deps`: must run under interactive session")
+    }
+    ans <- utils::askYesNo("Installing dependencies... This might install additional packages. Proceed? ")
+    if(!isTRUE(ans)) {
+      stop("Abort.")
+    }
+    # suppress future question
+    options("ravepipelines.install.yes_to_all" = TRUE)
   }
-  ans <- utils::askYesNo("Installing dependencies... This might install additional packages. Proceed? ")
-  if(!isTRUE(ans)) {
-    stop("Abort.")
-  }
+
   remotes::install_deps(pkgdir = root, upgrade = upgrade, force = force, lib = lib, ...)
 }
 
 install_cran <- function(pkgs, upgrade = FALSE, lib = guess_libpath(), ...) {
-  # Installing packages should be under interactive session and should ask users
-  if(!interactive()) {
-    stop("`install_deps`: must run under interactive session")
-  }
-  ans <- utils::askYesNo("Installing dependencies... This might install additional packages. Proceed? ")
-  if(!isTRUE(ans)) {
-    stop("Abort.")
+  if( !isTRUE(getOption("ravepipelines.install.yes_to_all", FALSE)) ) {
+    # Installing packages should be under interactive session and should ask users
+    if(!interactive()) {
+      stop("`install_deps`: must run under interactive session")
+    }
+    ans <- utils::askYesNo("Installing dependencies... This might install additional packages. Proceed? ")
+    if(!isTRUE(ans)) {
+      stop("Abort.")
+    }
+    # suppress future question
+    options("ravepipelines.install.yes_to_all" = TRUE)
   }
   remotes::install_cran(pkgs, upgrade = ifelse(isTRUE(upgrade), "always", "never"),
                         lib = lib, ...)
