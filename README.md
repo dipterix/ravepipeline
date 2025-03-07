@@ -33,6 +33,11 @@ _This example requires you to download RAVE demo data, which comes with the full
 The built-in pipelines include Power Explorer, a powerful tool to group stimuli for time-frequency analysis and visualization. Here's an example of how to use it on our demo data set:
 
 
+
+https://github.com/user-attachments/assets/75fe0f88-58ca-46ee-a831-f22abbaa5343
+
+
+
 ``` r
 library(ravepipeline)
 
