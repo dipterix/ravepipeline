@@ -19,6 +19,9 @@ load_targets <- function(..., env = NULL){
   do.call("c", targets)
 }
 
+# Activate pipeline within an environment
+# Must be called within a function
+# Must not be called directory
 activate_pipeline <- function(pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
                               debug = FALSE) {
   if(!dir.exists(pipe_dir)){
@@ -39,19 +42,30 @@ activate_pipeline <- function(pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
 
   parent_frame <- parent.frame()
   current <- Sys.getenv("TAR_PROJECT", "main")
-  wd <- normalizePath(getwd())
+
+  # R doesn't like it when the working directory is normalized
+  wd0 <- getwd()
+  wd <- normalizePath(wd0)
+
+  setwd(pipe_dir)
+  # Handle reset work directory to comply with CRAN policy
+
   if( debug ) {
+    # Shouldn't set working directory back since this is explicitly requested
+    # However, warning should be raised and method to set back is provided
     warning(sprintf("Debugging a pipeline. Current working directory has been altered. Please run the following script once debug is finished.\n  setwd('%s');Sys.setenv('TAR_PROJECT' = '%s')", wd, current))
   } else {
+    # Setting back working directory once the parent frame ends
+    # since this function is not called directly, the working directory will eventually
+    # set back to original directory
     do.call(
       on.exit, list(bquote({
-        setwd(.(wd))
+        setwd(.(wd0))
         Sys.setenv("TAR_PROJECT" = .(current))
       }), add = TRUE, after = TRUE),
       envir = parent_frame
     )
   }
-  setwd(pipe_dir)
 
   tmpenv <- new.env(parent = globalenv())
   source("common.R", local = tmpenv)
@@ -1480,10 +1494,17 @@ pipeline_py_module <- function(
   cwd <- getwd()
   pydir <- file.path(pipe_dir, "py")
   setwd(pydir)
-  on.exit({ setwd(cwd) }, add = TRUE, after = TRUE)
+  on.exit({
+    if(length(cwd) == 1) {
+      setwd(cwd)
+    }
+  }, add = TRUE, after = TRUE)
 
   py_module <- rpymat::import(py_pkg_name, convert = convert, delay_load = FALSE)
+
+  # set it before the function ends
   setwd(cwd)
+  cwd <- NULL
 
   py_module
 }

@@ -366,15 +366,16 @@ PipelineTools <- R6::R6Class(
             if(!is.list(minfo)) { return(NULL) }
             pypath <- file.path(self$pipeline_path, "py")
             cwd <- getwd()
+
+            setwd(pypath)
             on.exit({
               if(length(cwd) == 1) { setwd(cwd) }
             }, add = TRUE, after = FALSE)
 
-            setwd(pypath)
-
             shared <- rpymat::import(sprintf("%s.shared", minfo$module_name),
                                      convert = FALSE, delay_load = FALSE)
 
+            # set wd back so no need to wait for on.exit
             setwd(cwd)
             cwd <- NULL
 

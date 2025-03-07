@@ -39,7 +39,15 @@
 #' # ---- Run snippets as functions --------------------------------
 #'
 #' topic <- "image-burn-contacts-to-t1"
-#' if( interactive() && topic %in% list_snippets() ) {
+#'
+#' # check whether this example can run
+#' # This snippet requires installing package `raveio`
+#' # which is currently not on CRAN (soon it will)
+#'
+#' condition_met <- topic %in% list_snippets() &&
+#'   (system.file(package = "raveio") != "")
+#'
+#' if( interactive() && condition_met ) {
 #'
 #'   snippet <- load_snippet(topic)
 #'
