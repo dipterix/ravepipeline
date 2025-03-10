@@ -100,13 +100,13 @@ only search for pipelines that are installed or in current working directory.</p
 <span class="r-in"><span>    overwrite <span class="op">=</span> <span class="cn">TRUE</span>, activate <span class="op">=</span> <span class="cn">FALSE</span>, template_type <span class="op">=</span> <span class="st">"rmd-bare"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># Set initial user inputs</span></span></span>
-<span class="r-in"><span>  <span class="fu">ieegio</span><span class="fu">::</span><span class="fu"><a href="http://dipterix.org/ieegio/reference/low-level-read-write.html" class="external-link">io_write_yaml</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="fu">yaml</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/yaml/man/write_yaml.html" class="external-link">write_yaml</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>      n <span class="op">=</span> <span class="fl">100</span>,</span></span>
 <span class="r-in"><span>      pch <span class="op">=</span> <span class="fl">16</span>,</span></span>
 <span class="r-in"><span>      col <span class="op">=</span> <span class="st">"steelblue"</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span>,</span></span>
-<span class="r-in"><span>    con <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">pipeline_path</span>, <span class="st">"settings.yaml"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">pipeline_path</span>, <span class="st">"settings.yaml"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># build the pipeline for the first time</span></span></span>
