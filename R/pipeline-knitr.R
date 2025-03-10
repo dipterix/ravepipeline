@@ -739,7 +739,7 @@ pipeline_render <- function(
 
     cwd <- getwd()
     setwd(working_path)
-    on.exit({ setwd(cwd) })
+    on.exit({ setwd(cwd) }, add = TRUE, after = TRUE)
 
     knitr::knit(input = entry_path, output = output_path, quiet = TRUE, envir = env)
   }
