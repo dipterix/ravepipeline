@@ -53,22 +53,22 @@ activate_pipeline <- function(pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
 
   setwd(pipe_dir)
   # Handle reset work directory to comply with CRAN policy
-  do.call(on.exit, list(
-    bquote({
-      Sys.setenv("TAR_PROJECT" = .(current))
-      wd <- .(wd0)
-      if(length(wd) == 1) {
-        setwd(wd)
-      }
-    }), add = TRUE, after = TRUE
-  ), envir = parent_frame)
 
 
   if( debug ) {
     # Shouldn't set working directory back since this is explicitly requested
     # However, warning should be raised and method to set back is provided
-    wd0 <- NULL
+    # Also `interactive()` has just been checked.
     warning(sprintf("Debugging a pipeline. Current working directory has been altered. Please run the following script once debug is finished.\n  setwd('%s');Sys.setenv('TAR_PROJECT' = '%s')", wd, current))
+  } else {
+
+    do.call(on.exit, list(
+      bquote({
+        Sys.setenv("TAR_PROJECT" = .(current))
+        setwd(.(wd0))
+      }), add = TRUE, after = TRUE
+    ), envir = parent_frame)
+
   }
 
   tmpenv <- new.env(parent = globalenv())
