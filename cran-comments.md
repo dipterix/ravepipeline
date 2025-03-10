@@ -33,7 +33,7 @@ For more details: <https://contributor.r-project.org/cran-cookbook/general_issue
 
 ```
 
-Thanks, changed to `if(interactive()) {...}` since the script will pause and prompt for user's inputs in console.
+Thanks, removed `if(interactive())` and only keeping `dontrun` since the script will prompt users to install additional packages (depending on requirements of third-party pipeline code).
 
 
 ```
@@ -61,11 +61,11 @@ For more details: <https://contributor.r-project.org/cran-cookbook/code_issues.h
 
 For `options`:
 
-I have tried my best to add `on.exit` to these functions, except for `R/options.R`. The functions within are 
+I have tried my best to add `on.exit` to these functions. All the changes to `options` are handled with `on.exit` except for `R/options.R`, in which the functions are:
 
 1. designed to alter and persist the options (so no expect to call `on.exit` here)
-2. the altered options are designed to only affect package `dipsaus` and `threeBrain`, and I'm the maintainer of these two packages (and they mainly serve the 'RAVE' project as well).
-3. section 'Side-Effects' as been added to warn users that these two options are set.
+2. only affecting package `dipsaus` and `threeBrain`, and I'm the maintainer of these two packages (and they mainly serve the 'RAVE' project as well).
+3. section 'Side-Effects' has been added to the document to warn users that these options are changed.
 
 All other changes to the options are fixed to ensure the options get reset at or even before the enclosure ends.
 
@@ -74,30 +74,26 @@ For `setwd`:
 
 All the changes to the working directories have been reset at or before the ending of enclosures, except for function `activate_pipeline` in `R/pipeline-tools.R`, a special case. Please allow me to describe the case and the safety measures:
 
-With `debug=TRUE`, the working directory is not reset, however, 
-  
-  1. This function (`activate_pipeline`) is not exported. Users must explicitly call `ravepipeline:::activate_pipeline` (with `:::`) to enable the debug mode
-  2. When users call `activate_pipeline`, it means that users want to debug the pipelines, and expect this behavior (changing working directory)
-  3. the working directory is ONLY allowed under `interactive()` mode (error will be raised if not)
-  4. the function raises an warning `warning(sprintf("Debugging a pipeline. ...`, and provide instructions to reset working directory.
-
-With `debug=FALSE` the working directory is reset at its parent frame (see below), 
+With `activate_pipeline(..., debug=FALSE)` (default and expected usage), the working directory is reset at its parent frame (see below). The function is never called at the top level. To ensure that working directory is reset correctly, I added test `tests/testthat/test-workdir.R`.
 
 ``` r
 parent_function <- function() {
   # change working dirctory
   activate_pipeline()
   
-  # automatically reset at the end of `parent_function`
+  ... do something under the context
+  
+  # automatically reset at the end
 }
 
 ```
 
-To ensure that working directory is reset correctly, I added test `tests/testthat/test-workdir.R`, see Line:
 
-``` r
-testthat::expect_identical(..old_wd, ..new_wd, "Working directory was changed!")
-```
+With `activate_pipeline(..., debug=TRUE)`, the working directory is not reset, however, 
+  
+  1. This function (`activate_pipeline`) is not exported. Users must explicitly call `ravepipeline:::activate_pipeline` (with `:::`) to enable the debug mode. When users call `activate_pipeline`, it means that users want to debug the pipelines, and expect this behavior (changing working directory)
+  2. the working directory is ONLY allowed under `interactive()` mode (error will be raised if not)
+  3. the function raises an warning `warning(sprintf("Debugging a pipeline. ...` even under interactive session. The warning provides instructions to reset working directory.
 
 
 
@@ -105,7 +101,7 @@ testthat::expect_identical(..old_wd, ..new_wd, "Working directory was changed!")
 Please do not modifiy the .GlobalEnv. This is not allowed by the CRAN policies.
 ```
 
-Thanks, all potential changes to global environment is removed. Using `uuid` package instead.
+Thanks, the code that changes global environment has been removed. Using `uuid` package instead. In addition, all the calls with `globalenv()` is wrapped with `new.env(parent = globalenv())` to avoid accidentally writing to global environment.
 
 
 ```
@@ -113,7 +109,7 @@ Please do not install packages in your functions, examples or vignette. This can
 For more details: <https://contributor.r-project.org/cran-cookbook/code_issues.html#installing-software>
 ```
 
-Thanks, packages should not install in testing & examples. In addition, 
+Thanks, packages should not install in testing & examples now. In addition, the following safety measures have been added:
 
-* Function `get_remotes_fun` in `R/pkginstall.R` has been added to raise errors when using `remotes` package in the checking environment.
-* Additional R check with `nosuggests` results in no errors/warnings/notes; see https://github.com/dipterix/ravepipeline/actions/runs/13773101466/job/38516072510
+* Function `get_remotes_fun` in `R/pkginstall.R` will raise errors when using `remotes` package in the checking environment.
+* Additional R check with `nosuggests` results in no errors/warnings/notes; see https://github.com/dipterix/ravepipeline/actions/runs/13774153540/job/38519484636

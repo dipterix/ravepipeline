@@ -24,6 +24,9 @@ check_knit_packages <- function(languages = c("R", "python")){
     prompt <- sprintf("Package %s missing. Do you want to install them? ", paste(pkgs, collapse = ", "))
     ans <- utils::askYesNo(prompt)
     if(isTRUE(ans)){
+      # User has agreed so suppress and don't ask more questions
+      old_opt <- options("ravepipelines.install.yes_to_all" = TRUE)
+      on.exit({ options(old_opt) })
       install_cran(pkgs = pkgs, upgrade = FALSE)
     }
   }

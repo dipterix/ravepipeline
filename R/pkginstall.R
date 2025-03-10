@@ -64,7 +64,7 @@ install_cran <- function(pkgs, upgrade = FALSE, lib = guess_libpath(), ...) {
 }
 
 get_remotes_fun <- function(name) {
-  # Make sure we do not install any packages during checking and testing
+  # Make sure we do not install any packages during checking or testing
   not_cran_flag <- identical(toupper(as.character(Sys.getenv("NOT_CRAN", ""))), "TRUE")
   limit_core_flag <- identical(toupper(Sys.getenv("_R_CHECK_LIMIT_CORES_")), "TRUE")
   rave_testing_flag <- identical(toupper(Sys.getenv("RAVE_TESTING")), "TRUE")
@@ -72,6 +72,7 @@ get_remotes_fun <- function(name) {
   if ( rave_testing_flag || limit_core_flag || not_cran_flag ) {
     stop("Do NOT install R packages when checking")
   }
+
   remotes <- asNamespace("remotes")
   remotes[[name]]
 }

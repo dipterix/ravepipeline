@@ -29,7 +29,7 @@ The code snippet repository is located at
 }
 \examples{
 
-if(interactive()) {
+\dontrun{
 
 # This function requires connection to the Github, and must run
 # under interactive session since an user prompt will be displayed

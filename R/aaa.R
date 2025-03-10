@@ -70,7 +70,7 @@ PIPELINE_FORK_PATTERN <- "(^data|^R|^py|^preferences|\\.R$|\\.py$|\\.yaml$|\\.tx
 #' returns nothing.
 #' @examples
 #'
-#' if(interactive()) {
+#' \dontrun{
 #'
 #' # This function requires connection to the Github, and must run
 #' # under interactive session since an user prompt will be displayed
