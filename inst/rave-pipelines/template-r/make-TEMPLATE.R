@@ -8,7 +8,7 @@ source("common.R", local = TRUE, chdir = TRUE)
   load_settings = tar_target(
     `TEMPLATE_settings`,
     {
-      settings <- as.list(ieegio::io_read_yaml("settings.yaml"))
+      settings <- as.list(yaml::read_yaml("settings.yaml"))
 
       ## Do some checks here, remove some entries that do not need to get cached
 

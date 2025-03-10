@@ -68,14 +68,14 @@ migrate <- function(project_name, subject_code, ..., overwrite = FALSE, backup =
     settings_path <- file.path(subject$pipeline_path, target_name, "settings.yaml")
 
     # ensure settings.yaml is correctly set
-    settings <- ieegio::io_read_yaml(settings_path)
+    settings <- yaml::read_yaml(settings_path)
 
     # change the subject to the targeting subject
     settings$project_name <- project_name
     settings$subject_code <- subject_code
 
     # save changes
-    ieegio::io_write_yaml(settings, con = settings_path, sorted = TRUE)
+    asNamespace("ravepipeline")$save_yaml(settings, file = settings_path, sorted = TRUE)
 
 
     ## END: customized code

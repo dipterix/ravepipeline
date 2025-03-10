@@ -52,13 +52,13 @@ if(interactive()) {
     overwrite = TRUE, activate = FALSE, template_type = "rmd-bare")
 
   # Set initial user inputs
-  ieegio::io_write_yaml(
+  yaml::write_yaml(
     x = list(
       n = 100,
       pch = 16,
       col = "steelblue"
     ),
-    con = file.path(pipeline_path, "settings.yaml")
+    file = file.path(pipeline_path, "settings.yaml")
   )
 
   # build the pipeline for the first time

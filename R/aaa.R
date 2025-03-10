@@ -6,6 +6,7 @@
 #' @importFrom glue glue
 #' @importFrom R6 R6Class
 #' @importFrom digest digest
+#' @importFrom remotes install_deps
 NULL
 
 #' @export
