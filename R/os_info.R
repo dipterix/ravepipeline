@@ -153,35 +153,35 @@ session_uuid <- local({
   uuids <- list()
 
   function (pid = Sys.getpid(), attributes = FALSE) {
+
     pidstr <- as.character(pid)
     uuid <- uuids[[pidstr]]
     if (!is.null(uuid)) {
-      if (!attributes)
+      if (!attributes) {
         attr(uuid, "source") <- NULL
+      }
       return(uuid)
     }
     info <- Sys.info()
     host <- Sys.getenv(c("HOST", "HOSTNAME", "COMPUTERNAME"))
     host <- host[nzchar(host)]
-    host <- if (length(host) == 0L)
+    host <- if (length(host) == 0L) {
       info[["nodename"]]
-    else host[1L]
-    oseed <- .GlobalEnv$.Random.seed
-    on.exit({
-      if (is.null(oseed)) {
-        rm(list = ".Random.seed", envir = .GlobalEnv, inherits = FALSE)
-      } else {
-        .GlobalEnv$.Random.seed <- oseed
-      }
-    })
-    info <- list(host = host, info = info, pid = pid, time = Sys.time(),
-                 package = "ravepipeline",
-                 random = sample(.Machine$integer.max, size = 1L, replace = FALSE))
-    uuid <- digest::digest(info)
+    } else {
+      host[1L]
+    }
+
+    info <- list(host = host, info = info, pid = pid, time = Sys.time(), package = "ravepipeline")
+    # uuid <- digest::digest(info)
+    uuid <- uuid::UUIDgenerate(use.time = TRUE, output = "string")
+    # remove all dash
+    uuid <- gsub("-", "", uuid, fixed = TRUE)
+
     attr(uuid, "source") <- info
     uuids[[pidstr]] <<- uuid
-    if (!attributes)
+    if (!attributes) {
       attr(uuid, "source") <- NULL
+    }
     uuid
   }
 })

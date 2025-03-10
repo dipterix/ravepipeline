@@ -36,10 +36,12 @@ install_deps <- function(root, upgrade = FALSE, force = FALSE, lib = guess_libpa
       stop("Abort.")
     }
     # suppress future question
-    options("ravepipelines.install.yes_to_all" = TRUE)
+    old_opt <- options("ravepipelines.install.yes_to_all" = TRUE)
+    on.exit({ options(old_opt) })
   }
 
-  remotes::install_deps(pkgdir = root, upgrade = upgrade, force = force, lib = lib, ...)
+  install_deps <- get_remotes_fun("install_deps")
+  install_deps(pkgdir = root, upgrade = upgrade, force = force, lib = lib, ...)
 }
 
 install_cran <- function(pkgs, upgrade = FALSE, lib = guess_libpath(), ...) {
@@ -53,9 +55,23 @@ install_cran <- function(pkgs, upgrade = FALSE, lib = guess_libpath(), ...) {
       stop("Abort.")
     }
     # suppress future question
-    options("ravepipelines.install.yes_to_all" = TRUE)
+    old_opt <- options("ravepipelines.install.yes_to_all" = TRUE)
+    on.exit({ options(old_opt) })
   }
-  remotes::install_cran(pkgs, upgrade = ifelse(isTRUE(upgrade), "always", "never"),
-                        lib = lib, ...)
+  install_cran <- get_remotes_fun("install_cran")
+  install_cran(pkgs, upgrade = ifelse(isTRUE(upgrade), "always", "never"), lib = lib, ...)
 
+}
+
+get_remotes_fun <- function(name) {
+  # Make sure we do not install any packages during checking and testing
+  not_cran_flag <- identical(toupper(as.character(Sys.getenv("NOT_CRAN", ""))), "TRUE")
+  limit_core_flag <- identical(toupper(Sys.getenv("_R_CHECK_LIMIT_CORES_")), "TRUE")
+  rave_testing_flag <- identical(toupper(Sys.getenv("RAVE_TESTING")), "TRUE")
+
+  if ( rave_testing_flag || limit_core_flag || not_cran_flag ) {
+    stop("Do NOT install R packages when checking")
+  }
+  remotes <- asNamespace("remotes")
+  remotes[[name]]
 }

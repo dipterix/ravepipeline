@@ -45,7 +45,7 @@ pipeline_run <- function(
 
   subprocess <- TRUE
   fun <- function(subprocess = TRUE){}
-  environment(fun) <- globalenv()
+  environment(fun) <- new.env(parent = globalenv())
   body(fun) <- bquote({
     # this is running in another R session so load `ravepipeline`
     # without violating the CRAN policy
@@ -71,11 +71,12 @@ pipeline_run <- function(
     }
 
     if(subprocess) {
-      options(
+      old_opts <- options(
         "future.fork.enable" = FALSE,
         "dipsaus.no.fork" = TRUE,
         "dipsaus.cluster.backup" = "multisession"
       )
+      on.exit({ options(old_opts) }, add = TRUE, after = FALSE)
     }
 
     # Load shared functions into envir
@@ -143,7 +144,9 @@ pipeline_run <- function(
       if(is.na(clustermq_scheduler)) {
         clustermq_scheduler <- "multiprocess"
       }
-      options('clustermq.scheduler' = clustermq_scheduler)
+      old_opt <- options('clustermq.scheduler' = clustermq_scheduler)
+      on.exit({ options(old_opt) }, add = TRUE)
+
       if(identical(clustermq_scheduler, "LOCAL")){
         make( targets::tar_make_clustermq )
         # local({ do.call(targets::tar_make_clustermq, args) })
@@ -368,7 +371,9 @@ pipeline_run_bare <- function(
       if(is.na(clustermq_scheduler)) {
         clustermq_scheduler <- "multiprocess"
       }
-      options('clustermq.scheduler' = clustermq_scheduler)
+      old_opt <- options('clustermq.scheduler' = clustermq_scheduler)
+      on.exit({ options(old_opt) }, add = TRUE)
+
       if(identical(clustermq_scheduler, "LOCAL")){
         make( targets::tar_make_clustermq )
         # local({ do.call(targets::tar_make_clustermq, args) })

@@ -9,4 +9,5 @@
 library(testthat)
 library(ravepipeline)
 
+Sys.setenv("RAVE_TESTING" = "TRUE")
 test_check("ravepipeline")

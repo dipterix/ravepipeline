@@ -832,7 +832,9 @@ PipelineTools <- R6::R6Class(
 #'
 #'   # Temporarily redirect the pipeline project root
 #'   # to `root_path`
-#'   options("raveio.pipeline.project_root" = root_path)
+#'   old_opt <- options("raveio.pipeline.project_root" = root_path)
+#'   # Make sure the options are reset
+#'   on.exit({ options(old_opt) })
 #'
 #'   # Compile the pipeline document
 #'   rmarkdown::render(
@@ -841,9 +843,6 @@ PipelineTools <- R6::R6Class(
 #'     knit_root_dir = pipeline_path,
 #'     intermediates_dir = pipeline_path, quiet = TRUE
 #'   )
-#'
-#'   # Reset options
-#'   options("raveio.pipeline.project_root" = NULL)
 #'
 #'   \dontrun{
 #'

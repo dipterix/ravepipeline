@@ -70,6 +70,21 @@ missing, the whole option will be returned.
 If set \code{all=TRUE}, \code{raveio_resetopt} resets all keys including
 non-standard ones. However \code{"session_string"} will never reset.
 }
+\section{Side-Effects}{
+
+The following options will alter other packages and might cause changes in
+behaviors:
+
+\describe{
+\item{\code{'disable_fork_clusters'}}{This option will change the
+\code{\link{options}} \code{'dipsaus.no.fork'} and
+\code{'dipsaus.cluster.backup'}, which handles the parallel computing}
+\item{\code{'threeBrain_template_subject'}}{This option will set and persist
+option \code{'threeBrain.template_subject'}, which changes the default
+group-level template brain.}
+}
+}
+
 \examples{
 
 # get one RAVE option

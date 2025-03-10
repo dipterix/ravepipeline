@@ -76,9 +76,9 @@
   }, onexit = TRUE)
 
   # check if ravetools is installed
-  if(isNamespaceLoaded("ravetools") || system.file(package = "ravetools") != "") {
-    options("raveio.use.ravetools" = TRUE)
-  }
+  # if(isNamespaceLoaded("ravetools") || system.file(package = "ravetools") != "") {
+  #   options("raveio.use.ravetools" = TRUE)
+  # }
 
 }
 

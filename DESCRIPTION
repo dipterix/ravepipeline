@@ -1,6 +1,6 @@
 Package: ravepipeline
 Type: Package
-Title: Pipeline Infrastructure for Reproducible Analysis and Visualization of Intracranial Electroencephalography ('RAVE')
+Title: Reproducible Pipeline Infrastructure for Neuroscience
 Version: 0.0.1
 Language: en-US
 Authors@R: c(
@@ -10,14 +10,15 @@ Authors@R: c(
     person("Michael", "Beauchamp", email = "Michael.Beauchamp@Pennmedicine.upenn.edu", role = c("ctb", "res")),
     person("Trustees of University of Pennsylvania", comment = "Copyright Holder", role = c("cph"))
     )
-Description: Defines the underlying file structure for a 'RAVE' pipeline;
+Description: Defines the underlying pipeline structure for reproducible 
+    analysis and visualization of intracranial electroencephalography ('RAVE');
     provides high-level class definition to build, compile, set, execute, 
     and share analysis pipelines. Both R and 'Python' are supported, with 
     'Markdown' and 'shiny' dashboard templates for extending
     and building customized pipelines. See the full documentations at 
     <https://rave.wiki>; to cite us, check out our paper by Magnotti, Wang, 
     and Beauchamp (2020, <doi:10.1016/j.neuroimage.2020.117341>), or run 
-    'citation("ravepipeline")' for details.
+    citation("ravepipeline") for details.
 Copyright: Trustees of University of Pennsylvania owns the copyright of
     the package unless otherwise stated. Zhengjia Wang owns the copyright of 
     all the low-level functions included in 'R/common.R', 'R/fastmap2', 
@@ -39,7 +40,6 @@ Imports:
     knitr,
     promises,
     R6,
-    remotes,
     targets,
     digest,
     jsonlite,
@@ -49,13 +49,15 @@ Imports:
     fastmap,
     rlang,
     base64url,
-    fst (>= 0.9.8)
+    fst (>= 0.9.8),
+    uuid
 Suggests:
     filearray,
     future.apply,
     globals,
     ieegio,
     threeBrain,
+    remotes,
     rmarkdown,
     rpymat,
     rstudioapi,

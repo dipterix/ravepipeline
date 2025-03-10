@@ -33,10 +33,8 @@ testthat::test_that("multiplication works", {
 
         # Temporarily redirect the pipeline project root
         # to `root_path`
-        options("raveio.pipeline.project_root" = root_path)
-        on.exit({
-          options("raveio.pipeline.project_root" = NULL)
-        }, add = TRUE)
+        old_opt <- options("raveio.pipeline.project_root" = root_path)
+        on.exit({ options(old_opt) }, add = TRUE)
 
         # Compile the pipeline document
         rmarkdown::render(
@@ -47,6 +45,7 @@ testthat::test_that("multiplication works", {
         )
 
         # Reset options
+        # no need to on.exit because it's called (see near Line 37)
         options("raveio.pipeline.project_root" = NULL)
 
         # --------------------- Example starts ------------------------

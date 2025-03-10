@@ -669,7 +669,7 @@ pipeline_setup_rmd <- function(
     cwd <- getwd()
 
     setwd(py_dir)
-    on.exit({ if(length(cwd)) { setwd(cwd) } }, add = TRUE, after = FALSE)
+    on.exit({ setwd(cwd) }, add = TRUE, after = FALSE)
 
     common_script_path <- file.path(py_info$pipeline_path, "py", "knitr-common.py")
     py <- rpymat::import_main(convert = FALSE)

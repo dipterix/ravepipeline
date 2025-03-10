@@ -47,6 +47,10 @@ activate_pipeline <- function(pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
   wd0 <- getwd()
   wd <- normalizePath(wd0)
 
+  if( debug && !interactive() ) {
+    stop("Debugging a pipeline must be in an interactive session.")
+  }
+
   setwd(pipe_dir)
   # Handle reset work directory to comply with CRAN policy
 

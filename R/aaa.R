@@ -69,14 +69,12 @@ PIPELINE_FORK_PATTERN <- "(^data|^R|^py|^preferences|\\.R$|\\.py$|\\.yaml$|\\.tx
 #' returns nothing.
 #' @examples
 #'
-#' \dontrun{
+#' if(interactive()) {
 #'
 #' # This function requires connection to the Github, and must run
-#' # under interactive session
+#' # under interactive session since an user prompt will be displayed
 #'
-#' if(interactive()) {
-#'   ravepipeline_finalize_installation()
-#' }
+#' ravepipeline_finalize_installation()
 #'
 #' }
 #'
@@ -91,19 +89,16 @@ ravepipeline_finalize_installation <- function(
   if(dir.exists(template_path)) {
     if(upgrade %in% c("never")) { return() }
     if(upgrade == "ask") {
-      ans <- utils::askYesNo(
-        "Existing version of `rave-pipelines` is detected, upgrade?",
-        end = "\n",
-        error_if_canceled = FALSE,
-        rs_title = "Upgrade module templates"
-      )
+      ans <- utils::askYesNo("Existing version of `rave-pipelines` is detected, upgrade? ")
       if(!isTRUE(ans)) { return() }
     }
+  } else if (upgrade == "ask"){
+    ans <- utils::askYesNo("Installing bultin `rave-pipelines`, proceed? ")
   }
 
-  options("ravepipelines.install.yes_to_all" = TRUE)
+  oldopt <- options("ravepipelines.install.yes_to_all" = TRUE)
   on.exit({
-    options("ravepipelines.install.yes_to_all" = FALSE)
+    options(oldopt)
   })
 
 

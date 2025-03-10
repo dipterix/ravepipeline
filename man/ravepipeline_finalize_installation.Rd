@@ -29,14 +29,12 @@ The code snippet repository is located at
 }
 \examples{
 
-\dontrun{
+if(interactive()) {
 
 # This function requires connection to the Github, and must run
-# under interactive session
+# under interactive session since an user prompt will be displayed
 
-if(interactive()) {
-  ravepipeline_finalize_installation()
-}
+ravepipeline_finalize_installation()
 
 }
 

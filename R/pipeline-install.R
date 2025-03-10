@@ -232,15 +232,17 @@ pipeline_install_github <- function(
   remote_argnames <- c("ref", "subdir", "auth_token", "sha", "host")
   remote_args <- args[names(args) %in% remote_argnames]
   remote_args$repo <- repo
-  remote <- do.call(remotes::github_remote, remote_args)
+  github_remote <- get_remotes_fun("github_remote")
+  remote <- do.call(github_remote, remote_args)
   exdir <- tempfile()
+  # CRAB policy requires resetting options
   timeout <- options(timeout = 3600)
-  # CRAB policy requires resettings options
   on.exit({ options(timeout) })
 
   res <- tryCatch({
     message("Trying to use Github API")
-    tarball <- remotes::remote_download(remote)
+    remote_download <- get_remotes_fun("remote_download")
+    tarball <- remote_download(remote)
     tarball_format <- "tar.gz"
   }, error = function(e) {
     message("Unable to download the tarball. You might have been using the wrong Github API token/privilege or incorrect repository name.")
