@@ -738,7 +738,7 @@ pipeline_render <- function(
       quiet = TRUE, envir = env, ...
     )
   } else {
-    output_path <- file.path(working_path, "main.html")
+    output_path <- file.path(working_path, "main.md")
 
     cwd <- getwd()
     setwd(working_path)
