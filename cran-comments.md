@@ -113,4 +113,7 @@ Please do not install packages in your functions, examples or vignette. This can
 For more details: <https://contributor.r-project.org/cran-cookbook/code_issues.html#installing-software>
 ```
 
-Thanks, packages should not install in testing & examples. In addition, function `get_remotes_fun` in `R/pkginstall.R` has been added to raise errors when using `remotes` package in the testing environment is detected.
+Thanks, packages should not install in testing & examples. In addition, 
+
+* Function `get_remotes_fun` in `R/pkginstall.R` has been added to raise errors when using `remotes` package in the checking environment.
+* Additional R check with `nosuggests` results in no errors/warnings/notes; see https://github.com/dipterix/ravepipeline/actions/runs/13773101466/job/38516072510

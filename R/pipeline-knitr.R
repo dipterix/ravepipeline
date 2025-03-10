@@ -724,6 +724,9 @@ pipeline_render <- function(
   entry_path <- normalizePath(entry_path, mustWork = TRUE)
   working_path <- dirname(entry_path)
 
+  old_opt <- options("raveio.pipeline.project_root" = project_path)
+  on.exit({ options(old_opt) })
+
   # check to use rmarkdown or knitr
   if(package_installed("rmarkdown")) {
     rmarkdown <- asNamespace("rmarkdown")
