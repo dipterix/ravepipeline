@@ -122,6 +122,24 @@ missing, the whole option will be returned.</p>
 non-standard ones. However <code>"session_string"</code> will never reset.</p>
     </div>
     <div class="section level2">
+    <h2 id="side-effects">Side-Effects<a class="anchor" aria-label="anchor" href="#side-effects"></a></h2>
+
+
+<p>The following options will alter other packages and might cause changes in
+behaviors:</p>
+<dl><dt><code>'disable_fork_clusters'</code></dt>
+<dd><p>This option will change the
+<code><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></code> <code>'dipsaus.no.fork'</code> and
+<code>'dipsaus.cluster.backup'</code>, which handles the parallel computing</p></dd>
+
+<dt><code>'threeBrain_template_subject'</code></dt>
+<dd><p>This option will set and persist
+option <code>'threeBrain.template_subject'</code>, which changes the default
+group-level template brain.</p></dd>
+
+
+</dl></div>
+    <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code>R_user_dir</code></p></div>
     </div>
@@ -140,7 +158,7 @@ non-standard ones. However <code>"session_string"</code> will never reset.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "N27"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $session_string</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "1e4b7a03d9c3d8d"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "bcb01c4d9d88b31"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $py_virtualenv</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] ""</span>
@@ -161,7 +179,7 @@ non-standard ones. However <code>"session_string"</code> will never reset.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "America/Chicago"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $max_mem</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 15.6152687072754</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15.6152648925781</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $disable_fork_clusters</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
