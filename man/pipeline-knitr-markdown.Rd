@@ -46,9 +46,10 @@ Please use it in \code{'rmarkdown'} scripts only. Use
 
 configure_knitr("R")
 
-configure_knitr("python")
-
 \dontrun{
+
+# Requires to configure Python
+configure_knitr("python")
 
 # This function must be called in an Rmd file setup block
 # for example, see

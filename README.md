@@ -21,9 +21,9 @@ Please check out our [full installation guide on how to install 'RAVE'](https://
 For developers, or those who do not need the integrated features, you can install the development version from [GitHub](https://github.com/dipterix/ravepipeline) with:
 
 ``` r
-# install.packages("pak")
+# install.packages("remotes")
 
-pak::pak("dipterix/ravepipeline")
+remotes::install_github("dipterix/ravepipeline")
 
 # Download built-in pipelines
 ravepipeline::ravepipeline_finalize_installation("always")

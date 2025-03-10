@@ -10,12 +10,14 @@ check_knit_packages <- function(languages = c("R", "python")){
   # check knitr, rmarkdown, reticulate
   pkgs <- pkgs[!package_installed(pkgs)]
 
-  if(length(pkgs)){
+  if(length(pkgs) && interactive()){
     if(!interactive()){
       stop("Package(s) ", paste(pkgs, collapse = ", "), " are required. Please run install.packages(c(", paste0('"', pkgs, '"', collapse = ", "), ")) to install them")
     }
-    message("Package(s) ", paste(pkgs, collapse = ", "), " are required. ")
-    ans <- utils::askYesNo("Do you want to install them?")
+
+    prompt <- sprintf("Package %s are required. Do you want to install them? ", paste(pkgs, collapse = ", "))
+    message()
+    ans <- utils::askYesNo(prompt)
     if(!isTRUE(ans)){
       stop("User abort.")
     }
@@ -589,9 +591,10 @@ def rave_unserialize(x, path, name):
 #'
 #' configure_knitr("R")
 #'
-#' configure_knitr("python")
-#'
 #' \dontrun{
+#'
+#' # Requires to configure Python
+#' configure_knitr("python")
 #'
 #' # This function must be called in an Rmd file setup block
 #' # for example, see

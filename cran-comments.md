@@ -113,3 +113,4 @@ Please do not install packages in your functions, examples or vignette. This can
 For more details: <https://contributor.r-project.org/cran-cookbook/code_issues.html#installing-software>
 ```
 
+Thanks, packages should not install in testing & examples. Function `get_remotes_fun` in `R/pkginstall.R` has been added to raise errors when using `remotes` package in the testing environment is detected.
