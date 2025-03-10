@@ -37,11 +37,15 @@ testthat::test_that("multiplication works", {
         on.exit({ options(old_opt) }, add = TRUE)
 
         # Compile the pipeline document
-        rmarkdown::render(
-          input = file.path(pipeline_path, "main.Rmd"),
-          output_dir = pipeline_path,
-          knit_root_dir = pipeline_path,
-          intermediates_dir = pipeline_path, quiet = TRUE
+        # rmarkdown::render(
+        #   input = file.path(pipeline_path, "main.Rmd"),
+        #   output_dir = pipeline_path,
+        #   knit_root_dir = pipeline_path,
+        #   intermediates_dir = pipeline_path, quiet = TRUE
+        # )
+        pipeline_render(
+          module_id = "raveio_demo",
+          project_path = root_path
         )
 
         # Reset options

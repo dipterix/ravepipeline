@@ -4,6 +4,7 @@
 \alias{pipeline-knitr-markdown}
 \alias{configure_knitr}
 \alias{pipeline_setup_rmd}
+\alias{pipeline_render}
 \title{Configure \code{'rmarkdown'} files to build 'RAVE' pipelines}
 \usage{
 configure_knitr(languages = c("R", "python"))
@@ -14,6 +15,15 @@ pipeline_setup_rmd(
   collapse = TRUE,
   comment = "#>",
   languages = c("R", "python"),
+  project_path = getOption("raveio.pipeline.project_root", default =
+    rs_active_project(child_ok = TRUE, shiny_ok = TRUE))
+)
+
+pipeline_render(
+  module_id,
+  ...,
+  env = new.env(parent = parent.frame()),
+  entry_file = "main.Rmd",
   project_path = getOption("raveio.pipeline.project_root", default =
     rs_active_project(child_ok = TRUE, shiny_ok = TRUE))
 )
@@ -32,6 +42,10 @@ containing the pipeline file}
 
 \item{project_path}{the project path containing all the pipeline folders,
 usually the active project folder}
+
+\item{...}{passed to internal function calls}
+
+\item{entry_file}{the file to compile; default is \code{"main.Rmd"}}
 }
 \value{
 A function that is supposed to be called later that builds the

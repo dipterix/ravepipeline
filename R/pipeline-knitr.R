@@ -3,10 +3,16 @@
 RAVE_KNITR_SUPPORTED_LANG <- c("R", "python")
 
 check_knit_packages <- function(languages = c("R", "python")){
-  pkgs <- c('knitr', 'rmarkdown')
-  if("python" %in% languages){
-    pkgs <- c(pkgs, 'rpymat')
+
+  if( interactive() ) {
+    pkgs <- c('knitr', 'rmarkdown')
+    if("python" %in% languages){
+      pkgs <- c(pkgs, 'rpymat')
+    }
+  } else {
+    pkgs <- 'knitr'
   }
+
   # check knitr, rmarkdown, reticulate
   pkgs <- pkgs[!package_installed(pkgs)]
 
@@ -15,13 +21,11 @@ check_knit_packages <- function(languages = c("R", "python")){
       stop("Package(s) ", paste(pkgs, collapse = ", "), " are required. Please run install.packages(c(", paste0('"', pkgs, '"', collapse = ", "), ")) to install them")
     }
 
-    prompt <- sprintf("Package %s are required. Do you want to install them? ", paste(pkgs, collapse = ", "))
-    message()
+    prompt <- sprintf("Package %s missing. Do you want to install them? ", paste(pkgs, collapse = ", "))
     ans <- utils::askYesNo(prompt)
-    if(!isTRUE(ans)){
-      stop("User abort.")
+    if(isTRUE(ans)){
+      install_cran(pkgs = pkgs, upgrade = FALSE)
     }
-    install_cran(pkgs = pkgs, upgrade = FALSE)
   }
 
 
@@ -582,6 +586,8 @@ def rave_unserialize(x, path, name):
 #' @param env environment to set up the pipeline translator
 #' @param project_path the project path containing all the pipeline folders,
 #' usually the active project folder
+#' @param entry_file the file to compile; default is \code{"main.Rmd"}
+#' @param ... passed to internal function calls
 #' @param collapse,comment passed to \code{set} method of
 #' \code{\link[knitr]{opts_chunk}}
 #' @returns A function that is supposed to be called later that builds the
@@ -695,4 +701,48 @@ pipeline_setup_rmd <- function(
   env$.settings <- settings
   list2env(as.list(settings), envir = env)
   invisible(settings)
+}
+
+#' @rdname pipeline-knitr-markdown
+#' @export
+pipeline_render <- function(
+    module_id, ...,
+    env = new.env(parent = parent.frame()),
+    entry_file = "main.Rmd",
+    project_path = getOption(
+      "raveio.pipeline.project_root",
+      default = rs_active_project(child_ok = TRUE, shiny_ok = TRUE)
+    )) {
+
+  if( length(project_path) != 1 || is.na(project_path) || !is.character(project_path) || trimws(project_path) %in% c("", "/", "NA")) {
+    project_path <- normalizePath(".")
+  }
+
+  module_path <- file.path(project_path, "modules", module_id)
+  entry_path <- file.path(module_path, entry_file)
+
+  entry_path <- normalizePath(entry_path, mustWork = TRUE)
+  working_path <- dirname(entry_path)
+
+  # check to use rmarkdown or knitr
+  if(package_installed("rmarkdown")) {
+    rmarkdown <- asNamespace("rmarkdown")
+    output_path <- rmarkdown$render(
+      input = entry_path,
+      output_dir = module_path,
+      knit_root_dir = module_path,
+      intermediates_dir = module_path,
+      quiet = TRUE, envir = env, ...
+    )
+  } else {
+    output_path <- file.path(working_path, "main.html")
+
+    cwd <- getwd()
+    setwd(working_path)
+    on.exit({ setwd(cwd) })
+
+    knitr::knit(input = entry_path, output = output_path, quiet = TRUE, envir = env)
+  }
+
+  invisible(output_path)
 }
