@@ -8,7 +8,7 @@
 [![ravepipeline status badge](https://rave-ieeg.r-universe.dev/ravepipeline/badges/version)](https://rave-ieeg.r-universe.dev/ravepipeline)
 <!-- badges: end -->
 
-The goal of ravepipeline is to provide infrastructure for [Reproducible Analysis and Visualization of Intracranial Electroencephalography (`RAVE`)](https://rave.wiki). The package defines high-level class to build, compile, set, execute, and share intracranial analysis pipelines. Both `R` and `Python` are supported with `Markdown` and `shiny` dashboard templates for extending and building customized pipelines.
+The goal of ravepipeline is to provide pipeline infrastructure for [Reproducible Analysis and Visualization of Intracranial Electroencephalography (`RAVE`)](https://rave.wiki). The package defines high-level class to build, compile, set, execute, and share neuroscience pipelines. Both `R` and `Python` are supported with `Markdown` and `shiny` dashboard templates for extending and building customized pipelines.
 
 We offers several built-in pipelines, see repository [rave-ieeg/rave-pipelines](https://github.com/rave-ieeg/rave-pipelines) for details.
 
@@ -18,15 +18,19 @@ More documentation is available at [rave.wiki](https://rave.wiki)
 
 Please check out our [full installation guide on how to install 'RAVE'](https://rave.wiki/posts/installation/installation.html)
 
-For developers, or those who do not need the integrated features, you can install the development version from [GitHub](https://github.com/dipterix/ravepipeline) with:
+For full features, please install additional packages:
 
 ``` r
-# install.packages("remotes")
+# install.packages(c("remotes", "visNetwork", "rpymat"))
 
+# Install development version
 remotes::install_github("dipterix/ravepipeline")
 
 # Download built-in pipelines
-ravepipeline::ravepipeline_finalize_installation("always")
+ravepipeline::ravepipeline_finalize_installation()
+
+# Configure Python environment if needed
+rpymat::configure_conda()
 ```
 
 ## Run analysis pipelines

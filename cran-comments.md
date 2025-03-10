@@ -112,4 +112,4 @@ For more details: <https://contributor.r-project.org/cran-cookbook/code_issues.h
 Thanks, packages should not install in testing & examples now. In addition, the following safety measures have been added:
 
 * Function `get_remotes_fun` in `R/pkginstall.R` will raise errors when using `remotes` package in the checking environment.
-* Additional R check with `nosuggests` results in no errors/warnings/notes; see https://github.com/dipterix/ravepipeline/actions/runs/13774153540/job/38519484636
+* Additional R check with `nosuggests` results in no errors/warnings/notes; see https://github.com/dipterix/ravepipeline/actions/runs/13774856744/job/38521764803
