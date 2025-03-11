@@ -91,9 +91,7 @@ pipeline_target_names <- function(pipe_dir = Sys.getenv("RAVE_PIPELINE", ".")){
   script <- attr(pipe_dir, "target_script")
 
   all_targets <- load_target("make-main.R")
-  target_names <- unlist(lapply(all_targets, function(x){
-    x$settings$name
-  }))
+  target_names <- unlist(lapply(all_targets, get_target_name))
   target_names
 }
 
@@ -115,12 +113,8 @@ pipeline_debug <- function(
 
   if(quick){
     if(missing(skip_names)){
-      main_target_names <- unlist(lapply(main_targets, function(x){
-        x$settings$name
-      }))
-      target_names <- unlist(lapply(all_targets, function(x){
-        x$settings$name
-      }))
+      main_target_names <- unlist(lapply(main_targets, get_target_name))
+      target_names <- unlist(lapply(all_targets, get_target_name))
       skip_names <- unname(target_names[!target_names %in% main_target_names])
     }
   } else {
@@ -153,7 +147,7 @@ pipeline_debug <- function(
     }
 
     ...t <- all_targets[[ii]]
-    name <- ...t$settings$name
+    name <- get_target_name(...t)
     if(name %in% skip_names){
       v <- targets::tar_read_raw(name)
       assign(name, v, envir = env)
@@ -170,7 +164,7 @@ pipeline_debug <- function(
 
       {
         message("Evaluating -> ", name, "\r", appendLF = FALSE)
-        v <- eval(...t$command$expr, new.env(parent = env))
+        v <- eval(get_target_expr(...t), new.env(parent = env))
         assign(name, v, envir = env)
         str <- deparse1(v)
         str <- gsub(x = str, pattern = "[\t\n]", replacement = "  ")
@@ -190,6 +184,7 @@ pipeline_debug <- function(
   }
 }
 
+
 #' @rdname rave-pipeline
 #' @export
 pipeline_dep_targets <- function(
@@ -205,14 +200,15 @@ pipeline_dep_targets <- function(
 
   dep_env <- new.env(parent = emptyenv(), hash = TRUE)
 
-  tnames <- vapply(all_targets, function(target) {
-    target$settings$name
-  }, "", USE.NAMES = FALSE)
+  tnames <- vapply(all_targets, get_target_name, "", USE.NAMES = FALSE)
 
+  # tparents <- structure(
+  #   lapply(all_targets, get_target_deps),
+  #   names = tnames
+  # )
+  # FIXME: Add test! This is annoying
   tparents <- structure(
-    lapply(all_targets, function(target) {
-      target$command$deps
-    }),
+    lapply(all_targets, get_target_deps),
     names = tnames
   )
 
@@ -266,7 +262,7 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
   all_targets <- load_target("make-main.R")
 
   nms <- names(all_targets)
-  tnames <- unname(unlist(lapply(all_targets, function(t){ t$settings$name })))
+  tnames <- unname(unlist(lapply(all_targets, get_target_name)))
   if(is.null(names)) {
     names <- tnames
   }
@@ -351,7 +347,7 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
       }
     }
 
-    deps <- tar_obj$command$deps
+    deps <- get_target_deps(tar_obj)
     deps <- deps[!deps %in% matured_targets]
     if( length(deps) ) {
       lapply(deps, eval_target)
@@ -361,7 +357,7 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
 
     started <- Sys.time()
     catgl(sprintf("Starting - %s ...", readable_name), .envir = emptyenv(), level = "DEFAULT")
-    v <- eval(tar_obj$command$expr, new.env(parent = env))
+    v <- eval(get_target_expr(tar_obj), new.env(parent = env))
     assign(name, v, envir = env)
     matured_targets <<- c(matured_targets, name)
 
@@ -411,7 +407,7 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
   #
   #     tar_obj <- all_targets[[ii]]
   #     started <- Sys.time()
-  #     v <- eval(tar_obj$command$expr, new.env(parent = env))
+  #     v <- eval(get_target_expr(tar_obj), new.env(parent = env))
   #     assign(name, v, envir = env)
   #     ended <- Sys.time()
   #
@@ -440,12 +436,8 @@ pipeline_run_interactive <- function(
   main_targets <- load_target(script)
   all_targets <- load_target("make-main.R")
 
-  main_target_names <- unlist(lapply(main_targets, function(x){
-    x$settings$name
-  }))
-  target_names <- unlist(lapply(all_targets, function(x){
-    x$settings$name
-  }))
+  main_target_names <- unlist(lapply(main_targets, get_target_name))
+  target_names <- unlist(lapply(all_targets, get_target_name))
   if(missing(skip_names)){
     skip_names <- unname(target_names[!target_names %in% main_target_names])
   }
@@ -481,7 +473,7 @@ pipeline_run_interactive <- function(
       }
 
       ...t <- all_targets[[ii]]
-      name <- ...t$settings$name
+      name <- get_target_name(...t)
       r <- w - nchar(nm, type = "width") - 14
       if( r <= 2 ){ r <- 2 }
       nm <- paste(c(
@@ -492,7 +484,7 @@ pipeline_run_interactive <- function(
       counter <- Sys.time()
       {
         message("Evaluating -> ", name, "\r", appendLF = FALSE)
-        expr <- ...t$command$expr
+        expr <- get_target_expr(...t)
         tryCatch({
           v <- eval(expr, new.env(parent = env))
           assign(name, v, envir = env)

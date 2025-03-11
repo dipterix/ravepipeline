@@ -923,4 +923,81 @@ pipeline_from_path <- function(path, settings_file = "settings.yaml") {
   eval(expr, envir = parent.frame())
 }
 
+#' @export
+format.PipelineTools <- function(x, ...) {
 
+  has_python <- x$python_module(type = "exist")
+
+  citation_str <- NULL
+  if(length(x$description$Citations)) {
+    citation_str <- paste(format(x$description$Citations, bibtex = FALSE), collapse = "\n")
+    citation_str <- c("", trimws(citation_str))
+  }
+
+  target_table <- x$target_table
+  input_settings <- x$get_settings()
+  input_names <- names(input_settings)
+
+  all_targets <- x$with_activated({
+    load_target("make-main.R")
+  })
+  target_names <- vapply(all_targets, get_target_name, "")
+
+  types <- vapply(target_table$Names, function(nm) {
+    switch(
+      nm,
+      "settings_path" = "[internal file]",
+      "settings" = "[internal list]",
+      {
+        if(nm %in% input_names) {
+          v <- input_settings[[nm]]
+          s <- utils::capture.output({
+            utils::str(
+              v,
+              max.level = 0L,
+              nchar.max = 45,
+              give.attr = FALSE,
+              drop.deparse.attr = TRUE,
+              give.head = FALSE,
+              indent.str = "",
+              comp.str = "",
+              no.list = FALSE
+            )
+          })
+          s <- paste(s, collapse = "")
+          if(is.list(v)) {
+            s <- sprintf("<%s>", s)
+          }
+          s
+        } else {
+          deps <- get_target_deps(all_targets[[which(target_names == nm)[[1]]]])
+          sprintf("[dependency: %4d]", length(deps))
+        }
+      }
+    )
+  }, "")
+
+  target_table <- data.frame(
+    Target = target_table$Names,
+    Snapshot = types,
+    Description = target_table$Description
+  )
+
+
+  tbl_str <- utils::capture.output({
+    print(target_table, row.names = FALSE)
+    invisible()
+  })
+
+  str <- c(
+    sprintf("Pipeline <%s>", x$pipeline_name),
+    sprintf("  Title : %s", x$description$Title),
+    sprintf("  Path  : %s", x$pipeline_path),
+    sprintf("  Python: %s", ifelse(has_python, "yes", "no")),
+    citation_str,
+    "",
+    "Runnable target table:",
+    sprintf("  %s", tbl_str)
+  )
+  paste(str, collapse = "\n")
+}
