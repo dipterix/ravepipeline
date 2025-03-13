@@ -1,5 +1,6 @@
-#' Class definition for pipeline tools
+#' Class definition for 'RAVE' pipelines
 #' @seealso \code{\link{pipeline}}
+#' @export
 PipelineTools <- R6::R6Class(
   classname = "PipelineTools",
   portable = TRUE,

@@ -47,8 +47,11 @@ resolve_pipeline_error <- function(name, condition, expr = NULL) {
   }
 
   entrace <- get0("entrace", envir = asNamespace("dipsaus"),
-                  mode = "function", ifnotfound = stop, inherits = TRUE)
-  entrace(condition)
+                  mode = "function", ifnotfound = NULL, inherits = TRUE)
+  if(is.function(entrace)) {
+    entrace(condition)
+  }
+
   # condition <- rlang::cnd_entrace(condition)
   # rlang::cnd_signal(condition)
 

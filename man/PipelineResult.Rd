@@ -2,15 +2,15 @@
 % Please edit documentation in R/pipeline-result.R
 \name{PipelineResult}
 \alias{PipelineResult}
-\title{Pipeline result object}
+\title{Class definition for 'RAVE' pipeline results}
 \value{
 \code{TRUE} if the target is finished, or \code{FALSE} if
 timeout is reached
 }
 \description{
-Pipeline result object
+Class definition for 'RAVE' pipeline results
 
-Pipeline result object
+Class definition for 'RAVE' pipeline results
 }
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/class-PipelineTools.R
 \name{PipelineTools}
 \alias{PipelineTools}
-\title{Class definition for pipeline tools}
+\title{Class definition for 'RAVE' pipelines}
 \value{
 The value of the inputs, or a list if \code{key} is missing
 
@@ -37,9 +37,9 @@ if keys is 1, then returns the value of that preference
 logical whether the keys exist
 }
 \description{
-Class definition for pipeline tools
+Class definition for 'RAVE' pipelines
 
-Class definition for pipeline tools
+Class definition for 'RAVE' pipelines
 }
 \examples{
 

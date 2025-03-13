@@ -1,4 +1,5 @@
-#' @title Pipeline result object
+#' @title Class definition for 'RAVE' pipeline results
+#' @export
 PipelineResult <- R6::R6Class(
   classname = "PipelineResult",
   portable = TRUE,
