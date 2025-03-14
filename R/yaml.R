@@ -20,17 +20,17 @@ read_yaml <- function(file, ...) {
 save_yaml <- function(x, file, ..., sorted = FALSE) {
   if (inherits(x, "fastmap")) {
     x <- x$as_list(sort = sorted)
-  }
-  else if (inherits(x, "fastmap2")) {
+  } else if (inherits(x, "fastmap2")) {
     x <- x[["@as_list"]](sort = sorted)
-  }
-  else if (inherits(x, c("fastqueue", "fastqueue2"))) {
+  } else if (inherits(x, c("fastqueue", "fastqueue2"))) {
     x <- x$as_list()
-  }
-  else if (sorted) {
+  } else if (sorted) {
     x <- as.list(x, sorted = sorted, ...)
-  }
-  else {
+    nms <- names(x)
+    if(length(nms) && is.unsorted(nms)) {
+      x <- x[order(nms)]
+    }
+  } else {
     x <- as.list(x, ...)
   }
   yaml::write_yaml(x, file = file, ...)
