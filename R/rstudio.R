@@ -5,7 +5,9 @@ rs_avail <- function (version_needed = "1.3", child_ok = FALSE, shiny_ok = FALSE
   }
 
   if( package_installed("rstudioapi") ) {
-    return(call_pkg_fun("rstudioapi", "isAvailable", version_needed = version_needed, child_ok = child_ok))
+    return(
+      asNamespace("rstudioapi")$isAvailable(version_needed = version_needed, child_ok = child_ok)
+    )
   }
 
   # rstudioapi is not available
@@ -17,7 +19,7 @@ rs_avail <- function (version_needed = "1.3", child_ok = FALSE, shiny_ok = FALSE
 
 rs_active_project <- function (...) {
   if (rs_avail(...)) {
-    return(call_pkg_fun("rstudioapi", "getActiveProject"))
+    return(asNamespace("rstudioapi")$getActiveProject())
   }
   # rstudioapi is missing. However, there is still a hope
   # RStudio injects function `.rs.getProjectDirectory` to the environment
