@@ -532,7 +532,7 @@ def rave_unserialize(x, path, name):
           targets::tar_target_raw(
             "settings",
             quote({
-              read_yaml(settings_path)
+              yaml::read_yaml(settings_path)
             }),
             deps = "settings_path",
             cue = targets::tar_cue("always")
