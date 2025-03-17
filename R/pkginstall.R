@@ -26,38 +26,38 @@ guess_libpath <- function() {
 }
 
 install_deps <- function(root, upgrade = FALSE, force = FALSE, lib = guess_libpath(), ...) {
-  if( !isTRUE(getOption("ravepipelines.install.yes_to_all", FALSE)) ) {
-    # Installing packages should be under interactive session and should ask users
-    if(!interactive()) {
-      stop("`install_deps`: must run under interactive session")
-    }
-    ans <- utils::askYesNo("Installing dependencies... This might install additional packages. Proceed? ")
-    if(!isTRUE(ans)) {
-      stop("Abort.")
-    }
-    # suppress future question
-    old_opt <- options("ravepipelines.install.yes_to_all" = TRUE)
-    on.exit({ options(old_opt) })
-  }
+  # if( !isTRUE(getOption("ravepipelines.install.yes_to_all", FALSE)) ) {
+  #   # Installing packages should be under interactive session and should ask users
+  #   if(!interactive()) {
+  #     stop("`install_deps`: must run under interactive session")
+  #   }
+  #   ans <- utils::askYesNo("Installing dependencies... This might install additional packages. Proceed? ")
+  #   if(!isTRUE(ans)) {
+  #     stop("Abort.")
+  #   }
+  #   # suppress future question
+  #   old_opt <- options("ravepipelines.install.yes_to_all" = TRUE)
+  #   on.exit({ options(old_opt) })
+  # }
 
   install_deps <- get_remotes_fun("install_deps")
   install_deps(pkgdir = root, upgrade = upgrade, force = force, lib = lib, ...)
 }
 
 install_cran <- function(pkgs, upgrade = FALSE, lib = guess_libpath(), ...) {
-  if( !isTRUE(getOption("ravepipelines.install.yes_to_all", FALSE)) ) {
-    # Installing packages should be under interactive session and should ask users
-    if(!interactive()) {
-      stop("`install_deps`: must run under interactive session")
-    }
-    ans <- utils::askYesNo("Installing dependencies... This might install additional packages. Proceed? ")
-    if(!isTRUE(ans)) {
-      stop("Abort.")
-    }
-    # suppress future question
-    old_opt <- options("ravepipelines.install.yes_to_all" = TRUE)
-    on.exit({ options(old_opt) })
-  }
+  # if( !isTRUE(getOption("ravepipelines.install.yes_to_all", FALSE)) ) {
+  #   # Installing packages should be under interactive session and should ask users
+  #   if(!interactive()) {
+  #     stop("`install_deps`: must run under interactive session")
+  #   }
+  #   ans <- utils::askYesNo("Installing dependencies... This might install additional packages. Proceed? ")
+  #   if(!isTRUE(ans)) {
+  #     stop("Abort.")
+  #   }
+  #   # suppress future question
+  #   old_opt <- options("ravepipelines.install.yes_to_all" = TRUE)
+  #   on.exit({ options(old_opt) })
+  # }
   install_cran <- get_remotes_fun("install_cran")
   install_cran(pkgs, upgrade = ifelse(isTRUE(upgrade), "always", "never"), lib = lib, ...)
 

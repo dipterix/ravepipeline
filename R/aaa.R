@@ -100,7 +100,7 @@ ravepipeline_finalize_installation <- function(
   oldopt <- options("ravepipelines.install.yes_to_all" = TRUE)
   on.exit({
     options(oldopt)
-  })
+  }, add = TRUE, after = TRUE)
 
 
 
