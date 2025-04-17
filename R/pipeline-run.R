@@ -88,7 +88,7 @@ pipeline_run <- function(
     shared_libs <- list.files(file.path(.(pipe_dir), "R"), pattern = "^shared-.*\\.R",
                               full.names = TRUE, ignore.case = TRUE)
     lapply(sort(shared_libs), function(f) {
-      if(debug) {
+      if(.(debug)) {
         message("pipeline_run: loading script: ", f)
       }
       source(file = f, local = args$envir, chdir = TRUE)
@@ -153,13 +153,13 @@ pipeline_run <- function(
     }
 
     if("none" == .(scheduler)){
-      if(debug) {
+      if(.(debug)) {
         message("pipeline_run: using targets::tar_make")
       }
       make( targets::tar_make )
     } else if("future" == .(scheduler)){
       args$workers <- ns$raveio_getopt("max_worker", default = 1L)
-      if(debug) {
+      if(.(debug)) {
         message("pipeline_run: using targets::tar_make_future")
       }
       make( targets::tar_make_future )
@@ -171,7 +171,7 @@ pipeline_run <- function(
       old_opt <- options('clustermq.scheduler' = clustermq_scheduler)
       on.exit({ options(old_opt) }, add = TRUE)
 
-      if(debug) {
+      if(.(debug)) {
         message("pipeline_run: using targets::tar_make_clustermq with scheduler [", clustermq_scheduler, "]")
       }
 
