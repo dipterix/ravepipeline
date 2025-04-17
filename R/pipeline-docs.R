@@ -86,6 +86,7 @@
 #' is not found
 #' @param data extended data to be saved
 #' @param ...,.list other parameters, targets, etc.
+#' @param debug whether to debug the process; default is false
 #' @param .preference_instance internally used
 #' @returns \describe{
 #' \item{\code{pipeline_root}}{the root directories of the pipelines}

@@ -55,6 +55,7 @@ pipeline_run(
   progress_max = NA,
   progress_title = "Running pipeline",
   return_values = TRUE,
+  debug = FALSE,
   ...
 )
 
@@ -73,6 +74,7 @@ pipeline_run_bare(
   callr_function = NULL,
   names = NULL,
   return_values = TRUE,
+  debug = FALSE,
   ...
 )
 
@@ -251,6 +253,8 @@ how often to check the pipeline}
 \item{return_values}{whether to return pipeline target values; default is
 true; only works in \code{pipeline_run_bare} and will be ignored by
 \code{pipeline_run}}
+
+\item{debug}{whether to debug the process; default is false}
 
 \item{..., .list}{other parameters, targets, etc.}
 

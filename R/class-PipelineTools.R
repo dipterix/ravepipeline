@@ -210,8 +210,8 @@ PipelineTools <- R6::R6Class(
     #' @param async whether to run asynchronous in another process
     #' @param as_promise whether to return a \code{\link{PipelineResult}}
     #' instance
-    #' @param scheduler,type,envir,callr_function,return_values,... passed to
-    #' \code{\link{pipeline_run}} if \code{as_promise} is true, otherwise
+    #' @param scheduler,type,envir,callr_function,return_values,debug,... passed
+    #' to \code{\link{pipeline_run}} if \code{as_promise} is true, otherwise
     #' these arguments will be passed to \code{pipeline_run_bare}
     #' @returns A \code{\link{PipelineResult}} instance if \code{as_promise}
     #' or \code{async} is true; otherwise a list of values for input \code{names}
@@ -220,6 +220,7 @@ PipelineTools <- R6::R6Class(
                    type = c("smart", "callr", "vanilla"),
                    envir = new.env(parent = globalenv()),
                    callr_function = NULL, return_values = TRUE,
+                   debug = FALSE,
                    ...) {
       if(!as_promise && async) {
         stop("If you run the pipeline asynchronous, then the result must be a `promise` object")
@@ -247,7 +248,7 @@ PipelineTools <- R6::R6Class(
       expr <- bquote(pipeline_run_bare(
         pipe_dir = .(private$.pipeline_path), scheduler = .(scheduler),
         type = .(type), envir = envir, callr_function = .(callr_function),
-        names = .(names), return_values = .(return_values), ...))
+        names = .(names), return_values = .(return_values), debug = .(debug), ...))
 
       if( as_promise ) {
         expr[[1]] <- quote(pipeline_run)

@@ -564,6 +564,12 @@ pipeline_dependency_graph <- function(pipeline_path, targets_only = TRUE, shortc
 
       store <- targets$tar_config_get("store")
       names <- targets$pipeline_get_names(target)
+      # check if targets version is at least 1.11.1
+      if(isTRUE(utils::compareVersion(as.character(utils::packageVersion("targets")), "1.11.1") >= 0)) {
+        targets$tar_config_set(reporter_make = "terse", reporter_outdated = "terse")
+      } else {
+        targets::tar_config_set(reporter_make = "balanced", reporter_outdated = "balanced")
+      }
       reporter <- targets$tar_config_get("reporter_outdated")
 
 
@@ -578,7 +584,7 @@ pipeline_dependency_graph <- function(pipeline_path, targets_only = TRUE, shortc
           pipeline = target, meta = targets$meta_init(path_store = store),
           progress = targets$progress_init(path_store = store), targets_only = targets_only,
           names = names, shortcut = shortcut, allow = NULL,
-          exclude = ".Random.seed", outdated = TRUE, reporter = reporter)
+          exclude = ".Random.seed", outdated = TRUE)
       }
       visual <- targets$visnetwork_init(
         network = network, label = NULL,
