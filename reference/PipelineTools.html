@@ -9,7 +9,7 @@ Class definition for 'RAVE' pipelines"></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9006</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9007</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -251,6 +251,7 @@ all the intermediate variables</p></dd>
 <span>  envir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">new.env</a></span><span class="op">(</span>parent <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/environment.html" class="external-link">globalenv</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  callr_function <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  return_values <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  debug <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -271,9 +272,9 @@ calculate all the targets</p></dd>
 instance</p></dd>
 
 
-<dt><code>scheduler, type, envir, callr_function, return_values, ...</code></dt>
-<dd><p>passed to
-<code><a href="rave-pipeline.html">pipeline_run</a></code> if <code>as_promise</code> is true, otherwise
+<dt><code>scheduler, type, envir, callr_function, return_values, debug, ...</code></dt>
+<dd><p>passed
+to <code><a href="rave-pipeline.html">pipeline_run</a></code> if <code>as_promise</code> is true, otherwise
 these arguments will be passed to <code>pipeline_run_bare</code></p></dd>
 
 
