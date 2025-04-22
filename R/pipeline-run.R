@@ -115,7 +115,7 @@ pipeline_run <- function(
         if(isTRUE(utils::compareVersion(as.character(utils::packageVersion("targets")), "1.11.1") >= 0)) {
           targets::tar_config_set(reporter_make = "terse", reporter_outdated = "terse")
         } else {
-          targets::tar_config_set(reporter_make = "balanced", reporter_outdated = "balanced")
+          targets::tar_config_unset(c("reporter_make", "reporter_outdated"))
         }
 
         # Make sure the temporary folder exists
@@ -371,7 +371,7 @@ pipeline_run_bare <- function(
           if(isTRUE(utils::compareVersion(as.character(utils::packageVersion("targets")), "1.11.1") >= 0)) {
             targets::tar_config_set(reporter_make = "terse", reporter_outdated = "terse")
           } else {
-            targets::tar_config_set(reporter_make = "balanced", reporter_outdated = "balanced")
+            targets::tar_config_unset(c("reporter_make", "reporter_outdated"))
           }
 
           targets::tar_destroy("process", ask = FALSE)

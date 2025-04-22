@@ -568,7 +568,7 @@ pipeline_dependency_graph <- function(pipeline_path, targets_only = TRUE, shortc
       if(isTRUE(utils::compareVersion(as.character(utils::packageVersion("targets")), "1.11.1") >= 0)) {
         targets$tar_config_set(reporter_make = "terse", reporter_outdated = "terse")
       } else {
-        targets::tar_config_set(reporter_make = "balanced", reporter_outdated = "balanced")
+        targets$tar_config_unset(c("reporter_make", "reporter_outdated"))
       }
       reporter <- targets$tar_config_get("reporter_outdated")
 
