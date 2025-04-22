@@ -121,12 +121,13 @@ install_snippet <- function(path) {
       from <- file.path(path, file)
       to <- file.path(snippet_path, file)
       dir_create2(dirname(to))
-      file.copy(from = from, to = to)
+      file.copy(from = from, to = to, overwrite = TRUE)
       return()
     })
   } else {
     file.copy(from = path,
-              to = file.path(dir_create2(snippet_path), basename(path)))
+              to = file.path(dir_create2(snippet_path), basename(path)),
+              overwrite = TRUE)
   }
   return(invisible())
 }
