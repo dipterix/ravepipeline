@@ -727,6 +727,23 @@ PipelineTools <- R6::R6Class(
     has_preferences = function(keys, ...) {
       pipeline_has_preferences(keys = keys, ...,
                                .preference_instance = private$.preferences)
+    },
+
+    #' @description generate pipeline
+    #' @param name report name, see field \code{'available_reports'}
+    #' @param output_dir parent folder where output will be stored
+    #' @param output_format output format
+    #' @param clean whether to clean the output; default is false
+    #' @param ... passed to \code{'rmarkdown'} render function
+    #' @returns A job identification number, see \code{\link{resolve_job}} for
+    #' querying job details
+    generate_report = function(
+      name, output_dir = NULL, output_format = "html_document",
+      clean = FALSE, ...) {
+      pipeline_report_generate(
+        name = name, output_dir = output_dir,
+        output_format = output_format, clean = clean,
+        ..., pipe_dir = private$.pipeline_path)
     }
 
   ),
@@ -786,6 +803,17 @@ PipelineTools <- R6::R6Class(
     #' @field pipeline_name the code name of the pipeline
     pipeline_name = function() {
       private$.pipeline_name
+    },
+
+    #' @field available_reports available reports and their configurations
+    available_reports = function() {
+      reports <- as.list(pipeline_report_list(private$.pipeline_path))
+      report_configurations <- reports$report_configurations
+      re <- lapply(report_configurations, function(config) {
+        name <- config$name
+        structure(list(config), names = name)
+      })
+      unlist(re, recursive = FALSE, use.names = TRUE)
     }
 
   )

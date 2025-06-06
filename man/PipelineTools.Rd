@@ -35,6 +35,9 @@ A list of the preferences. If \code{simplify} is true and length
 if keys is 1, then returns the value of that preference
 
 logical whether the keys exist
+
+A job identification number, see \code{\link{resolve_job}} for
+querying job details
 }
 \description{
 Class definition for 'RAVE' pipelines
@@ -93,6 +96,8 @@ signatures of data and commands}
 \item{\code{pipeline_path}}{the absolute path of the pipeline}
 
 \item{\code{pipeline_name}}{the code name of the pipeline}
+
+\item{\code{available_reports}}{available reports and their configurations}
 }
 \if{html}{\out{</div>}}
 }
@@ -120,6 +125,7 @@ signatures of data and commands}
 \item \href{#method-PipelineTools-set_preferences}{\code{PipelineTools$set_preferences()}}
 \item \href{#method-PipelineTools-get_preferences}{\code{PipelineTools$get_preferences()}}
 \item \href{#method-PipelineTools-has_preferences}{\code{PipelineTools$has_preferences()}}
+\item \href{#method-PipelineTools-generate_report}{\code{PipelineTools$generate_report()}}
 \item \href{#method-PipelineTools-clone}{\code{PipelineTools$clone()}}
 }
 }
@@ -707,6 +713,37 @@ whether pipeline has preference keys
 \item{\code{keys}}{characters name of the preferences}
 
 \item{\code{...}}{passed to internal methods}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipelineTools-generate_report"></a>}}
+\if{latex}{\out{\hypertarget{method-PipelineTools-generate_report}{}}}
+\subsection{Method \code{generate_report()}}{
+generate pipeline
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$generate_report(
+  name,
+  output_dir = NULL,
+  output_format = "html_document",
+  clean = FALSE,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{name}}{report name, see field \code{'available_reports'}}
+
+\item{\code{output_dir}}{parent folder where output will be stored}
+
+\item{\code{output_format}}{output format}
+
+\item{\code{clean}}{whether to clean the output; default is false}
+
+\item{\code{...}}{passed to \code{'rmarkdown'} render function}
 }
 \if{html}{\out{</div>}}
 }
