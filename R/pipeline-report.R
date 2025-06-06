@@ -158,7 +158,7 @@ pipeline_report_generate <- function(
 
       unlink(source_path, recursive = TRUE, force = TRUE)
 
-      file.path(output_dir, "report.html")
+      file.path(output_dir, basename(source_path), "report.html")
     },
     fun_args = list(
       call_args = call_args,
