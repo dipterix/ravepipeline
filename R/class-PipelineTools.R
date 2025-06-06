@@ -415,6 +415,9 @@ PipelineTools <- R6::R6Class(
       env$pipeline_get <- self$get_settings
       env$pipeline_settings_path <- self$settings_path
       env$pipeline_path <- private$.pipeline_path
+      list2env(as.list(self$get_settings()), envir = env)
+      shared_env <- self$shared_env()
+      list2env(as.list(shared_env), envir = env)
     },
 
     #' @description visualize pipeline target dependency graph

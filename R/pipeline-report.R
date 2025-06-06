@@ -94,7 +94,7 @@ pipeline_report_generate <- function(
   pipeline_name <- attr(pipe_dir, "target_name")
 
   # output_name <- format(x = Sys.time(), format = "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
-  datetime <- format(x = Sys.time(), format = "%Y-%m-%dT%H:%M:%S")
+  datetime <- format(x = Sys.time(), format = "%Y%m%dT%H%M%S")
   report_filename <- sprintf(
     "report-%s_datetime-%s_%s",
     gsub("[_\\.\\-]", "", report$name),
