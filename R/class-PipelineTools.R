@@ -188,6 +188,25 @@ PipelineTools <- R6::R6Class(
     #' @param ... other parameters passing to \code{\link{pipeline_read}}
     #' @returns The values of the targets
     read = function(var_names, ifnotfound = NULL, ...) {
+
+      # Check targets, make sure the `tar_runtime$store` is not identical to "shared"
+      # targets ban users from read from pipeline when running, even from
+      # another pipeline project
+      # This is hack of course : )
+      targets <- asNamespace("targets")
+      tar_runtime <- targets$tar_runtime
+      current_store <- tar_runtime$store
+      needs_reset <- FALSE
+      if( identical(tar_runtime$store, "shared") ) {
+        needs_reset <- TRUE
+        tar_runtime$store = '___'
+        on.exit({
+          if(!identical(tar_runtime$store, current_store)) {
+            tar_runtime$store <- current_store
+          }
+        }, add = TRUE, after = FALSE)
+      }
+
       if(missing(var_names)) {
         var_names <- pipeline_target_names(pipe_dir = private$.pipeline_path)
       } else {
@@ -199,8 +218,13 @@ PipelineTools <- R6::R6Class(
         }
       }
 
-      pipeline_read(var_names = var_names, pipe_dir = private$.pipeline_path,
-                    ifnotfound = ifnotfound, ...)
+      re <- pipeline_read(var_names = var_names, pipe_dir = private$.pipeline_path,
+                          ifnotfound = ifnotfound, ...)
+      if( needs_reset ) {
+        tar_runtime$store <- current_store
+      }
+
+      return(re)
 
     },
 
