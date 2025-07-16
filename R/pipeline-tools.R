@@ -375,6 +375,9 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
 
   }
 
+  Sys.setenv("RAVE_PIPELINE_ACTIVE" = "true")
+  on.exit({ Sys.unsetenv("RAVE_PIPELINE_ACTIVE") }, add = TRUE, after = FALSE)
+
   lapply(names, eval_target)
   #
   #   if(length(missing_names)) {

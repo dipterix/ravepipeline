@@ -51,6 +51,7 @@ pipeline_run <- function(
   fun <- function(subprocess = TRUE){}
   environment(fun) <- new.env(parent = globalenv())
   body(fun) <- bquote({
+
     # this is running in another R session so load `ravepipeline`
     # without violating the CRAN policy
     ns <- asNamespace("ravepipeline")
@@ -109,6 +110,10 @@ pipeline_run <- function(
     }
 
     make <- function(fun, use_local = TRUE) {
+
+      Sys.setenv("RAVE_PIPELINE_ACTIVE" = "true")
+      on.exit({ Sys.unsetenv("RAVE_PIPELINE_ACTIVE") }, add = TRUE, after = FALSE)
+
       suppressWarnings({
 
         # check if targets version is at least 1.11.1
@@ -138,6 +143,7 @@ pipeline_run <- function(
             }
           },
           error = function( e ) {
+            Sys.unsetenv("RAVE_PIPELINE_ACTIVE")
             stop(ns$sanitize_target_error(e))
           }
         )
@@ -150,6 +156,8 @@ pipeline_run <- function(
           warning(msg, call. = FALSE)
         }
       }
+      Sys.unsetenv("RAVE_PIPELINE_ACTIVE")
+      return()
     }
 
     if("none" == .(scheduler)){
@@ -365,6 +373,9 @@ pipeline_run_bare <- function(
   make <- function(fun, use_local = TRUE) {
     suppressWarnings({
 
+      Sys.setenv("RAVE_PIPELINE_ACTIVE" = "true")
+      on.exit({ Sys.unsetenv("RAVE_PIPELINE_ACTIVE") }, add = TRUE, after = FALSE)
+
       tryCatch(
         expr = {
 
@@ -391,6 +402,7 @@ pipeline_run_bare <- function(
           }
         },
         error = function( e ) {
+          Sys.unsetenv("RAVE_PIPELINE_ACTIVE")
           # if(debug) {
           #   g <- globalenv()
           #   g$.last_rave_pipeline_error <- e
@@ -408,6 +420,8 @@ pipeline_run_bare <- function(
         warning(msg, call. = FALSE)
       }
     }
+    Sys.unsetenv("RAVE_PIPELINE_ACTIVE")
+    return()
   }
 
   switch (

@@ -143,6 +143,10 @@ pipeline_report_generate <- function(
 
   job_id <- start_job(
     fun = function(call_args, source_path, output_dir) {
+
+      Sys.setenv("RAVE_REPORT_ACTIVE" = "true")
+      on.exit({ Sys.unsetenv("RAVE_REPORT_ACTIVE") }, add = TRUE, after = FALSE)
+
       rmarkdown <- asNamespace("rmarkdown")
       do.call(rmarkdown$render, call_args)
 
@@ -157,6 +161,7 @@ pipeline_report_generate <- function(
       )
 
       unlink(source_path, recursive = TRUE, force = TRUE)
+      Sys.unsetenv("RAVE_REPORT_ACTIVE")
 
       file.path(output_dir, basename(source_path), "report.html")
     },
