@@ -13,7 +13,7 @@ start_job(
   fun_args = list(),
   packages = NULL,
   workdir = NULL,
-  method = c("rs_job", "callr"),
+  method = c("rs_job", "mirai", "callr"),
   name = NULL
 )
 
@@ -37,7 +37,9 @@ remove_job(job_id)
 
 \item{workdir}{working directory; default is temporary path}
 
-\item{method}{job type; choices are \code{'rs_job'} and \code{'callr'}}
+\item{method}{job type; choices are \code{'rs_job'} (only used in
+\code{'RStudio'} environment), \code{'mirai'} (when package \code{'mirai'}
+is installed), and \code{'callr'}.}
 
 \item{name}{name of the job}
 
@@ -66,16 +68,27 @@ Run a function (job) in another session
 \dontrun{
 
 
-fun <- function() {
-  Sys.sleep(2)
-  Sys.getpid()
-}
 
-job_id <- start_job(fun)
+# Basic use
+job_id <- start_job(function() {
+  Sys.sleep(1)
+  Sys.getpid()
+})
 
 check_job(job_id)
 
 result <- resolve_job(job_id)
+
+# As promise
+library(promises)
+as.promise(
+  start_job(function() {
+    Sys.sleep(1)
+    Sys.getpid()
+  })
+) \%...>\%
+  print()
+
 
 }
 

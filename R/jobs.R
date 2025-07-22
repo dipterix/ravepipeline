@@ -1,5 +1,8 @@
 new_job_id <- function() {
-  uuid::UUIDgenerate(use.time = TRUE, output = "string")
+  structure(
+    uuid::UUIDgenerate(use.time = TRUE, output = "string"),
+    class = "ravepipeline_jobid"
+  )
 }
 
 get_job_path <- function(job_id, check = TRUE) {
@@ -202,13 +205,34 @@ start_job_callr <- function(fun, fun_args = list(), packages = NULL, workdir = N
   return(structure(job_id, path = job_root))
 }
 
+start_job_mirai <- function(fun, fun_args = list(), packages = NULL, workdir = NULL, ...) {
+
+  job_id <- prepare_job(fun = fun, fun_args = fun_args, packages = packages, workdir = workdir)
+  job_root <- get_job_path(job_id, check = FALSE)
+  script_path <- file.path(job_root, "script.R")
+
+  mirai::mirai(
+    .expr = {
+      source(file = script_path,
+             echo = FALSE,
+             print.eval = FALSE)
+    },
+    .timeout = NULL,
+    .args = list(script_path = script_path)
+  )
+
+  return(structure(job_id, path = job_root))
+}
+
 #' @name rave-pipeline-jobs
 #' @title Run a function (job) in another session
 #' @param fun function to evaluate
 #' @param fun_args list of function arguments
 #' @param packages list of packages to load
 #' @param workdir working directory; default is temporary path
-#' @param method job type; choices are \code{'rs_job'} and \code{'callr'}
+#' @param method job type; choices are \code{'rs_job'} (only used in
+#' \code{'RStudio'} environment), \code{'mirai'} (when package \code{'mirai'}
+#' is installed), and \code{'callr'}.
 #' @param name name of the job
 #' @param job_id job identification number
 #' @param timeout timeout in seconds before the resolve ends; jobs that
@@ -227,16 +251,27 @@ start_job_callr <- function(fun, fun_args = list(), packages = NULL, workdir = N
 #' \dontrun{
 #'
 #'
-#' fun <- function() {
-#'   Sys.sleep(2)
-#'   Sys.getpid()
-#' }
 #'
-#' job_id <- start_job(fun)
+#' # Basic use
+#' job_id <- start_job(function() {
+#'   Sys.sleep(1)
+#'   Sys.getpid()
+#' })
 #'
 #' check_job(job_id)
 #'
 #' result <- resolve_job(job_id)
+#'
+#' # As promise
+#' library(promises)
+#' as.promise(
+#'   start_job(function() {
+#'     Sys.sleep(1)
+#'     Sys.getpid()
+#'   })
+#' ) %...>%
+#'   print()
+#'
 #'
 #' }
 #'
@@ -247,15 +282,18 @@ start_job <- function(
     fun_args = list(),
     packages = NULL,
     workdir = NULL,
-    method = c("rs_job", "callr"),
+    method = c("rs_job", "mirai", "callr"),
     name = NULL
 ) {
 
   method <- match.arg(method)
   if(method == "rs_job") {
     if(!rs_avail(child_ok = TRUE, shiny_ok = TRUE)) {
-      method <- "callr"
+      method <- "mirai"
     }
+  }
+  if(method == "mirai" && !package_installed("mirai")) {
+    method <- "callr"
   }
 
   job_id <- switch (
@@ -268,7 +306,16 @@ start_job <- function(
         workdir = workdir,
         name = name
       )
-    }, {
+    },
+    "mirai" = {
+      start_job_mirai(
+        fun = fun,
+        fun_args = fun_args,
+        packages = packages,
+        workdir = workdir
+      )
+    },
+    {
       start_job_callr(
         fun = fun,
         fun_args = fun_args,
@@ -364,4 +411,54 @@ remove_job <- function(job_id) {
     job_id <- job_id$ID
   }
   clean_job_path(job_id)
+}
+
+#' @export
+print.ravepipeline_jobid <- function(x, ...) {
+  cat(sprintf("RAVE background job [ID: %s]\n", x))
+}
+
+#' @export
+as.promise.ravepipeline_jobid <- function(x) {
+
+  job <- check_job(x)
+
+  if( isTRUE(job$status %in% c(-1, 3)) ) {
+    # resolved, either errored or finished
+    promise <- promises::promise(function(resolve, reject) {
+      tryCatch(
+        {
+          resolve(resolve_job(x))
+        },
+        error = function(e) {
+          reject(e)
+        }
+      )
+    })
+  } else {
+    promise <- promises::promise(function(resolve, reject) {
+
+      poll_interval <- 0.1
+      check <- function() {
+        job <- check_job(x)
+        if( isTRUE(job$status %in% c(-1, 3)) ) {
+          tryCatch(
+            {
+              resolve(resolve_job(x))
+            },
+            error = function(e) {
+              reject(e)
+            }
+          )
+          return()
+        }
+        later::later(check, poll_interval)
+      }
+
+      check()
+
+    })
+  }
+
+  promise
 }
