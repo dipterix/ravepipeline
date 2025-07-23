@@ -415,7 +415,27 @@ remove_job <- function(job_id) {
 
 #' @export
 print.ravepipeline_jobid <- function(x, ...) {
-  cat(sprintf("RAVE background job [ID: %s]\n", x))
+  cat(sprintf("RAVE job ID: %s\n", x))
+}
+
+#' @export
+print.ravepipeline_job_status <- function(x, ...) {
+  status_str <- switch (
+    sprintf("%d", x$status),
+    "0" = "initialized",
+    "1" = "started",
+    "2" = "running",
+    "3" = "finished",
+    "-1" = "errored",
+    "-2" = "corrupted",
+    "unknown"
+  )
+  cat(sprintf("RAVE job status:\n  ID: %s\n  Status: %d (%s)\n", x$ID, x$status, status_str))
+}
+
+#' @export
+as.promise.ravepipeline_job_status <- function(x) {
+  as.promise.ravepipeline_jobid(x$ID)
 }
 
 #' @export
