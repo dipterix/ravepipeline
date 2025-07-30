@@ -29,15 +29,6 @@ promises::`%...T!%`
 #' @export
 digest::digest
 
-#' @export
-R6::R6Class
-
-#' @export
-R6::is.R6
-
-#' @export
-R6::is.R6Class
-
 
 #' @name ravepipeline-constants
 #' @title Constant variables used in 'RAVE' pipeline

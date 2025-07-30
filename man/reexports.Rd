@@ -9,9 +9,6 @@
 \alias{\%...!\%}
 \alias{\%...T!\%}
 \alias{digest}
-\alias{R6Class}
-\alias{is.R6}
-\alias{is.R6Class}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -19,8 +16,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{R6}{\code{\link[R6]{R6Class}}, \code{\link[R6]{is.R6}}, \code{\link[R6:is.R6]{is.R6Class}}}
-
   \item{digest}{\code{\link[digest]{digest}}}
 
   \item{glue}{\code{\link[glue]{glue}}}
