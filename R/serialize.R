@@ -24,10 +24,34 @@ RAVESerializable <- R6::R6Class(
     #' @param ... ignored
     `@unmarshal` = function(object, ...) {
       .NotYetImplemented()
+    },
+
+    #' @description How two object can be compared to each other
+    #' @param other another object to compare with self
+    `@compare` = function(other) {
+      if(!R6::is.R6(other)) { return(FALSE) }
+      if(!identical(class(self), class(other))) { return(FALSE) }
+      tryCatch(
+        {
+          identical(self$`@marshal`(), other$`@marshal`())
+        },
+        error = function(e) {
+          FALSE
+        }
+      )
     }
   )
 )
 
+#' @export
+`==.RAVESerializable` <- function(e1, e2) {
+  e1$`@compare`(e2)
+}
+
+#' @export
+`!=.RAVESerializable` <- function(e1, e2) {
+  !e1$`@compare`(e2)
+}
 
 #' @name rave-serialize-refhook
 #' @title Serialization reference hook generic functions

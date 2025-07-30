@@ -15,6 +15,7 @@ For package inheritance only; do not instantiate the class directly.
 \item \href{#method-RAVESerializable-new}{\code{RAVESerializable$new()}}
 \item \href{#method-RAVESerializable-@marshal}{\code{RAVESerializable$@marshal()}}
 \item \href{#method-RAVESerializable-@unmarshal}{\code{RAVESerializable$@unmarshal()}}
+\item \href{#method-RAVESerializable-@compare}{\code{RAVESerializable$@compare()}}
 \item \href{#method-RAVESerializable-clone}{\code{RAVESerializable$clone()}}
 }
 }
@@ -67,6 +68,23 @@ Restore an object from an atomic list
 \item{\code{object}}{a list from \code{'@marshal'}}
 
 \item{\code{...}}{ignored}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-RAVESerializable-@compare"></a>}}
+\if{latex}{\out{\hypertarget{method-RAVESerializable-@compare}{}}}
+\subsection{Method \code{@compare()}}{
+How two object can be compared to each other
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{RAVESerializable$@compare(other)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{other}}{another object to compare with self}
 }
 \if{html}{\out{</div>}}
 }

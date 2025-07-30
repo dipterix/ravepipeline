@@ -39,6 +39,13 @@ temporary flag is set to true and the array mode is \code{'readwrite'}}
 \item \href{#method-RAVEFileArray-clone}{\code{RAVEFileArray$clone()}}
 }
 }
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="ravepipeline" data-topic="RAVESerializable" data-id="@compare"><a href='../../ravepipeline/html/RAVESerializable.html#method-RAVESerializable-@compare'><code>ravepipeline::RAVESerializable$@compare()</code></a></span></li>
+</ul>
+</details>
+}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-RAVEFileArray-@marshal"></a>}}
 \if{latex}{\out{\hypertarget{method-RAVEFileArray-@marshal}{}}}
