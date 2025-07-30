@@ -11,7 +11,7 @@ computing, but allow users to control whether to do it."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9018</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9019</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,8 +105,8 @@ should return a string, for progress bar</p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">simplify2array</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       [,1] [,2] [,3] [,4] [,5]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> child 9293 9293 9293 9293 9293</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> main  9293 9293 9293 9293 9293</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> child 7914 7914 7914 7914 7914</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> main  7914 7914 7914 7914 7914</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># When wrapped in `with_mirai_parallel`</span></span></span>
 <span class="r-in"><span><span class="fu">with_mirai_parallel</span><span class="op">(</span><span class="op">{</span></span></span>
@@ -116,8 +116,8 @@ should return a string, for progress bar</p></dd>
 <span class="r-in"><span>  <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">simplify2array</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span>, workers <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       [,1] [,2] [,3] [,4] [,5]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> child 9786 9786 9786 9786 9786</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> main  9293 9293 9293 9293 9293</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> child 8406 8406 8406 8406 8406</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> main  7914 7914 7914 7914 7914</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Comparison</span></span></span>
 <span class="r-in"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span></span>
