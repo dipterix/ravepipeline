@@ -5,6 +5,8 @@
 #' @importFrom promises %...T!%
 #' @importFrom glue glue
 #' @importFrom R6 R6Class
+#' @importFrom R6 is.R6
+#' @importFrom R6 is.R6Class
 #' @importFrom digest digest
 #' @importFrom remotes install_deps
 NULL
@@ -23,6 +25,18 @@ promises::`%...!%`
 
 #' @export
 promises::`%...T!%`
+
+#' @export
+digest::digest
+
+#' @export
+R6::R6Class
+
+#' @export
+R6::is.R6
+
+#' @export
+R6::is.R6Class
 
 
 #' @name ravepipeline-constants
