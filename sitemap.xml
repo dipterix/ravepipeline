@@ -8,8 +8,11 @@
 <url><loc>http://dipterix.org/ravepipeline/reference/PipelineCollections.html</loc></url>
 <url><loc>http://dipterix.org/ravepipeline/reference/PipelineResult.html</loc></url>
 <url><loc>http://dipterix.org/ravepipeline/reference/PipelineTools.html</loc></url>
+<url><loc>http://dipterix.org/ravepipeline/reference/RAVEFileArray.html</loc></url>
+<url><loc>http://dipterix.org/ravepipeline/reference/RAVESerializable.html</loc></url>
 <url><loc>http://dipterix.org/ravepipeline/reference/index.html</loc></url>
 <url><loc>http://dipterix.org/ravepipeline/reference/install_modules.html</loc></url>
+<url><loc>http://dipterix.org/ravepipeline/reference/logger.html</loc></url>
 <url><loc>http://dipterix.org/ravepipeline/reference/module_add.html</loc></url>
 <url><loc>http://dipterix.org/ravepipeline/reference/module_registry.html</loc></url>
 <url><loc>http://dipterix.org/ravepipeline/reference/pipeline-knitr-markdown.html</loc></url>
@@ -19,10 +22,13 @@
 <url><loc>http://dipterix.org/ravepipeline/reference/pipeline_settings_get_set.html</loc></url>
 <url><loc>http://dipterix.org/ravepipeline/reference/rave-pipeline-jobs.html</loc></url>
 <url><loc>http://dipterix.org/ravepipeline/reference/rave-pipeline.html</loc></url>
+<url><loc>http://dipterix.org/ravepipeline/reference/rave-serialize-refhook.html</loc></url>
 <url><loc>http://dipterix.org/ravepipeline/reference/rave-snippet.html</loc></url>
+<url><loc>http://dipterix.org/ravepipeline/reference/rave_progress.html</loc></url>
 <url><loc>http://dipterix.org/ravepipeline/reference/raveio-option.html</loc></url>
 <url><loc>http://dipterix.org/ravepipeline/reference/ravepipeline-constants.html</loc></url>
 <url><loc>http://dipterix.org/ravepipeline/reference/ravepipeline_finalize_installation.html</loc></url>
 <url><loc>http://dipterix.org/ravepipeline/reference/reexports.html</loc></url>
+<url><loc>http://dipterix.org/ravepipeline/reference/with_mirai_parallel.html</loc></url>
 </urlset>
 
