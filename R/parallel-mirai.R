@@ -86,8 +86,11 @@ stop_mirai_with_trace <- function(error) {
 #' @param workers number of workers
 #' @param globals,.globals global variables to be serialized
 #' @param serialization_config serialization configurations
+#' @param always whether always use workers, only considered when number of
+#' workers is one; default is false, then run jobs in the main process when
+#' only one worker is required
 #' @param x a list, vector, array of R objects
-#' @param fun function to apply to each elemnent of \code{x}
+#' @param fun function to apply to each element of \code{x}
 #' @param ... additional arguments to be passed to \code{fun}
 #' @param callback callback function, input is each element of \code{x} and
 #' should return a string, for progress bar
@@ -137,8 +140,9 @@ stop_mirai_with_trace <- function(error) {
 #'
 #'
 #' @export
-with_mirai_parallel <- function(expr, workers = 0, globals = list(),
-                                serialization_config = list()) {
+with_mirai_parallel <- function(
+    expr, workers = 0, globals = list(),
+    serialization_config = list(), always = FALSE) {
 
   if( !package_installed("mirai") || on_rave_daemon("worker") ) {
     re <- force(expr)
@@ -151,23 +155,28 @@ with_mirai_parallel <- function(expr, workers = 0, globals = list(),
 
     # Make sure the daemons are reset
     mirai::daemons(0, .compute = "rave_parallel_worker")
-    on.exit({ mirai::daemons(0, .compute = "rave_parallel_worker") }, add = TRUE, after = FALSE)
 
-    re <- with(
-      mirai::daemons(
-        n = workers,
-        serial = mirai_serialization_config(serialization_config),
-        dispatcher = TRUE,
-        autoexit = TRUE,
-        cleanup = FALSE,
-        output = TRUE,
-        .compute = "rave_parallel_worker"
-      ),
-      {
-        initialize_rave_daemon(type = "worker", .globals = globals)
-        force(expr)
-      }
-    )
+    if(workers > 1 || always) {
+      on.exit({ mirai::daemons(0, .compute = "rave_parallel_worker") }, add = TRUE, after = FALSE)
+
+      re <- with(
+        mirai::daemons(
+          n = workers,
+          serial = mirai_serialization_config(serialization_config),
+          dispatcher = TRUE,
+          autoexit = TRUE,
+          cleanup = FALSE,
+          output = TRUE,
+          .compute = "rave_parallel_worker"
+        ),
+        {
+          initialize_rave_daemon(type = "worker", .globals = globals)
+          force(expr)
+        }
+      )
+    } else {
+      re <- force(expr)
+    }
   }
   re
 }
@@ -175,6 +184,14 @@ with_mirai_parallel <- function(expr, workers = 0, globals = list(),
 #' @rdname with_mirai_parallel
 #' @export
 lapply_jobs <- function(x, fun, ..., .globals = list(), callback = NULL) {
+
+  if( package_installed("mirai") && !on_rave_daemon("worker") &&
+      mirai::daemons_set(.compute = "rave_parallel_worker") ) {
+    use_mirai <- TRUE
+  } else {
+    use_mirai <- FALSE
+  }
+
 
   has_callback <- is.function(callback)
 
@@ -188,8 +205,9 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), callback = NULL) {
   store$last_percentage <- 1
   step_size <- 1000 / n_total
 
+  default_progress_title <- ifelse(use_mirai, "Parallel jobs", "Running jobs")
   progress <- rave_progress(
-    title = "Parallel jobs",
+    title = default_progress_title,
     max = 1000,
     shiny_auto_close = FALSE,
     quiet = !has_callback
@@ -229,7 +247,7 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), callback = NULL) {
     }
   }
 
-  progress$inc("Initializing work...", message = "Parallel jobs")
+  progress$inc("Initializing work...", message = default_progress_title)
 
   if( !package_installed("mirai") || on_rave_daemon("worker") ||
       !mirai::daemons_set(.compute = "rave_parallel_worker") ) {
@@ -263,7 +281,7 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), callback = NULL) {
 
     map <- do.call(mirai::mirai_map, mirai_args)
 
-    progress$inc("Running...", message = "Parallel jobs")
+    progress$inc("Preparing...", message = default_progress_title)
     store$last_percentage <- 2
 
     results <- lapply(seq_len(n_total), function(ii) {

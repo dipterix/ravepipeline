@@ -9,7 +9,8 @@ with_mirai_parallel(
   expr,
   workers = 0,
   globals = list(),
-  serialization_config = list()
+  serialization_config = list(),
+  always = FALSE
 )
 
 lapply_jobs(x, fun, ..., .globals = list(), callback = NULL)
@@ -23,9 +24,13 @@ lapply_jobs(x, fun, ..., .globals = list(), callback = NULL)
 
 \item{serialization_config}{serialization configurations}
 
+\item{always}{whether always use workers, only considered when number of
+workers is one; default is false, then run jobs in the main process when
+only one worker is required}
+
 \item{x}{a list, vector, array of R objects}
 
-\item{fun}{function to apply to each elemnent of \code{x}}
+\item{fun}{function to apply to each element of \code{x}}
 
 \item{...}{additional arguments to be passed to \code{fun}}
 

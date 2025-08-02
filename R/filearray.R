@@ -1,4 +1,4 @@
-#' @title 'R6' wrapper for 'FileArray'
+#' @title 'R6' wrapper for \code{'FileArray'}
 #' @description
 #' Wrapper for better serialization (check 'See also')
 #' @seealso \code{\link{RAVESerializable}} \code{\link{rave-serialize-refhook}}

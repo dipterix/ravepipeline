@@ -2,7 +2,7 @@
 % Please edit documentation in R/filearray.R
 \name{RAVEFileArray}
 \alias{RAVEFileArray}
-\title{'R6' wrapper for 'FileArray'}
+\title{'R6' wrapper for \code{'FileArray'}}
 \description{
 Wrapper for better serialization (check 'See also')
 }
