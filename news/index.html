@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.1.9020</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,7 +19,7 @@
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/dipterix/ravepipeline/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/orgs/rave-ieeg/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -29,14 +29,54 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/dipterix/ravepipeline/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/orgs/rave-ieeg/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.2" id="ravepipeline-002">ravepipeline 0.0.2<a class="anchor" aria-label="anchor" href="#ravepipeline-002"></a></h2>
+<ul><li>
+<code>with_mirai_parallel</code> with one worker no longer runs in background, though users can force enabling this</li>
+<li>Added comparisons to <code>RAVESerializable</code> objects, allowing comparisons of two <code>R6</code> objects inheriting this class</li>
+<li>Added <code>RAVEFileArray</code> to wrap against <code>FileArray</code>, allowing file-arrays to be serialized faster when running with <code>mirai</code>
+</li>
+<li>Added <code>lapply_jobs</code>, allowing down-stream packages to use it for looping with similar behaviors to <code>lapply</code>, while giving users options to parallel computing the results with <code>with_mirai_parallel</code>
+</li>
+<li>Added <code>RAVESerializable</code> class for <code>mirai</code>, allowing for fast serialization when running <code>lapply_jobs</code>
+</li>
+<li>
+<code>cat2</code> is no longer used as logging system and used <code>logger</code> instead</li>
+<li>Added <code>rave_progress</code> to replace <code>dipsaus</code>; removed dependencies on <code>dipsaus</code>
+</li>
+<li>Migrated <code>logger</code> from <code>ravedash</code> so this function can be used by <code>ravecore</code> and other depending packages</li>
+<li>Added print method to background jobs</li>
+<li>Added <code>mirai</code> as the major background engine to run jobs</li>
+<li>Pipeline evaluation will have <code>RAVE_PIPELINE_ACTIVE</code> environment set to <code>"true"</code> to allow fast compile and debugging</li>
+<li>
+<code>pipeline$read</code> once disabled by <code>targets</code> during evaluation can now runs again with hacks</li>
+<li>Pipeline attach method also mounts shared environment for debugging</li>
+<li>Implemented pipeline reporting functions</li>
+<li>Added <code>start_job</code> to start background jobs, which can be converted into <code>promises</code>
+</li>
+<li>Make sure installing new snippets overwrites existing scripts</li>
+<li>Unset reporters for older versions of targets</li>
+<li>Fixed lazy evaluation issues</li>
+<li>Fixed a bug introduced by <code>targets</code> version <code>1.11.1</code> where use-after-free of <code>cli</code> progress crashes the pipeline run, the newer versions of that package has fixed it too</li>
+<li>Added optional functions to handle old <code>raveio</code> calls</li>
+<li>Removed questions once asked</li>
+<li>save <code>yaml</code> format now sort native lists with <code>sorted=TRUE</code>
+</li>
+<li>Removed <code>call_pkg_fun</code> for <code>rstudioapi</code> and use the package functions directly to avoid messing up with <code><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">sys.call()</a></code>
+</li>
+<li>Fixed <code>entrace</code>
+</li>
+<li>Added pipeline collections</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.1" id="ravepipeline-001">ravepipeline 0.0.1<a class="anchor" aria-label="anchor" href="#ravepipeline-001"></a></h2><p class="text-muted">CRAN release: 2025-03-13</p>
 <ul><li>Initial CRAN submission.</li>
 </ul></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">
