@@ -199,7 +199,7 @@ PipelineTools <- R6::R6Class(
       needs_reset <- FALSE
       if( identical(tar_runtime$store, "shared") ) {
         needs_reset <- TRUE
-        tar_runtime$store = '___'
+        tar_runtime$store <- '___'
         on.exit({
           if(!identical(tar_runtime$store, current_store)) {
             tar_runtime$store <- current_store
@@ -514,7 +514,12 @@ PipelineTools <- R6::R6Class(
     fork_to_subject = function(subject, label = "NA", policy = "default",
                                delete_old = FALSE, sanitize = TRUE) {
       # subject <- restore_subject_instance(subject, strict = TRUE)
-      subject <- call_pkg_fun(package = "raveio", f_name = "as_rave_subject", subject, strict = TRUE)
+      if( package_installed("ravecore") ) {
+        subject <- call_pkg_fun(package = "ravecore", f_name = "as_rave_subject", subject, strict = TRUE)
+      } else {
+        subject <- call_pkg_fun(package = "raveio", f_name = "as_rave_subject", subject, strict = TRUE)
+      }
+
       label <- paste(label, collapse = "")
       label_cleaned <- gsub("[^a-zA-Z0-9_.-]+", "_", label)
 

@@ -1,4 +1,13 @@
-## R CMD check results
+## Version 0.0.2 (current)
+
+R CMD check results
+
+0 errors | 0 warnings | 0 notes
+
+
+## Version 0.0.1
+
+R CMD check results
 
 0 errors | 0 warnings | 1 note
 
