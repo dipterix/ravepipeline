@@ -2,7 +2,17 @@
 
 R CMD check results
 
-0 errors | 0 warnings | 0 notes
+0 errors | 0 warnings | 1 note
+
+```r
+The BugReports field in DESCRIPTION has
+  https://github.com/orgs/rave-ieeg/discussions
+which should likely be
+  https://github.com/orgs/rave-ieeg/discussions/issues
+instead.
+```
+
+The address is correct and there is no need to add "issues"" to the path.
 
 
 ## Version 0.0.1
