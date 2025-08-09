@@ -976,15 +976,11 @@ pipeline_create_subject_pipeline <- function(
     activate = TRUE, template_type = c("rmd", 'r', 'rmd-python')
 ){
 
-  # this function requires a non-CRAN package `raveio`
-  # check if this package is installed, otherwise error out
-  raveio <- require_package(package = "raveio", return_namespace = TRUE)
-
   template_type <- match.arg(template_type)
   pipeline_name <- tolower(pipeline_name)
   stopifnot2(!pipeline_name %in% c("main", "imports", "initialize", "template"),
              msg = "Pipeline name cannot be `main`, `imports`, `template`, or `initialize`")
-  subject <- raveio$as_rave_subject(subject, strict = FALSE)
+  subject <- call_ravecore_fun(f_name = "as_rave_subject", subject, strict = FALSE)
   pipe_path <- file.path(subject$pipeline_path, pipeline_name)
   if(!overwrite && dir.exists(pipe_path)){
     stop("Pipeline ", pipeline_name, " already exists at\n  ", pipe_path)

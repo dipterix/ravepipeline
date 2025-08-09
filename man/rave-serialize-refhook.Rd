@@ -6,11 +6,13 @@
 \alias{rave_serialize_impl}
 \alias{rave_serialize_impl.default}
 \alias{rave_serialize_impl.RAVESerializable}
+\alias{rave_serialize_impl.rave-brain}
 \alias{rave_unserialize_refhook}
 \alias{rave_unserialize_impl}
 \alias{rave_unserialize_impl.default}
 \alias{rave_unserialize_impl.rave_serialized}
 \alias{rave_unserialize_impl.rave_serialized_r6}
+\alias{rave_unserialize_impl.rave_serialized_rave-brain}
 \title{Serialization reference hook generic functions}
 \usage{
 rave_serialize_refhook(object)
@@ -21,6 +23,8 @@ rave_serialize_impl(object)
 
 \method{rave_serialize_impl}{RAVESerializable}(object)
 
+\method{rave_serialize_impl}{`rave-brain`}(object)
+
 rave_unserialize_refhook(x)
 
 rave_unserialize_impl(x)
@@ -30,6 +34,8 @@ rave_unserialize_impl(x)
 \method{rave_unserialize_impl}{rave_serialized}(x)
 
 \method{rave_unserialize_impl}{rave_serialized_r6}(x)
+
+\method{rave_unserialize_impl}{`rave_serialized_rave-brain`}(x)
 }
 \arguments{
 \item{object}{Object to serialize (environment or external pointers)}
@@ -70,5 +76,22 @@ y2 <- unserialize(r2, refhook = rave_unserialize_refhook)
 all(y0 == x0)
 all(y1[] == x0)
 all(y2[] == x0)
+
+\dontrun{
+
+# 3D Brain, this example needs RAVE installation, not included in
+# this package, needs extra installations available at rave.wiki
+
+# 4 MB
+brain <- ravecore::rave_brain("demo/DemoSubject")
+
+# 52 KB
+rbrain <- serialize(brain, NULL, refhook = rave_serialize_refhook)
+
+brain2 <- unserialize(rbrain, refhook = rave_unserialize_refhook)
+
+brain2$plot()
+
+}
 
 }

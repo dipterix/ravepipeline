@@ -25,7 +25,12 @@
   assign('.session_string', sess_str, envir = pkg)
 
   err_f <- function(e){
-    assign('.startup_msg', sprintf("Issues loading `raveio`: %s\n", paste(e$message, collapse = "\n")), envir = pkg)
+    assign('.startup_msg',
+           sprintf(
+             "Issues loading `ravepipeline`: %s\n",
+             paste(e$message, collapse = "\n")
+           ),
+           envir = pkg)
     NULL
   }
   s <- NULL

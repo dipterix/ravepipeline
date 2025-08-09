@@ -9,7 +9,7 @@ pipeline_report_list <- function(
   # DIPSAUS DEBUG START
   # pipe_dir <- activate_pipeline(pipe_dir, debug = TRUE)
 
-  # raveio::save_yaml(
+  # save_yaml(
   #   file = '/Users/dipterix/Dropbox (Personal)/projects/rave-pipelines/modules/power_explorer/report-list.yaml',
   #   list(
   #     list(
@@ -85,13 +85,16 @@ pipeline_report_by_name <- function(
 }
 
 pipeline_report_generate <- function(
-    name, output_format = "html_document", clean = FALSE, ...,
+    name, output_format = "html_document", clean = FALSE,
+    theme = "flatly", ...,
     output_dir = NULL, work_dir = NULL,
     pipe_dir = Sys.getenv("RAVE_PIPELINE", ".")) {
 
   report <- pipeline_report_by_name(name = name, pipe_dir = pipe_dir)
   pipe_dir <- report$pipeline_path
   pipeline_name <- attr(pipe_dir, "target_name")
+
+  pipeline <- pipeline_from_path(pipe_dir)
 
   # output_name <- format(x = Sys.time(), format = "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
   datetime <- format(x = Sys.time(), format = "%Y%m%dT%H%M%S")
@@ -114,7 +117,6 @@ pipeline_report_generate <- function(
 
   fork_policy <- report$fork_policy
   if(length(fork_policy) == 1) {
-    pipeline <- pipeline_from_path(pipe_dir)
     pipeline <- pipeline$fork(path = file.path(work_dir, "pipeline"))
   }
 
@@ -135,6 +137,10 @@ pipeline_report_generate <- function(
     input = report_template_path,
     output_format = output_format,
     output_file = file.path(work_dir, "report.html"),
+    output_options = list(
+      self_contained = TRUE,
+      theme = theme
+    ),
     intermediates_dir = file.path(work_dir, "intermediate"),
     knit_root_dir = workdir,
     clean = clean,

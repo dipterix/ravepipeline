@@ -87,6 +87,23 @@ RAVESerializable <- R6::R6Class(
 #' all(y1[] == x0)
 #' all(y2[] == x0)
 #'
+#' \dontrun{
+#'
+#' # 3D Brain, this example needs RAVE installation, not included in
+#' # this package, needs extra installations available at rave.wiki
+#'
+#' # 4 MB
+#' brain <- ravecore::rave_brain("demo/DemoSubject")
+#'
+#' # 52 KB
+#' rbrain <- serialize(brain, NULL, refhook = rave_serialize_refhook)
+#'
+#' brain2 <- unserialize(rbrain, refhook = rave_unserialize_refhook)
+#'
+#' brain2$plot()
+#'
+#' }
+#'
 #' @export
 rave_serialize_refhook <- function(object) {
   rave_serialize_impl(object)
@@ -119,6 +136,42 @@ rave_serialize_impl.RAVESerializable <- function(object) {
   } else {
     NextMethod()
   }
+}
+
+#' @rdname rave-serialize-refhook
+#' @export
+`rave_serialize_impl.rave-brain` <- function(object) {
+  if(!R6::is.R6(object)) {
+    return(NextMethod())
+  }
+  # "rave-brain" "R6"
+
+  # check construction
+  params <- object$meta$constructor_params
+
+  if(all(c("project_name", "subject_code") %in% names(params)) &&
+     length(params$project_name) == 1 &&
+     length(params$subject_code) == 1) {
+    params$use_141 <- isTRUE(as.logical(params$use_141))
+    params$usetemplateifmissing <- isTRUE(as.logical(params$usetemplateifmissing))
+    params <- params[c("project_name", "subject_code", "use_141", "usetemplateifmissing")]
+  } else {
+    # brain is not created with ravecore/raveio
+    params$project_name <- NA_character_
+    params$subject_code <- object$subject_code
+    params$use_141 <- FALSE
+    params$usetemplateifmissing <- FALSE
+    params$base_path <- object$base_path
+  }
+  params$volume_types <- object$volume_types
+  params$surface_types <- object$surface_types
+  params$atlas_types <- object$atlas_types
+
+  params$electrode_table <- object$electrodes$raw_table
+  params$electrode_values <- object$electrodes$value_table
+  params$native_subject <- TRUE
+  class(params) <- c("rave_serialized_rave-brain", "rave_serialized")
+  rawToChar(serialize(params, NULL, ascii = TRUE))
 }
 
 #' @rdname rave-serialize-refhook
@@ -158,4 +211,39 @@ rave_unserialize_impl.rave_serialized_r6 <- function(x) {
     stop("Unable to unserialize object from class definition: ", x$namespace, "::", x$r6_generator)
   }
   return(cls$public_methods$`@unmarshal`(object = x))
+}
+
+#' @rdname rave-serialize-refhook
+#' @export
+`rave_unserialize_impl.rave_serialized_rave-brain` <- function(x) {
+
+  threeBrain <- require_package("threeBrain", return_namespace = TRUE)
+
+  params <- x
+
+  project_name <- params$project_name
+  if(length(project_name) != 1 || is.na(project_name)) {
+    brain <- threeBrain$threeBrain(
+      path = params$base_path,
+      subject_code = params$subject_code,
+      surface_types = params$surface_types,
+      atlas_types = params$atlas_types
+    )
+  } else {
+    brain <- call_ravecore_fun("rave_brain", sprintf("%s/%s", params$project_name, params$subject_code),
+                               surfaces = params$surface_types,
+                               overlays = params$atlas_types,
+                               usetemplateifmissing = isTRUE(params$usetemplateifmissing),
+                               include_electrodes = FALSE)
+  }
+  if(is.null(brain)) {
+    stop("Unable to restore the brain object.")
+  }
+  if(length(params$electrode_table)) {
+    brain$set_electrodes(params$electrode_table)
+  }
+  if(length(params$electrode_values)) {
+    brain$set_electrode_values(params$electrode_values)
+  }
+  brain
 }

@@ -514,11 +514,7 @@ PipelineTools <- R6::R6Class(
     fork_to_subject = function(subject, label = "NA", policy = "default",
                                delete_old = FALSE, sanitize = TRUE) {
       # subject <- restore_subject_instance(subject, strict = TRUE)
-      if( package_installed("ravecore") ) {
-        subject <- call_pkg_fun(package = "ravecore", f_name = "as_rave_subject", subject, strict = TRUE)
-      } else {
-        subject <- call_pkg_fun(package = "raveio", f_name = "as_rave_subject", subject, strict = TRUE)
-      }
+      subject <- call_ravecore_fun(f_name = "as_rave_subject", subject, strict = TRUE)
 
       label <- paste(label, collapse = "")
       label_cleaned <- gsub("[^a-zA-Z0-9_.-]+", "_", label)

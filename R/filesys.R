@@ -60,6 +60,23 @@ backup_file <- function(path, remove = FALSE, quiet = FALSE) {
 
 }
 
+#' @title Force creating directory with checks
+#' @param x path to create
+#' @param showWarnings,recursive,... passed to \code{\link{dir.create}}
+#' @param check whether to check the directory after creation
+#' @returns Normalized path
+#'
+#' @examples
+#'
+#' path <- file.path(tempfile(), 'a', 'b', 'c')
+#'
+#' # The following are equivalent
+#' dir.create(path, showWarnings = FALSE, recursive = TRUE)
+#'
+#' dir_create2(path)
+#'
+#'
+#' @export
 dir_create2 <- function(x, showWarnings = FALSE, recursive = TRUE, check = TRUE, ...) {
   if (!dir.exists(x)) {
     dir.create(x, showWarnings = showWarnings, recursive = recursive, ...)
