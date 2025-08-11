@@ -43,18 +43,49 @@ on_rave_daemon <- function(type = c("worker", "pipeline")) {
   return(FALSE)
 }
 
-initialize_rave_daemon <- function(type = c("worker", "pipeline"), .globals = list()) {
+initialize_rave_daemon <- function(type = c("worker", "pipeline"), .globals = list(), .url = NULL) {
 
   type <- match.arg(type)
-  .envvar <- sprintf("RAVE_DAEMON_%s", toupper(type))
+  .envvar <- structure(
+    list("true", .url),
+    names = c(
+      sprintf("RAVE_DAEMON_%s", toupper(type)),
+      sprintf("RAVE_PARALLEL_%s_URL", toupper(type))
+    )
+  )
   .compute <- sprintf("rave_parallel_%s", type)
 
+  # .rs_envvar <- Sys.getenv(
+  #   c(
+  #     "RSTUDIO",
+  #     "RSTUDIOAPI_IPC_REQUESTS_FILE",
+  #     "RSTUDIOAPI_IPC_RESPONSE_FILE",
+  #     "RSTUDIOAPI_IPC_SHARED_SECRET",
+  #     "RSTUDIO_PANDOC"
+  #   ),
+  #   unset = "NA"
+  # )
+  # .rs_envvar <- as.list(.rs_envvar[.rs_envvar != "NA"])
+
   mirai::everywhere({
-    do.call(Sys.setenv, structure(names = .envvar, list('true')))
-    if(length(.globals)) {
+    # Sys.getenv("RSTUDIOAPI_IPC_REQUESTS_FILE")
+    # Sys.unsetenv("RSTUDIOAPI_IPC_REQUESTS_FILE")
+    # Sys.unsetenv("RSTUDIOAPI_IPC_RESPONSE_FILE")
+    # Sys.unsetenv("RSTUDIOAPI_IPC_SHARED_SECRET")
+    # Sys.unsetenv("RSTUDIO_WORKBENCH_JOB")
+    # Sys.unsetenv(c("RSTUDIO", "RSTUDIO_WORKBENCH_JOB", "RSTUDIOAPI_IPC_REQUESTS_FILE"))
+    do.call(Sys.setenv, .envvar)
+    # if(length(.rs_envvar)) {
+    #   do.call(Sys.setenv, .rs_envvar)
+    # }
+    if (length(.globals)) {
       list2env(as.list(.globals), envir = globalenv())
     }
-  }, .compute = .compute, .args = list(.envvar = .envvar, .globals = .globals))
+  }, .compute = .compute, .args = list(
+    .envvar = .envvar,
+    .globals = .globals
+    # .rs_envvar = .rs_envvar
+  ))
 
   return()
 }
@@ -155,13 +186,21 @@ with_mirai_parallel <- function(
 
     # Make sure the daemons are reset
     mirai::daemons(0, .compute = "rave_parallel_worker")
+    Sys.unsetenv("RAVE_PARALLEL_WORKER_URL")
 
     if(workers > 1 || always) {
-      on.exit({ mirai::daemons(0, .compute = "rave_parallel_worker") }, add = TRUE, after = FALSE)
+      on.exit({
+        mirai::daemons(0, .compute = "rave_parallel_worker")
+        Sys.unsetenv("RAVE_PARALLEL_WORKER_URL")
+      }, add = TRUE, after = FALSE)
+
+      url <- mirai::local_url()
+      Sys.setenv("RAVE_PARALLEL_WORKER_URL" = url)
 
       re <- with(
         mirai::daemons(
           n = workers,
+          url = url,
           serial = mirai_serialization_config(serialization_config),
           dispatcher = TRUE,
           autoexit = TRUE,
@@ -170,7 +209,7 @@ with_mirai_parallel <- function(
           .compute = "rave_parallel_worker"
         ),
         {
-          initialize_rave_daemon(type = "worker", .globals = globals)
+          initialize_rave_daemon(type = "worker", .globals = globals, .url = url)
           force(expr)
         }
       )
@@ -185,11 +224,11 @@ with_mirai_parallel <- function(
 #' @export
 lapply_jobs <- function(x, fun, ..., .globals = list(), callback = NULL) {
 
-  if( package_installed("mirai") && !on_rave_daemon("worker") &&
-      mirai::daemons_set(.compute = "rave_parallel_worker") ) {
-    use_mirai <- TRUE
-  } else {
-    use_mirai <- FALSE
+  use_mirai <- FALSE
+  if( package_installed("mirai") && !on_rave_daemon("worker") ) {
+    if( mirai::daemons_set(.compute = "rave_parallel_worker") ) {
+      use_mirai <- TRUE
+    }
   }
 
 

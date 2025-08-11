@@ -53,8 +53,7 @@ Imports:
     targets,
     uuid,
     yaml,
-    logger,
-    mirai
+    logger
 Suggests:
     dipsaus,
     filearray,
@@ -69,5 +68,6 @@ Suggests:
     testthat (>= 3.0.0),
     visNetwork,
     later,
-    shiny
+    shiny,
+    mirai
 Config/testthat/edition: 3

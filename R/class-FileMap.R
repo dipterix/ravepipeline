@@ -356,7 +356,7 @@ FileMap <- R6::R6Class(
 
       # save value
       fpath <- file.path(private$db_dir, encoded_key)
-      saveRDS(value, file = fpath)
+      saveRDS(value, file = fpath, refhook = rave_serialize_refhook)
 
       utils::write.table(data.frame(
         Key = encoded_key,
@@ -374,7 +374,7 @@ FileMap <- R6::R6Class(
       ekey <- safe_urlencode(key)
       fpath <- file.path(private$db_dir, ekey)
       if( file.exists(fpath) ){
-        readRDS(fpath)
+        readRDS(fpath, refhook = rave_unserialize_refhook)
       }else{
         if(missing(missing_default)){ missing_default <- self$missing_default }
         missing_default

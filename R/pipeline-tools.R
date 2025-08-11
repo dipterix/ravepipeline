@@ -375,8 +375,8 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
 
   }
 
-  Sys.setenv("RAVE_PIPELINE_ACTIVE" = "true")
-  on.exit({ Sys.unsetenv("RAVE_PIPELINE_ACTIVE") }, add = TRUE, after = FALSE)
+  Sys.setenv("RAVE_PIPELINE_ACTIVE" = "true", "RAVE_WITH_PARALLEL" = "true")
+  on.exit({ Sys.unsetenv(c("RAVE_PIPELINE_ACTIVE", "RAVE_WITH_PARALLEL")) }, add = TRUE, after = FALSE)
 
   lapply(names, eval_target)
   #

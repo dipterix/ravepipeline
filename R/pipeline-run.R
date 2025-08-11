@@ -111,8 +111,8 @@ pipeline_run <- function(
 
     make <- function(fun, use_local = TRUE) {
 
-      Sys.setenv("RAVE_PIPELINE_ACTIVE" = "true")
-      on.exit({ Sys.unsetenv("RAVE_PIPELINE_ACTIVE") }, add = TRUE, after = FALSE)
+      Sys.setenv("RAVE_PIPELINE_ACTIVE" = "true", "RAVE_WITH_PARALLEL" = "true")
+      on.exit({ Sys.unsetenv(c("RAVE_PIPELINE_ACTIVE", "RAVE_WITH_PARALLEL")) }, add = TRUE, after = FALSE)
 
       suppressWarnings({
 
@@ -143,7 +143,7 @@ pipeline_run <- function(
             }
           },
           error = function( e ) {
-            Sys.unsetenv("RAVE_PIPELINE_ACTIVE")
+            Sys.unsetenv(c("RAVE_PIPELINE_ACTIVE", "RAVE_WITH_PARALLEL"))
             stop(ns$sanitize_target_error(e))
           }
         )
@@ -156,7 +156,7 @@ pipeline_run <- function(
           warning(msg, call. = FALSE)
         }
       }
-      Sys.unsetenv("RAVE_PIPELINE_ACTIVE")
+      Sys.unsetenv(c("RAVE_PIPELINE_ACTIVE", "RAVE_WITH_PARALLEL"))
       return()
     }
 
@@ -373,8 +373,8 @@ pipeline_run_bare <- function(
   make <- function(fun, use_local = TRUE) {
     suppressWarnings({
 
-      Sys.setenv("RAVE_PIPELINE_ACTIVE" = "true")
-      on.exit({ Sys.unsetenv("RAVE_PIPELINE_ACTIVE") }, add = TRUE, after = FALSE)
+      Sys.setenv("RAVE_PIPELINE_ACTIVE" = "true", "RAVE_WITH_PARALLEL" = "true")
+      on.exit({ Sys.unsetenv(c("RAVE_PIPELINE_ACTIVE", "RAVE_WITH_PARALLEL")) }, add = TRUE, after = FALSE)
 
       tryCatch(
         expr = {
@@ -402,7 +402,7 @@ pipeline_run_bare <- function(
           }
         },
         error = function( e ) {
-          Sys.unsetenv("RAVE_PIPELINE_ACTIVE")
+          Sys.unsetenv(c("RAVE_PIPELINE_ACTIVE", "RAVE_WITH_PARALLEL"))
           # if(debug) {
           #   g <- globalenv()
           #   g$.last_rave_pipeline_error <- e
@@ -420,7 +420,7 @@ pipeline_run_bare <- function(
         warning(msg, call. = FALSE)
       }
     }
-    Sys.unsetenv("RAVE_PIPELINE_ACTIVE")
+    Sys.unsetenv(c("RAVE_PIPELINE_ACTIVE", "RAVE_WITH_PARALLEL"))
     return()
   }
 
