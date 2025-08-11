@@ -114,7 +114,7 @@ pipeline_report_generate <- function(
   attributes$report_name <- attributes$name
   attributes$report_module <- pipeline_name
   attributes$report_filename <- report_filename
-  attributes <- attributes[!names(attributes) %in% ""]
+  attributes <- as.list(attributes[!names(attributes) %in% ""])
 
   if(length(output_dir) != 1 || is.na(output_dir)) {
     output_dir <- file.path(pipe_dir, "reports")
@@ -161,9 +161,7 @@ pipeline_report_generate <- function(
   )
 
   job_id <- start_job(
-    fun = function(call_args, source_path, output_dir) {
-
-      params <- .(as.list(attributes))
+    fun = function(call_args, source_path, output_dir, attributes) {
 
       Sys.setenv("RAVE_REPORT_ACTIVE" = "true")
       on.exit({ Sys.unsetenv("RAVE_REPORT_ACTIVE") }, add = TRUE, after = FALSE)
@@ -197,14 +195,15 @@ pipeline_report_generate <- function(
 
       structure(
         path,
-        params = params,
+        params = attributes,
         class = c("fs_path", "character")
       )
     },
     fun_args = list(
       call_args = call_args,
       source_path = work_dir,
-      output_dir = output_dir
+      output_dir = output_dir,
+      attributes = attributes
     ),
     packages = "rmarkdown",
     workdir = workdir,
