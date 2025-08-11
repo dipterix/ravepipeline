@@ -3,10 +3,6 @@ rs_avail <- function (version_needed = "1.3", child_ok = FALSE, shiny_ok = FALSE
   if (!shiny_ok && shiny_is_running()) {
     return(FALSE)
   }
-  if(identical(Sys.getenv("RAVE_PIPELINE_ACTIVE"), "true")) { return(FALSE) }
-  if( on_rave_daemon("worker") ) { return(FALSE) }
-  if( on_rave_daemon("pipeline") ) { return(FALSE) }
-
   if( package_installed("rstudioapi") ) {
     is_eval <- tryCatch({
       asNamespace("rstudioapi")$isAvailable(version_needed = version_needed, child_ok = child_ok)

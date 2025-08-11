@@ -8,6 +8,7 @@
 \alias{\%...T>\%}
 \alias{\%...!\%}
 \alias{\%...T!\%}
+\alias{as.promise}
 \alias{digest}
 \title{Objects exported from other packages}
 \keyword{internal}
@@ -20,6 +21,6 @@ below to see their documentation.
 
   \item{glue}{\code{\link[glue]{glue}}}
 
-  \item{promises}{\code{\link[promises:pipes]{\%...!\%}}, \code{\link[promises:pipes]{\%...>\%}}, \code{\link[promises:pipes]{\%...T!\%}}, \code{\link[promises:pipes]{\%...T>\%}}}
+  \item{promises}{\code{\link[promises:pipes]{\%...!\%}}, \code{\link[promises:pipes]{\%...>\%}}, \code{\link[promises:pipes]{\%...T!\%}}, \code{\link[promises:pipes]{\%...T>\%}}, \code{\link[promises:is.promise]{as.promise}}}
 }}
 

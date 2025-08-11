@@ -524,7 +524,7 @@ PipelineTools <- R6::R6Class(
         "%s-%s-%s",
         self$pipeline_name,
         label_cleaned,
-        format(timestamp, "%Y%m%dT%H%M%S")
+        format(timestamp, "%y%m%dT%H%M%S")
       )
       path <- file.path(
         subject$pipeline_path,
@@ -759,6 +759,8 @@ PipelineTools <- R6::R6Class(
 
     #' @description generate pipeline
     #' @param name report name, see field \code{'available_reports'}
+    #' @param subject subject helps determine the \code{output_dir} and
+    #' working directories
     #' @param output_dir parent folder where output will be stored
     #' @param output_format output format
     #' @param clean whether to clean the output; default is false
@@ -766,12 +768,25 @@ PipelineTools <- R6::R6Class(
     #' @returns A job identification number, see \code{\link{resolve_job}} for
     #' querying job details
     generate_report = function(
-      name, output_dir = NULL, output_format = "html_document",
+      name, subject = NULL, output_dir = NULL, output_format = "html_document",
       clean = FALSE, ...) {
+
+      report_attributes <- list()
+      if(!is.null(subject)) {
+        if(length(output_dir) != 1 || is.na(output_dir) || !nzchar(trimws(output_dir))) {
+          output_dir <- subject$report_path
+        }
+        report_attributes$project_name <- subject$project_name
+        report_attributes$subject_code <- subject$subject_code
+      }
+      # 127.0.0.1:17283/?type=widget&project_name=test&subject_code=DemoSubject&report_name=report-diagnostics_datetime-250811T165425_notch_filter&module=standalone_report&shared_id=kJKCof6lYRNqaFRst6Yr5Je6xp
+
+
       pipeline_report_generate(
         name = name, output_dir = output_dir,
         output_format = output_format, clean = clean,
-        ..., pipe_dir = private$.pipeline_path)
+        ..., attributes = report_attributes,
+        pipe_dir = private$.pipeline_path)
     }
 
   ),

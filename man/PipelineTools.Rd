@@ -725,6 +725,7 @@ generate pipeline
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{PipelineTools$generate_report(
   name,
+  subject = NULL,
   output_dir = NULL,
   output_format = "html_document",
   clean = FALSE,
@@ -736,6 +737,9 @@ generate pipeline
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{name}}{report name, see field \code{'available_reports'}}
+
+\item{\code{subject}}{subject helps determine the \code{output_dir} and
+working directories}
 
 \item{\code{output_dir}}{parent folder where output will be stored}
 

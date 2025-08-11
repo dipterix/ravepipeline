@@ -38,7 +38,7 @@ pipeline_report_list <- function(
         name = basename(entry_path),
         label = basename(entry_path),
         entry = item,
-        fork_policy = NULL
+        fork_policy = "default"
       ))
     }
     if(!is.list(item) || length(item$entry) != 1 || is.na(item$entry) || !is.character(item$entry)) { return(NULL) }
@@ -50,6 +50,9 @@ pipeline_report_list <- function(
     }
     if(is.null(item$label)) {
       item$label <- basename(entry_path)
+    }
+    if(length(item$fork_policy) == 0) {
+      item$fork_policy <- "default"
     }
     return(item)
   })
@@ -87,7 +90,7 @@ pipeline_report_by_name <- function(
 pipeline_report_generate <- function(
     name, output_format = "html_document", clean = FALSE,
     theme = "flatly", ...,
-    output_dir = NULL, work_dir = NULL,
+    output_dir = NULL, work_dir = output_dir, attributes = list(),
     pipe_dir = Sys.getenv("RAVE_PIPELINE", ".")) {
 
   report <- pipeline_report_by_name(name = name, pipe_dir = pipe_dir)
@@ -97,7 +100,7 @@ pipeline_report_generate <- function(
   pipeline <- pipeline_from_path(pipe_dir)
 
   # output_name <- format(x = Sys.time(), format = "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
-  datetime <- format(x = Sys.time(), format = "%Y%m%dT%H%M%S")
+  datetime <- format(x = Sys.time(), format = "%y%m%dT%H%M%S")
   report_filename <- sprintf(
     "report-%s_datetime-%s_%s",
     gsub("[_\\.\\-]", "", report$name),
@@ -105,8 +108,18 @@ pipeline_report_generate <- function(
     pipeline_name
   )
 
+  attributes <- as.list(attributes)
+  attributes$type <- "widget"
+  attributes$module <- "standalone_report"
+  attributes$report_name <- attributes$name
+  attributes$report_module <- pipeline_name
+  attributes$report_filename <- report_filename
+  attributes <- attributes[!names(attributes) %in% ""]
+
   if(length(output_dir) != 1 || is.na(output_dir)) {
     output_dir <- file.path(pipe_dir, "reports")
+  } else {
+    output_dir <- file.path(output_dir, report_filename)
   }
 
   if(length(work_dir) != 1 || is.na(work_dir)) {
@@ -150,6 +163,8 @@ pipeline_report_generate <- function(
   job_id <- start_job(
     fun = function(call_args, source_path, output_dir) {
 
+      params <- .(as.list(attributes))
+
       Sys.setenv("RAVE_REPORT_ACTIVE" = "true")
       on.exit({ Sys.unsetenv("RAVE_REPORT_ACTIVE") }, add = TRUE, after = FALSE)
 
@@ -159,17 +174,32 @@ pipeline_report_generate <- function(
       dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
 
       # copy work_dir to output_dir
-      file.copy(
-        from = source_path,
-        to = output_dir,
-        overwrite = TRUE,
-        recursive = TRUE
-      )
+      source_path <- normalizePath(source_path, winslash = "/")
+      output_dir <- normalizePath(output_dir, winslash = "/")
 
-      unlink(source_path, recursive = TRUE, force = TRUE)
+      # To avoid same-path copy
+      if(output_dir != source_path) {
+        try({
+          file.copy(
+            from = source_path,
+            to = output_dir,
+            overwrite = TRUE,
+            recursive = TRUE
+          )
+
+          unlink(source_path, recursive = TRUE, force = TRUE)
+        })
+      }
+
       Sys.unsetenv("RAVE_REPORT_ACTIVE")
 
-      file.path(output_dir, basename(source_path), "report.html")
+      path <- file.path(output_dir, basename(source_path), "report.html")
+
+      structure(
+        path,
+        params = params,
+        class = c("fs_path", "character")
+      )
     },
     fun_args = list(
       call_args = call_args,

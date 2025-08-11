@@ -27,6 +27,9 @@ promises::`%...!%`
 promises::`%...T!%`
 
 #' @export
+promises::as.promise
+
+#' @export
 digest::digest
 
 
