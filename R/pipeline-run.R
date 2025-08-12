@@ -15,6 +15,9 @@ pipeline_run <- function(
     return_values = TRUE,
     debug = FALSE,
     ...){
+  if(async) {
+    logger("Running a pipeline with `async=TRUE` is no logger recommended. Please consider using `start_job` instead.", level = "warning")
+  }
 
   pipe_dir <- activate_pipeline(pipe_dir)
 

@@ -5,7 +5,7 @@
 \alias{lapply_jobs}
 \title{Internal parallel functions}
 \usage{
-with_rave_parallel(expr)
+with_rave_parallel(expr, .workers = 0)
 
 lapply_jobs(
   x,
@@ -20,6 +20,9 @@ lapply_jobs(
 \arguments{
 \item{expr}{expression to evaluate with parallel workers}
 
+\item{.workers}{number of workers: note the actual numbers may differ,
+depending on the options and number of input elements}
+
 \item{x}{a list, vector, array of R objects}
 
 \item{fun}{function to apply to each element of \code{x}}
@@ -27,9 +30,6 @@ lapply_jobs(
 \item{...}{additional arguments to be passed to \code{fun}}
 
 \item{.globals}{global variables to be serialized}
-
-\item{.workers}{number of workers: note the actual numbers may differ,
-depending on the options and number of input elements}
 
 \item{.always}{whether always use workers, only considered when number of
 workers is one; default is false, then run jobs in the main process when

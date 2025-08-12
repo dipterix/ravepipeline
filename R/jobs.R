@@ -154,9 +154,10 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
         job_root <- .(job_root)
         status_path <- file.path(job_root, "status.rds")
 
-        save_job_status <- .(save_job_status)
-        rave_unserialize_refhook <- .(rave_unserialize_refhook)
-        rave_serialize_refhook <- .(rave_serialize_refhook)
+        ravepipeline <- asNamespace("ravepipeline")
+        save_job_status <- ravepipeline$save_job_status
+        rave_unserialize_refhook <- ravepipeline$rave_unserialize_refhook
+        rave_serialize_refhook <- ravepipeline$rave_serialize_refhook
 
         # Write initial state
         job_status$loaded_instruction_time <- Sys.time()
@@ -212,7 +213,7 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
           setwd(workdir)
           on.exit({
             if(length(cwd) == 1 && dir.exists(cwd)) {
-              setwd(cwd)
+              try({ setwd(cwd) }, silent = TRUE)
             }
           })
         }
@@ -396,7 +397,7 @@ start_job_mirai <- function(fun, fun_args = list(), packages = NULL,
 #' @param workdir working directory; default is temporary path
 #' @param method job type; choices are \code{'rs_job'} (only used in
 #' \code{'RStudio'} environment), \code{'mirai'} (when package \code{'mirai'}
-#' is installed), and \code{'callr'}.
+#' is installed), and \code{'callr'} (default).
 #' @param name name of the job
 #' @param job_id job identification number
 #' @param timeout timeout in seconds before the resolve ends; jobs that
@@ -453,7 +454,7 @@ start_job <- function(
     fun_args = list(),
     packages = NULL,
     workdir = NULL,
-    method = c("rs_job", "mirai", "callr"),
+    method = c("callr", "rs_job", "mirai"),
     name = NULL,
     ensure_init = TRUE,
     digest_key = NULL,

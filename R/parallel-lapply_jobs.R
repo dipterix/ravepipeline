@@ -15,6 +15,11 @@ calculate_workers <- function(workers = 0, always = FALSE) {
   if(identical(workers, 1L) && !always) { return(0L) }
 
   max_workers <- raveio_getopt(key = "max_worker", default = 1L)
+  max_workers2 <- getOption("rave.parallel.workers", max_workers)
+  if(length(max_workers2) == 1 && !is.na(max_workers2) && is.numeric(max_workers2) &&
+     max_workers2 < max_workers && max_workers2 > 0) {
+    max_workers <- max_workers2
+  }
   if(!isTRUE(workers >= 1 && workers <= max_workers)) {
     workers <- max_workers
   }
@@ -126,11 +131,22 @@ initialize_rave_daemon <- function(type = c("worker", "pipeline")) {
 #' }
 #'
 #' @export
-with_rave_parallel <- function(expr) {
+with_rave_parallel <- function(expr, .workers = 0) {
   if(!identical(Sys.getenv("RAVE_WITH_PARALLEL"), "true")) {
+    workers <- as.integer(.workers)
+    stopifnot(isTRUE(workers >= 0))
+
     Sys.setenv("RAVE_WITH_PARALLEL" = "true")
-    on.exit({ Sys.unsetenv("RAVE_WITH_PARALLEL") }, add = TRUE, after = FALSE)
+    if(workers > 0) {
+      options("rave.parallel.workers" = workers)
+    }
+
+    on.exit({
+      Sys.unsetenv("RAVE_WITH_PARALLEL")
+      options("rave.parallel.workers" = NULL)
+    }, add = TRUE, after = FALSE)
   }
+
   force(expr)
 }
 
@@ -260,14 +276,21 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
     saveRDS(serialize_packet, cache_path, refhook = rave_serialize_refhook)
 
     on.exit({
-      job_ids <- unlist(c(job_finished$as_list(), as.list(job_ids)))
-      lapply(job_ids, function(job_id) {
-        path <- get_job_path(job_id, check = FALSE)
-        if(file.exists(path)) {
-          unlink(path, recursive = TRUE, force = TRUE)
-        }
-      })
       unlink(cache_path, force = TRUE)
+      # clear up jobs, kill processes and remove resources
+      job_ids_c <- unlist(c(job_finished$as_list(), as.list(job_ids)))
+      lapply(job_ids_c, function(job_id) {
+        try({
+          path <- get_job_path(job_id, check = FALSE)
+          if(file.exists(path)) {
+            unlink(path, recursive = TRUE, force = TRUE)
+          }
+        })
+      })
+      try({
+        job_finished$reset()
+        job_ids$`@reset`()
+      })
     }, add = TRUE, after = TRUE)
     cache_path <- normalizePath(cache_path, winslash = "/", mustWork = TRUE)
 
@@ -333,7 +356,7 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
         job_fun,
         fun_args = list(.x = .x),
         workdir = cwd,
-        method = "mirai",
+        method = "callr",
         ensure_init = FALSE,
         digest_key = ii
       )

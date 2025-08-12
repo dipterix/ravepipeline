@@ -13,7 +13,7 @@ start_job(
   fun_args = list(),
   packages = NULL,
   workdir = NULL,
-  method = c("rs_job", "mirai", "callr"),
+  method = c("callr", "rs_job", "mirai"),
   name = NULL,
   ensure_init = TRUE,
   digest_key = NULL,
@@ -43,7 +43,7 @@ remove_job(job_id)
 
 \item{method}{job type; choices are \code{'rs_job'} (only used in
 \code{'RStudio'} environment), \code{'mirai'} (when package \code{'mirai'}
-is installed), and \code{'callr'}.}
+is installed), and \code{'callr'} (default).}
 
 \item{name}{name of the job}
 

@@ -40,7 +40,9 @@ PipelineTools <- R6::R6Class(
       stopifnot(identical(object$namespace, "ravepipeline"))
       stopifnot(identical(object$r6_generator, "PipelineTools"))
 
-      PipelineTools$new(
+      # `ravepipeline` might not be loaded yet...
+      ravepipeline <- asNamespace("ravepipeline")
+      ravepipeline$PipelineTools$new(
         pipeline_name = object$data$pipeline_name,
         settings_file = object$data$settings_file,
         paths = dirname(object$data$pipeline_path),
