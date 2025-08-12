@@ -77,6 +77,9 @@ if(interactive() && length(pipeline_list()) > 0) {
 \seealso{
 \code{\link{pipeline}}
 }
+\section{Super class}{
+\code{\link[ravepipeline:RAVESerializable]{ravepipeline::RAVESerializable}} -> \code{PipelineTools}
+}
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
@@ -104,6 +107,8 @@ signatures of data and commands}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
+\item \href{#method-PipelineTools-@marshal}{\code{PipelineTools$@marshal()}}
+\item \href{#method-PipelineTools-@unmarshal}{\code{PipelineTools$@unmarshal()}}
 \item \href{#method-PipelineTools-new}{\code{PipelineTools$new()}}
 \item \href{#method-PipelineTools-set_settings}{\code{PipelineTools$set_settings()}}
 \item \href{#method-PipelineTools-get_settings}{\code{PipelineTools$get_settings()}}
@@ -127,6 +132,49 @@ signatures of data and commands}
 \item \href{#method-PipelineTools-has_preferences}{\code{PipelineTools$has_preferences()}}
 \item \href{#method-PipelineTools-generate_report}{\code{PipelineTools$generate_report()}}
 \item \href{#method-PipelineTools-clone}{\code{PipelineTools$clone()}}
+}
+}
+\if{html}{\out{
+<details open><summary>Inherited methods</summary>
+<ul>
+<li><span class="pkg-link" data-pkg="ravepipeline" data-topic="RAVESerializable" data-id="@compare"><a href='../../ravepipeline/html/RAVESerializable.html#method-RAVESerializable-@compare'><code>ravepipeline::RAVESerializable$@compare()</code></a></span></li>
+</ul>
+</details>
+}}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipelineTools-@marshal"></a>}}
+\if{latex}{\out{\hypertarget{method-PipelineTools-@marshal}{}}}
+\subsection{Method \code{@marshal()}}{
+Create an atomic list that can be serialized
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$@marshal(...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{ignored}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipelineTools-@unmarshal"></a>}}
+\if{latex}{\out{\hypertarget{method-PipelineTools-@unmarshal}{}}}
+\subsection{Method \code{@unmarshal()}}{
+Restore an object from an atomic list
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$@unmarshal(object, ...)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{object}}{a list from \code{'@marshal'}}
+
+\item{\code{...}}{ignored}
+}
+\if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}

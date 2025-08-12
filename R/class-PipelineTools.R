@@ -3,6 +3,7 @@
 #' @export
 PipelineTools <- R6::R6Class(
   classname = "PipelineTools",
+  inherit = RAVESerializable,
   portable = TRUE,
   cloneable = TRUE,
 
@@ -17,6 +18,35 @@ PipelineTools <- R6::R6Class(
   ),
 
   public = list(
+
+    #' @description Create an atomic list that can be serialized
+    #' @param ... ignored
+    `@marshal` = function(...) {
+      list(
+        namespace = "ravepipeline",
+        r6_generator = "PipelineTools",
+        data = list(
+          pipeline_name = self$pipeline_name,
+          pipeline_path = self$pipeline_path,
+          settings_file = private$.settings_file
+        )
+      )
+    },
+
+    #' @description Restore an object from an atomic list
+    #' @param object a list from \code{'@marshal'}
+    #' @param ... ignored
+    `@unmarshal` = function(object, ...) {
+      stopifnot(identical(object$namespace, "ravepipeline"))
+      stopifnot(identical(object$r6_generator, "PipelineTools"))
+
+      PipelineTools$new(
+        pipeline_name = object$data$pipeline_name,
+        settings_file = object$data$settings_file,
+        paths = dirname(object$data$pipeline_path),
+        temporary = TRUE
+      )
+    },
 
     #' @description construction function
     #' @param pipeline_name name of the pipeline, usually in the pipeline
