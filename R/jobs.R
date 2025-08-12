@@ -356,7 +356,10 @@ start_job_callr <- function(fun, fun_args = list(), packages = NULL,
     ),
     package = FALSE,
     poll_connection = TRUE,
-    supervise = TRUE,
+
+    # Do not supervise when during the checks as the opened supervisor
+    # will trigger alerts
+    supervise = !identical(Sys.getenv("RAVE_TESTING"), "TRUE"),
     error = "error"
   )
 
@@ -636,9 +639,16 @@ remove_job <- function(job_id) {
   clean_job_path(job_id)
   callr_process <- attr(job_id, "callr_process")
   if(!is.null(callr_process)) {
-    try({
-      callr_process$kill()
-    }, silent = FALSE)
+    tryCatch(
+      {
+        callr_process$kill_tree()
+      },
+      error = function(e) {
+        try({
+          callr_process$kill()
+        }, silent = TRUE)
+      }
+    )
   }
   invisible()
 }
