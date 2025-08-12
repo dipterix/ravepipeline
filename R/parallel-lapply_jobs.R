@@ -281,11 +281,8 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
       job_ids_c <- unlist(c(job_finished$as_list(), as.list(job_ids)))
       lapply(job_ids_c, function(job_id) {
         try({
-          path <- get_job_path(job_id, check = FALSE)
-          if(file.exists(path)) {
-            unlink(path, recursive = TRUE, force = TRUE)
-          }
-        })
+          remove_job(job_id)
+        }, silent = TRUE)
       })
       try({
         job_finished$reset()

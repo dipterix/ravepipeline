@@ -350,9 +350,12 @@ start_job_callr <- function(fun, fun_args = list(), packages = NULL,
              echo = FALSE,
              print.eval = FALSE)
     },
-    args = list(script_path = script_path),
+    args = list(
+      # subprocess = TRUE,
+      script_path = script_path
+    ),
     package = FALSE,
-    poll_connection = FALSE,
+    poll_connection = TRUE,
     supervise = TRUE,
     error = "error"
   )
@@ -631,6 +634,13 @@ remove_job <- function(job_id) {
     job_id <- job_id$ID
   }
   clean_job_path(job_id)
+  callr_process <- attr(job_id, "callr_process")
+  if(!is.null(callr_process)) {
+    try({
+      callr_process$kill()
+    }, silent = FALSE)
+  }
+  invisible()
 }
 
 #' @export

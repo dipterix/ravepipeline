@@ -31,4 +31,7 @@ test_that("with_rave_parallel", {
     testthat::expect_equal(calculate_workers(always = FALSE), 0)
 
   }, .workers = 1)
+
+  testthat::expect_null(getOption("rave.parallel.workers"))
+
 })
