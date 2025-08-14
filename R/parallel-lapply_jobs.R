@@ -208,9 +208,12 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
       if(length(msg) > 1) {
         message <- msg[[1]]
         detail <- paste(msg[-1], collapse = "|")
-      } else {
+      } else if(length(msg) == 1){
         message <- NULL
         detail <- msg[[1]]
+      } else {
+        message <- NULL
+        detail <- ""
       }
       progress$inc(detail = trimws(detail), message = message, amount = amount)
     }
