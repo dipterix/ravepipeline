@@ -88,8 +88,10 @@ pipeline_report_by_name <- function(
 }
 
 pipeline_report_generate <- function(
-    name, output_format = "html_document", clean = FALSE,
-    theme = "flatly", ...,
+    name, output_format = "auto", clean = FALSE,
+    theme = "flatly", ..., code_folding = TRUE,
+    self_contained = TRUE, toc = TRUE, toc_depth = 3L,
+    toc_float = TRUE,
     output_dir = NULL, work_dir = output_dir, attributes = list(),
     pipe_dir = Sys.getenv("RAVE_PIPELINE", ".")) {
 
@@ -145,15 +147,34 @@ pipeline_report_generate <- function(
   #   theme = 'spacelab'
   # )
 
+
+  output_options <- list(
+    theme = theme,
+    code_folding = code_folding,
+    self_contained = self_contained,
+    toc = toc,
+    toc_depth = as.integer(toc_depth),
+    toc_float = toc_float
+  )
+  custom_css <- file.path(pipeline$pipeline_path, "report_styles.css")
+  if(file.exists(custom_css)) {
+    output_options$css <- "report_styles.css"
+  }
+
+  if(identical(output_format, "auto")) {
+    if(package_installed("distill")) {
+      output_format <- "distill::distill_article"
+    } else {
+      output_format <- "html_document"
+    }
+  }
+
   workdir <- dirname(report_template_path)
   call_args <- list(
     input = report_template_path,
     output_format = output_format,
     output_file = file.path(work_dir, "report.html"),
-    output_options = list(
-      self_contained = TRUE,
-      theme = theme
-    ),
+    output_options = output_options,
     intermediates_dir = file.path(work_dir, "intermediate"),
     knit_root_dir = workdir,
     clean = clean,

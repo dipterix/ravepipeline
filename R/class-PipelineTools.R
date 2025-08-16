@@ -800,7 +800,7 @@ PipelineTools <- R6::R6Class(
     #' @returns A job identification number, see \code{\link{resolve_job}} for
     #' querying job details
     generate_report = function(
-      name, subject = NULL, output_dir = NULL, output_format = "html_document",
+      name, subject = NULL, output_dir = NULL, output_format = "auto",
       clean = FALSE, ...) {
 
       report_attributes <- list()

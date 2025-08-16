@@ -775,7 +775,7 @@ generate pipeline
   name,
   subject = NULL,
   output_dir = NULL,
-  output_format = "html_document",
+  output_format = "auto",
   clean = FALSE,
   ...
 )}\if{html}{\out{</div>}}
