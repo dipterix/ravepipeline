@@ -277,17 +277,6 @@ parse_svec <- function (text, sep = ",", connect = "-:|", sort = FALSE, unique =
 #   base64enc::base64encode(charToRaw(x))
 # }
 
-base64_urlencode <- function (x) {
-  if (!length(x)) {
-    return(character(x))
-  }
-  # re <- vapply(enc2utf8(as.character(x)), base64_urlinternal_encoder,
-  #              "", USE.NAMES = FALSE)
-  # re <- gsub("[=]{0,}$", "", re)
-  # re <- gsub("[+]", "-", re)
-  # gsub("/", "_", re)
-  unname(base64url::base64_urlencode(x = as.character(x)))
-}
 
 safe_urlencode <- function (x) {
   re <- base64_urlencode(x)
@@ -298,12 +287,6 @@ safe_urlencode <- function (x) {
 #   rawToChar(base64enc::base64decode(what = x), multiple = FALSE)
 # }
 
-base64_urldecode <- function (x) {
-  # x <- gsub("-", "+", x)
-  # x <- gsub("_", "/", x)
-  # vapply(x, base64_urlinternal_decoder, "", USE.NAMES = FALSE)
-  unname(base64url::base64_urldecode(x = x))
-}
 
 safe_urldecode <- function (x) {
   x <- gsub(x = as.character(x), pattern = "^==", replacement = "")

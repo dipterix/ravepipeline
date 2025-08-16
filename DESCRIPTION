@@ -36,7 +36,7 @@ BugReports: https://github.com/orgs/rave-ieeg/discussions
 Imports: 
     utils,
     stats,
-    base64url,
+    base64enc,
     callr,
     cli,
     digest,
