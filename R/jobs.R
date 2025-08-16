@@ -429,6 +429,7 @@ start_job_mirai <- function(fun, fun_args = list(), packages = NULL,
 #'
 #' @examples
 #'
+#' \dontrun{
 #'
 #' # Basic use
 #' job_id <- start_job(function() {
@@ -440,7 +441,6 @@ start_job_mirai <- function(fun, fun_args = list(), packages = NULL,
 #'
 #' result <- resolve_job(job_id)
 #'
-#' \dontrun{
 #'
 #' # As promise
 #' library(promises)

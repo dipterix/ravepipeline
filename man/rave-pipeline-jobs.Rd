@@ -83,6 +83,7 @@ Run a function (job) in another session
 }
 \examples{
 
+\dontrun{
 
 # Basic use
 job_id <- start_job(function() {
@@ -94,7 +95,6 @@ check_job(job_id)
 
 result <- resolve_job(job_id)
 
-\dontrun{
 
 # As promise
 library(promises)

@@ -158,7 +158,7 @@ c.base64_png <- function(x, ...) {
 
 #' @export
 format.base64_png <- function(x, ..., type = c("asis", "content", "summary", "html_svg", "html_img"),
-                              width = NA, height = NA, opacity = 1) {
+                              width = NA, height = NA, opacity = 1, svg_x = 0, svg_y = 0) {
   type <- match.arg(type)
   switch (
     type,
@@ -167,8 +167,8 @@ format.base64_png <- function(x, ..., type = c("asis", "content", "summary", "ht
       attributes(x) <- NULL
     },
     "summary" = {
-      width <- attr(x, "width") %||% NA
-      height <- attr(x, "height") %||% NA
+      width <- attr(x, "width") %||% width
+      height <- attr(x, "height") %||% height
       units <- attr(x, "units") %||% "px"
       prefix <- gsub(";.*$", "", unclass(x))
       x <- sprintf(
@@ -192,8 +192,8 @@ format.base64_png <- function(x, ..., type = c("asis", "content", "summary", "ht
       }
       tgs <- call_pkg_fun("htmltools", "tags", .call_pkg_function = FALSE)
       x <- tgs$image(
-        x = "0",
-        y = "0",
+        x = sprintf("%.0f", svg_x),
+        y = sprintf("%.0f", svg_y),
         width = width,
         height = height,
         `xlink:href` = unclass(x),
