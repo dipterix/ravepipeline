@@ -208,11 +208,12 @@ pipeline_report_generate <- function(
 
           unlink(source_path, recursive = TRUE, force = TRUE)
         })
+        path <- file.path(output_dir, basename(source_path), "report.html")
+      } else {
+        path <- file.path(output_dir, "report.html")
       }
 
       Sys.unsetenv("RAVE_REPORT_ACTIVE")
-
-      path <- file.path(output_dir, basename(source_path), "report.html")
 
       structure(
         path,
