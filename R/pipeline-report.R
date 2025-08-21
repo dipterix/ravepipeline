@@ -95,6 +95,8 @@ pipeline_report_generate <- function(
     output_dir = NULL, work_dir = output_dir, attributes = list(),
     pipe_dir = Sys.getenv("RAVE_PIPELINE", ".")) {
 
+  require_package("rmarkdown")
+
   report <- pipeline_report_by_name(name = name, pipe_dir = pipe_dir)
   pipe_dir <- report$pipeline_path
   pipeline_name <- attr(pipe_dir, "target_name")
@@ -147,6 +149,15 @@ pipeline_report_generate <- function(
   #   theme = 'spacelab'
   # )
 
+  custom_css <- "report_styles.css"
+  if(!file.exists(file.path(pipeline$pipeline_path, custom_css))) {
+    custom_css <- NULL
+  }
+
+  custom_js <- "report_script.js"
+  if(!file.exists(file.path(pipeline$pipeline_path, custom_js))) {
+    custom_js <- NULL
+  }
 
   output_options <- list(
     theme = theme,
@@ -154,18 +165,32 @@ pipeline_report_generate <- function(
     self_contained = self_contained,
     toc = toc,
     toc_depth = as.integer(toc_depth),
-    toc_float = toc_float
+    toc_float = toc_float,
+    css = custom_css
   )
-  custom_css <- file.path(pipeline$pipeline_path, "report_styles.css")
-  if(file.exists(custom_css)) {
-    output_options$css <- "report_styles.css"
-  }
+
+
+  # rmarkdown depends on htmltools
+  htmltools <- asNamespace("htmltools")
+  extra_dependencies <- list(htmltools$htmlDependency(
+    name = "report-user-deps",
+    version = as.character(pipeline$description$Version),
+    src = list(file = format(pipeline$pipeline_path)),
+    meta = list(
+      `rave-report-name` = format(name),
+      `rave-report-module_id` = format(pipeline_name),
+      `rave-report-datetime` = strftime(Sys.time())
+    ),
+    script = custom_js,
+    stylesheet = custom_css,
+    all_files = FALSE
+  ))
 
   if(identical(output_format, "auto")) {
     if(package_installed("distill")) {
       output_format <- "distill::distill_article"
     } else {
-      output_format <- "html_document"
+      output_format <- "rmarkdown::html_document"
     }
   }
 
@@ -182,12 +207,36 @@ pipeline_report_generate <- function(
   )
 
   job_id <- start_job(
-    fun = function(call_args, source_path, output_dir, attributes) {
+    fun = function(call_args, source_path, output_dir, attributes, extra_dependencies = NULL) {
 
       Sys.setenv("RAVE_REPORT_ACTIVE" = "true")
       on.exit({ Sys.unsetenv("RAVE_REPORT_ACTIVE") }, add = TRUE, after = FALSE)
 
       rmarkdown <- asNamespace("rmarkdown")
+
+      if(length(call_args$output_format) == 1 && is.character(call_args$output_format)) {
+        tryCatch(
+          {
+            output_format_txt <- call_args$output_format
+            output_format_lang <- str2lang(output_format_txt)
+            output_options <- call_args$output_options
+
+            # Must be a list of deps
+            output_options$extra_dependencies <- extra_dependencies
+            call <- as.call(c(list(output_format_lang), output_options))
+            message("Using the following output format call:")
+            print(call)
+
+            # output_format_generator <- eval(output_format_lang, envir = new.env(parent = rmarkdown))
+            call_args$output_format <- eval(call, envir = new.env(parent = rmarkdown))
+          },
+          error = function(e) {
+            warning(e)
+          }
+        )
+      }
+
+
       do.call(rmarkdown$render, call_args)
 
       dir.create(output_dir, showWarnings = FALSE, recursive = TRUE)
@@ -225,11 +274,13 @@ pipeline_report_generate <- function(
       call_args = call_args,
       source_path = work_dir,
       output_dir = output_dir,
-      attributes = attributes
+      attributes = attributes,
+      extra_dependencies = extra_dependencies
     ),
     packages = "rmarkdown",
     workdir = workdir,
-    name = report_filename
+    name = report_filename,
+    method = "rs_job"
   )
 
   return(job_id)
