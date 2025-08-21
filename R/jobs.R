@@ -469,9 +469,17 @@ start_job <- function(
 
   method <- match.arg(method)
   if(method == "rs_job") {
-    if(!rs_avail(child_ok = FALSE, shiny_ok = TRUE)) {
-      method <- "mirai"
+    if(!rs_avail(child_ok = TRUE, shiny_ok = TRUE)) {
+      # not in rstudio
+      method <- "callr"
+    } else if(rs_avail(child_ok = FALSE, shiny_ok = TRUE)) {
+      # in rstudio main session or positron
+      if(!is.function(get0('.rs.api.runScriptJob', mode = "function", ifnotfound = NULL))) {
+        # positron, no job available
+        method <- "callr"
+      }
     }
+    # else it's in rstudio job
   }
   if(method == "mirai" && !package_installed("mirai")) {
     method <- "callr"
