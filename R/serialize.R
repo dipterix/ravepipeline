@@ -163,11 +163,50 @@ rave_serialize_impl.RAVESerializable <- function(object) {
     params$usetemplateifmissing <- FALSE
     params$base_path <- object$base_path
   }
-  params$volume_types <- object$volume_types
-  params$surface_types <- object$surface_types
-  params$atlas_types <- object$atlas_types
+  params$volume_types <- lapply(object$volume_types, function(vtype) {
+    list(name = vtype)
+  })
+
+  # TODO: add support for customized brain$add_surface(surface, vertex_color_types = c("sulc", "curv", "thickness", "volume")
+  params$surface_types <- lapply(object$surface_types, function(stype) {
+    sgroup <- object$surfaces[[stype]]
+
+    vertex_color_types <- c(
+      sgroup$group$group_data$lh_primary_vertex_color$file_name,
+      sgroup$group$group_data$rh_primary_vertex_color$file_name
+    )
+    if(length(vertex_color_types)) {
+      vertex_color_types <- gsub("[lr]h\\.", "", tolower(vertex_color_types[[1]]), ignore.case = TRUE)
+      if(!vertex_color_types %in% c("sulc", "curv", "thickness", "volume")) {
+        vertex_color_types <- "sulc"
+      }
+    } else {
+      vertex_color_types <- "sulc"
+    }
+
+    list(
+      name = stype,
+      annotations = sgroup$group$group_data$annotation_list,
+      vertex_color_types = vertex_color_types
+    )
+  })
+
+  params$atlas_types <- lapply(object$atlas_types, function(atype) {
+    agroup <- object$atlases[[atype]]
+    aname <- gsub("\\.(mgz|nii|nii\\.gz)$", "", agroup$group$group_data$volume_data$file_name, ignore.case = TRUE)
+    ainfo <- agroup$object$to_list()
+
+    # brain$add_atlas(atlas = , color_format = , trans_space_from = )
+    list(
+      name = aname,
+      color_format = ainfo$color_format,
+      trans_space_from = ainfo$trans_space_from,
+      path = agroup$group$group_data$volume_data$absolute_path
+    )
+  })
 
   params$electrode_table <- object$electrodes$raw_table
+  params$has_prototypes <- length(object$electrodes$objects2) > 0
   params$electrode_values <- object$electrodes$value_table
   params$native_subject <- TRUE
   class(params) <- c("rave_serialized_rave-brain", "rave_serialized")
@@ -226,21 +265,68 @@ rave_unserialize_impl.rave_serialized_r6 <- function(x) {
     brain <- threeBrain$threeBrain(
       path = params$base_path,
       subject_code = params$subject_code,
-      surface_types = params$surface_types,
-      atlas_types = params$atlas_types
+      surface_types = "pial",
+      atlas_types = NULL
     )
   } else {
     brain <- call_ravecore_fun("rave_brain", sprintf("%s/%s", params$project_name, params$subject_code),
-                               surfaces = params$surface_types,
-                               overlays = params$atlas_types,
+                               overlays = NULL,
                                usetemplateifmissing = isTRUE(params$usetemplateifmissing),
                                include_electrodes = FALSE)
   }
   if(is.null(brain)) {
-    stop("Unable to restore the brain object.")
+    warning("Unable to restore the brain object. Returning `NULL`.")
+    return(NULL)
   }
+
+  if(is.list(params$surface_types)) {
+    lapply(params$surface_types, function(slist) {
+      brain$add_surface(slist$name, vertex_color_types = slist$vertex_color_types)
+      lapply(slist$annotations, function(annot_types) {
+        brain$add_annotation(annotation = annot_types, surface_type = slist$name)
+        return()
+      })
+      return()
+    })
+  }
+
+  if(is.list(params$atlas_types)) {
+    lapply(params$atlas_types, function(atlas_list) {
+      brain$add_atlas(
+        atlas_list$name,
+        color_format = atlas_list$color_format,
+        trans_space_from = atlas_list$trans_space_from
+      )
+      if(length(atlas_list$path) == 1 && file.exists(atlas_list$path) && !atlas_list$name %in% brain$atlas_types) {
+        VolumeGeom2 <- call_pkg_fun("threeBrain", "VolumeGeom2", .call_pkg_function = FALSE)
+        BrainAtlas <- call_pkg_fun("threeBrain", "BrainAtlas", .call_pkg_function = FALSE)
+        atlas_geom <- VolumeGeom2$new(
+          name = sprintf("Atlas - %s (%s)", atlas_list$name, brain$subject_code),
+          path = atlas_list$path,
+          color_format = atlas_list$color_format,
+          trans_mat = NULL)
+        atlas_geom$trans_space_from <- atlas_list$trans_space_from
+        atlas_instance <- BrainAtlas$new(
+          subject_code = brain$subject_code,
+          atlas_type = atlas_list$name,
+          position = c(0, 0, 0),
+          atlas = atlas_geom
+        )
+        atlas_instance$group$.cache_name <- sprintf("%s/mri", brain$subject_code)
+        brain$add_atlas(atlas = atlas_instance)
+      }
+      return()
+    })
+  }
+
+  if(isTRUE(params$has_prototypes)) {
+    priority <- "prototype"
+  } else {
+    priority <- "sphere"
+  }
+
   if(length(params$electrode_table)) {
-    brain$set_electrodes(params$electrode_table)
+    brain$set_electrodes(params$electrode_table, priority = priority)
   }
   if(length(params$electrode_values)) {
     brain$set_electrode_values(params$electrode_values)
