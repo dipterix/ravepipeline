@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,7 +19,7 @@
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/orgs/rave-ieeg/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/dipterix/ravepipeline/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul></div>
 
 
@@ -29,17 +29,37 @@
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Changelog</h1>
-      <small>Source: <a href="https://github.com/orgs/rave-ieeg/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
+      <small>Source: <a href="https://github.com/dipterix/ravepipeline/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.0.3" id="ravepipeline-003">ravepipeline 0.0.3<a class="anchor" aria-label="anchor" href="#ravepipeline-003"></a></h2>
+<ul><li>Removed <code>raveio</code> from templates</li>
+<li>Internally, <code>rs_job</code> considers <code>Positron-IDE</code>
+</li>
+<li>Fixed incorrect path issue when the report working directory and output folder are identical</li>
+<li>Using <code>distill</code> for default report style, if available</li>
+<li>Added <code>SVG</code> plots to allow image overlays</li>
+<li>Added <code>base64URI</code>; using <code>base64enc</code> for more general <code>base64</code> converter</li>
+<li>Fixed a bug where <code>lapply_jobs</code> callback fail to run due to zero-length messages</li>
+<li>Job processes are killed by default when the job is removed</li>
+<li>
+<code>start_job</code> uses <code>callr</code> for maximized consistency by default</li>
+<li>During <code>@unmarshal</code>, the package is loaded by default</li>
+<li>Pipeline serialization has been implemented</li>
+<li>Stores process handlers in the job ID to avoid the process to be shut down accidentally by garbage collector</li>
+<li>Fixed pipeline paths, added behavior for subjects</li>
+<li>Pipeline report has more allowed tweaks (theme, style, parameter)</li>
+<li>Implemented serialization for brain object</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.2" id="ravepipeline-002">ravepipeline 0.0.2<a class="anchor" aria-label="anchor" href="#ravepipeline-002"></a></h2>
 <ul><li>
-<code>with_mirai_parallel</code> with one worker no longer runs in background, though users can force enabling this</li>
+<code>with_rave_parallel</code> with one worker no longer runs in background, though users can force enabling this</li>
 <li>Added comparisons to <code>RAVESerializable</code> objects, allowing comparisons of two <code>R6</code> objects inheriting this class</li>
 <li>Added <code>RAVEFileArray</code> to wrap against <code>FileArray</code>, allowing file-arrays to be serialized faster when running with <code>mirai</code>
 </li>
-<li>Added <code>lapply_jobs</code>, allowing down-stream packages to use it for looping with similar behaviors to <code>lapply</code>, while giving users options to parallel computing the results with <code>with_mirai_parallel</code>
+<li>Added <code>lapply_jobs</code>, allowing down-stream packages to use it for looping with similar behaviors to <code>lapply</code>, while giving users options to parallel computing the results with <code>with_rave_parallel</code>
 </li>
 <li>Added <code>RAVESerializable</code> class for <code>mirai</code>, allowing for fast serialization when running <code>lapply_jobs</code>
 </li>
@@ -49,7 +69,7 @@
 </li>
 <li>Migrated <code>logger</code> from <code>ravedash</code> so this function can be used by <code>ravecore</code> and other depending packages</li>
 <li>Added print method to background jobs</li>
-<li>Added <code>mirai</code> as the major background engine to run jobs</li>
+<li>Added <code>mirai</code> as the optional background engine to run jobs</li>
 <li>Pipeline evaluation will have <code>RAVE_PIPELINE_ACTIVE</code> environment set to <code>"true"</code> to allow fast compile and debugging</li>
 <li>
 <code>pipeline$read</code> once disabled by <code>targets</code> during evaluation can now runs again with hacks</li>
