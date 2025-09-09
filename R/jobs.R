@@ -136,7 +136,7 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
           silent = TRUE,
           {
             envvars <- .(as.list(envvars))
-            envvars$RAVE_JOB_SESSION = "1"
+            envvars$RAVE_JOB_SESSION <- "1"
             nms <- names(envvars)
             nms <- nms[!nms %in% ""]
             do.call(Sys.setenv, envvars[nms])
