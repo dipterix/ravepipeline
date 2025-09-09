@@ -1,21 +1,13 @@
-## Version 0.0.2 (current)
+## Version 0.0.3 (current)
 
 R CMD check results
 
-0 errors | 0 warnings | 1 note
-
-```r
-The BugReports field in DESCRIPTION has
-  https://github.com/orgs/rave-ieeg/discussions
-which should likely be
-  https://github.com/orgs/rave-ieeg/discussions/issues
-instead.
-```
-
-The address is correct and there is no need to add "issues"" to the path.
+0 errors | 0 warnings | 0 notes
 
 
-## Version 0.0.1
+## Version 0.0.2 (skipped)
+
+## Version 0.0.1 (initial)
 
 R CMD check results
 
