@@ -51,7 +51,7 @@ default_settings <- local({
   }
 })
 
-validate_settings <- function(s = fastmap2()){
+validate_settings <- function(s = fastmap2(), ns_check = TRUE){
   d <- default_settings()
 
   # ------------- Temporary tensor path --------------
@@ -136,12 +136,13 @@ validate_settings <- function(s = fastmap2()){
   } else {
     # package_installed("threeBrain") checks whether
     # threeBrain is installed
-    threeBrain <- asNamespace("threeBrain")
-    temp_dir <- threeBrain$default_template_directory(check = FALSE)
-    if(!dir.exists(file.path(temp_dir, template_subject))) {
-      template_subject <- "N27"
+    if(ns_check) {
+      threeBrain <- asNamespace("threeBrain")
+      temp_dir <- threeBrain$default_template_directory(check = FALSE)
+      if(!dir.exists(file.path(temp_dir, template_subject))) {
+        template_subject <- "N27"
+      }
     }
-
   }
   options(threeBrain.template_subject = template_subject)
   s[['threeBrain_template_subject']] <- template_subject
@@ -245,29 +246,46 @@ flush_conf <- function(s, conf_file){
 }
 
 load_setting <- function(reset_temp = TRUE){
-  s <- get0('.settings', ifnotfound = default_settings())
-  tmp <- s$..temp
   sess_str <- get('.session_string')
-  conf_path <- ravepipeline_config_dir()
-  conf_file <- file.path(conf_path, 'settings.yaml')
-  if(file.exists(conf_file)){
-    tryCatch({
-      load_yaml(conf_file, map = s)
-    }, error = function(e){
-      bak <- paste0(conf_file, strftime(Sys.time(), ".%y%m%d-%H%M%S.bak"))
-      file.copy(conf_file, bak)
-      unlink(conf_file, force = TRUE)
-      warning("Configuration file is corrupted:\n  ", conf_file, "\nReset to default values. The original copy has been backed up at:\n  ", bak)
-    })
+  tmp <- list()
+
+  if(identical(Sys.getenv("RAVE_JOB_SESSION"), "1")) {
+    s0 <- getOption("rave.use_settings", NULL)
+  } else {
+    s0 <- NULL
   }
-  s$session_string <- sess_str
+
+  if(length(s0)) {
+    s <- list_to_fastmap2(s0)
+    s$session_string <- sess_str
+    tmp <- s$..temp
+    ns_check <- FALSE
+  } else {
+    ns_check <- TRUE
+    s <- get0('.settings', ifnotfound = default_settings())
+    s$session_string <- sess_str
+    tmp <- s$..temp
+    conf_path <- ravepipeline_config_dir()
+    conf_file <- file.path(conf_path, 'settings.yaml')
+    if(file.exists(conf_file)){
+      tryCatch({
+        load_yaml(conf_file, map = s)
+      }, error = function(e){
+        bak <- paste0(conf_file, strftime(Sys.time(), ".%y%m%d-%H%M%S.bak"))
+        file.copy(conf_file, bak)
+        unlink(conf_file, force = TRUE)
+        warning("Configuration file is corrupted:\n  ", conf_file, "\nReset to default values. The original copy has been backed up at:\n  ", bak)
+      })
+    }
+  }
+
   if( reset_temp ){
     s$..temp <- list()
   } else {
     s$..temp <- tmp
   }
 
-  validate_settings(s)
+  validate_settings(s, ns_check = ns_check)
   s
 }
 

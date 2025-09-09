@@ -3,6 +3,7 @@
 #' @export
 PipelineTools <- R6::R6Class(
   classname = "PipelineTools",
+  inherit = RAVESerializable,
   portable = TRUE,
   cloneable = TRUE,
 
@@ -17,6 +18,37 @@ PipelineTools <- R6::R6Class(
   ),
 
   public = list(
+
+    #' @description Create an atomic list that can be serialized
+    #' @param ... ignored
+    `@marshal` = function(...) {
+      list(
+        namespace = "ravepipeline",
+        r6_generator = "PipelineTools",
+        data = list(
+          pipeline_name = self$pipeline_name,
+          pipeline_path = self$pipeline_path,
+          settings_file = private$.settings_file
+        )
+      )
+    },
+
+    #' @description Restore an object from an atomic list
+    #' @param object a list from \code{'@marshal'}
+    #' @param ... ignored
+    `@unmarshal` = function(object, ...) {
+      stopifnot(identical(object$namespace, "ravepipeline"))
+      stopifnot(identical(object$r6_generator, "PipelineTools"))
+
+      # `ravepipeline` might not be loaded yet...
+      ravepipeline <- asNamespace("ravepipeline")
+      ravepipeline$PipelineTools$new(
+        pipeline_name = object$data$pipeline_name,
+        settings_file = object$data$settings_file,
+        paths = dirname(object$data$pipeline_path),
+        temporary = TRUE
+      )
+    },
 
     #' @description construction function
     #' @param pipeline_name name of the pipeline, usually in the pipeline
@@ -514,11 +546,7 @@ PipelineTools <- R6::R6Class(
     fork_to_subject = function(subject, label = "NA", policy = "default",
                                delete_old = FALSE, sanitize = TRUE) {
       # subject <- restore_subject_instance(subject, strict = TRUE)
-      if( package_installed("ravecore") ) {
-        subject <- call_pkg_fun(package = "ravecore", f_name = "as_rave_subject", subject, strict = TRUE)
-      } else {
-        subject <- call_pkg_fun(package = "raveio", f_name = "as_rave_subject", subject, strict = TRUE)
-      }
+      subject <- call_ravecore_fun(f_name = "as_rave_subject", subject, strict = TRUE)
 
       label <- paste(label, collapse = "")
       label_cleaned <- gsub("[^a-zA-Z0-9_.-]+", "_", label)
@@ -528,7 +556,7 @@ PipelineTools <- R6::R6Class(
         "%s-%s-%s",
         self$pipeline_name,
         label_cleaned,
-        format(timestamp, "%Y%m%dT%H%M%S")
+        format(timestamp, "%y%m%dT%H%M%S")
       )
       path <- file.path(
         subject$pipeline_path,
@@ -763,6 +791,8 @@ PipelineTools <- R6::R6Class(
 
     #' @description generate pipeline
     #' @param name report name, see field \code{'available_reports'}
+    #' @param subject subject helps determine the \code{output_dir} and
+    #' working directories
     #' @param output_dir parent folder where output will be stored
     #' @param output_format output format
     #' @param clean whether to clean the output; default is false
@@ -770,12 +800,25 @@ PipelineTools <- R6::R6Class(
     #' @returns A job identification number, see \code{\link{resolve_job}} for
     #' querying job details
     generate_report = function(
-      name, output_dir = NULL, output_format = "html_document",
+      name, subject = NULL, output_dir = NULL, output_format = "auto",
       clean = FALSE, ...) {
+
+      report_attributes <- list()
+      if(!is.null(subject)) {
+        if(length(output_dir) != 1 || is.na(output_dir) || !nzchar(trimws(output_dir))) {
+          output_dir <- subject$report_path
+        }
+        report_attributes$project_name <- subject$project_name
+        report_attributes$subject_code <- subject$subject_code
+      }
+      # 127.0.0.1:17283/?type=widget&project_name=test&subject_code=DemoSubject&report_name=report-diagnostics_datetime-250811T165425_notch_filter&module=standalone_report&shared_id=kJKCof6lYRNqaFRst6Yr5Je6xp
+
+
       pipeline_report_generate(
         name = name, output_dir = output_dir,
         output_format = output_format, clean = clean,
-        ..., pipe_dir = private$.pipeline_path)
+        ..., attributes = report_attributes,
+        pipe_dir = private$.pipeline_path)
     }
 
   ),

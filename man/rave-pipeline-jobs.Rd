@@ -13,8 +13,11 @@ start_job(
   fun_args = list(),
   packages = NULL,
   workdir = NULL,
-  method = c("rs_job", "mirai", "callr"),
-  name = NULL
+  method = c("callr", "rs_job", "mirai"),
+  name = NULL,
+  ensure_init = TRUE,
+  digest_key = NULL,
+  envvars = NULL
 )
 
 check_job(job_id)
@@ -23,6 +26,7 @@ resolve_job(
   job_id,
   timeout = Inf,
   auto_remove = TRUE,
+  must_init = TRUE,
   unresolved = c("warning", "error", "silent")
 )
 
@@ -39,9 +43,18 @@ remove_job(job_id)
 
 \item{method}{job type; choices are \code{'rs_job'} (only used in
 \code{'RStudio'} environment), \code{'mirai'} (when package \code{'mirai'}
-is installed), and \code{'callr'}.}
+is installed), and \code{'callr'} (default).}
 
 \item{name}{name of the job}
+
+\item{ensure_init}{whether to make sure the job has been started; default
+is true}
+
+\item{digest_key}{a string that will affect how job ID is generated;
+used internally}
+
+\item{envvars}{additional environment variables to set; must be a named
+list of environment variables}
 
 \item{job_id}{job identification number}
 
@@ -50,6 +63,11 @@ are still running are subject to \code{unresolved} policy}
 
 \item{auto_remove}{whether to automatically remove the job if resolved;
 default it true}
+
+\item{must_init}{whether the resolve should error out if the job is not
+initialized: typically meaning the either the resolving occurs too soon
+(only when \code{ensure_init=FALSE}) or the job files are corrupted;
+default is true}
 
 \item{unresolved}{what to do if the job is still running after timing-out;
 default is \code{'warning'} and return \code{NULL}, other choices are
@@ -67,8 +85,6 @@ Run a function (job) in another session
 
 \dontrun{
 
-
-
 # Basic use
 job_id <- start_job(function() {
   Sys.sleep(1)
@@ -78,6 +94,7 @@ job_id <- start_job(function() {
 check_job(job_id)
 
 result <- resolve_job(job_id)
+
 
 # As promise
 library(promises)
@@ -89,8 +106,6 @@ as.promise(
 ) \%...>\%
   print()
 
-
 }
-
 
 }

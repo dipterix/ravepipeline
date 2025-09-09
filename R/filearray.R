@@ -44,8 +44,10 @@ RAVEFileArray <- R6::R6Class(
       stopifnot(identical(object$namespace, "ravepipeline"))
       stopifnot(identical(object$r6_generator, "RAVEFileArray"))
 
+      # `ravepipeline` might not be loaded yet...
+      ravepipeline <- asNamespace("ravepipeline")
       x <- filearray::filearray_load(filebase = object$data$filebase, mode = object$data$mode)
-      RAVEFileArray$new(x)
+      ravepipeline$RAVEFileArray$new(x)
 
     },
 

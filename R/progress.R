@@ -1,5 +1,16 @@
 # This file is licensed under MIT by Zhengjia Wang
 
+# signal_process <- function(..., quiet = FALSE) {
+#   message <- paste(c(...), collapse = "")
+#   cond <- simpleCondition(message)
+#   if(quiet) {
+#     class(cond) <- c("rave_progress_muffled", "rave_progress_condition", cond)
+#   } else {
+#     class(cond) <- c("rave_progress_condition", cond)
+#   }
+#   signalCondition(cond)
+# }
+
 #' @title 'RAVE' progress
 #' @description
 #' Automatically displays 'shiny' progress when shiny is present, or text

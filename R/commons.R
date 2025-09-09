@@ -93,6 +93,26 @@ call_pkg_fun <- function(package, f_name, ...,
 
 }
 
+call_ravecore_fun <- function(f_name, ...,
+                            .if_missing = c("error", "warning", "none"),
+                            .missing_default = NULL,
+                            .call_pkg_function = TRUE) {
+  .if_missing <- match.arg(.if_missing)
+  if(!package_installed("ravecore")) {
+    package <- "raveio"
+  } else {
+    package <- "ravecore"
+  }
+  call_pkg_fun(
+    package = package,
+    f_name = f_name,
+    ...,
+    .if_missing = .if_missing,
+    .missing_default = .missing_default,
+    .call_pkg_function = .call_pkg_function
+  )
+}
+
 safe_system <- function(cmd, ..., intern = TRUE, ignore.stderr = TRUE,
                         minimized = TRUE, invisible = TRUE, show.output.on.console = TRUE){
   suppressWarnings({

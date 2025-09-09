@@ -25,12 +25,11 @@ migrate <- function(project_name, subject_code, ..., overwrite = FALSE, backup =
 
   } else {
 
-    raveio <- asNamespace("raveio")
+    ravecore <- asNamespace("ravecore")
     # create the subject instance
-    subject <-
-      raveio$RAVESubject$new(project_name = project_name,
-                              subject_code = subject_code,
-                              strict = FALSE)
+    subject <- ravecore$RAVESubject$new(project_name = project_name,
+                                        subject_code = subject_code,
+                                        strict = FALSE)
     # initialize folders
     subject$initialize_paths(include_freesurfer = FALSE)
 
@@ -75,7 +74,7 @@ migrate <- function(project_name, subject_code, ..., overwrite = FALSE, backup =
     settings$subject_code <- subject_code
 
     # save changes
-    asNamespace("ravepipeline")$save_yaml(settings, file = settings_path, sorted = TRUE)
+    ravepipeline::save_yaml(settings, file = settings_path, sorted = TRUE)
 
 
     ## END: customized code

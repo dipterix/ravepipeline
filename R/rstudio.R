@@ -3,18 +3,17 @@ rs_avail <- function (version_needed = "1.3", child_ok = FALSE, shiny_ok = FALSE
   if (!shiny_ok && shiny_is_running()) {
     return(FALSE)
   }
-
   if( package_installed("rstudioapi") ) {
-    return(
+    is_eval <- tryCatch({
       asNamespace("rstudioapi")$isAvailable(version_needed = version_needed, child_ok = child_ok)
-    )
+    }, error = function(e) {
+      FALSE
+    })
+    return(is_eval)
   }
 
   # rstudioapi is not available
   return(FALSE)
-  if (!requireNamespace("rstudioapi")) {
-    return(FALSE)
-  }
 }
 
 rs_active_project <- function (...) {

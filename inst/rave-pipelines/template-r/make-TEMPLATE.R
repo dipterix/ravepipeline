@@ -16,9 +16,13 @@ source("common.R", local = TRUE, chdir = TRUE)
 
       # strict requires project or subject to exist
       # recommended to be true is you want to assume their existence
-      raveio <- asNamespace("raveio")
-      project <- raveio$RAVEProject$new(project_name = settings$project_name, strict = FALSE)
-      subject <- raveio$RAVESubject$new(project_name = settings$project_name, subject_code = settings$subject_code, strict = FALSE)
+      ravecore <- asNamespace("ravecore")
+      project <- ravecore$RAVEProject$new(project_name = settings$project_name, strict = FALSE)
+      subject <- ravecore$RAVESubject$new(
+        project_name = settings$project_name,
+        subject_code = settings$subject_code,
+        strict = FALSE
+      )
       preprocess_tools <- subject$preprocess_settings
 
       # save instances

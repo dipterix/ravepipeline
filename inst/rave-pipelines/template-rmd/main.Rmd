@@ -61,7 +61,7 @@ With `export="subject"`, the subject variable will be registered for the followi
 #### Step 2: Load epoch and reference information
 
 ```{rave load_epoch, language = "R", export = "epoch_instance"}
-epoch_instance <- raveio::RAVEEpoch$new(subject, epoch)
+epoch_instance <- ravecore::RAVEEpoch$new(subject, epoch)
 head(epoch_instance$update_table())
 ```
 
@@ -80,7 +80,7 @@ requested_electrodes <- dipsaus::parse_svec(electrodes)
 requested_electrodes <- requested_electrodes[
   requested_electrodes %in% subject$electrodes]
 electrode_instances <- lapply(requested_electrodes, function(ei){
-  e <- raveio::new_electrode(subject, number = ei, signal_type = "LFP")
+  e <- ravecore::new_electrode(subject, number = ei, signal_type = "LFP")
   
   # set epoch
   e$set_epoch(epoch_instance)
