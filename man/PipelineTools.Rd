@@ -258,7 +258,7 @@ will be returned.}
 \subsection{Method \code{read()}}{
 read intermediate variables
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$read(var_names, ifnotfound = NULL, ...)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$read(var_names, ifnotfound = NULL, ..., simplify = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -270,7 +270,7 @@ all the intermediate variables}
 
 \item{\code{ifnotfound}}{variable default value if not found}
 
-\item{\code{...}}{other parameters passing to \code{\link{pipeline_read}}}
+\item{\code{simplify, ...}}{other parameters passing to \code{\link{pipeline_read}}}
 }
 \if{html}{\out{</div>}}
 }

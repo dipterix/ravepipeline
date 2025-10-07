@@ -217,9 +217,9 @@ PipelineTools <- R6::R6Class(
     #' \code{x$target_table} member; default is missing, i.e., to read
     #' all the intermediate variables
     #' @param ifnotfound variable default value if not found
-    #' @param ... other parameters passing to \code{\link{pipeline_read}}
+    #' @param simplify,... other parameters passing to \code{\link{pipeline_read}}
     #' @returns The values of the targets
-    read = function(var_names, ifnotfound = NULL, ...) {
+    read = function(var_names, ifnotfound = NULL, ..., simplify = TRUE) {
 
       # Check targets, make sure the `tar_runtime$store` is not identical to "shared"
       # targets ban users from read from pipeline when running, even from
@@ -251,7 +251,7 @@ PipelineTools <- R6::R6Class(
       }
 
       re <- pipeline_read(var_names = var_names, pipe_dir = private$.pipeline_path,
-                          ifnotfound = ifnotfound, ...)
+                          ifnotfound = ifnotfound, ..., simplify = simplify)
       if( needs_reset ) {
         tar_runtime$store <- current_store
       }
@@ -1019,14 +1019,39 @@ pipeline_from_path <- function(path, settings_file = "settings.yaml") {
 }
 
 #' @export
-`[.PipelineTools` <- function(x, ...) {
+`[.PipelineTools` <- function(x, ..., ifnotfound = NULL, simplify = TRUE) {
   # args <- deparse1(c(...))
   # as.call(quote(x$read), args)
   expr <- as.list(match.call(expand.dots = TRUE))
   expr[[1]] <- x$read
   expr[["x"]] <- NULL
+  expr[["simplify"]] <- FALSE
+  expr[["ifnotfound"]] <- structure(list(), class = "key_missing")
   expr <- as.call(expr)
-  eval(expr, envir = parent.frame())
+  re <- eval(expr, envir = parent.frame())
+
+  # If the pipeline is not executed, the settings will be unavailable
+  # In such case, the inputs will be missing
+  is_missing <- vapply(re, function(item) {
+    inherits(item, "key_missing")
+  }, FUN.VALUE = FALSE)
+
+  if(any(is_missing)) {
+    # Read the missing inputs directly from current settings
+    # as they will not affect the current targets, nor break the data integrity
+    missing_names <- names(re)[is_missing]
+    re[is_missing] <- structure(
+      names = missing_names,
+      lapply(missing_names, function(nm) {
+        if(is.na(nm) || nm == "") { return(ifnotfound) }
+        x$get_settings(key = nm, default = ifnotfound)
+      })
+    )
+  }
+  if(length(simplify) && length(re) == 1) {
+    re <- re[[1]]
+  }
+  re
 }
 
 #' @export

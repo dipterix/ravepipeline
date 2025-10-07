@@ -2,7 +2,6 @@
 # ravepipeline
 
 <!-- badges: start -->
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 [![R-CMD-check](https://github.com/dipterix/ravepipeline/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dipterix/ravepipeline/actions/workflows/R-CMD-check.yaml)
 [![CRAN status](https://www.r-pkg.org/badges/version/ravepipeline)](https://CRAN.R-project.org/package=ravepipeline)
 [![ravepipeline status badge](https://rave-ieeg.r-universe.dev/ravepipeline/badges/version)](https://rave-ieeg.r-universe.dev/ravepipeline)
