@@ -206,6 +206,13 @@ pipeline_report_generate <- function(
     ...
   )
 
+  envvars <- list()
+  rmarkdown <- asNamespace("rmarkdown")
+  pandoc <- rmarkdown$pandoc_exec()
+  if(length(pandoc) && !is.na(pandoc[[1]]) && file.exists(pandoc[[1]])) {
+    envvars$RSTUDIO_PANDOC <- pandoc[[1]]
+  }
+
   job_id <- start_job(
     fun = function(call_args, source_path, output_dir, attributes, extra_dependencies = NULL) {
 
@@ -280,7 +287,8 @@ pipeline_report_generate <- function(
     packages = "rmarkdown",
     workdir = workdir,
     name = report_filename,
-    method = "rs_job"
+    method = "rs_job",
+    envvars = envvars
   )
 
   return(job_id)
