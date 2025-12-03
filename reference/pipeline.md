@@ -1,0 +1,144 @@
+# Creates 'RAVE' pipeline instance
+
+Set pipeline inputs, execute, and read pipeline outputs
+
+## Usage
+
+``` r
+pipeline(
+  pipeline_name,
+  settings_file = "settings.yaml",
+  paths = pipeline_root(),
+  temporary = FALSE
+)
+
+pipeline_from_path(path, settings_file = "settings.yaml")
+```
+
+## Arguments
+
+- pipeline_name:
+
+  the name of the pipeline, usually title field in the `'DESCRIPTION'`
+  file, or the pipeline folder name (if description file is missing)
+
+- settings_file:
+
+  the name of the settings file, usually stores user inputs
+
+- paths:
+
+  the paths to search for the pipeline, usually the parent directory of
+  the pipeline; default is
+  [`pipeline_root`](http://dipterix.org/ravepipeline/reference/rave-pipeline.md),
+  which only search for pipelines that are installed or in current
+  working directory.
+
+- temporary:
+
+  see
+  [`pipeline_root`](http://dipterix.org/ravepipeline/reference/rave-pipeline.md)
+
+- path:
+
+  the pipeline folder
+
+## Value
+
+A
+[`PipelineTools`](http://dipterix.org/ravepipeline/reference/PipelineTools.md)
+instance
+
+## Examples
+
+``` r
+library(ravepipeline)
+
+if(interactive()) {
+
+  # ------------ Set up a bare minimal example pipeline ---------------
+  root_path <- tempdir()
+  pipeline_root_folder <- file.path(root_path, "modules")
+
+  # create pipeline folder
+  pipeline_path <- pipeline_create_template(
+    root_path = pipeline_root_folder, pipeline_name = "raveio_demo",
+    overwrite = TRUE, activate = FALSE, template_type = "rmd-bare")
+
+  # Set initial user inputs
+  yaml::write_yaml(
+    x = list(
+      n = 100,
+      pch = 16,
+      col = "steelblue"
+    ),
+    file = file.path(pipeline_path, "settings.yaml")
+  )
+
+  # build the pipeline for the first time
+  # this is a one-time setup
+  pipeline_build(pipeline_path)
+
+  # Temporarily redirect the pipeline project root
+  # to `root_path`
+  old_opt <- options("raveio.pipeline.project_root" = root_path)
+  # Make sure the options are reset
+  on.exit({ options(old_opt) })
+
+  # Compile the pipeline document
+  pipeline_render(
+    module_id = "raveio_demo",
+    project_path = root_path
+  )
+
+  if (FALSE) { # \dontrun{
+
+    # Open web browser to see compiled report
+    utils::browseURL(file.path(pipeline_path, "main.html"))
+
+  } # }
+
+  # --------------------- Example starts ------------------------
+
+  # Load pipeline
+  pipeline <- pipeline(
+    pipeline_name = "raveio_demo",
+    paths = pipeline_root_folder,
+    temporary = TRUE
+  )
+
+  # Check which pipeline targets to run
+  pipeline$target_table
+
+  # Run to `plot_data`, RAVE pipeline will automatically
+  # calculate which up-stream targets need to be updated
+  # and evaluate these targets
+  pipeline$run("plot_data")
+
+  # Customize settings
+  pipeline$set_settings(pch = 2)
+
+  # Run again with the new inputs, since input_data does not change,
+  # the pipeline will skip that target automatically
+  pipeline$run("plot_data")
+
+  # Read intermediate data
+  head(pipeline$read("input_data"))
+
+  # or use `[]` to get results
+  pipeline[c("n", "pch", "col")]
+  pipeline[-c("input_data")]
+
+  # Check evaluating status
+  pipeline$progress("details")
+
+  # result summary & cache table
+  pipeline$result_table
+
+  # visualize the target dependency graph
+  pipeline$visualize(glimpse = TRUE)
+
+  # --------------------- Clean up ------------------------
+  unlink(pipeline_path, recursive = TRUE)
+}
+```
