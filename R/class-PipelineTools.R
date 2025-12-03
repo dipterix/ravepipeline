@@ -430,8 +430,11 @@ PipelineTools <- R6::R6Class(
               if(length(cwd) == 1) { setwd(cwd) }
             }, add = TRUE, after = FALSE)
 
-            shared <- rpymat::import(sprintf("%s.shared", minfo$module_name),
-                                     convert = FALSE, delay_load = FALSE)
+            shared_path <- sprintf("%s.shared", minfo$module_name)
+            if(dir.exists(shared_path)) {
+              shared <- rpymat::import(shared_path,
+                                       convert = FALSE, delay_load = FALSE)
+            }
 
             # set wd back so no need to wait for on.exit
             setwd(cwd)

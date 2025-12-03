@@ -692,7 +692,10 @@ pipeline_setup_rmd <- function(
     rpymat::run_pyscript(common_script_path, local = FALSE, convert = FALSE)
 
     # load shared modules
-    py$shared <- rpymat::import(sprintf("%s.shared", py_info$module_name))
+    shared_path <- sprintf("%s.shared", py_info$module_name)
+    if(dir.exists(shared_path)) {
+      py$shared <- rpymat::import(shared_path)
+    }
   }
 
   settings <- load_yaml(file.path( project_path, "modules",
