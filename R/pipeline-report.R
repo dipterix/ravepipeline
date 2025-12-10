@@ -89,9 +89,8 @@ pipeline_report_by_name <- function(
 
 pipeline_report_generate <- function(
     name, output_format = "auto", clean = FALSE,
-    theme = "flatly", ..., code_folding = TRUE,
-    self_contained = TRUE, toc = TRUE, toc_depth = 3L,
-    toc_float = TRUE,
+    theme = "flatly", ...,
+    self_contained = TRUE,
     output_dir = NULL, work_dir = output_dir, attributes = list(),
     pipe_dir = Sys.getenv("RAVE_PIPELINE", ".")) {
 
@@ -161,11 +160,7 @@ pipeline_report_generate <- function(
 
   output_options <- list(
     theme = theme,
-    code_folding = code_folding,
     self_contained = self_contained,
-    toc = toc,
-    toc_depth = as.integer(toc_depth),
-    toc_float = toc_float,
     css = custom_css
   )
 
