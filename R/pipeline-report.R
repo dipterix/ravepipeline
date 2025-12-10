@@ -213,7 +213,7 @@ pipeline_report_generate <- function(
   rmarkdown <- asNamespace("rmarkdown")
   pandoc <- rmarkdown$pandoc_exec()
   if(length(pandoc) && !is.na(pandoc[[1]]) && file.exists(pandoc[[1]])) {
-    envvars$RSTUDIO_PANDOC <- pandoc[[1]]
+    envvars$RSTUDIO_PANDOC <- dirname(pandoc[[1]])
   }
 
   job_id <- start_job(
