@@ -89,10 +89,13 @@ pipeline_report_by_name <- function(
 
 pipeline_report_generate <- function(
     name, output_format = "auto", clean = FALSE,
-    theme = "flatly", ...,
-    self_contained = TRUE,
+    theme = "flatly", ..., code_folding = c("hide", "none", "show"),
+    self_contained = TRUE, toc = TRUE, toc_depth = 3L,
+    toc_float = TRUE,
     output_dir = NULL, work_dir = output_dir, attributes = list(),
     pipe_dir = Sys.getenv("RAVE_PIPELINE", ".")) {
+
+  code_folding <- match.arg(code_folding)
 
   require_package("rmarkdown")
 
@@ -160,7 +163,11 @@ pipeline_report_generate <- function(
 
   output_options <- list(
     theme = theme,
+    code_folding = code_folding,
     self_contained = self_contained,
+    toc = toc,
+    toc_depth = as.integer(toc_depth),
+    toc_float = toc_float,
     css = custom_css
   )
 
@@ -214,6 +221,11 @@ pipeline_report_generate <- function(
 
       Sys.setenv("RAVE_REPORT_ACTIVE" = "true")
       on.exit({ Sys.unsetenv("RAVE_REPORT_ACTIVE") }, add = TRUE, after = FALSE)
+
+      cat("==== System environment =============\n")
+      print(Sys.getenv())
+
+      cat("=====================================\n")
 
       rmarkdown <- asNamespace("rmarkdown")
 
