@@ -187,11 +187,12 @@ pipeline_report_generate <- function(
   ))
 
   if(identical(output_format, "auto")) {
-    if(package_installed("distill")) {
-      output_format <- "distill::distill_article"
-    } else {
-      output_format <- "rmarkdown::html_document"
-    }
+    output_format <- "rmarkdown::html_document"
+    # if(package_installed("distill")) {
+    #   output_format <- "distill::distill_article"
+    # } else {
+    #   output_format <- "rmarkdown::html_document"
+    # }
   }
 
   workdir <- dirname(report_template_path)
