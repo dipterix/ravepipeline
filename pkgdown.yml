@@ -2,7 +2,7 @@ pandoc: 3.1.11
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles: {}
-last_built: 2025-12-10T21:36Z
+last_built: 2025-12-11T19:33Z
 urls:
   reference: http://dipterix.org/ravepipeline/reference
   article: http://dipterix.org/ravepipeline/articles

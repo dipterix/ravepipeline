@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,7 +107,7 @@ indicating the object undergoing default serialization;
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Compare the serialization sizes</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">r0</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">r1</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">r2</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1920074 1027168     460</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1920074 1027169     461</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">y0</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/serialize.html" class="external-link">unserialize</a></span><span class="op">(</span><span class="va">r0</span>, refhook <span class="op">=</span> <span class="va">rave_unserialize_refhook</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">y1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/serialize.html" class="external-link">unserialize</a></span><span class="op">(</span><span class="va">r1</span>, refhook <span class="op">=</span> <span class="va">rave_unserialize_refhook</span><span class="op">)</span></span></span>
