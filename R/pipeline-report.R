@@ -189,12 +189,15 @@ pipeline_report_generate <- function(
   ))
 
   if(identical(output_format, "auto")) {
-    output_format <- "rmarkdown::html_document"
-    # if(package_installed("distill")) {
-    #   output_format <- "distill::distill_article"
-    # } else {
-    #   output_format <- "rmarkdown::html_document"
-    # }
+    # output_format <- "rmarkdown::html_document"
+    if(package_installed("distill")) {
+      output_format <- "distill::distill_article"
+    } else {
+      output_format <- "rmarkdown::html_document"
+    }
+  }
+  if(identical(output_format, "distill::distill_article")) {
+    output_options$code_folding <- !identical(code_folding, "show")
   }
 
   workdir <- dirname(report_template_path)
