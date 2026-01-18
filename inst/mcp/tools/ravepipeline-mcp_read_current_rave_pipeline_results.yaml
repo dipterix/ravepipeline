@@ -1,0 +1,52 @@
+name: ravepipeline-mcp_read_current_rave_pipeline_results
+description: Read and summarize pipeline results. Returns metadata about results rather
+  than full data (which may be large). Use this to understand what outputs are available
+  after pipeline execution. Must call mcp_load_rave_pipeline first and mcp_run_rave_pipeline
+  before results are available.
+parameters:
+  type: object
+  properties:
+    target_names:
+      type: array
+      description: 'Of specific target names to read. If NULL or empty, reads all
+        available results. Default is NULL. Example values: "settings_path", "settings",
+        "repository".'
+      items:
+        type: string
+      examples:
+      - settings_path
+      - settings
+      - repository
+category: results
+example_response:
+  success: yes
+  results:
+  - name: settings_path
+    class: character
+    type: character
+    size: 120
+  - name: settings
+    class: list
+    type: list
+    size: 13400
+  result_names:
+  - settings_path
+  - settings
+returns:
+  type: object
+  properties:
+    error:
+      type: string
+      description: Character, error message if success is FALSE
+    result_names:
+      type: array
+      description: Character vector of result target names
+      items:
+        type: string
+    results:
+      type: object
+      description: 'List of result summaries, each containing: name, class, type,
+        size, and summary (structure info for data frames/arrays)'
+    success:
+      type: boolean
+      description: Logical, whether results were read successfully

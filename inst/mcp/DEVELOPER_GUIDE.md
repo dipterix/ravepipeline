@@ -1,0 +1,642 @@
+# RAVE MCP Tools Developer Guide
+
+This guide explains how to properly format roxygen2 documentation for automatic MCP tool generation.
+
+## Quick Start
+
+1. Document your R function with roxygen2 comments
+2. Include required tags: `@description`, `@param`
+3. Include optional tags: `@return`, `@examples`, `@keywords`
+4. Run `mcptools_build()` to generate YAML files
+5. Load tools with `mcptool_load_all()` for MCP server integration
+
+## Complete Example
+
+```r
+#' Get RAVE Pipeline Information
+#'
+#' @description Retrieves detailed information about a specific RAVE pipeline
+#' including its description, parameters, and current configuration.
+#'
+#' @param pipeline_name Character string, the name of the pipeline to query.
+#'   Example values: \code{"power_explorer"}, \code{"notch_filter"},
+#'   \code{"wavelet_module"}
+#' @param include_settings Logical, whether to include current settings.
+#'   Default is \code{TRUE}
+#' @param format Character string, output format. Must be one of "summary"
+#'   or "detailed"
+#'
+#' @return A list containing pipeline metadata, parameter definitions, and
+#'   current settings (if requested)
+#'
+#' @examples
+#'
+#' # MCP example response:
+#' # { ... }
+#'
+#' ...
+#' @keywords mcp-tool mcp-category-pipeline_management mcp-requires-approval
+#'
+#' @export
+mcp_get_rave_pipeline_info <- function(
+  pipeline_name,
+  include_settings = TRUE,
+  format = c("summary", "detailed")
+) {
+  format <- match.arg(format)
+  # Implementation...
+}
+```
+
+## Roxygen2 Tags Reference
+
+### Required Tags
+
+#### `@description`
+
+The `@description` tag is **required** for all MCP tools. Provide a clear, concise description:
+
+```r
+#' Get RAVE Pipeline Information
+#'
+#' @description Retrieves detailed information about a specific RAVE pipeline
+#' including its description, parameters, and current configuration.
+```
+
+**Important**: The parser only extracts text from the `@description` tag. The first comment line (title) is not automatically used as the description.
+
+#### `@param`
+
+Document each parameter with:
+1. **Type prefix** (optional but recommended): "Character string,", "Logical,", "Integer,", etc.
+2. **Description**: Clear explanation of the parameter
+3. **Examples** (optional): Use `\code{}` blocks for per-parameter examples
+
+**Type inference is case-insensitive**: "Character", "character", and "CHARACTER" are all recognized. See [Type Inference Best Practices](#type-inference-best-practices) for detailed rules and patterns.
+
+**Basic parameter**:
+```r
+#' @param pipeline_name Character string, the pipeline name
+```
+
+Generates:
+```yaml
+pipeline_name:
+  type: string
+  description: the pipeline name
+```
+
+**With examples**:
+```r
+#' @param pipeline_name Character string, the pipeline name.
+#'   Example values: \code{"power_explorer"}, \code{"notch_filter"}
+```
+
+Generates:
+```yaml
+pipeline_name:
+  type: string
+  description: the pipeline name
+  examples:
+  - power_explorer
+  - notch_filter
+```
+
+**Array parameters** (multiple valid formats):
+```r
+#' @param target_names Character vector, names of targets to load
+#' @param scores Numeric array, test scores for each subject
+#' @param ids Integer[], array of subject IDs
+#' @param tags Character[], list of tags
+```
+
+All of these generate `type: array` with appropriate `items.type`:
+```yaml
+target_names:
+  type: array
+  items:
+    type: string
+  description: names of targets to load
+scores:
+  type: array
+  items:
+    type: number
+  description: test scores for each subject
+ids:
+  type: array
+  items:
+    type: integer
+  description: array of subject IDs
+```
+
+Recognized patterns:
+- "Type vector" (e.g., "Character vector", "Numeric vector")
+- "Type array" (e.g., "Integer array")
+- "Type[]" (e.g., "Character[]", "Logical[]")
+
+**Type in \code{} blocks** (for explicit type specification):
+```r
+#' @param data \code{character} vector of file paths
+#' @param counts \code{integer[]} array of counts
+```
+
+Generates:
+```yaml
+data:
+  type: string
+  description: vector of file paths
+counts:
+  type: array
+  items:
+    type: integer
+  description: array of counts
+```
+
+The parser extracts types from `\code{type}` or `\code{type[]}` patterns.
+
+**Multi-line parameter**:
+```r
+#' @param settings_json Character string, JSON string containing
+#'   pipeline settings. Example: \code{"{\\"key\\": \\"value\\",
+#'   \\"number\\": 123}"}
+```
+
+### Optional Tags
+
+#### `@return` or `@returns`
+
+Both `@return` and `@returns` are supported (they work identically). The parser can handle two formats:
+
+**Simple return** (plain text description):
+```r
+#' @return A list containing pipeline metadata and settings
+```
+
+Generates:
+```yaml
+returns:
+  type: object
+  description: A list containing pipeline metadata and settings
+```
+
+**Structured return** (using `\describe{}` with `\item{}`):
+```r
+#' @return A list containing:
+#' \describe{
+#'   \item{success}{Logical, whether the operation succeeded}
+#'   \item{message}{Character, human-readable status message}
+#'   \item{data}{List, result data}
+#'   \item{count}{Integer, number of items processed}
+#' }
+```
+
+Generates:
+```yaml
+returns:
+  type: object
+  properties:
+    success:
+      type: boolean
+      description: whether the operation succeeded
+    message:
+      type: string
+      description: human-readable status message
+    data:
+      type: object
+      description: result data
+    count:
+      type: integer
+      description: number of items processed
+```
+
+**How it works**:
+- The parser detects `\describe{}` blocks and extracts `\item{name}{description}` entries
+- Type inference is applied to each item's description (same rules as `@param`)
+- Handles nested braces correctly in both names and descriptions
+- Multi-line `@return` content is supported (continues until next `@tag`)
+
+#### `@examples`
+
+Provide working examples. The parser extracts two types of content:
+
+1. **Example response** (for MCP tool documentation)
+2. **Runnable code** (for R package documentation)
+
+**Example response format** (recommended):
+```r
+#' @examples
+#'
+#' # MCP example response:
+#' # {
+#' #   "pipelines": ["power_explorer", "notch_filter", "wavelet_module"],
+#' #   "count": 3
+#' # }
+#'
+#' ...
+```
+
+Generates:
+```yaml
+example_response:
+  pipelines:
+  - power_explorer
+  - notch_filter
+  - wavelet_module
+  count: 3
+```
+
+**How it works**:
+- Parser looks for the marker `# MCP example response:` (case-insensitive)
+- Extracts JSON from subsequent comment lines (lines starting with `#` or `//`)
+- Stops at empty line or non-comment line
+- JSON is parsed and added to YAML as `example_response` field
+- If JSON parsing fails, a warning is issued and the response is ignored
+
+**Multiple formats supported**:
+```r
+# MCP example response:
+# MCP Example Response:
+# mcp example response:
+```
+
+**Best practices**:
+- **Include realistic output**: Show actual structure and typical values
+- **Keep JSON valid**: Use proper JSON syntax with double quotes
+- **Truncate if needed**: Add comment `(truncated for brevity)` for large responses
+
+**Full example**:
+```r
+#' @examples
+#'
+#' # MCP example response (truncated for brevity):
+#' # {
+#' #   "success": true,
+#' #   "name": "power_explorer",
+#' #   "description": "Explore Power or Amplitude of iEEG Spectrogram",
+#' #   "targets": {
+#' #     "Names": ["settings_path", "settings", "trials_to_export"]
+#' #   }
+#' # }
+#'
+#' ...
+```
+
+#### `@keywords`
+
+Add metadata keywords using the `mcp-` prefix:
+
+**Tool marker and category**:
+```r
+#' @keywords mcp-tool mcp-category-pipeline_management
+#' @keywords mcp-tool mcp-category-data_processing
+```
+
+**Safety flags**:
+```r
+#' @keywords mcp-tool mcp-dangerous
+#' @keywords mcp-tool mcp-requires-approval
+```
+
+**Combined keywords** (recommended):
+```r
+#' @keywords mcp-tool mcp-category-execution mcp-dangerous mcp-requires-approval
+```
+
+All MCP tools should include `mcp-tool` keyword. Multiple keywords can be on the same line.
+
+## Type Inference Best Practices
+
+### Specify Types Clearly
+
+Use standard R type prefixes (case-insensitive):
+
+```r
+#' @param name Character string, user's name
+#' @param age Integer, user's age in years
+#' @param score Numeric, test score (0-100)
+#' @param active Logical, whether user is active
+#' @param metadata List, additional metadata
+```
+
+### Array Types
+
+Indicate arrays using vector notation:
+
+```r
+#' @param tags Character vector, list of tags
+#' @param scores Numeric vector, array of scores
+#' @param ids Integer[], array of IDs
+```
+
+All generate `type: array` with appropriate `items.type`.
+
+### Avoid Ambiguity
+
+The parser strips type prefixes from descriptions. Be explicit:
+
+**Good**:
+```r
+#' @param mode Character string, processing mode
+```
+-> `description: "processing mode"`
+
+**Avoid**:
+```r
+#' @param mode processing mode (character)
+```
+-> May not infer type correctly
+
+## Enum and Default Values
+
+### Function Formals
+
+Define enums using default vectors:
+
+```r
+my_function <- function(
+  format = c("json", "yaml", "csv"),
+  mode = "auto"
+) { ... }
+```
+
+**Singular parameter names** (format):
+- Enum: `["json", "yaml", "csv"]`
+- Default: `"json"` (first value)
+
+**Plural parameter names** (formats):
+- Would be treated as accepting multiple values
+- No automatic default selection
+
+### Override with Documentation
+
+You can document defaults explicitly:
+
+```r
+#' @param timeout Integer, timeout in seconds. Default is 30
+```
+
+If the formal is `timeout = 30`, the parser extracts `default: 30`.
+
+## Examples Best Practices
+
+### Per-Parameter Examples
+
+Add examples directly in parameter descriptions:
+
+```r
+#' @param pipeline_name Character string, pipeline identifier.
+#'   Common values: \code{"power_explorer"}, \code{"wavelet_module"}
+```
+
+Use `\code{}` blocks for each example value.
+
+### Multi-Line Examples
+
+For complex examples like JSON:
+
+```r
+#' @param settings_json Character string, JSON configuration.
+#'   Example: \code{"{
+#'     \\"sampling_rate\\": 2000,
+#'     \\"filter_order\\": 4
+#'   }"}
+```
+
+The parser handles nested braces in `\code{}` blocks.
+
+### Function Example Responses
+
+Provide JSON example responses for MCP documentation:
+
+```r
+#' @examples
+#'
+#' # MCP example response:
+#' # {
+#' #   "status": "started",
+#' #   "pipeline": "power_explorer",
+#' #   "job_id": "abc123"
+#' # }
+#'
+#' ...
+```
+
+## Multi-Line Descriptions
+
+Parameter descriptions can span multiple lines:
+
+```r
+#' @param complex_param This parameter has a long description
+#'   that continues on the next line, and includes examples:
+#'   \code{"example1"}, \code{"example2"}
+#' @param next_param This is the next parameter
+```
+
+**Rules**:
+- Continuation lines start with spaces and no `@tag`
+- Ends when next `@tag` is encountered or end of comment block
+
+## Common Patterns
+
+### File Paths
+
+```r
+#' @param path Character string, absolute path to file.
+#'   Example: \code{"/path/to/file.txt"}
+```
+
+### JSON Strings
+
+```r
+#' @param json_data Character string, JSON-formatted data.
+#'   Example: \code{"{\\"key\\": \\"value\\"}"}
+```
+
+### Optional Parameters
+
+```r
+#' @param optional_param Character string, optional description.
+#'   If not provided, defaults to \code{NULL}
+```
+
+If not in `required` field of formals, it won't be in YAML `required` array.
+
+### Flags
+
+```r
+#' @param verbose Logical, whether to print progress messages.
+#'   Default is \code{FALSE}
+```
+
+## Building and Loading Tools
+
+### Generate YAML Files
+
+```r
+# Generate all MCP tool YAML files
+mcptools_build()
+
+# Output location: inst/mcp/tools/
+```
+
+### Load Tools for MCP Server
+
+```r
+# Load tool definitions
+tools <- mcptool_load_all()
+
+# Returns a list of tool definitions suitable for MCP integration
+```
+
+### Tool Discovery
+
+List available MCP tools:
+
+```r
+# Get all tool names
+tool_names <- names(mcptool_load_all())
+```
+
+## Testing Your Documentation
+
+### Validation Checklist
+
+- [ ] All parameters documented with `@param`
+- [ ] Types clearly specified (Character string, Logical, Integer, etc.)
+- [ ] Examples provided using `\code{}` blocks
+- [ ] `@return` or `@returns` included if function returns value
+- [ ] Required parameters match function signature
+- [ ] Default values documented for optional parameters
+- [ ] `@keywords` added for categorization and safety flags
+
+### Manual Testing
+
+1. **Build tools**:
+   ```r
+   mcptools_build()
+   ```
+
+2. **Check generated YAML**:
+   ```r
+   yaml_file <- system.file(
+     "mcp/tools/ravepipeline-mcp_your_function.yaml",
+     package = "ravepipeline"
+   )
+   cat(readLines(yaml_file), sep = "\n")
+   ```
+
+3. **Validate schema**:
+   - Check `type` fields are valid JSON Schema types
+   - Verify `required` array matches function signature
+   - Confirm examples are properly extracted
+   - Ensure descriptions are clean (no type prefixes)
+
+## Troubleshooting
+
+### Type Not Inferred
+
+**Problem**: Parameter shows `type: string` when it should be `number`
+
+**Solution**: Add type keyword to description:
+```r
+#' @param count Integer, number of items
+```
+
+### Examples Not Extracted
+
+**Problem**: `\code{}` examples don't appear in YAML
+
+**Solution**: 
+- Ensure `\code{}` braces are balanced
+- Check for nested braces (parser handles them, but verify syntax)
+- Place examples after type prefix
+
+### Multi-Line Description Truncated
+
+**Problem**: Only first line of parameter description appears
+
+**Solution**: 
+- Ensure continuation lines are indented
+- No blank lines within parameter description
+- Next `@tag` ends the description
+
+### Enum Not Detected
+
+**Problem**: Function has default vector but no `enum` in YAML
+
+**Solution**:
+- Check function formals use `c("value1", "value2")` syntax
+- Verify parameter name is singular (plural names treated differently)
+- Ensure formals are parseable (balanced parentheses)
+
+## Advanced Topics
+
+### Custom Type Mapping
+
+If you need types beyond standard inference, explicitly state them:
+
+```r
+#' @param timestamp Integer, Unix timestamp in milliseconds
+#' @param coordinates Numeric vector, [latitude, longitude] pair
+```
+
+### Nested Objects
+
+For complex structured parameters:
+
+```r
+#' @param config List, configuration object with fields: 'mode'
+#'   (character), 'threshold' (numeric), 'enabled' (logical)
+```
+
+This generates `type: object`. You can add structure in description.
+
+### Conditional Parameters
+
+Document parameter relationships:
+
+```r
+#' @param use_cache Logical, whether to use cached results
+#' @param cache_dir Character string, cache directory. Only used
+#'   if \code{use_cache = TRUE}
+```
+
+## Complete Workflow Example
+
+1. **Write function with documentation**:
+   ```r
+   #' Analyze Pipeline Results
+   #'
+   #' @param pipeline_name Character string, pipeline identifier
+   #' @param include_plots Logical, generate visualizations
+   #' @return Analysis report with statistics and optional plots
+   #' @keywords mcp-tool mcp-category-analysis
+   #' @export
+   analyze_results <- function(pipeline_name, include_plots = FALSE) {
+     # Implementation
+   }
+   ```
+
+2. **Build tools**:
+   ```r
+   mcptools_build()
+   ```
+
+3. **Verify output**:
+   ```r
+   tools <- mcptool_load_all()
+   str(tools$analyze_results)
+   ```
+
+4. **Integrate with MCP server**:
+   ```r
+   # Tools are ready for MCP protocol integration
+   ```
+
+## Style Guidelines
+
+- **Be concise**: Descriptions should be clear and brief
+- **Use examples liberally**: Help users understand expected values
+- **Document edge cases**: Mention special values (NULL, empty string, etc.)
+- **Consistent terminology**: Use same terms across related functions
+- **Update examples**: Keep examples current with function behavior

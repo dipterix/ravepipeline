@@ -1,0 +1,30 @@
+name: ravepipeline-mcp_get_current_rave_pipeline_progress
+description: Check the execution progress of the pipeline. Shows which targets are
+  completed, running, or pending. Must call mcp_load_rave_pipeline first.
+parameters:
+  type: object
+  properties:
+    detail_level:
+      type: string
+      description: Level of detail for progress information. Either "summary" (overview)
+        or "details" (per-target status). Default is "summary".
+      enum:
+      - summary
+      - details
+      default: summary
+category: monitoring
+returns:
+  type: object
+  properties:
+    error:
+      type: string
+      description: Character, error message if success is FALSE
+    progress:
+      type: object
+      description: Object with progress information. Contains a 'format' field ("structured"
+        for data frame, "text" for string) and progress data. Summary shows counts
+        (skipped, dispatched, completed, errored, canceled, since), details shows
+        per-target status
+    success:
+      type: boolean
+      description: Logical, whether progress information was retrieved successfully

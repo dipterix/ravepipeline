@@ -1,0 +1,27 @@
+name: ravepipeline-mcpflow_load_all
+description: Loads workflow YAML files from a package's MCP workflows directory and
+  returns them as S3 objects with class "ravepipeline_mcp_workflow".
+parameters:
+  type: object
+  properties:
+    path:
+      type: string
+      description: . Optional path to workflows directory. If provided, loads from
+        this path instead of package mcp/workflows.
+    pkg:
+      type: string
+      description: '. Package name to load workflows from. Example values: "ravepipeline"'
+      examples:
+      - ravepipeline
+  required:
+  - pkg
+category: discovery
+example_response:
+  rave_pipeline_class_guide:
+    name: rave_pipeline_class_guide
+    description: '...'
+    mcp_tools: yes
+returns:
+  type: object
+  description: A named list of workflow objects, each with class   c("ravepipeline_mcp_workflow",
+    "list"). Returns empty list if no   workflows found.

@@ -1,0 +1,32 @@
+name: ravepipeline-mcp_set_current_rave_pipeline_settings
+description: Configure pipeline settings. This does NOT run the pipeline, only sets
+  parameters. Must call mcp_load_rave_pipeline first.
+parameters:
+  type: object
+  properties:
+    settings_json:
+      type: string
+      description: 'Containing JSON with pipeline settings as key-value pairs. Use
+        mcp_get_rave_pipeline_info to see what settings are available. Example values:
+        ''{"project_name": "demo"''}, ''{"subject_code": "DemoSubject"''}.'
+      examples:
+      - '{"project_name": "demo"}'
+      - '{"subject_code": "DemoSubject"}'
+  required:
+  - settings_json
+category: configuration
+returns:
+  type: object
+  properties:
+    error:
+      type: string
+      description: Character, error message if success is FALSE
+    current_settings:
+      type: object
+      description: List, updated pipeline settings after applying changes
+    message:
+      type: string
+      description: Character, human-readable status message
+    success:
+      type: boolean
+      description: Logical, whether settings were applied successfully

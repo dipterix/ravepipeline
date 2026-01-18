@@ -1,0 +1,38 @@
+name: ravepipeline-mcp_list_rave_pipelines
+description: List all installed RAVE pipelines available on the system.
+parameters:
+  type: object
+  properties: {}
+category: discovery
+example_response:
+  pipelines:
+  - block_explorer
+  - custom_3d_viewer
+  - generate_surface_atlas
+  - group_3d_viewer
+  - import_bids
+  - import_lfp_native
+  - import_signals
+  - notch_filter
+  - power_clust
+  - power_explorer
+  - project_overview
+  - reference_module
+  - stimpulse_finder
+  - surface_reconstruction
+  - trace_viewer
+  - voltage_clust
+  - wavelet_module
+  - yael_preprocess
+  count: 18
+returns:
+  type: object
+  properties:
+    count:
+      type: integer
+      description: Integer, total number of available pipelines
+    pipelines:
+      type: array
+      description: Character vector, pipeline names
+      items:
+        type: string

@@ -1,0 +1,35 @@
+name: ravepipeline-mcp_get_current_rave_pipeline_info
+description: Get detailed information about the currently loaded pipeline including
+  targets, current settings, and available reports. Must call mcp_load_rave_pipeline
+  first.
+parameters:
+  type: object
+  properties: {}
+category: info
+returns:
+  type: object
+  properties:
+    error:
+      type: string
+      description: Character, error message if success is FALSE
+    available_reports:
+      type: object
+      description: List, available report templates with metadata
+    current_settings:
+      type: object
+      description: List, current pipeline settings as key-value pairs
+    targets:
+      type: object
+      description: Data frame of pipeline targets with Names and Description columns
+    description:
+      type: string
+      description: Character, pipeline title/description
+    path:
+      type: string
+      description: Character, file system path to pipeline directory
+    name:
+      type: string
+      description: Character, pipeline name
+    success:
+      type: boolean
+      description: Logical, whether information was retrieved successfully
