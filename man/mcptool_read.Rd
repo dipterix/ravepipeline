@@ -2,12 +2,12 @@
 % Please edit documentation in R/mcp-tools.R
 \name{mcptool_read}
 \alias{mcptool_read}
-\title{Read MCP Tool Definition from YAML File}
+\title{Read MCP tool definition from \code{YAML} file}
 \usage{
 mcptool_read(path, check = FALSE)
 }
 \arguments{
-\item{path}{Character. Path to the YAML file containing the tool definition.}
+\item{path}{Character. Path to the \code{YAML} file containing the tool definition.}
 
 \item{check}{Logical. Whether to check if the function definition exists;
 default is \code{FALSE}}
@@ -17,7 +17,7 @@ List containing the parsed tool definition.
 Throws an error if file cannot be read or parsed.
 }
 \description{
-Reads and parses an MCP tool definition from a YAML file.
+Reads and parses an MCP tool definition from a \code{YAML} file.
 This is a low-level function used internally by \code{mcptool_load_all}
 and \code{mcptool_path}.
 }

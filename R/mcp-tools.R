@@ -1,4 +1,4 @@
-#' MCP Tool Extraction and Type Inference
+#' MCP tool extraction and type inference
 #' @keywords internal
 #' @name mcp-tools
 NULL
@@ -96,7 +96,7 @@ map_r_type_to_json <- function(r_type) {
 
 #' Parse Type String to JSON Schema Type
 #'
-#' @param type_str Character. Type string (e.g., "character", "numeric[]")
+#' @param type_str Character. Type string (e.g., \code{"character"}, \code{"numeric[]"})
 #' @return List with type and optional items field
 #' @keywords internal
 #' @noRd
@@ -915,20 +915,24 @@ extract_tool_from_roxygen_block <- function(
 #' @description
 #' Helper function for developers to scan the package's R source
 #' files for functions marked with `@keywords mcp-tool` and generates
-#' YAML tool definitions in `inst/mcp/tools/`. Run this after
+#' `YAML` tool definitions in `inst/mcp/tools/`. Run this after
 #' documenting your package.
 #'
-#' @param path Character. Path to package root directory (default: ".")
-#' @param verbose Logical. Print progress messages (default: TRUE)
+#' @param path Character. Path to package root directory (default: `.`)
+#' @param verbose Logical. Print progress messages (default: \code{TRUE})
 #' @return Invisibly returns list of generated tool definitions
 #' @examples
+#'
 #' \dontrun{
-#' # After documenting your package
-#' devtools::document()
-#' mcptools_build()
+#'
+#' # After documenting your package `devtools::document()`
+#'
+#' mcptool_build()
+#'
 #' }
+#'
 #' @export
-mcptools_build <- function(path = ".", verbose = TRUE) {
+mcptool_build <- function(path = ".", verbose = TRUE) {
   # Normalize path
   path <- normalizePath(path, mustWork = TRUE)
 
@@ -1297,10 +1301,11 @@ mcptools_build <- function(path = ".", verbose = TRUE) {
 #' Load MCP Tool Definitions from Package or Directory
 #'
 #' @param pkg Character. Package name or path to tools directory.
-#'   If pkg contains path separators, space, or `.`, it is treated as a directory path.
-#'   Otherwise, it is treated as a package name.
+#'   If \code{pkg} contains path separators, space, or `.`, it is treated as a
+#'   directory path. Otherwise, it is treated as a package name.
 #' @return List of MCP tool definitions
 #' @examples
+#'
 #' # Load from package
 #' tools <- mcptool_load_all("ravepipeline")
 #'
@@ -1364,14 +1369,14 @@ mcptool_load_all <- function(pkg) {
   tools
 }
 
-#' Read MCP Tool Definition from YAML File
+#' Read MCP tool definition from `YAML` file
 #'
 #' @description
-#' Reads and parses an MCP tool definition from a YAML file.
+#' Reads and parses an MCP tool definition from a `YAML` file.
 #' This is a low-level function used internally by \code{mcptool_load_all}
 #' and \code{mcptool_path}.
 #'
-#' @param path Character. Path to the YAML file containing the tool definition.
+#' @param path Character. Path to the `YAML` file containing the tool definition.
 #' @param check Logical. Whether to check if the function definition exists;
 #' default is \code{FALSE}
 #'
@@ -1439,12 +1444,6 @@ mcptool_seek_function <- function(tool) {
   # f
 }
 
-#' Format MCP Tool Definition
-#'
-#' @param x A \code{ravepipeline_mcp_tool} object
-#' @param method Character. Output format: "summary" (default), "yaml", or "markdown"
-#' @param ... Additional arguments (currently unused)
-#' @return Character string with formatted output
 #' @export
 format.ravepipeline_mcp_tool <- function(x, method = c("summary", "yaml", "markdown"), ...) {
   method <- match.arg(method)
@@ -1622,11 +1621,6 @@ format.ravepipeline_mcp_tool <- function(x, method = c("summary", "yaml", "markd
   )
 }
 
-#' Print MCP Tool Definition
-#'
-#' @param x A \code{ravepipeline_mcp_tool} object
-#' @param method Character. Output format passed to \code{format}
-#' @param ... Additional arguments passed to \code{format}
 #' @export
 print.ravepipeline_mcp_tool <- function(x, method = c("summary", "yaml", "markdown"), ...) {
   method <- match.arg(method)
@@ -1634,14 +1628,15 @@ print.ravepipeline_mcp_tool <- function(x, method = c("summary", "yaml", "markdo
   invisible(x)
 }
 
-#' Write MCP Tool Definition to File
+#' Write MCP tool definition to file
 #'
 #' @description
-#' Writes an MCP tool definition to a file in either YAML or Markdown format.
+#' Writes an MCP tool definition to a file in either `YAML` or `Markdown` format.
 #'
 #' @param tool A \code{ravepipeline_mcp_tool} object
 #' @param path Character. Path to the output file
-#' @param method Character. Output format: "yaml" (default) or "markdown"
+#' @param method Character. Output format: \code{"yaml"} (default) or
+#' \code{"markdown"}
 #' @param ... Additional arguments (currently unused)
 #'
 #' @return Invisibly returns the input tool object
@@ -1649,25 +1644,14 @@ print.ravepipeline_mcp_tool <- function(x, method = c("summary", "yaml", "markdo
 #' @examples
 #'
 #' # Load a tool from package
-#' path <- system.file(
-#'   "mcp", "tools", "ravepipeline-mcp_list_rave_pipelines.yaml",
-#'   package = "ravepipeline"
-#' )
+#' path <- mcptool_path("ravepipeline-mcp_list_rave_pipelines")
 #' tool <- mcptool_read(path)
 #'
 #' # Write as YAML to temporary file
-#' yaml_file <- tempfile(fileext = ".yaml")
-#' mcptool_write(tool, yaml_file, method = "yaml")
-#' cat(readLines(yaml_file), sep = "\n")
+#' mcptool_write(tool, stdout(), method = "yaml")
 #'
-#' # Write as Markdown to temporary file
-#' md_file <- tempfile(fileext = ".md")
-#' mcptool_write(tool, md_file, method = "markdown")
-#' cat(readLines(md_file), sep = "\n")
-#'
-#' # clean up
-#' unlink(yaml_file)
-#' unlink(md_file)
+#' # Write as Markdown
+#' mcptool_write(tool, stdout(), method = "markdown")
 #'
 #' @export
 mcptool_write <- function(tool, path, method = c("yaml", "markdown"), ...) {
@@ -1677,21 +1661,11 @@ mcptool_write <- function(tool, path, method = c("yaml", "markdown"), ...) {
     stop("tool must be a ravepipeline_mcp_tool object")
   }
 
-  if (!is.character(path) || length(path) != 1 || !nzchar(path)) {
-    stop("path must be a non-empty character string")
-  }
-
-  # Create parent directory if it doesn't exist
-  parent_dir <- dirname(path)
-  if (!dir.exists(parent_dir)) {
-    dir.create(parent_dir, recursive = TRUE, showWarnings = FALSE)
-  }
-
   switch(
     method,
     "yaml" = {
-      # Write as YAML using yaml::write_yaml
-      yaml::write_yaml(x = unclass(tool), file = path)
+      # Write as YAML using save_yaml
+      save_yaml(x = tool, file = path)
     },
     "markdown" = {
       # Write as Markdown using format method
@@ -1703,7 +1677,7 @@ mcptool_write <- function(tool, path, method = c("yaml", "markdown"), ...) {
   invisible(tool)
 }
 
-#' List MCP Tool Names from Package or Directory
+#' List MCP tool names from a package or directory
 #'
 #' @description
 #' Lists all available MCP tool names from a package or directory.
@@ -1711,41 +1685,42 @@ mcptool_write <- function(tool, path, method = c("yaml", "markdown"), ...) {
 #' only the tool names without loading full definitions.
 #'
 #' @param pkg Character. Package name or path to tools directory.
-#'   If pkg contains path separators, space, or \code{.}, it is treated as a directory path.
-#'   Otherwise, it is treated as a package name.
+#'   If \code{pkg} contains path separators, space, or \code{'.'}, it is
+#'   treated as a directory path. Otherwise, it is treated as a package name.
 #'
-#' @return Character vector of tool names (in format \code{pkg-function_name}).
+#' @return Character vector of tool names (in format `pkg-function_name`).
 #'   Returns empty character vector if no tools found.
 #'
 #' @examples
+#'
 #' # List tools from package
-#' mcptools_list("ravepipeline")
+#' mcptool_list("ravepipeline")
 #'
 #'
-#' # List tools from directory
+#' # Or list tools from directory
 #' path <- system.file("mcp", "tools", package = "ravepipeline")
-#' mcptools_list(path)
+#' mcptool_list(path)
 #'
 #' @export
-mcptools_list <- function(pkg) {
+mcptool_list <- function(pkg) {
   tools <- mcptool_load_all(pkg)
   names(tools)
 }
 
 
-#' Find Path to a Specific MCP Tool by Name
+#' Find path to a specific MCP tool by name
 #'
 #' @description
-#' Locates an MCP tool YAML file from either an installed package or a local directory.
-#' Tool names use `pkg-function_name` format where the first hyphen separates the package
-#' name from the function name. Returns the file path with the tool definition attached
-#' as an attribute.
+#' Locates an MCP tool YAML file from either an installed package or a local
+#' directory. Tool names use `pkg-function_name` format where the first hyphen
+#' separates the package name from the function name. Returns the file path
+#' with the tool definition attached as an attribute.
 #'
 #' @param tool_name Character. Tool name in format `pkg-function_name`.
-#'   The first hyphen separates package name from function name (function names may contain hyphens).
-#' @param tools_dir Character. Path to root directory for local tools lookup.
-#'   Default is "../tools" (relative to workflows directory).
-#'   If NULL, skips local directory lookup.
+#'   The first hyphen separates package name from function name (function names
+#'   may contain hyphens).
+#' @param tools_dir Character. Path to root directory for local tools look-up.
+#'   Default is \code{"../tools"} (relative to workflows directory).
 #'
 #' @return Character string containing the path to the tool YAML file,
 #'   with attribute `mcp_definition` containing the parsed tool definition.
@@ -1756,6 +1731,7 @@ mcptools_list <- function(pkg) {
 #' # Find tool from package
 #' tool_path <- mcptool_path("ravepipeline-mcp_list_rave_pipelines")
 #' attr(tool_path, "mcp_definition")
+#'
 #'
 #' \dontrun{
 #'
@@ -1788,7 +1764,7 @@ mcptool_path <- function(tool_name, tools_dir = "../tools") {
     # Normalize tool name to use - internally
     normalized_tool_name <- paste0(pkg_name, "-", func_name)
 
-    # Convert tool name to filename using same convention as mcptools_build
+    # Convert tool name to filename using same convention as mcptool_build
     tool_filename <- paste0(gsub("[^a-zA-Z0-9_-]+", "-", normalized_tool_name), ".yaml")
 
     # Strategy 1: Try finding in package
@@ -1859,16 +1835,18 @@ mcptool_path <- function(tool_name, tools_dir = "../tools") {
 }
 
 
-#' Instantiate ellmer Tool from RAVE MCP Tool Definition
+#' Instantiate from RAVE MCP tool definition
 #'
-#' @description Create an \code{ellmer} tool object from a loaded RAVE MCP tool definition.
-#' This allows using RAVE pipelines and tools directly with LLMs via the ellmer package.
+#' @description Create an `ellmer` tool object from a loaded RAVE MCP
+#'  tool definition. This allows using RAVE pipelines and tools directly via
+#'  the `ellmer` package.
 #'
 #' @param tool An object of class \code{ravepipeline_mcp_tool} (loaded via
 #'   \code{\link{mcptool_read}} or \code{\link{mcptool_load_all}}).
 #' @param ... Additional arguments passed to \code{\link[ellmer]{tool}}.
 #'
-#' @return An \code{ellmer::ToolDef} object ready to be registered with a chat session.
+#' @return An \code{\link[ellmer]{ToolDef}} object ready to be registered
+#'  with a chat session.
 #'
 #' @export
 mcptool_instantiate <- function(tool, ...) {

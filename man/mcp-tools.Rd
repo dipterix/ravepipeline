@@ -2,8 +2,8 @@
 % Please edit documentation in R/mcp-tools.R
 \name{mcp-tools}
 \alias{mcp-tools}
-\title{MCP Tool Extraction and Type Inference}
+\title{MCP tool extraction and type inference}
 \description{
-MCP Tool Extraction and Type Inference
+MCP tool extraction and type inference
 }
 \keyword{internal}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/mcp-workflows.R
 \name{mcpflow_export}
 \alias{mcpflow_export}
-\title{Export RAVE MCP Workflows}
+\title{Export RAVE MCP workflows}
 \usage{
 mcpflow_export(
   workflows,
@@ -13,31 +13,36 @@ mcpflow_export(
 )
 }
 \arguments{
-\item{workflows}{Either a "ravepipeline_mcp_workflow" object, a list of
-"ravepipeline_mcp_workflow" objects, or a character string path to a workflow YAML file}
+\item{workflows}{Either a \code{"ravepipeline_mcp_workflow"} object, a list
+of \code{"ravepipeline_mcp_workflow"} objects, or a character string path
+to a workflow \code{YAML} file}
 
 \item{output_dir}{Character string, base directory to save output files.
-If NULL (default), uses the parent directory of the input file's folder (when workflows is a path)
-or current working directory (when workflows is an object).
-Workflows are saved to output_dir/workflows/, tools to output_dir/tools/}
+If \code{NULL} (default), uses the parent directory of the input file's
+folder (when workflows is a path) or current working directory
+(when workflows is an object). Workflows are saved to
+\verb{output_dir/workflows/}, tools to \verb{output_dir/tools/}}
 
-\item{format}{Character string, output format. Options: "markdown" (default),
-"yaml", "both"}
+\item{format}{Character string, output format. Options:
+\code{"markdown"} (default), \code{"yaml"}, \code{"both"}}
 
-\item{save_tools}{Logical, whether to save referenced MCP tools to output_dir/tools/.
-Default is TRUE}
+\item{save_tools}{Logical, whether to save referenced MCP tools to
+\verb{output_dir/tools/}; default is \code{TRUE}}
 
-\item{verbose}{Logical, whether to print progress messages. Default is TRUE}
+\item{verbose}{Logical, whether to print progress messages;
+default is \code{TRUE}}
 }
 \value{
 Invisibly returns a character vector of paths to written files
 }
 \description{
-Saves workflow objects to YAML and/or Markdown format.
+Saves workflow objects to \code{YAML} and/or \code{Markdown} format.
 Optionally exports associated MCP tools to the same directory.
-Workflows are saved to output_dir/workflows/ and tools to output_dir/tools/.
+Workflows are saved to \verb{output_dir/workflows/} and tools to
+\verb{output_dir/tools/}.
 }
 \examples{
+
 # Load workflows from package and export to temp directory
 workflows <- mcpflow_load_all("ravepipeline")
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/mcp-tools.R
 \name{mcptool_instantiate}
 \alias{mcptool_instantiate}
-\title{Instantiate ellmer Tool from RAVE MCP Tool Definition}
+\title{Instantiate from RAVE MCP tool definition}
 \usage{
 mcptool_instantiate(tool, ...)
 }
@@ -13,9 +13,11 @@ mcptool_instantiate(tool, ...)
 \item{...}{Additional arguments passed to \code{\link[ellmer]{tool}}.}
 }
 \value{
-An \code{ellmer::ToolDef} object ready to be registered with a chat session.
+An \code{\link[ellmer]{ToolDef}} object ready to be registered
+with a chat session.
 }
 \description{
-Create an \code{ellmer} tool object from a loaded RAVE MCP tool definition.
-This allows using RAVE pipelines and tools directly with LLMs via the ellmer package.
+Create an \code{ellmer} tool object from a loaded RAVE MCP
+tool definition. This allows using RAVE pipelines and tools directly via
+the \code{ellmer} package.
 }

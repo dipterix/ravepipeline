@@ -8,8 +8,8 @@ mcptool_load_all(pkg)
 }
 \arguments{
 \item{pkg}{Character. Package name or path to tools directory.
-If pkg contains path separators, space, or \code{.}, it is treated as a directory path.
-Otherwise, it is treated as a package name.}
+If \code{pkg} contains path separators, space, or \code{.}, it is treated as a
+directory path. Otherwise, it is treated as a package name.}
 }
 \value{
 List of MCP tool definitions
@@ -18,6 +18,7 @@ List of MCP tool definitions
 Load MCP Tool Definitions from Package or Directory
 }
 \examples{
+
 # Load from package
 tools <- mcptool_load_all("ravepipeline")
 

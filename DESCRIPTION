@@ -1,7 +1,7 @@
 Package: ravepipeline
 Type: Package
 Title: Reproducible Pipeline Infrastructure for Neuroscience
-Version: 0.0.3.5
+Version: 0.0.3.6
 Language: en-US
 Authors@R: c(
     person("Zhengjia", "Wang", email = "dipterix.wang@gmail.com", role = c("aut", "cre", "cph")),
@@ -34,8 +34,9 @@ RoxygenNote: 7.3.3
 URL: https://dipterix.org/ravepipeline/, https://rave.wiki
 BugReports: https://github.com/dipterix/ravepipeline/issues
 Imports: 
-    utils,
     stats,
+    tools,
+    utils,
     base64enc,
     callr,
     cli,
@@ -72,3 +73,4 @@ Suggests:
     shiny,
     mirai
 Config/testthat/edition: 3
+VignetteBuilder: knitr

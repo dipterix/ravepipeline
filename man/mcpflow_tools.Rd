@@ -6,6 +6,16 @@
 \usage{
 mcpflow_tools(workflow, tools_dir = NULL)
 }
+\arguments{
+\item{workflow}{A workflow object}
+
+\item{tools_dir}{Character. Base directory containing \verb{tools/} subdirectory.
+Default is \code{NULL}, which uses the \code{'source_tools_dir'}
+attribute from the workflow or falls back to \code{"./tools"}.}
+}
+\value{
+A named list of tool definitions
+}
 \description{
-Load Tools for Workflow
+Loads and returns the MCP tools referenced by a workflow.
 }

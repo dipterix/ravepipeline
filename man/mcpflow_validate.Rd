@@ -2,15 +2,19 @@
 % Please edit documentation in R/mcp-workflows.R
 \name{mcpflow_validate}
 \alias{mcpflow_validate}
-\title{Validate RAVE MCP Workflow}
+\title{Validate RAVE MCP workflow}
 \usage{
-mcpflow_validate(workflow, available_tools = NULL)
+mcpflow_validate(workflow, available_tools = NULL, strict = FALSE)
 }
 \arguments{
-\item{workflow}{A ravepipeline_mcp_workflow object or list}
+\item{workflow}{A RAVE workflow object or list}
 
 \item{available_tools}{Character vector of available tool names.
 If NULL, skips tool reference validation}
+
+\item{strict}{Logical. If \code{TRUE}, perform full YAML schema validation
+via \code{mcpflow_validate_yaml}. Default is \code{FALSE} for lightweight
+validation of essential fields only.}
 }
 \value{
 A list with components:
@@ -22,6 +26,7 @@ A list with components:
 Validates a workflow object for required fields and structure.
 }
 \examples{
+
 # Read a workflow
 path <- system.file(
   "mcp", "workflows", "rave_pipeline_class_guide.yaml",
@@ -29,8 +34,12 @@ path <- system.file(
 )
 wf <- mcpflow_read(path)
 
-# Validate
+# Validate (lightweight)
 result <- mcpflow_validate(wf)
+result$valid
+
+# Validate (strict schema validation)
+result <- mcpflow_validate(wf, strict = TRUE)
 result$valid
 
 }

@@ -43,6 +43,7 @@ mcp_state <- local({
 #' }
 #'
 #' @keywords mcp-tool mcp-category-discovery
+#' @noRd
 mcp_list_rave_pipelines <- function() {
   pipelines <- pipeline_list()
   list(
@@ -85,6 +86,7 @@ mcp_list_rave_pipelines <- function() {
 #' }
 #'
 #' @keywords mcp-tool mcp-category-setup
+#' @noRd
 mcp_load_rave_pipeline <- function(pipeline_name) {
   state <- mcp_state()
 
@@ -148,6 +150,7 @@ mcp_load_rave_pipeline <- function(pipeline_name) {
 #' }
 #'
 #' @keywords mcp-tool mcp-category-info
+#' @noRd
 mcp_get_current_rave_pipeline_info <- function() {
   state <- mcp_state()
   pipe <- state$pipe
@@ -207,6 +210,7 @@ mcp_get_current_rave_pipeline_info <- function() {
 #' }
 #'
 #' @keywords mcp-tool mcp-category-configuration
+#' @noRd
 mcp_set_current_rave_pipeline_settings <- function(settings_json) {
   state <- mcp_state()
   pipe <- state$pipe
@@ -272,6 +276,7 @@ mcp_set_current_rave_pipeline_settings <- function(settings_json) {
 #' }
 #'
 #' @keywords mcp-tool mcp-category-execution mcp-dangerous mcp-requires-approval
+#' @noRd
 mcp_run_current_rave_pipeline <- function(target_names = NULL) {
   state <- mcp_state()
   pipe <- state$pipe
@@ -326,7 +331,7 @@ mcp_run_current_rave_pipeline <- function(target_names = NULL) {
 #'   \item{success}{Logical, whether progress information was retrieved successfully}
 #'   \item{progress}{Object with progress information. Contains a 'format' field
 #'     ("structured" for data frame, "text" for string) and progress data.
-#'     Summary shows counts (skipped, dispatched, completed, errored, canceled, since),
+#'     Summary shows counts (\code{'skipped'}, \code{'dispatched'}, \code{'completed'}, \code{'errored'}, \code{'canceled'}, \code{'since'}),
 #'     details shows per-target status}
 #'   \item{error}{Character, error message if success is FALSE}
 #' }
@@ -354,6 +359,7 @@ mcp_run_current_rave_pipeline <- function(target_names = NULL) {
 #' }
 #'
 #' @keywords mcp-tool mcp-category-monitoring
+#' @noRd
 mcp_get_current_rave_pipeline_progress <- function(detail_level = c("summary", "details")) {
   detail_level <- match.arg(detail_level)
   state <- mcp_state()
@@ -363,7 +369,7 @@ mcp_get_current_rave_pipeline_progress <- function(detail_level = c("summary", "
   }
 
   progress <- pipe$progress(method = detail_level)
-  
+
 
   # Ensure progress is always an object for consistent JSON output
   # Add format field to indicate structure type
@@ -376,7 +382,7 @@ mcp_get_current_rave_pipeline_progress <- function(detail_level = c("summary", "
     }
     progress$format <- "structured"
   }
-  
+
   list(
     success = TRUE,
     progress = progress
@@ -433,6 +439,7 @@ mcp_get_current_rave_pipeline_progress <- function(detail_level = c("summary", "
 #' }
 #'
 #' @keywords mcp-tool mcp-category-results
+#' @noRd
 mcp_read_current_rave_pipeline_results <- function(target_names = NULL) {
   state <- mcp_state()
   pipe <- state$pipe

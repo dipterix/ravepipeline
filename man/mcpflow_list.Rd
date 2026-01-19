@@ -2,7 +2,7 @@
 % Please edit documentation in R/mcp-workflows.R
 \name{mcpflow_list}
 \alias{mcpflow_list}
-\title{List RAVE MCP Workflow Names}
+\title{List RAVE MCP workflow names}
 \usage{
 mcpflow_list(pkg, path = system.file("mcp", "workflows", package = pkg))
 }
@@ -10,11 +10,11 @@ mcpflow_list(pkg, path = system.file("mcp", "workflows", package = pkg))
 \item{pkg}{Character. Package name. If missing, must specify path directly}
 
 \item{path}{Character. Path to workflows directory.
-Default is system.file("mcp", "workflows", package = pkg)}
+Default is \code{system.file("mcp", "workflows", package = pkg)}}
 }
 \value{
-Character vector of workflow names with attribute "source_from"
-containing a list with "path" and "pkg" (if applicable)
+Character vector of workflow names with attribute \code{"source_from"}
+containing a list with \code{"path"} and \code{"pkg"} (if applicable)
 }
 \description{
 Lists all available MCP workflow names from a package or
@@ -22,6 +22,8 @@ directory. Returns workflow names with source information (path and
 package) as attributes.
 }
 \examples{
+
+
 # List workflows from package
 workflows <- mcpflow_list("ravepipeline")
 

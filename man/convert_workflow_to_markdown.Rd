@@ -7,12 +7,12 @@
 convert_workflow_to_markdown(workflow)
 }
 \arguments{
-\item{workflow}{A ravepipeline_mcp_workflow object}
+\item{workflow}{A MCP workflow object}
 }
 \value{
 Character vector of markdown lines
 }
 \description{
-Converts a workflow YAML object to formatted Markdown
+Converts a workflow \code{YAML} object to formatted \code{Markdown}
 }
 \keyword{internal}

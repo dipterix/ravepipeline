@@ -2,7 +2,7 @@
 % Please edit documentation in R/mcp-workflows.R
 \name{mcpflow_path}
 \alias{mcpflow_path}
-\title{Find Path to RAVE MCP Workflow}
+\title{Find path to RAVE MCP workflow}
 \usage{
 mcpflow_path(
   workflow_name,
@@ -16,16 +16,18 @@ mcpflow_path(
 \item{pkg}{Character. Package name. If NULL, uses path parameter}
 
 \item{path}{Character. Path to workflows directory.
-If NULL and pkg is provided, uses system.file("mcp", "workflows", package = pkg)}
+If \code{pkg} is provided, uses \code{mcp/workflows} under the package folder}
 }
 \value{
 Character string with the path to the workflow YAML file.
 Throws an error if workflow not found.
 }
 \description{
-Extracts the file path for a workflow by name from mcpflow_list results.
+Extracts the file path for a workflow by name from
+\code{mcpflow_list} results.
 }
 \examples{
+
 # Find workflow path from package
 wf_path <- mcpflow_path("rave_pipeline_class_guide", pkg = "ravepipeline")
 wf_path

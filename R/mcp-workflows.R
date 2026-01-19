@@ -1,7 +1,472 @@
 # RAVE MCP Workflows System
 # Workflow loading, saving, validation, and S3 class definitions
 
-#' List RAVE MCP Workflow Names
+
+# -- Internal YAML Schema Validation
+
+#' Validate Workflow `YAML` Schema (Internal)
+#'
+#' @description Strictly validates a workflow `YAML` file or parsed `YAML` list
+#' against the expected schema. This is an internal function used to ensure
+#' `YAML` files conform to the agreed-upon structure.
+#'
+#' @param x Either a file path to a `YAML` file, or a list read from the file
+#'
+#' @return A list with components:
+#'   \item{`valid`}{Logical, whether the YAML is valid}
+#'
+#'   \item{`errors`}{Character vector of error messages (schema violations)}
+#'   \item{`warnings`}{Character vector of warning messages (recommendations)}
+#'
+#' @keywords internal
+mcpflow_validate_yaml <- function(x) {
+  errors <- character(0)
+  warnings <- character(0)
+
+
+  # Helper to add error with path context
+  add_error <- function(path, msg) {
+    errors <<- c(errors, sprintf("[%s] %s", path, msg))
+  }
+
+  # Helper to add warning with path context
+  add_warning <- function(path, msg) {
+    warnings <<- c(warnings, sprintf("[%s] %s", path, msg))
+  }
+
+  # Helper to check type
+  check_type <- function(value, expected, path, required = FALSE) {
+    if (is.null(value)) {
+      if (required) {
+        add_error(path, sprintf("Required field is missing"))
+      }
+      return(FALSE)
+    }
+
+    valid <- switch(expected,
+      "string" = is.character(value) && length(value) == 1,
+      "string_or_null" = is.null(value) || (is.character(value) && length(value) == 1),
+      "character" = is.character(value),
+      "logical" = is.logical(value) && length(value) == 1,
+      "logical_or_string" = (is.logical(value) && length(value) == 1) ||
+                            (is.character(value) && length(value) == 1),
+      "list" = is.list(value),
+      "named_list" = is.list(value) && !is.null(names(value)) && all(nzchar(names(value))),
+      "integer" = is.numeric(value) && length(value) == 1 && value == as.integer(value),
+      TRUE
+    )
+
+    if (!valid) {
+      add_error(path, sprintf("Expected type '%s', got '%s'", expected, class(value)[1]))
+    }
+    valid
+  }
+
+  # Read YAML if path provided
+  if (is.character(x) && length(x) == 1 && file.exists(x)) {
+    yaml_data <- tryCatch(
+      yaml::read_yaml(x),
+      error = function(e) {
+        add_error("ROOT", sprintf("Failed to parse YAML: %s", e$message))
+        NULL
+      }
+    )
+    if (is.null(yaml_data)) {
+      return(list(valid = FALSE, errors = errors, warnings = warnings))
+    }
+  } else if (is.list(x)) {
+    yaml_data <- x
+  } else {
+    add_error("ROOT", "Input must be a file path or a list from yaml::read_yaml")
+    return(list(valid = FALSE, errors = errors, warnings = warnings))
+  }
+
+  # ---- METADATA ----
+  check_type(yaml_data$name, "string", "name", required = TRUE)
+
+  if (!is.null(yaml_data$description)) {
+    check_type(yaml_data$description, "string", "description")
+  }
+
+  if (!is.null(yaml_data$version)) {
+    check_type(yaml_data$version, "string", "version")
+  }
+
+  if (!is.null(yaml_data$category)) {
+    check_type(yaml_data$category, "string", "category")
+  }
+
+  if (!is.null(yaml_data$tags)) {
+    check_type(yaml_data$tags, "character", "tags")
+  }
+
+  # ---- MCP_TOOLS ----
+  if (!is.null(yaml_data$mcp_tools)) {
+    if (!isTRUE(yaml_data$mcp_tools) && !isFALSE(yaml_data$mcp_tools)) {
+      if (!is.character(yaml_data$mcp_tools)) {
+        add_error("mcp_tools", "Must be TRUE, FALSE, or a character vector of tool names")
+      } else if (length(yaml_data$mcp_tools) == 1) {
+        if (!yaml_data$mcp_tools %in% c("auto", "all")) {
+          add_error("mcp_tools", "Single string value must be 'auto' or 'all'")
+        }
+      }
+    }
+  }
+
+  # ---- TOOL_GUIDE ----
+  if (!is.null(yaml_data$tool_guide)) {
+    if (!is.list(yaml_data$tool_guide)) {
+      add_error("tool_guide", "Must be a list")
+    } else {
+      for (i in seq_along(yaml_data$tool_guide)) {
+        tg <- yaml_data$tool_guide[[i]]
+        path_prefix <- sprintf("tool_guide[%d]", i)
+
+        if (!is.list(tg)) {
+          add_error(path_prefix, "Each tool_guide entry must be a list")
+          next
+        }
+
+        check_type(tg$tool, "string", sprintf("%s.tool", path_prefix), required = TRUE)
+
+        if (!is.null(tg$category)) {
+          check_type(tg$category, "string", sprintf("%s.category", path_prefix))
+        }
+        if (!is.null(tg$when)) {
+          check_type(tg$when, "string", sprintf("%s.when", path_prefix))
+        }
+        if (!is.null(tg$notes)) {
+          check_type(tg$notes, "string", sprintf("%s.notes", path_prefix))
+        }
+        if (!is.null(tg$dangerous)) {
+          check_type(tg$dangerous, "logical", sprintf("%s.dangerous", path_prefix))
+        }
+        if (!is.null(tg$requires_approval)) {
+          check_type(tg$requires_approval, "logical", sprintf("%s.requires_approval", path_prefix))
+        }
+        if (!is.null(tg$preconditions)) {
+          check_type(tg$preconditions, "character", sprintf("%s.preconditions", path_prefix))
+        }
+
+        # Check for unknown fields in tool_guide entry
+        known_tg_fields <- c("tool", "category", "when", "notes", "dangerous",
+                             "requires_approval", "preconditions")
+        unknown_tg <- setdiff(names(tg), known_tg_fields)
+        if (length(unknown_tg) > 0) {
+          add_error(path_prefix, sprintf("Unknown field(s): %s", paste(unknown_tg, collapse = ", ")))
+        }
+      }
+    }
+  }
+
+  # ---- OVERVIEW ----
+  if (!is.null(yaml_data$overview)) {
+    check_type(yaml_data$overview, "string", "overview")
+  }
+
+  # ---- BEST_PRACTICES ----
+  if (!is.null(yaml_data$best_practices)) {
+    if (!is.list(yaml_data$best_practices)) {
+      add_error("best_practices", "Must be a list")
+    } else {
+      for (i in seq_along(yaml_data$best_practices)) {
+        bp <- yaml_data$best_practices[[i]]
+        path_prefix <- sprintf("best_practices[%d]", i)
+
+        if (!is.list(bp)) {
+          add_error(path_prefix, "Each best_practices entry must be a list")
+          next
+        }
+
+        check_type(bp$title, "string", sprintf("%s.title", path_prefix), required = TRUE)
+        check_type(bp$do, "string", sprintf("%s.do", path_prefix), required = TRUE)
+        check_type(bp$dont, "string", sprintf("%s.dont", path_prefix), required = TRUE)
+
+        # Check for unknown fields
+        known_bp_fields <- c("title", "do", "dont")
+        unknown_bp <- setdiff(names(bp), known_bp_fields)
+        if (length(unknown_bp) > 0) {
+          add_error(path_prefix, sprintf("Unknown field(s): %s", paste(unknown_bp, collapse = ", ")))
+        }
+      }
+    }
+  }
+
+  # ---- WARNINGS ----
+  if (!is.null(yaml_data$warnings)) {
+    check_type(yaml_data$warnings, "character", "warnings")
+  }
+
+  # ---- JOBS ----
+  if (!is.null(yaml_data$jobs)) {
+    if (!check_type(yaml_data$jobs, "named_list", "jobs")) {
+      # Skip job validation if not a named list
+    } else {
+      for (job_name in names(yaml_data$jobs)) {
+        job <- yaml_data$jobs[[job_name]]
+        job_path <- sprintf("jobs.%s", job_name)
+
+        if (!is.list(job)) {
+          add_error(job_path, "Job must be a list")
+          next
+        }
+
+        # Job fields
+        if (!is.null(job$name)) {
+          check_type(job$name, "string", sprintf("%s.name", job_path))
+        }
+        if (!is.null(job$description)) {
+          check_type(job$description, "string", sprintf("%s.description", job_path))
+        }
+        if (!is.null(job[["if"]])) {
+          check_type(job[["if"]], "string", sprintf("%s.if", job_path))
+        }
+
+        # Strategy
+        if (!is.null(job$strategy)) {
+          strat_path <- sprintf("%s.strategy", job_path)
+          if (!check_type(job$strategy, "list", strat_path)) {
+            # Skip
+          } else {
+            if (!is.null(job$strategy$parallel)) {
+              check_type(job$strategy$parallel, "logical", sprintf("%s.parallel", strat_path))
+            }
+            if (!is.null(job$strategy$max_concurrent)) {
+              check_type(job$strategy$max_concurrent, "integer", sprintf("%s.max_concurrent", strat_path))
+            }
+
+            known_strat_fields <- c("parallel", "max_concurrent")
+            unknown_strat <- setdiff(names(job$strategy), known_strat_fields)
+            if (length(unknown_strat) > 0) {
+              add_error(strat_path, sprintf("Unknown field(s): %s", paste(unknown_strat, collapse = ", ")))
+            }
+          }
+        }
+
+        # Steps
+        if (!is.null(job$steps)) {
+          if (!is.list(job$steps)) {
+            add_error(sprintf("%s.steps", job_path), "Must be a list")
+          } else {
+            for (si in seq_along(job$steps)) {
+              step <- job$steps[[si]]
+              step_path <- sprintf("%s.steps[%d]", job_path, si)
+
+              if (!is.list(step)) {
+                add_error(step_path, "Step must be a list")
+                next
+              }
+
+              # Must have either tool or action
+              has_tool <- !is.null(step$tool)
+              has_action <- !is.null(step$action)
+
+              if (!has_tool && !has_action) {
+                add_error(step_path, "Step must have either 'tool' or 'action'")
+              }
+
+              if (has_tool) {
+                check_type(step$tool, "string", sprintf("%s.tool", step_path))
+              }
+              if (has_action) {
+                check_type(step$action, "string", sprintf("%s.action", step_path))
+              }
+              if (!is.null(step$name)) {
+                check_type(step$name, "string", sprintf("%s.name", step_path))
+              }
+              if (!is.null(step$description)) {
+                check_type(step$description, "string", sprintf("%s.description", step_path))
+              }
+              if (!is.null(step$dangerous)) {
+                check_type(step$dangerous, "logical", sprintf("%s.dangerous", step_path))
+              }
+              if (!is.null(step$requires_approval)) {
+                check_type(step$requires_approval, "logical", sprintf("%s.requires_approval", step_path))
+              }
+
+              # with
+              if (!is.null(step$with)) {
+                check_type(step$with, "named_list", sprintf("%s.with", step_path))
+              }
+
+              # loop
+              if (!is.null(step$loop)) {
+                loop_path <- sprintf("%s.loop", step_path)
+                if (!check_type(step$loop, "list", loop_path)) {
+                  # Skip
+                } else {
+                  if (!is.null(step$loop$over)) {
+                    check_type(step$loop$over, "string", sprintf("%s.over", loop_path))
+                  }
+                  if (!is.null(step$loop$item)) {
+                    check_type(step$loop$item, "string", sprintf("%s.item", loop_path))
+                  }
+                  if (!is.null(step$loop$until)) {
+                    check_type(step$loop$until, "string", sprintf("%s.until", loop_path))
+                  }
+                  if (!is.null(step$loop$interval)) {
+                    check_type(step$loop$interval, "string", sprintf("%s.interval", loop_path))
+                  }
+
+                  known_loop_fields <- c("over", "item", "until", "interval")
+                  unknown_loop <- setdiff(names(step$loop), known_loop_fields)
+                  if (length(unknown_loop) > 0) {
+                    add_error(loop_path, sprintf("Unknown field(s): %s", paste(unknown_loop, collapse = ", ")))
+                  }
+                }
+              }
+
+              # validation
+              if (!is.null(step$validation)) {
+                val_path <- sprintf("%s.validation", step_path)
+                if (!check_type(step$validation, "list", val_path)) {
+                  # Skip
+                } else {
+                  if (!is.null(step$validation$check)) {
+                    check_type(step$validation$check, "string", sprintf("%s.check", val_path))
+                  }
+                  if (!is.null(step$validation$on_fail)) {
+                    check_type(step$validation$on_fail, "string", sprintf("%s.on_fail", val_path))
+                  }
+
+                  known_val_fields <- c("check", "on_fail")
+                  unknown_val <- setdiff(names(step$validation), known_val_fields)
+                  if (length(unknown_val) > 0) {
+                    add_error(val_path, sprintf("Unknown field(s): %s", paste(unknown_val, collapse = ", ")))
+                  }
+                }
+              }
+
+              # Check for unknown step fields
+              known_step_fields <- c("name", "tool", "action", "description", "with",
+                                     "loop", "validation", "dangerous", "requires_approval")
+              unknown_step <- setdiff(names(step), known_step_fields)
+              if (length(unknown_step) > 0) {
+                add_error(step_path, sprintf("Unknown field(s): %s", paste(unknown_step, collapse = ", ")))
+              }
+            }
+          }
+        }
+
+        # Check for unknown job fields
+        known_job_fields <- c("name", "description", "if", "strategy", "steps")
+        unknown_job <- setdiff(names(job), known_job_fields)
+        if (length(unknown_job) > 0) {
+          add_error(job_path, sprintf("Unknown field(s): %s", paste(unknown_job, collapse = ", ")))
+        }
+      }
+    }
+  }
+
+  # ---- EXAMPLES ----
+  if (!is.null(yaml_data$examples)) {
+    if (!is.list(yaml_data$examples)) {
+      add_error("examples", "Must be a list")
+    } else {
+      for (i in seq_along(yaml_data$examples)) {
+        ex <- yaml_data$examples[[i]]
+        ex_path <- sprintf("examples[%d]", i)
+
+        if (!is.list(ex)) {
+          add_error(ex_path, "Each example must be a list")
+          next
+        }
+
+        check_type(ex$trigger, "string", sprintf("%s.trigger", ex_path), required = TRUE)
+
+        if (is.null(ex$flow)) {
+          add_error(sprintf("%s.flow", ex_path), "Required field is missing")
+        } else if (!is.list(ex$flow)) {
+          add_error(sprintf("%s.flow", ex_path), "Must be a list")
+        } else {
+          for (fi in seq_along(ex$flow)) {
+            fl <- ex$flow[[fi]]
+            fl_path <- sprintf("%s.flow[%d]", ex_path, fi)
+
+            if (!is.list(fl)) {
+              add_error(fl_path, "Each flow entry must be a list")
+              next
+            }
+
+            # Must have either tool or action
+            has_tool <- !is.null(fl$tool)
+            has_action <- !is.null(fl$action)
+
+            if (!has_tool && !has_action) {
+              add_error(fl_path, "Flow entry must have either 'tool' or 'action'")
+            }
+
+            if (has_tool) {
+              check_type(fl$tool, "string", sprintf("%s.tool", fl_path))
+            }
+            if (has_action) {
+              check_type(fl$action, "string", sprintf("%s.action", fl_path))
+            }
+            if (!is.null(fl$says)) {
+              check_type(fl$says, "string", sprintf("%s.says", fl_path))
+            }
+            if (!is.null(fl$with)) {
+              check_type(fl$with, "named_list", sprintf("%s.with", fl_path))
+            }
+
+            known_flow_fields <- c("tool", "action", "says", "with")
+            unknown_flow <- setdiff(names(fl), known_flow_fields)
+            if (length(unknown_flow) > 0) {
+              add_error(fl_path, sprintf("Unknown field(s): %s", paste(unknown_flow, collapse = ", ")))
+            }
+          }
+        }
+
+        known_ex_fields <- c("trigger", "flow")
+        unknown_ex <- setdiff(names(ex), known_ex_fields)
+        if (length(unknown_ex) > 0) {
+          add_error(ex_path, sprintf("Unknown field(s): %s", paste(unknown_ex, collapse = ", ")))
+        }
+      }
+    }
+  }
+
+  # ---- SETTINGS ----
+  if (!is.null(yaml_data$settings)) {
+    if (!check_type(yaml_data$settings, "list", "settings")) {
+      # Skip
+    } else {
+      if (!is.null(yaml_data$settings$dangerous)) {
+        check_type(yaml_data$settings$dangerous, "logical", "settings.dangerous")
+      }
+      if (!is.null(yaml_data$settings$requires_approval)) {
+        check_type(yaml_data$settings$requires_approval, "logical", "settings.requires_approval")
+      }
+      if (!is.null(yaml_data$settings$estimated_duration)) {
+        check_type(yaml_data$settings$estimated_duration, "string", "settings.estimated_duration")
+      }
+
+      known_settings_fields <- c("dangerous", "requires_approval", "estimated_duration")
+      unknown_settings <- setdiff(names(yaml_data$settings), known_settings_fields)
+      if (length(unknown_settings) > 0) {
+        add_error("settings", sprintf("Unknown field(s): %s", paste(unknown_settings, collapse = ", ")))
+      }
+    }
+  }
+
+  # ---- CHECK FOR UNKNOWN TOP-LEVEL FIELDS ----
+  known_top_fields <- c("name", "description", "version", "category", "tags",
+                        "mcp_tools", "tool_guide", "overview", "best_practices",
+                        "warnings", "jobs", "examples", "settings")
+  unknown_top <- setdiff(names(yaml_data), known_top_fields)
+  if (length(unknown_top) > 0) {
+    add_error("ROOT", sprintf("Unknown top-level field(s): %s", paste(unknown_top, collapse = ", ")))
+  }
+
+  list(
+    valid = length(errors) == 0,
+    errors = errors,
+    warnings = warnings
+  )
+}
+
+
+#' List RAVE MCP workflow names
 #'
 #' @description Lists all available MCP workflow names from a package or
 #' directory. Returns workflow names with source information (path and
@@ -9,12 +474,14 @@
 #'
 #' @param pkg Character. Package name. If missing, must specify path directly
 #' @param path Character. Path to workflows directory.
-#'   Default is system.file("mcp", "workflows", package = pkg)
+#'   Default is \code{system.file("mcp", "workflows", package = pkg)}
 #'
-#' @return Character vector of workflow names with attribute "source_from"
-#'   containing a list with "path" and "pkg" (if applicable)
+#' @return Character vector of workflow names with attribute \code{"source_from"}
+#'   containing a list with \code{"path"} and \code{"pkg"} (if applicable)
 #'
 #' @examples
+#'
+#'
 #' # List workflows from package
 #' workflows <- mcpflow_list("ravepipeline")
 #'
@@ -87,19 +554,19 @@ mcpflow_list <- function(pkg, path = system.file("mcp", "workflows", package = p
   workflow_names
 }
 
-#' Read RAVE MCP Workflow
+#' Read RAVE MCP workflow
 #'
 #' @description Reads and parses a single MCP workflow from various sources.
 #'
-#' @param x Source specification: character path, "package::name",
+#' @param x Source specification: character path, \code{"package::name"},
 #'   package namespace (environment), or workflow object
 #' @param tools Logical. Whether to load referenced MCP tools. Default is TRUE
-#' @param work_dir Character. Base directory containing tools/ subdirectory for
-#'   loading local tools. Default is "." (current directory). For file paths,
-#'   if NULL, infers from the workflow file location.
+#' @param tools_dir Character. Base directory containing `tools/` directory
+#'  for loading local tools. Default is NULL, which infers from the workflow
+#'  file location or falls back to "./tools".
 #' @param ... Additional arguments passed to methods
 #'
-#' @return A workflow object with class "ravepipeline_mcp_workflow"
+#' @return A workflow object with class \code{"ravepipeline_mcp_workflow"}
 #'
 #' @examples
 #' # Read from package
@@ -257,47 +724,43 @@ mcpflow_read.ravepipeline_mcp_workflow <- function(x, tools = TRUE, tools_dir = 
 }
 
 
-#' Write RAVE MCP Workflow to File
+#' Write RAVE MCP workflow to a file
 #'
-#' @description Writes a workflow object to YAML and/or Markdown format.
+#' @description Writes a workflow object to `YAML` and/or `Markdown` format.
 #'
-#' @param workflow A ravepipeline_mcp_workflow object
+#' @param workflow A \code{'ravepipeline_mcp_workflow'} object
 #' @param path Character. Output file path. File extension determines format
-#'   (.yaml for YAML, .md for Markdown). If no extension, writes both formats
-#' @param method Character. Output format: "yaml" (default), "markdown", or "both"
+#'   (`.yaml` for `YAML`, `.md` for `Markdown`). If no extension, writes both
+#'   formats
+#' @param method Character. Output format: \code{"yaml"} (default),
+#'   \code{"markdown"}, or \code{"both"}
 #' @param ... Additional arguments (currently unused)
 #'
-#' @return Invisibly returns the path(s) to written file(s)
+#' @return Invisibly returns the path to written file
 #'
 #' @examples
+#'
+#' # Read from a package
+#' mcpflow_read("ravepipeline::rave_pipeline_class_guide")
+#'
 #' # Read a workflow
 #' path <- system.file(
 #'   "mcp", "workflows", "rave_pipeline_class_guide.yaml",
 #'   package = "ravepipeline"
 #' )
+#'
+#'
 #' wf <- mcpflow_read(path)
 #'
 #' # Write as YAML to temporary file
-#' yaml_file <- tempfile(fileext = ".yaml")
-#' mcpflow_write(wf, yaml_file, method = "yaml")
-#' cat(readLines(yaml_file), sep = "\n")
+#' mcpflow_write(wf, stdout(), method = "yaml")
 #'
 #' # Write as Markdown to temporary file
-#' md_file <- tempfile(fileext = ".md")
-#' mcpflow_write(wf, md_file, method = "markdown")
-#' cat(readLines(md_file), sep = "\n")
-#'
-#' # clean up
-#' unlink(yaml_file)
-#' unlink(md_file)
+#' mcpflow_write(wf, stdout(), method = "markdown")
 #'
 #' @export
 mcpflow_write <- function(workflow, path,
                           method = c("auto", "yaml", "markdown", "both"), ...) {
-
-  if (!is.character(path) || length(path) != 1 || !nzchar(path)) {
-    stop("path must be a non-empty character string")
-  }
 
   workflow <- mcpflow_read(workflow, tools = FALSE)
   # Validate workflow first
@@ -312,22 +775,32 @@ mcpflow_write <- function(workflow, path,
   method <- match.arg(method)
 
   # Determine output format from file extension if method not explicitly both
-  if (method == "auto") {
-    ext <- tolower(tools::file_ext(path))
-    if (ext == "yaml" || ext == "yml") {
-      method <- "yaml"
-    } else if (ext == "md" || ext == "markdown") {
-      method <- "markdown"
-    } else {
-      method <- "both"
+  if(!inherits(path, "connection")) {
+    if (method == "auto") {
+      ext <- tolower(tools::file_ext(path))
+      if (ext == "yaml" || ext == "yml") {
+        method <- "yaml"
+      } else if (ext == "md" || ext == "markdown") {
+        method <- "markdown"
+      } else {
+        method <- "both"
+      }
     }
-  }
-  path <- tools::file_path_sans_ext(path)
-  yaml_path <- sprintf("%s.yaml", path)
-  md_path <- sprintf("%s.md", path)
 
-  # Create parent directory if needed
-  parent_dir <- dir_create2(dirname(path))
+    path <- tools::file_path_sans_ext(path)
+    yaml_path <- sprintf("%s.yaml", path)
+    md_path <- sprintf("%s.md", path)
+
+    # Create parent directory if needed
+    dir_create2(dirname(path))
+
+  } else {
+    if(method %in% c("auto", "both")) {
+      method <- "yaml"
+    }
+    yaml_path <- path
+    md_path <- path
+  }
 
   written_files <- list()
 
@@ -336,7 +809,7 @@ mcpflow_write <- function(workflow, path,
     # Remove S3 class before writing
     workflow_copy <- unclass(workflow)
 
-    yaml::write_yaml(workflow_copy, yaml_path)
+    save_yaml(workflow_copy, yaml_path)
     written_files$yaml <- yaml_path
   }
 
@@ -350,11 +823,11 @@ mcpflow_write <- function(workflow, path,
   invisible(written_files)
 }
 
-#' Validate RAVE MCP Workflow
+#' Validate RAVE MCP workflow
 #'
 #' @description Validates a workflow object for required fields and structure.
 #'
-#' @param workflow A ravepipeline_mcp_workflow object or list
+#' @param workflow A RAVE workflow object or list
 #' @param available_tools Character vector of available tool names.
 #'   If NULL, skips tool reference validation
 #'
@@ -363,7 +836,12 @@ mcpflow_write <- function(workflow, path,
 #'   \item{errors}{Character vector of error messages (empty if valid)}
 #'   \item{warnings}{Character vector of warning messages}
 #'
+#' @param strict Logical. If \code{TRUE}, perform full YAML schema validation
+#'   via \code{mcpflow_validate_yaml}. Default is \code{FALSE} for lightweight
+#'   validation of essential fields only.
+#'
 #' @examples
+#'
 #' # Read a workflow
 #' path <- system.file(
 #'   "mcp", "workflows", "rave_pipeline_class_guide.yaml",
@@ -371,12 +849,22 @@ mcpflow_write <- function(workflow, path,
 #' )
 #' wf <- mcpflow_read(path)
 #'
-#' # Validate
+#' # Validate (lightweight)
 #' result <- mcpflow_validate(wf)
 #' result$valid
 #'
+#' # Validate (strict schema validation)
+#' result <- mcpflow_validate(wf, strict = TRUE)
+#' result$valid
+#'
 #' @export
-mcpflow_validate <- function(workflow, available_tools = NULL) {
+mcpflow_validate <- function(workflow, available_tools = NULL, strict = FALSE) {
+
+  # If strict mode, delegate to full YAML schema validation
+  if (isTRUE(strict)) {
+    return(mcpflow_validate_yaml(workflow))
+  }
+
   errors <- character(0)
   warnings <- character(0)
 
@@ -438,6 +926,40 @@ mcpflow_validate <- function(workflow, available_tools = NULL) {
     }
   }
 
+  # Validate tool_guide references
+  if (!is.null(workflow$tool_guide) && is.list(workflow$tool_guide)) {
+    for (i in seq_along(workflow$tool_guide)) {
+      tg <- workflow$tool_guide[[i]]
+      if (!is.null(tg$tool) && is.character(tg$tool)) {
+        if (!is.null(available_tools) && !tg$tool %in% available_tools) {
+          warnings <- c(warnings, paste0(
+            "tool_guide[", i, "] references unknown tool: '", tg$tool, "'"
+          ))
+        }
+      }
+    }
+  }
+
+  # Validate examples flow references
+  if (!is.null(workflow$examples) && is.list(workflow$examples)) {
+    for (i in seq_along(workflow$examples)) {
+      ex <- workflow$examples[[i]]
+      if (!is.null(ex$flow) && is.list(ex$flow)) {
+        for (j in seq_along(ex$flow)) {
+          fl <- ex$flow[[j]]
+          if (!is.null(fl$tool) && is.character(fl$tool)) {
+            if (!is.null(available_tools) && !fl$tool %in% available_tools) {
+              warnings <- c(warnings, paste0(
+                "examples[", i, "].flow[", j,
+                "] references unknown tool: '", fl$tool, "'"
+              ))
+            }
+          }
+        }
+      }
+    }
+  }
+
   list(
     valid = length(errors) == 0,
     errors = errors,
@@ -445,19 +967,21 @@ mcpflow_validate <- function(workflow, available_tools = NULL) {
   )
 }
 
-#' Find Path to RAVE MCP Workflow
+#' Find path to RAVE MCP workflow
 #'
-#' @description Extracts the file path for a workflow by name from mcpflow_list results.
+#' @description Extracts the file path for a workflow by name from
+#'  \code{mcpflow_list} results.
 #'
 #' @param workflow_name Character. Workflow name to find
 #' @param pkg Character. Package name. If NULL, uses path parameter
 #' @param path Character. Path to workflows directory.
-#'   If NULL and pkg is provided, uses system.file("mcp", "workflows", package = pkg)
+#'  If \code{pkg} is provided, uses `mcp/workflows` under the package folder
 #'
 #' @return Character string with the path to the workflow YAML file.
 #'   Throws an error if workflow not found.
 #'
 #' @examples
+#'
 #' # Find workflow path from package
 #' wf_path <- mcpflow_path("rave_pipeline_class_guide", pkg = "ravepipeline")
 #' wf_path
@@ -494,18 +1018,19 @@ mcpflow_path <- function(workflow_name, pkg, path = system.file("mcp", "workflow
 }
 
 
-#' Load RAVE MCP Workflows
+#' Load RAVE MCP workflows
 #'
-#' @description Loads workflow YAML files from a package's MCP workflows directory
-#' and returns them as S3 objects with class "ravepipeline_mcp_workflow".
+#' @description Loads workflow `YAML` files from a package's MCP workflows
+#'  directory and returns them as `S3` objects with class
+#'  \code{"ravepipeline_mcp_workflow"}.
 #'
 #' @param pkg Character string. Package name to load workflows from.
 #'   Example values: \code{"ravepipeline"}
 #' @param path Character string. Optional path to workflows directory.
-#'   If provided, loads from this path instead of package mcp/workflows.
+#'   If provided, loads from this path instead of package `mcp/workflows`
+#'   directory.
 #'
-#' @return A named list of workflow objects, each with class
-#'   c("ravepipeline_mcp_workflow", "list"). Returns empty list if no
+#' @return A structured named list of workflow objects, or an empty list if no
 #'   workflows found.
 #'
 #' @examples
@@ -554,27 +1079,32 @@ mcpflow_load_all <- function(pkg, path = system.file("mcp", package = pkg)) {
 }
 
 
-#' Export RAVE MCP Workflows
+#' Export RAVE MCP workflows
 #'
-#' @description Saves workflow objects to YAML and/or Markdown format.
-#' Optionally exports associated MCP tools to the same directory.
-#' Workflows are saved to output_dir/workflows/ and tools to output_dir/tools/.
+#' @description Saves workflow objects to `YAML` and/or `Markdown` format.
+#'    Optionally exports associated MCP tools to the same directory.
+#'    Workflows are saved to `output_dir/workflows/` and tools to
+#'    `output_dir/tools/`.
 #'
-#' @param workflows Either a "ravepipeline_mcp_workflow" object, a list of
-#'   "ravepipeline_mcp_workflow" objects, or a character string path to a workflow YAML file
+#' @param workflows Either a \code{"ravepipeline_mcp_workflow"} object, a list
+#'   of \code{"ravepipeline_mcp_workflow"} objects, or a character string path
+#'   to a workflow `YAML` file
 #' @param output_dir Character string, base directory to save output files.
-#'   If NULL (default), uses the parent directory of the input file's folder (when workflows is a path)
-#'   or current working directory (when workflows is an object).
-#'   Workflows are saved to output_dir/workflows/, tools to output_dir/tools/
-#' @param format Character string, output format. Options: "markdown" (default),
-#'   "yaml", "both"
-#' @param save_tools Logical, whether to save referenced MCP tools to output_dir/tools/.
-#'   Default is TRUE
-#' @param verbose Logical, whether to print progress messages. Default is TRUE
+#'   If \code{NULL} (default), uses the parent directory of the input file's
+#'   folder (when workflows is a path) or current working directory
+#'   (when workflows is an object). Workflows are saved to
+#'   `output_dir/workflows/`, tools to `output_dir/tools/`
+#' @param format Character string, output format. Options:
+#'   \code{"markdown"} (default), \code{"yaml"}, \code{"both"}
+#' @param save_tools Logical, whether to save referenced MCP tools to
+#'   `output_dir/tools/`; default is \code{TRUE}
+#' @param verbose Logical, whether to print progress messages;
+#'   default is \code{TRUE}
 #'
 #' @return Invisibly returns a character vector of paths to written files
 #'
 #' @examples
+#'
 #' # Load workflows from package and export to temp directory
 #' workflows <- mcpflow_load_all("ravepipeline")
 #'
@@ -655,16 +1185,16 @@ mcpflow_export <- function(
 
 
 
-#' Extract Tool Names from Workflows
+#' Extract tool names from workflows
 #'
-#' @description Recursively extracts all tool names referenced in workflow jobs and sections.
-#' Supports both single workflow objects and lists of workflows.
+#' @description Recursively extracts all tool names referenced in workflow jobs
+#'  and sections. Supports both single workflow objects and lists of workflows.
 #'
-#' @param workflows A single workflow object (class "ravepipeline_mcp_workflow") or
-#'   a list of workflow objects
+#' @param workflows A single workflow object or a list of workflow objects
 #' @return Character vector of unique tool names
 #'
 #' @examples
+#'
 #' # Extract tools from a single workflow
 #' wf <- mcpflow_read("ravepipeline::rave_pipeline_class_guide")
 #' tools <- mcpflow_tool_names(wf)
@@ -672,6 +1202,7 @@ mcpflow_export <- function(
 #' # Extract tools from multiple workflows
 #' workflows <- mcpflow_load_all("ravepipeline")
 #' all_tools <- mcpflow_tool_names(workflows)
+#'
 #' @export
 mcpflow_tool_names <- function(workflows) {
 
@@ -705,19 +1236,27 @@ mcpflow_tool_names <- function(workflows) {
       tools <- c(tools, find_tools_recursive(workflow$jobs))
     }
 
-    # Extract from sections
-    if (!is.null(workflow$sections)) {
-      tools <- c(tools, find_tools_recursive(workflow$sections))
+    # Extract from tool_guide
+    if (!is.null(workflow$tool_guide) && is.list(workflow$tool_guide)) {
+      for (tg in workflow$tool_guide) {
+        if (!is.null(tg$tool) && is.character(tg$tool)) {
+          tools <- c(tools, tg$tool)
+        }
+      }
+    }
+
+    # Extract from examples (flow entries may have tool field)
+    if (!is.null(workflow$examples) && is.list(workflow$examples)) {
+      tools <- c(tools, find_tools_recursive(workflow$examples))
     }
 
     tools
   }
 
   # Helper to check if an object looks like a single workflow
-  # (has jobs or sections field, which are workflow-specific)
   is_single_workflow <- function(x) {
     inherits(x, "ravepipeline_mcp_workflow") ||
-      (is.list(x) && !is.null(x$name) && (!is.null(x$jobs) || !is.null(x$sections)))
+      (is.list(x) && !is.null(x$name) && !is.null(x$jobs))
   }
 
   # Detect if workflows is a single workflow or a list of workflows
@@ -743,6 +1282,14 @@ mcpflow_tool_names <- function(workflows) {
 
 #' Load Tools for Workflow
 #'
+#' @description Loads and returns the MCP tools referenced by a workflow.
+#'
+#' @param workflow A workflow object
+#' @param tools_dir Character. Base directory containing `tools/` subdirectory.
+#'   Default is \code{NULL}, which uses the \code{'source_tools_dir'}
+#'   attribute from the workflow or falls back to \code{"./tools"}.
+#'
+#' @return A named list of tool definitions
 #'
 #' @export
 mcpflow_tools <- function(workflow, tools_dir = NULL) {
@@ -779,9 +1326,9 @@ mcpflow_tools <- function(workflow, tools_dir = NULL) {
 
 #' Convert Workflow to Markdown
 #'
-#' @description Converts a workflow YAML object to formatted Markdown
+#' @description Converts a workflow `YAML` object to formatted `Markdown`
 #'
-#' @param workflow A ravepipeline_mcp_workflow object
+#' @param workflow A MCP workflow object
 #'
 #' @return Character vector of markdown lines
 #'
@@ -845,41 +1392,44 @@ convert_workflow_to_markdown <- function(workflow) {
     lines <- c(lines, "")
   }
 
-  # Sections (main content)
-  if (!is.null(workflow$sections) && is.list(workflow$sections)) {
-    for (section in workflow$sections) {
-      if (!is.null(section$title)) {
-        lines <- c(lines, paste0("## ", section$title))
+  # Overview
+  if (!is.null(workflow$overview) && nzchar(workflow$overview)) {
+    lines <- c(lines, "## Overview")
+    lines <- c(lines, "")
+    lines <- c(lines, workflow$overview)
+    lines <- c(lines, "")
+  }
+
+  # Tool Guide
+  if (!is.null(workflow$tool_guide) && is.list(workflow$tool_guide)) {
+    lines <- c(lines, "## Tool Guide")
+    lines <- c(lines, "")
+    for (tg in workflow$tool_guide) {
+      if (!is.null(tg$tool)) {
+        lines <- c(lines, paste0("### `", tg$tool, "`"))
         lines <- c(lines, "")
-      }
-
-      if (!is.null(section$content)) {
-        if (is.character(section$content)) {
-          lines <- c(lines, section$content)
-          lines <- c(lines, "")
-        } else if (is.list(section$content)) {
-          # Handle structured content
-          for (item in section$content) {
-            if (is.character(item)) {
-              lines <- c(lines, item)
-            }
-          }
-          lines <- c(lines, "")
+        if (!is.null(tg$category)) {
+          lines <- c(lines, paste0("**Category**: ", tg$category))
         }
-      }
-
-      # Workflows within sections
-      if (!is.null(section$workflows) && is.list(section$workflows)) {
-        for (wf in section$workflows) {
-          if (!is.null(wf$name)) {
-            lines <- c(lines, paste0("### ", wf$name))
-            lines <- c(lines, "")
-          }
-          if (!is.null(wf$description)) {
-            lines <- c(lines, wf$description)
-            lines <- c(lines, "")
+        if (!is.null(tg$when)) {
+          lines <- c(lines, paste0("**When to use**: ", tg$when))
+        }
+        if (!is.null(tg$notes)) {
+          lines <- c(lines, paste0("**Notes**: ", tg$notes))
+        }
+        if (isTRUE(tg$dangerous)) {
+          lines <- c(lines, "**WARNING**: This tool is dangerous")
+        }
+        if (isTRUE(tg$requires_approval)) {
+          lines <- c(lines, "**Requires approval** before use")
+        }
+        if (!is.null(tg$preconditions) && length(tg$preconditions) > 0) {
+          lines <- c(lines, "**Preconditions**:")
+          for (pre in tg$preconditions) {
+            lines <- c(lines, paste0("  - ", pre))
           }
         }
+        lines <- c(lines, "")
       }
     }
   }
@@ -946,6 +1496,9 @@ convert_workflow_to_markdown <- function(workflow) {
           if (!is.null(step$tool)) {
             lines <- c(lines, paste0("   - Tool: `", step$tool, "`"))
           }
+          if (!is.null(step$action)) {
+            lines <- c(lines, paste0("   - Action: ", step$action))
+          }
           if (!is.null(step$description)) {
             lines <- c(lines, paste0("   - ", step$description))
           }
@@ -974,6 +1527,9 @@ convert_workflow_to_markdown <- function(workflow) {
             if (!is.null(step$loop$until)) {
               loop_desc <- c(loop_desc, paste0("until `", step$loop$until, "`"))
             }
+            if (!is.null(step$loop$interval)) {
+              loop_desc <- c(loop_desc, paste0("every ", step$loop$interval))
+            }
             if (length(loop_desc) > 0) {
               lines <- c(lines, paste0("   - Loop: ", paste(loop_desc, collapse = " ")))
             }
@@ -992,7 +1548,14 @@ convert_workflow_to_markdown <- function(workflow) {
           if (!is.null(step$with) && is.list(step$with)) {
             lines <- c(lines, "   - Parameters:")
             for (param_name in names(step$with)) {
-              lines <- c(lines, paste0("     - `", param_name, "`: ", step$with[[param_name]]))
+              param_val <- step$with[[param_name]]
+              # Format arrays/lists as JSON-like
+              if (is.list(param_val) || length(param_val) > 1) {
+                param_str <- paste0("[", paste0('"', param_val, '"', collapse = ", "), "]")
+              } else {
+                param_str <- as.character(param_val)
+              }
+              lines <- c(lines, paste0("     - `", param_name, "`: ", param_str))
             }
           }
         }
@@ -1012,13 +1575,28 @@ convert_workflow_to_markdown <- function(workflow) {
       lines <- c(lines, paste0("### Example ", i))
       lines <- c(lines, "")
 
-      if (!is.null(example$user_query)) {
-        lines <- c(lines, paste0("**User Query**: ", example$user_query))
+      # New schema: trigger/flow format
+      if (!is.null(example$trigger)) {
+        lines <- c(lines, paste0("**Trigger**: ", example$trigger))
         lines <- c(lines, "")
       }
 
-      if (!is.null(example$expected_flow)) {
-        lines <- c(lines, paste0("**Expected Flow**: ", example$expected_flow))
+      if (!is.null(example$flow) && is.list(example$flow)) {
+        lines <- c(lines, "**Flow**:")
+        lines <- c(lines, "")
+        for (j in seq_along(example$flow)) {
+          fl <- example$flow[[j]]
+          step_desc <- ""
+          if (!is.null(fl$tool)) {
+            step_desc <- paste0("Tool: `", fl$tool, "`")
+          } else if (!is.null(fl$action)) {
+            step_desc <- paste0("Action: ", fl$action)
+          }
+          if (!is.null(fl$says) && nzchar(fl$says)) {
+            step_desc <- paste0(step_desc, " - ", fl$says)
+          }
+          lines <- c(lines, paste0(j, ". ", step_desc))
+        }
         lines <- c(lines, "")
       }
     }
@@ -1039,103 +1617,111 @@ convert_workflow_to_markdown <- function(workflow) {
     lines <- c(lines, "## Best Practices")
     lines <- c(lines, "")
     for (bp in workflow$best_practices) {
-      if (is.character(bp)) {
-        lines <- c(lines, paste0("- ", bp))
-      } else if (is.list(bp)) {
+      if (is.list(bp)) {
         if (!is.null(bp$title)) {
           lines <- c(lines, paste0("### ", bp$title))
           lines <- c(lines, "")
         }
-        if (!is.null(bp$content)) {
-          lines <- c(lines, bp$content)
+        if (!is.null(bp$do)) {
+          lines <- c(lines, "**Do**:")
+          lines <- c(lines, "")
+          lines <- c(lines, bp$do)
+          lines <- c(lines, "")
+        }
+        if (!is.null(bp$dont)) {
+          lines <- c(lines, "**Don't**:")
+          lines <- c(lines, "")
+          lines <- c(lines, bp$dont)
           lines <- c(lines, "")
         }
       }
     }
-    lines <- c(lines, "")
   }
 
   lines
 }
 
 
-#' Print Method for RAVE MCP Workflows
-#'
-#' @param x A ravepipeline_mcp_workflow object
-#' @param ... Additional arguments (ignored)
-#'
-#' @return Invisibly returns x
-#'
 #' @export
 print.ravepipeline_mcp_workflow <- function(x, ...) {
-  cat("RAVE MCP Workflow:", x$name %||% "<unnamed>", "\n")
+  wf_name <- x$name %||% "unnamed"
+  cat("RAVE MCP Workflow: <", wf_name, ">\n", sep = "")
+
+  # Helper for truncating text
+  truncate_text <- function(text, prefix_len = 0) {
+    if (is.null(text) || !nzchar(text)) return(NULL)
+    max_width <- getOption("width", 80L) - prefix_len - 4L
+    # -4 for " ..." suffix
+    text <- gsub("[\r\n]+", " ", text)  # collapse newlines
+    if (nchar(text) > max_width) {
+      text <- paste0(substr(text, 1, max_width), " ...")
+    }
+    text
+  }
 
   if (!is.null(x$description)) {
-    cat("Description:", x$description, "\n")
+    desc <- truncate_text(x$description, prefix_len = 16)
+    # 16 = "  Description: "
+    cat("  Description:", desc, "\n")
   }
 
   if (!is.null(x$version)) {
-    cat("Version:", x$version, "\n")
+    cat("  Version:", x$version, "\n")
   }
 
   if (!is.null(x$category)) {
-    cat("Category:", x$category, "\n")
+    cat("  Category:", x$category, "\n")
   }
 
   # Tools
   if (!is.null(x$mcp_tools) && length(x$mcp_tools) > 0) {
-    cat("MCP Tools:", length(x$mcp_tools), "\n")
+    tools_attached <- !is.null(attr(x, "mcp_tools"))
+    suffix <- if (tools_attached) " (attached)" else ""
+    cat("  MCP Tools: ", length(x$mcp_tools), suffix, "\n", sep = "")
   }
 
   # Jobs
   if (!is.null(x$jobs) && is.list(x$jobs)) {
-    cat("Jobs:", length(x$jobs), "\n")
+    cat("  Jobs:", length(x$jobs), "\n")
   }
 
-  # Sections
-  if (!is.null(x$sections) && is.list(x$sections)) {
-    cat("Sections:", length(x$sections), "\n")
+  # Examples
+  if (!is.null(x$examples) && is.list(x$examples)) {
+    cat("  Examples:", length(x$examples), "\n")
   }
 
   invisible(x)
 }
 
 
-#' Format Method for RAVE MCP Workflows
-#'
-#' @param x A ravepipeline_mcp_workflow object
-#' @param ... Additional arguments (ignored)
-#'
-#' @return Character string representation
-#'
 #' @export
 format.ravepipeline_mcp_workflow <- function(x, ...) {
   paste0("<RAVE MCP Workflow: ", x$name %||% "<unnamed>", ">")
 }
 
 
-#' Create Job Execution Validator for Workflow
+#' Create validation tool for job execution
 #'
 #' @description Creates a callback function that validates tool calls against
-#' workflow job definitions. The validator tracks which jobs have been completed
+#' workflow job definitions. The validation tool tracks which jobs have been completed
 #' and warns (or rejects) when tools are called out of expected order or
 #' when job dependencies are not met.
 #'
-#' @param workflow A \code{ravepipeline_mcp_workflow} object
+#' @param workflow A MCP workflow object
 #' @param strict Logical. If \code{TRUE}, reject out-of-order tool calls via
-#'   \code{ellmer::tool_reject()}. If \code{FALSE} (default), only warn via
-#'   \code{cli::cli_warn()}.
+#'   \code{\link[ellmer]{tool_reject}}. If \code{FALSE} (default), only warn via
+#'   \code{\link[cli]{cli_warn}}.
 #' @param verbose Logical. If \code{TRUE} (default), print progress messages
 #'   when jobs and steps are detected.
 #'
 #' @return A list with two callback functions:
-#'   \item{on_tool_request}{Callback for \code{chat$on_tool_request()}}
-#'   \item{on_tool_result}{Callback for \code{chat$on_tool_result()}}
-#'   \item{state}{An environment containing execution state (for inspection)}
+#'   \item{\code{on_tool_request}}{Callback for \code{chat$on_tool_request()}}
+#'   \item{\code{on_tool_result}}{Callback for \code{chat$on_tool_result()}}
+#'   \item{\code{state}}{An environment containing execution state (for inspection)}
 #'
 #' @details
-#' The validator maintains state about which jobs have been started/completed
-#' based on tool calls observed. It checks:
+#' The validation tool maintains state about which jobs have been
+#' started/completed based on tool calls observed. It checks:
 #' \itemize{
 #'   \item Whether the tool being called matches expected job steps
 #'   \item Whether job dependencies (\code{needs}) are satisfied
@@ -1143,10 +1729,11 @@ format.ravepipeline_mcp_workflow <- function(x, ...) {
 #' }
 #'
 #' @examples
-#' \dontrun{
+#'
 #' wf <- mcpflow_read("ravepipeline::rave_pipeline_class_guide")
 #' validator <- mcpflow_job_validator(wf, strict = FALSE)
 #'
+#' \dontrun{
 #' chat <- ellmer::chat_ollama()
 #' chat$on_tool_request(validator$on_tool_request)
 #' chat$on_tool_result(validator$on_tool_result)
@@ -1327,45 +1914,46 @@ mcpflow_job_validator <- function(workflow, strict = FALSE, verbose = TRUE) {
 }
 
 
-#' Instantiate Workflow as ellmer Chat
+#' Instantiate workflow as a chat
 #'
-#' @description Creates an \code{ellmer} chat object configured with the workflow's
-#' system prompt (derived from workflow content) and all referenced tools registered.
-#' Optionally attaches validation callbacks to track job execution.
+#' @description Creates a chat object configured with the workflow's
+#' system prompt (derived from workflow content) and all referenced tools
+#' registered. Optionally attaches validation callbacks to track job execution.
 #'
-#' @param workflow A \code{ravepipeline_mcp_workflow} object, or a path/identifier
-#'   that can be read via \code{\link{mcpflow_read}}.
-#' @param chat An existing \code{ellmer} chat object to configure. If \code{NULL}
+#' @param workflow A \code{'ravepipeline_mcp_workflow'} object, or a
+#'   path/identifier that can be read via \code{\link{mcpflow_read}}.
+#' @param chat An existing \code{'ellmer'} chat object to configure. If \code{NULL}
 #'   (default), a new chat is created using \code{chat_provider}.
-#' @param chat_provider Character. The chat model to use when creating a new chat.
-#'   One of \code{"ollama"} (default), \code{"openai"}, \code{"claude"},
-#'   \code{"gemini"}, \code{"cortex"}, \code{"azure_openai"}, \code{"bedrock"},
-#'   \code{"databricks"}, \code{"github"}, \code{"groq"}, \code{"perplexity"},
-#'   \code{"snowflake"}, \code{"vllm"}. Only used when \code{chat} is \code{NULL}.
+#' @param chat_provider Character. The chat model to use when creating a
+#'   new chat. One of \code{"ollama"} (default), \code{"openai"},
+#'   \code{"claude"}, \code{"gemini"}, \code{"cortex"}, \code{"azure_openai"},
+#'   \code{"bedrock"}, \code{"databricks"}, \code{"github"}, \code{"groq"},
+#'   \code{"perplexity"}, \code{"snowflake"}, \code{"vllm"}. Only used when
+#'   \code{chat} is \code{NULL}.
 #' @param chat_args A named list of additional arguments passed to the
-#'   \code{ellmer::chat_*} constructor (e.g., \code{model}, \code{api_key},
+#'   \code{'ellmer'} constructor (e.g., \code{model}, \code{api_key},
 #'   \code{base_url}). Only used when \code{chat} is \code{NULL}.
 #' @param on_tool_request Optional callback function for tool request events.
-#'   Passed to \code{chat$on_tool_request()}. Receives a \code{ContentToolRequest}
-#'   object. Can call \code{ellmer::tool_reject(reason)} to prevent execution.
+#'   Passed to \code{chat$on_tool_request()}. Receives a "content tool request"
+#'   object. Can call \code{\link[ellmer]{tool_reject}} to prevent execution.
 #' @param on_tool_result Optional callback function for tool result events.
-#'   Passed to \code{chat$on_tool_result()}. Receives a \code{ContentToolResult}
+#'   Passed to \code{chat$on_tool_result()}. Receives a "content tool result"
 #'   object.
-#' @param use_job_validator Logical. If \code{TRUE}, automatically attach a
-#'   job validator created by \code{\link{mcpflow_job_validator}}. Default is
+#' @param use_job_validator Logical. If \code{TRUE}, automatically validate
+#'   jobs by \code{\link{mcpflow_job_validator}}. Default is
 #'   \code{FALSE}. Ignored if \code{on_tool_request} or \code{on_tool_result}
 #'   are provided.
 #' @param validator_strict Logical. If \code{TRUE} and \code{use_job_validator}
-#'   is \code{TRUE}, the validator will reject out-of-order tool calls. Default
-#'   is \code{FALSE} (advisory warnings only).
+#'   is \code{TRUE}, the validation tool will reject out-of-order tool calls.
+#'   Default is \code{FALSE} (advisory warnings only).
 #' @param validator_verbose Logical. If \code{TRUE} (default) and
 #'   \code{use_job_validator} is \code{TRUE}, print progress messages.
 #' @param ... Additional arguments passed to \code{\link{mcptool_instantiate}}
 #'   for each tool.
 #'
-#' @return An \code{ellmer} chat object with:
+#' @return An \code{'ellmer'} chat object with:
 #'   \itemize{
-#'     \item System prompt set from workflow content (via \code{convert_workflow_to_markdown})
+#'     \item System prompt set from workflow content (via \code{\link{convert_workflow_to_markdown}})
 #'     \item All referenced MCP tools registered
 #'     \item Optional validation callbacks attached
 #'   }
@@ -1383,10 +1971,13 @@ mcpflow_job_validator <- function(workflow, strict = FALSE, verbose = TRUE) {
 #' }
 #'
 #' @examples
-#' \dontrun{
 #' # Load workflow and create chat with Ollama
 #' wf <- mcpflow_read("ravepipeline::rave_pipeline_class_guide")
-#' chat <- mcpflow_instantiate(wf)
+#'
+#' # This example requires connecting to external service providers
+#' \dontrun{
+#' # Ollama (default) might require explicit model
+#' chat <- mcpflow_instantiate(wf, chat_args = list(model = "qwen3:8b"))
 #'
 #' # Create chat with OpenAI and custom model
 #' chat <- mcpflow_instantiate(
@@ -1403,7 +1994,8 @@ mcpflow_job_validator <- function(workflow, strict = FALSE, verbose = TRUE) {
 #' chat <- mcpflow_instantiate(wf, use_job_validator = TRUE)
 #'
 #' # Enable strict job validation
-#' chat <- mcpflow_instantiate(wf, use_job_validator = TRUE, validator_strict = TRUE)
+#' chat <- mcpflow_instantiate(wf, use_job_validator = TRUE,
+#'                             validator_strict = TRUE)
 #'
 #' # Use chat
 #' chat$chat("Help me set up a power analysis pipeline")

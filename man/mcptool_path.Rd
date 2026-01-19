@@ -2,17 +2,17 @@
 % Please edit documentation in R/mcp-tools.R
 \name{mcptool_path}
 \alias{mcptool_path}
-\title{Find Path to a Specific MCP Tool by Name}
+\title{Find path to a specific MCP tool by name}
 \usage{
 mcptool_path(tool_name, tools_dir = "../tools")
 }
 \arguments{
 \item{tool_name}{Character. Tool name in format \code{pkg-function_name}.
-The first hyphen separates package name from function name (function names may contain hyphens).}
+The first hyphen separates package name from function name (function names
+may contain hyphens).}
 
-\item{tools_dir}{Character. Path to root directory for local tools lookup.
-Default is "../tools" (relative to workflows directory).
-If NULL, skips local directory lookup.}
+\item{tools_dir}{Character. Path to root directory for local tools look-up.
+Default is \code{"../tools"} (relative to workflows directory).}
 }
 \value{
 Character string containing the path to the tool YAML file,
@@ -20,16 +20,17 @@ with attribute \code{mcp_definition} containing the parsed tool definition.
 Throws an error if tool not found.
 }
 \description{
-Locates an MCP tool YAML file from either an installed package or a local directory.
-Tool names use \code{pkg-function_name} format where the first hyphen separates the package
-name from the function name. Returns the file path with the tool definition attached
-as an attribute.
+Locates an MCP tool YAML file from either an installed package or a local
+directory. Tool names use \code{pkg-function_name} format where the first hyphen
+separates the package name from the function name. Returns the file path
+with the tool definition attached as an attribute.
 }
 \examples{
 
 # Find tool from package
 tool_path <- mcptool_path("ravepipeline-mcp_list_rave_pipelines")
 attr(tool_path, "mcp_definition")
+
 
 \dontrun{
 

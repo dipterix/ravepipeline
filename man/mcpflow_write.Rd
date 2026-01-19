@@ -2,7 +2,7 @@
 % Please edit documentation in R/mcp-workflows.R
 \name{mcpflow_write}
 \alias{mcpflow_write}
-\title{Write RAVE MCP Workflow to File}
+\title{Write RAVE MCP workflow to a file}
 \usage{
 mcpflow_write(
   workflow,
@@ -12,41 +12,41 @@ mcpflow_write(
 )
 }
 \arguments{
-\item{workflow}{A ravepipeline_mcp_workflow object}
+\item{workflow}{A \code{'ravepipeline_mcp_workflow'} object}
 
 \item{path}{Character. Output file path. File extension determines format
-(.yaml for YAML, .md for Markdown). If no extension, writes both formats}
+(\code{.yaml} for \code{YAML}, \code{.md} for \code{Markdown}). If no extension, writes both
+formats}
 
-\item{method}{Character. Output format: "yaml" (default), "markdown", or "both"}
+\item{method}{Character. Output format: \code{"yaml"} (default),
+\code{"markdown"}, or \code{"both"}}
 
 \item{...}{Additional arguments (currently unused)}
 }
 \value{
-Invisibly returns the path(s) to written file(s)
+Invisibly returns the path to written file
 }
 \description{
-Writes a workflow object to YAML and/or Markdown format.
+Writes a workflow object to \code{YAML} and/or \code{Markdown} format.
 }
 \examples{
+
+# Read from a package
+mcpflow_read("ravepipeline::rave_pipeline_class_guide")
+
 # Read a workflow
 path <- system.file(
   "mcp", "workflows", "rave_pipeline_class_guide.yaml",
   package = "ravepipeline"
 )
+
+
 wf <- mcpflow_read(path)
 
 # Write as YAML to temporary file
-yaml_file <- tempfile(fileext = ".yaml")
-mcpflow_write(wf, yaml_file, method = "yaml")
-cat(readLines(yaml_file), sep = "\n")
+mcpflow_write(wf, stdout(), method = "yaml")
 
 # Write as Markdown to temporary file
-md_file <- tempfile(fileext = ".md")
-mcpflow_write(wf, md_file, method = "markdown")
-cat(readLines(md_file), sep = "\n")
-
-# clean up
-unlink(yaml_file)
-unlink(md_file)
+mcpflow_write(wf, stdout(), method = "markdown")
 
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/mcp-tools.R
 \name{mcptool_write}
 \alias{mcptool_write}
-\title{Write MCP Tool Definition to File}
+\title{Write MCP tool definition to file}
 \usage{
 mcptool_write(tool, path, method = c("yaml", "markdown"), ...)
 }
@@ -11,7 +11,8 @@ mcptool_write(tool, path, method = c("yaml", "markdown"), ...)
 
 \item{path}{Character. Path to the output file}
 
-\item{method}{Character. Output format: "yaml" (default) or "markdown"}
+\item{method}{Character. Output format: \code{"yaml"} (default) or
+\code{"markdown"}}
 
 \item{...}{Additional arguments (currently unused)}
 }
@@ -19,29 +20,18 @@ mcptool_write(tool, path, method = c("yaml", "markdown"), ...)
 Invisibly returns the input tool object
 }
 \description{
-Writes an MCP tool definition to a file in either YAML or Markdown format.
+Writes an MCP tool definition to a file in either \code{YAML} or \code{Markdown} format.
 }
 \examples{
 
 # Load a tool from package
-path <- system.file(
-  "mcp", "tools", "ravepipeline-mcp_list_rave_pipelines.yaml",
-  package = "ravepipeline"
-)
+path <- mcptool_path("ravepipeline-mcp_list_rave_pipelines")
 tool <- mcptool_read(path)
 
 # Write as YAML to temporary file
-yaml_file <- tempfile(fileext = ".yaml")
-mcptool_write(tool, yaml_file, method = "yaml")
-cat(readLines(yaml_file), sep = "\n")
+mcptool_write(tool, stdout(), method = "yaml")
 
-# Write as Markdown to temporary file
-md_file <- tempfile(fileext = ".md")
-mcptool_write(tool, md_file, method = "markdown")
-cat(readLines(md_file), sep = "\n")
-
-# clean up
-unlink(yaml_file)
-unlink(md_file)
+# Write as Markdown
+mcptool_write(tool, stdout(), method = "markdown")
 
 }

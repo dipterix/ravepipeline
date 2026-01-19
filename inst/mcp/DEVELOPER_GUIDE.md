@@ -7,7 +7,7 @@ This guide explains how to properly format roxygen2 documentation for automatic 
 1. Document your R function with roxygen2 comments
 2. Include required tags: `@description`, `@param`
 3. Include optional tags: `@return`, `@examples`, `@keywords`
-4. Run `mcptools_build()` to generate YAML files
+4. Run `mcptool_build()` to generate YAML files
 5. Load tools with `mcptool_load_all()` for MCP server integration
 
 ## Complete Example
@@ -474,7 +474,7 @@ If not in `required` field of formals, it won't be in YAML `required` array.
 
 ```r
 # Generate all MCP tool YAML files
-mcptools_build()
+mcptool_build()
 
 # Output location: inst/mcp/tools/
 ```
@@ -513,7 +513,7 @@ tool_names <- names(mcptool_load_all())
 
 1. **Build tools**:
    ```r
-   mcptools_build()
+   mcptool_build()
    ```
 
 2. **Check generated YAML**:
@@ -619,7 +619,7 @@ Document parameter relationships:
 
 2. **Build tools**:
    ```r
-   mcptools_build()
+   mcptool_build()
    ```
 
 3. **Verify output**:

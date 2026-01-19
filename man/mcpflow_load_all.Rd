@@ -2,7 +2,7 @@
 % Please edit documentation in R/mcp-workflows.R
 \name{mcpflow_load_all}
 \alias{mcpflow_load_all}
-\title{Load RAVE MCP Workflows}
+\title{Load RAVE MCP workflows}
 \usage{
 mcpflow_load_all(pkg, path = system.file("mcp", package = pkg))
 }
@@ -11,16 +11,17 @@ mcpflow_load_all(pkg, path = system.file("mcp", package = pkg))
 Example values: \code{"ravepipeline"}}
 
 \item{path}{Character string. Optional path to workflows directory.
-If provided, loads from this path instead of package mcp/workflows.}
+If provided, loads from this path instead of package \code{mcp/workflows}
+directory.}
 }
 \value{
-A named list of workflow objects, each with class
-c("ravepipeline_mcp_workflow", "list"). Returns empty list if no
+A structured named list of workflow objects, or an empty list if no
 workflows found.
 }
 \description{
-Loads workflow YAML files from a package's MCP workflows directory
-and returns them as S3 objects with class "ravepipeline_mcp_workflow".
+Loads workflow \code{YAML} files from a package's MCP workflows
+directory and returns them as \code{S3} objects with class
+\code{"ravepipeline_mcp_workflow"}.
 }
 \examples{
 

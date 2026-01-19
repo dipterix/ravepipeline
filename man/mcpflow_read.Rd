@@ -2,24 +2,24 @@
 % Please edit documentation in R/mcp-workflows.R
 \name{mcpflow_read}
 \alias{mcpflow_read}
-\title{Read RAVE MCP Workflow}
+\title{Read RAVE MCP workflow}
 \usage{
 mcpflow_read(x, tools = TRUE, tools_dir = NULL, ...)
 }
 \arguments{
-\item{x}{Source specification: character path, "package::name",
+\item{x}{Source specification: character path, \code{"package::name"},
 package namespace (environment), or workflow object}
 
 \item{tools}{Logical. Whether to load referenced MCP tools. Default is TRUE}
 
-\item{...}{Additional arguments passed to methods}
+\item{tools_dir}{Character. Base directory containing \verb{tools/} directory
+for loading local tools. Default is NULL, which infers from the workflow
+file location or falls back to "./tools".}
 
-\item{work_dir}{Character. Base directory containing tools/ subdirectory for
-loading local tools. Default is "." (current directory). For file paths,
-if NULL, infers from the workflow file location.}
+\item{...}{Additional arguments passed to methods}
 }
 \value{
-A workflow object with class "ravepipeline_mcp_workflow"
+A workflow object with class \code{"ravepipeline_mcp_workflow"}
 }
 \description{
 Reads and parses a single MCP workflow from various sources.

@@ -253,19 +253,21 @@ Control how the pipeline runs:
 pipe$run(
   names = "over_time_by_condition_data",
   scheduler = "future",  # Use future for parallel execution
-  return_values = TRUE   # Return results directly
+  return_values = FALSE  # Do not return values (default is TRUE)
 )
 
 # Run with each target with isolated clean environment (but slower)
 pipe$run(
   names = "over_time_by_condition_data",
-  type = "callr"
+  type = "callr",
+  return_values = FALSE
 )
 
 # Debug mode (more verbose output)
 pipe$run(
   names = "over_time_by_condition_data",
-  debug = TRUE
+  debug = TRUE,
+  return_values = FALSE
 )
 ```
 
@@ -283,6 +285,8 @@ pipe$progress("summary")
 pipe$progress("details")
 ```
 
+`completed` means the target was executed; `skipped` means the target has been executed before but skipped because the previous results can be reused (typically the depending target results remain unchanged during the session); `errored` means the target ran into an error.
+
 ### Result Table
 
 View results with data signatures:
@@ -290,32 +294,32 @@ View results with data signatures:
 ```{r result-table}
 # Get table of results with metadata
 results_summary <- pipe$result_table
-print(results_summary)
+str(results_summary, max.level = 2)
 
-# Shows:
-# - name: target name
-# - type: "stem" or other target types
-# - data: data hash
-# - command: command hash
-# - depend: dependency hash
-# - seed: random seed
-# - path: storage paths
-# - time: when computed
-# - size: human-readable size
-# - bytes: size in bytes
-# - format: storage format
-# - repository: storage backend
-# - iteration: iteration mode
-# - parent: parent target
-# - children: child targets
-# - seconds: computation time
-# - warnings: any warnings
-# - error: any errors
+# tibble [30 × 18] (S3: tbl_df/tbl/data.frame)
+#   $ name      : chr [1:30] "settings_path" "analysis_electrodes" ...
+#   $ type      : chr [1:30] "stem" "stem" "stem" "stem" ...
+#   $ data      : chr [1:30] "87464f5e9f50ed67" "ea945b95c2940f9e" ...
+#   $ command   : chr [1:30] "0bc648d2b33e5acd" "7272b9187fc425a0" ...
+#   $ depend    : chr [1:30] "2c530c1562a7fbd1" "7ac856221f002d65" ...
+#   $ seed      : int [1:30] 853402860 -847753771 -444014686 1434286487 ...
+#   $ path      :List of 30
+#   $ time      : POSIXct[1:30], format: "2026-01-19 14:47:39" ...
+#   $ size      : chr [1:30] "s1596b" "s55b" "s199b" "s62b" ...
+#   $ bytes     : num [1:30] 1596 55 199 62 48 ...
+#   $ format    : chr [1:30] "file" "rds" "rds" "rds" ...
+#   $ repository: chr [1:30] "local" "local" "local" "local" ...
+#   $ iteration : chr [1:30] "vector" "vector" "vector" "vector" ...
+#   $ parent    : chr [1:30] NA NA NA NA ...
+#   $ children  :List of 30
+#   $ seconds   : num [1:30] 0 0 0 0 0 0 0 0 0 0 ...
+#   $ warnings  : chr [1:30] NA NA NA NA ...
+#   $ error     : chr [1:30] NA NA NA NA ...
 ```
 
 ### Dependency Visualization
 
-Visualize pipeline structure:
+Visualize pipeline structure: both method shows graph dependencies using `visNetwork` package, with `glimpse = TRUE` only showing the dependency while `glimpse = FALSE` (default) also shows the target node status.
 
 ```{r visualize}
 # Interactive dependency graph with evaluation flow
@@ -492,7 +496,7 @@ new_pipe$pipeline_path
 
 _Not all built-in modules implement the same preference management system. This depends on the module developers to implement. Here is the guideline (recommended ways) to store preferences._
 
-Store UI preferences (non-analysis settings): the preference ID must have syntax `[global/<module ID>].[type].[key]`. For example: `global.graphics.ui_theme`, `power_explorer.graphics.plot_color`. Globals are shared options across modules.
+Store `UI` preferences (non-analysis settings): the preference ID must have syntax `[global/<module ID>].[type].[key]`. For example: `global.graphics.ui_theme`, `power_explorer.graphics.plot_color`. `Globals` are shared options across modules.
 
 ```{r preferences}
 # Set persistent preferences (won't invalidate pipeline)
@@ -543,19 +547,19 @@ Remove cached results:
 
 ```{r clean}
 # Clean cache (keep pipeline structure)
-pipe$clean(destroy = FALSE, ask = interactive())
+pipe$clean(destroy = "all")
 ```
 
 ## Understanding Pipeline Structure
 
 RAVE pipelines typically use the [`template-rmd`](https://github.com/rave-ieeg/rave-pipelines/tree/main/inst/rave-pipelines/template-rmd) structure, where:
 
-### Main Development File: main.Rmd
+### Main Development File: `main.Rmd`
 
 The `main.Rmd` file is where users write pipeline logic using R Markdown with special `rave` code chunks:
 
 ````markdown
-```{rave load_subject, export = "subject"}
+```\{rave load_subject, export = "subject"\}
 # This target loads subject instance
 subject <- ravecore::new_rave_subject(
   project_name = project_name, 
@@ -569,7 +573,7 @@ Key features:
 
 - **Chunk label**: becomes the target description (`load_subject` will be interpreted as `Load subject`) from the `pipeline$target_table`
 - **`export` parameter**: becomes the target name, and also a variable to make available to subsequent chunks: this means the code chunk must create a variable `subject`. 
-- **`deps` parameter**: automatically detected or specified with `deps` parameter: this chunk requies variable `project_name` and `subject_code`. These variables are typically generated by previous chunks or defined in the settings file (see below). Upon building the file, RAVE automatically detects these dependencies and assigns `deps=c("project_name", "subject_code")`
+- **`deps` parameter**: automatically detected or specified with `deps` parameter: this chunk requires variable `project_name` and `subject_code`. These variables are typically generated by previous chunks or defined in the settings file (see below). Upon building the file, RAVE automatically detects these dependencies and assigns `deps=c("project_name", "subject_code")`
 - **`language` parameter**: the back-bone language of the block: RAVE supports running `R` and `python`. The default option is `"R"`, and `"python"` is experimental.
 
 ### Settings File: settings.yaml
@@ -616,581 +620,3 @@ Then function `my_helper` will be available during the runtime, and RAVE pipelin
 2. Knit the document (or call `ravepipeline::pipeline_build(pipe_dir)`)
 3. Generated `make-*.R` scripts define pipeline targets
 4. Use `ravepipeline::pipeline_from_path()` to load and execute
-
-## AI Agent Integration via MCP
-
-This section provides guidance for AI agents to help users work with RAVE pipelines through the Model Context Protocol (MCP).
-
-### Overview for AI Agents
-
-AI agents can assist users by:
-
-1. Loading pipelines based on user requests
-2. Configuring pipeline settings with user approval
-3. Running pipelines (with explicit user permission)
-4. Analyzing and explaining results
-5. Troubleshooting errors
-
-The recommended approach uses:
-
-- **`ellmer`**: Framework-agnostic LLM interface with tool calling
-- **`mcptools`**: MCP server/client implementation in R
-- **`btw`**: Enhanced R environment tools for AI agents
-
-### Creating Pipeline Tools for MCP
-
-Define individual tools for each pipeline operation:
-
-```{r mcp-tools}
-library(ellmer)
-
-# Tool 1: Load a pipeline
-tool_load_pipeline <- tool(
-  fun = function(pipeline_name) {
-    tryCatch({
-      pipe <<- pipeline(pipeline_name)
-      list(
-        success = TRUE,
-        message = sprintf("Loaded pipeline: %s", pipeline_name),
-        description = pipe$description$Title,
-        targets = nrow(pipe$target_table)
-      )
-    }, error = function(e) {
-      list(success = FALSE, error = conditionMessage(e))
-    })
-  },
-  name = "load_rave_pipeline",
-  description = "Load a RAVE pipeline by name. This makes the pipeline available for configuration and execution.",
-  arguments = list(
-    pipeline_name = type_string(
-      "Name of the pipeline to load. Use list_rave_pipelines to see available options."
-    )
-  )
-)
-
-# Tool 2: List available pipelines
-tool_list_pipelines <- tool(
-  fun = function() {
-    pipelines <- pipeline_list()
-    list(
-      pipelines = pipelines,
-      count = length(pipelines)
-    )
-  },
-  name = "list_rave_pipelines",
-  description = "List all installed RAVE pipelines available on the system.",
-  arguments = list()
-)
-
-# Tool 3: Get pipeline information
-tool_pipeline_info <- tool(
-  fun = function() {
-    if (!exists("pipe")) {
-      return(list(success = FALSE, error = "No pipeline loaded. Use load_rave_pipeline first."))
-    }
-    list(
-      name = pipe$pipeline_name,
-      path = pipe$pipeline_path,
-      description = pipe$description$Title,
-      targets = pipe$target_table,
-      current_settings = pipe$get_settings(),
-      available_reports = pipe$available_reports
-    )
-  },
-  name = "get_rave_pipeline_info",
-  description = "Get detailed information about the currently loaded pipeline including targets, settings, and available reports.",
-  arguments = list()
-)
-
-# Tool 4: Set pipeline settings
-tool_set_settings <- tool(
-  fun = function(settings_json) {
-    if (!exists("pipe")) {
-      return(list(success = FALSE, error = "No pipeline loaded. Use load_rave_pipeline first."))
-    }
-    tryCatch({
-      settings <- jsonlite::fromJSON(settings_json, simplifyVector = FALSE)
-      do.call(pipe$set_settings, settings)
-      list(
-        success = TRUE,
-        message = "Settings updated successfully",
-        current_settings = pipe$get_settings()
-      )
-    }, error = function(e) {
-      list(success = FALSE, error = conditionMessage(e))
-    })
-  },
-  name = "set_rave_pipeline_settings",
-  description = "Configure pipeline settings. This does NOT run the pipeline, only sets parameters. Settings should be provided as a JSON string.",
-  arguments = list(
-    settings_json = type_string(
-      "JSON string containing pipeline settings as key-value pairs, e.g., '{\"project_name\": \"demo\", \"subject_code\": \"DemoSubject\"}'"
-    )
-  )
-)
-
-# Tool 5: Run pipeline (REQUIRES USER APPROVAL)
-tool_run_pipeline <- tool(
-  fun = function(target_names = NULL) {
-    if (!exists("pipe")) {
-      return(list(success = FALSE, error = "No pipeline loaded. Use load_rave_pipeline first."))
-    }
-    
-    tryCatch({
-      # Show what will be executed
-      targets_to_run <- if (is.null(target_names)) {
-        "all targets"
-      } else {
-        paste(target_names, collapse = ", ")
-      }
-      
-      message(sprintf("Running pipeline: %s", pipe$pipeline_name))
-      message(sprintf("Targets: %s", targets_to_run))
-      
-      # Execute
-      if (is.null(target_names)) {
-        pipe$run()
-      } else {
-        pipe$run(names = target_names)
-      }
-      
-      list(
-        success = TRUE,
-        message = "Pipeline execution completed",
-        result_summary = pipe$result_table
-      )
-    }, error = function(e) {
-      list(
-        success = FALSE,
-        error = conditionMessage(e),
-        progress = pipe$progress("summary")
-      )
-    })
-  },
-  name = "run_rave_pipeline",
-  description = "Execute the pipeline. THIS WILL RUN COMPUTATIONS - request user approval before calling. Can run all targets or specific ones.",
-  arguments = list(
-    target_names = type_array(
-      items = type_string(),
-      description = "Optional: specific target names to run. If NULL, runs all targets.",
-      default = NULL
-    )
-  ),
-  annotations = tool_annotations(
-    dangerous = TRUE  # Flags this as requiring approval
-  )
-)
-
-# Tool 6: Get pipeline progress
-tool_get_progress <- tool(
-  fun = function(detail_level = "summary") {
-    if (!exists("pipe")) {
-      return(list(success = FALSE, error = "No pipeline loaded."))
-    }
-    
-    progress <- pipe$progress(method = detail_level)
-    list(
-      success = TRUE,
-      progress = progress
-    )
-  },
-  name = "get_rave_pipeline_progress",
-  description = "Check the execution progress of the pipeline. Use 'summary' for overview or 'details' for per-target information.",
-  arguments = list(
-    detail_level = type_enum(
-      c("summary", "details"),
-      description = "Level of detail for progress information"
-    )
-  )
-)
-
-# Tool 7: Read pipeline results
-tool_read_results <- tool(
-  fun = function(target_names = NULL) {
-    if (!exists("pipe")) {
-      return(list(success = FALSE, error = "No pipeline loaded."))
-    }
-    
-    tryCatch({
-      if (is.null(target_names)) {
-        results <- pipe$read()
-      } else {
-        results <- pipe$read(target_names)
-      }
-      
-      # Convert results to JSON-serializable format
-      results_summary <- lapply(names(results), function(name) {
-        obj <- results[[name]]
-        list(
-          name = name,
-          class = class(obj),
-          type = typeof(obj),
-          size = utils::object.size(obj),
-          summary = if (is.data.frame(obj)) {
-            list(rows = nrow(obj), cols = ncol(obj), names = names(obj))
-          } else if (is.array(obj)) {
-            list(dim = dim(obj), dimnames = dimnames(obj))
-          } else {
-            utils::str(obj, max.level = 1, give.attr = FALSE)
-          }
-        )
-      })
-      
-      list(
-        success = TRUE,
-        results = results_summary,
-        result_names = names(results)
-      )
-    }, error = function(e) {
-      list(success = FALSE, error = conditionMessage(e))
-    })
-  },
-  name = "read_rave_pipeline_results",
-  description = "Read and summarize pipeline results. Returns metadata about results rather than full data (which may be large).",
-  arguments = list(
-    target_names = type_array(
-      items = type_string(),
-      description = "Optional: specific target names to read. If NULL, reads all available results.",
-      default = NULL
-    )
-  )
-)
-
-# Tool 8: Visualize pipeline
-tool_visualize <- tool(
-  fun = function(glimpse_only = TRUE) {
-    if (!exists("pipe")) {
-      return(list(success = FALSE, error = "No pipeline loaded."))
-    }
-    
-    if (glimpse_only) {
-      # Text-based output
-      capture.output(pipe$visualize(glimpse = TRUE))
-    } else {
-      list(
-        message = "Interactive visualization requires a graphics device. Use glimpse_only=TRUE for text output.",
-        target_table = pipe$target_table
-      )
-    }
-  },
-  name = "visualize_rave_pipeline",
-  description = "Visualize the pipeline structure showing targets and dependencies.",
-  arguments = list(
-    glimpse_only = type_boolean(
-      "If TRUE, returns text-based glimpse. If FALSE, attempts interactive visualization.",
-      default = TRUE
-    )
-  )
-)
-```
-
-### Creating an MCP Server with Pipeline Tools
-
-Set up a complete MCP server for RAVE pipelines:
-
-```{r mcp-server, eval=FALSE}
-# File: rave_pipeline_mcp_server.R
-# This script should be run non-interactively to start the MCP server
-
-library(mcptools)
-library(ellmer)
-library(ravepipeline)
-
-# Collect all pipeline tools
-pipeline_tools <- list(
-  tool_list_pipelines,
-  tool_load_pipeline,
-  tool_pipeline_info,
-  tool_set_settings,
-  tool_run_pipeline,
-  tool_get_progress,
-  tool_read_results,
-  tool_visualize
-)
-
-# Start MCP server with pipeline tools
-mcp_server(tools = pipeline_tools)
-```
-
-### Configuring with AI Clients
-
-#### Claude Desktop Configuration
-
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS):
-
-```json
-{
-  "mcpServers": {
-    "rave-pipelines": {
-      "command": "Rscript",
-      "args": ["-e", "source('rave_pipeline_mcp_server.R')"]
-    }
-  }
-}
-```
-
-#### Claude Code Configuration
-
-```bash
-claude mcp add -s "user" rave-pipelines -- Rscript -e "source('rave_pipeline_mcp_server.R')"
-```
-
-### Integrating with btw
-
-Combine pipeline tools with btw's built-in tools:
-
-```{r btw-integration, eval=FALSE}
-# File: rave_btw_mcp_server.R
-
-library(btw)
-library(ellmer)
-library(ravepipeline)
-
-# Get btw tools (documentation, environment, files, etc.)
-btw_tool_list <- btw_tools()
-
-# Add pipeline-specific tools
-all_tools <- c(
-  btw_tool_list,
-  list(
-    tool_list_pipelines,
-    tool_load_pipeline,
-    tool_pipeline_info,
-    tool_set_settings,
-    tool_run_pipeline,
-    tool_get_progress,
-    tool_read_results,
-    tool_visualize
-  )
-)
-
-# Start integrated MCP server
-mcptools::mcp_server(tools = all_tools)
-```
-
-### AI Agent Workflow Patterns
-
-#### Pattern 1: Discovery and Setup
-
-```
-User: "What RAVE pipelines are available?"
-
-Agent Actions:
-1. Call list_rave_pipelines()
-2. Present options to user
-3. Ask which pipeline they want to use
-
-User: "I want to use power_explorer"
-
-Agent Actions:
-1. Call load_rave_pipeline("power_explorer")
-2. Call get_rave_pipeline_info()
-3. Explain what the pipeline does
-4. Show required settings
-```
-
-#### Pattern 2: Configuration
-
-```
-User: "Set it up for the demo data"
-
-Agent Actions:
-1. Prepare settings JSON based on demo data defaults
-2. Explain settings to user
-3. Call set_rave_pipeline_settings(settings_json)
-4. Confirm settings applied
-```
-
-#### Pattern 3: Execution with Approval
-
-```
-User: "Run the analysis"
-
-Agent Actions:
-1. Call get_rave_pipeline_info() to check current state
-2. Explain what will be executed
-3. ASK USER: "This will run computational analysis. The pipeline has X targets 
-   and will compute Y, Z, etc. Proceed?"
-4. If approved: Call run_rave_pipeline()
-5. Monitor progress with get_rave_pipeline_progress()
-6. Report completion
-```
-
-#### Pattern 4: Result Analysis
-
-```
-User: "What did we get?"
-
-Agent Actions:
-1. Call read_rave_pipeline_results()
-2. Summarize result types and sizes
-3. Offer to explain specific results
-4. Suggest next steps (visualization, export, etc.)
-```
-
-### Error Handling for AI Agents
-
-Common errors and recovery strategies:
-
-```r
-# Error: Pipeline not found
-# Solution: Call list_rave_pipelines() and suggest alternatives
-
-# Error: Missing settings
-# Solution: Call get_rave_pipeline_info() to see required settings
-#           Guide user through configuration
-
-# Error: Target failed during execution
-# Solution: Call get_rave_pipeline_progress("details")
-#           Examine error messages
-#           Suggest fixes or debugging steps
-
-# Error: Results not available
-# Solution: Check if pipeline has been run
-#           Check specific target status
-#           Re-run if needed
-```
-
-### Structured Prompts for AI Agents
-
-When an AI agent is helping with pipelines, use these patterns:
-
-**System Prompt Addition:**
-
-```
-You are helping a user work with RAVE neuroscience analysis pipelines. 
-
-When the user wants to run a pipeline:
-1. Always explain what the pipeline will do
-2. Show what settings are configured
-3. Request explicit approval before calling run_rave_pipeline()
-4. Monitor progress and keep user informed
-
-When analyzing results:
-1. Read result metadata first (types, sizes, structure)
-2. Explain results in domain-appropriate terms
-3. Suggest relevant visualizations or next steps
-
-Safety:
-- NEVER run a pipeline without user approval
-- Always check current settings before execution
-- Explain computational cost when relevant
-```
-
-**User Interaction Patterns:**
-
-```
-# When user asks to "run analysis"
-Agent: "I'll set up the power_explorer pipeline with these settings:
-- Project: demo
-- Subject: DemoSubject  
-- Electrodes: 14-16,24
-- Epoch: auditory_onset (-1 to 2 seconds)
-
-This will compute power spectra, apply baseline correction, and generate 
-statistics. This typically takes 2-3 minutes. Shall I proceed?"
-
-# After execution
-Agent: "Pipeline completed successfully! Results include:
-- power_data: 4D array (256 time points × 50 frequencies × 30 trials × 4 electrodes)
-- baseline_data: Same structure, baseline-corrected
-- statistics: Summary statistics across trials
-
-Would you like me to generate the analysis report or explore specific results?"
-```
-
-### Testing Your MCP Server
-
-Test the server before deployment:
-
-```{r test-server}
-# In a separate R session, test individual tools
-library(ellmer)
-
-# Load the tools (would normally come from MCP server)
-source("rave_pipeline_mcp_server.R")
-
-# Create a test chat
-chat <- chat_anthropic()
-chat$register_tools(pipeline_tools)
-
-# Test interaction
-chat$chat("What RAVE pipelines are available?")
-chat$chat("Load the power_explorer pipeline")
-chat$chat("What does this pipeline do?")
-# etc.
-```
-
-## Troubleshooting
-
-### Common Issues
-
-**Pipeline not found:**
-
-```{r troubleshoot-not-found}
-# Check available pipelines
-pipeline_list()
-
-# Check pipeline search paths
-pipeline_root()
-
-# Add custom path
-pipeline_root("/custom/path/to/pipelines")
-```
-
-**Settings not applying:**
-
-```{r troubleshoot-settings}
-# Verify settings were saved
-pipe$get_settings()
-
-# Check settings file directly
-yaml::read_yaml(file.path(pipe$pipeline_path, "settings.yaml"))
-
-# Re-apply settings
-pipe$set_settings(...)
-```
-
-**Pipeline fails to run:**
-
-```{r troubleshoot-run}
-# Check for errors in specific targets
-progress <- pipe$progress("details")
-failed <- progress[progress$progress == "errored", ]
-print(failed)
-
-# Try eval() for interactive debugging
-env <- pipe$eval(names = "failing_target")
-
-# Check dependencies
-pipeline_dep_targets("failing_target", pipe_dir = pipe$pipeline_path)
-```
-
-**Results not available:**
-
-```{r troubleshoot-results}
-# Check if targets have been built
-pipe$result_table
-
-# Verify pipeline has been run
-pipe$progress("summary")
-
-# Re-run specific target
-pipe$run(names = "missing_target")
-```
-
-## Additional Resources
-
-- **RAVE Documentation**: <https://rave.wiki>
-- **Pipeline Repository**: <https://github.com/rave-ieeg/rave-pipelines>
-- **Issue Tracker**: <https://github.com/beauchamplab/rave/issues>
-- **MCP Specification**: <https://modelcontextprotocol.io>
-- **ellmer Package**: <https://ellmer.tidyverse.org>
-- **btw Package**: <https://posit-dev.github.io/btw>
-- **mcptools Package**: <https://posit-dev.github.io/mcptools>
-
-## Session Info
-
-```{r session-info}
-sessionInfo()
-```

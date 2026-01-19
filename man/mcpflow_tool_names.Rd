@@ -2,22 +2,22 @@
 % Please edit documentation in R/mcp-workflows.R
 \name{mcpflow_tool_names}
 \alias{mcpflow_tool_names}
-\title{Extract Tool Names from Workflows}
+\title{Extract tool names from workflows}
 \usage{
 mcpflow_tool_names(workflows)
 }
 \arguments{
-\item{workflows}{A single workflow object (class "ravepipeline_mcp_workflow") or
-a list of workflow objects}
+\item{workflows}{A single workflow object or a list of workflow objects}
 }
 \value{
 Character vector of unique tool names
 }
 \description{
-Recursively extracts all tool names referenced in workflow jobs and sections.
-Supports both single workflow objects and lists of workflows.
+Recursively extracts all tool names referenced in workflow jobs
+and sections. Supports both single workflow objects and lists of workflows.
 }
 \examples{
+
 # Extract tools from a single workflow
 wf <- mcpflow_read("ravepipeline::rave_pipeline_class_guide")
 tools <- mcpflow_tool_names(wf)
@@ -25,4 +25,5 @@ tools <- mcpflow_tool_names(wf)
 # Extract tools from multiple workflows
 workflows <- mcpflow_load_all("ravepipeline")
 all_tools <- mcpflow_tool_names(workflows)
+
 }

@@ -1,3 +1,6 @@
+# ============================================================
+# METADATA
+# ============================================================
 name: rave_pipeline_class_guide
 description: "AI Assistant Workflows for RAVE MCP Tools - Comprehensive guide for using RAVE MCP tools to help users with neuroscience data analysis pipelines"
 version: "1.0.0"
@@ -8,473 +11,144 @@ tags:
   - pipelines
   - workflows
 
-# MCP Tools used (true = all tools, false = none, or list specific tools)
+# ============================================================
+# TOOLS
+# ============================================================
 mcp_tools: true
 
-# Workflow sections
-sections:
-  - title: "Overview"
-    content: |
-      RAVE (Rreproducible Analysis and Visualization of iEEG) is primarily built with R programming language. Please use R language for reference. The RAVE-MCP tools enable AI assistants to:
-      - Discover and explore available analysis pipelines
-      - Configure pipeline parameters
-      - Execute analyses with proper validation
-      - Monitor execution progress
-      - Retrieve and visualize results
+tool_guide:
+  # Discovery
+  - tool: "ravepipeline-mcp_list_rave_pipelines"
+    category: discovery
+    when: "User asks about available analyses or pipelines"
+    notes: "Always start here - never assume pipeline names"
+
+  - tool: "ravepipeline-mcp_load_rave_pipeline"
+    category: discovery
+    when: "After identifying a pipeline, before any other operations"
+    notes: "Required before get_info, set_settings, or run"
+    preconditions:
+      - "Know the pipeline name from mcp_list_rave_pipelines"
+
+  # Information
+  - tool: "ravepipeline-mcp_get_current_rave_pipeline_info"
+    category: info
+    when: "Need parameter schema, validation rules, or pipeline details"
+    notes: "Use this to discover required parameters before configuration"
+    preconditions:
+      - "Pipeline must be loaded"
+
+  # Configuration
+  - tool: "ravepipeline-mcp_set_current_rave_pipeline_settings"
+    category: configuration
+    when: "User provides parameter values or you need to configure analysis"
+    notes: "Always validate against schema from get_info first"
+    preconditions:
+      - "Pipeline must be loaded"
+      - "Parameters validated against schema"
+
+  # Execution
+  - tool: "ravepipeline-mcp_run_current_rave_pipeline"
+    category: execution
+    when: "User confirms they want to execute the analysis"
+    dangerous: true
+    requires_approval: true
+    preconditions:
+      - "Pipeline must be loaded"
+      - "Settings must be configured"
+      - "User must explicitly approve execution"
+
+  # Monitoring
+  - tool: "ravepipeline-mcp_get_current_rave_pipeline_progress"
+    category: monitoring
+    when: "After starting execution, to track progress"
+    notes: "Poll every 5 seconds until status is 'completed'"
+    preconditions:
+      - "Pipeline execution has been started"
+
+  # Results
+  - tool: "ravepipeline-mcp_read_current_rave_pipeline_results"
+    category: results
+    when: "Pipeline execution completed successfully"
+    notes: "Present results with interpretation, not raw data dumps"
+    preconditions:
+      - "Pipeline execution completed"
+
+# ============================================================
+# GUIDANCE
+# ============================================================
+overview: |
+  RAVE (Reproducible Analysis and Visualization of iEEG) is primarily built 
+  with R programming language. Please use R language for reference.
+  
+  The RAVE-MCP tools enable AI assistants to:
+  - Discover and explore available analysis pipelines
+  - Configure pipeline parameters
+  - Execute analyses with proper validation
+  - Monitor execution progress
+  - Retrieve and visualize results
+
+best_practices:
+  - title: "Always Start with Discovery"
+    do: |
+      1. Call mcp_list_rave_pipelines() to find available options
+      2. Load the relevant pipeline with mcp_load_rave_pipeline()
+      3. Get parameter details with mcp_get_current_rave_pipeline_info()
+      4. Present options to user with descriptions
+    dont: "Immediately try to run with guessed pipeline names or parameters"
+
+  - title: "Validate Before Executing"
+    do: |
+      1. Load pipeline and get parameter schema
+      2. Validate all parameters against schema (types, ranges, enums)
+      3. Confirm settings with user before execution
+      4. Then execute
+    dont: "Set parameters and run without checking schema or user confirmation"
+
+  - title: "Monitor Long-Running Operations"
+    do: |
+      1. Start pipeline execution
+      2. Poll mcp_get_current_rave_pipeline_progress every 5 seconds
+      3. Report progress to user: "Processing: 45% complete..."
+      4. Confirm completion: "Analysis finished successfully!"
+    dont: "Start pipeline and assume it completed without checking"
+
+  - title: "Provide Context with Results"
+    do: |
+      Present interpreted results:
+      "Analysis complete! Here's what I found:
+       - Power spectrum peak at 12 Hz (alpha band)
+       - Mean power: 15.3 µV²/Hz
+       Would you like me to visualize these results?"
+    dont: "Return raw data dumps without interpretation"
+
+  - title: "Handle Errors Gracefully"
+    do: |
+      Explain what went wrong and suggest fixes:
+      "The analysis encountered an error: 'Invalid frequency range'
+       The requested range (2-500 Hz) exceeds Nyquist frequency (500 Hz).
+       Would you like me to rerun with 2-400 Hz instead?"
+    dont: "Just say 'Error occurred' and stop"
+
+  - title: "Required Approval Workflows"
+    do: |
+      For dangerous operations:
+      1. Present action details: tool, purpose, parameters, expected outcomes
+      2. Wait for explicit user confirmation - NEVER auto-approve
+      3. Execute only after approval
+      4. Confirm execution started
+    dont: "Execute dangerous operations without explicit user consent"
+
+  - title: "Parameter Validation Checklist"
+    do: |
+      Before setting parameters, validate:
+      - Type validation: string, number, boolean, array
+      - Enum validation: value in allowed list
+      - Range validation: numeric bounds, string length
+      - Required parameters: all present
+      - Dependencies: conditional parameters valid
+    dont: "Pass parameters without validation against schema"
 
-  - title: "Available Tools"
-    content: |
-      The following MCP tools are available for RAVE pipeline operations:
-    tools:
-      discovery:
-        - tool: "ravepipeline-mcp_list_rave_pipelines"
-          description: "List all available pipelines"
-        - tool: "ravepipeline-mcp_load_rave_pipeline"
-          description: "Load and initialize a pipeline (required before other operations)"
-      info:
-        - tool: "ravepipeline-mcp_get_current_rave_pipeline_info"
-          description: "Get detailed information about the currently loaded pipeline"
-      configuration:
-        - tool: "ravepipeline-mcp_set_current_rave_pipeline_settings"
-          description: "Configure pipeline parameters"
-      execution:
-        - tool: "ravepipeline-mcp_run_current_rave_pipeline"
-          description: "Execute a pipeline analysis (dangerous, requires approval)"
-      monitoring:
-        - tool: "ravepipeline-mcp_get_current_rave_pipeline_progress"
-          description: "Monitor execution status and progress"
-      results:
-        - tool: "ravepipeline-mcp_read_current_rave_pipeline_results"
-          description: "Read analysis outputs and results"
-
-  - title: "Basic Workflow Patterns"
-    workflows:
-      - name: "Pattern 1: Pipeline Discovery"
-        description: "Discover and explore available analysis pipelines"
-        user_request: "What analysis pipelines are available for power spectral analysis?"
-        jobs:
-          list-pipelines:
-            name: "List Available Pipelines"
-            steps:
-              - name: "Get all pipelines"
-                tool: "ravepipeline-mcp_list_rave_pipelines"
-                description: "Get all available pipelines"
-
-              - name: "Filter results"
-                description: "Parse results for relevant pipelines by keywords: power, spectral, frequency"
-                action: "filter"
-
-              - name: "Get pipeline details"
-                tool: "ravepipeline-mcp_load_rave_pipeline"
-                description: "Load each relevant pipeline"
-                loop: true
-
-              - name: "Get detailed info"
-                tool: "ravepipeline-mcp_get_current_rave_pipeline_info"
-                description: "Get details for each loaded pipeline"
-
-              - name: "Present options"
-                description: "Present options to user with descriptions"
-                action: "present"
-
-        example_response: |
-          I found 3 pipelines for power spectral analysis:
-
-          1. **power_explorer** - Interactive power spectral density visualization
-          2. **wavelet_module** - Time-frequency analysis using wavelet transforms
-          3. **coherence_analysis** - Cross-spectral coherence between channels
-
-          Would you like details on any of these?
-
-      - name: "Pattern 2: Configure and Run"
-        description: "Complete workflow from configuration to execution"
-        user_request: "Run power analysis on my data with 2-150 Hz frequency range"
-        settings:
-          requires_approval: true
-          estimated_duration: "minutes"
-        jobs:
-          validate-and-load:
-            name: "Validate and Load Pipeline"
-            steps:
-              - name: "Load pipeline"
-                tool: "ravepipeline-mcp_load_rave_pipeline"
-                with:
-                  pipeline_name: "power_explorer"
-                description: "Load the power_explorer pipeline"
-
-              - name: "Get parameter schema"
-                tool: "ravepipeline-mcp_get_current_rave_pipeline_info"
-                description: "Get parameter schema and validation rules"
-
-              - name: "Validate requirements"
-                description: "Check frequency range parameter exists and verify type and valid ranges"
-                validation:
-                  check: "freq_min and freq_max parameters exist"
-                  on_fail: "error"
-
-          configure:
-            name: "Configure Parameters"
-            needs: [validate-and-load]
-            steps:
-              - name: "Set pipeline settings"
-                tool: "ravepipeline-mcp_set_current_rave_pipeline_settings"
-                with:
-                  settings_json: '{"freq_min": 2, "freq_max": 150}'
-                description: "Configure frequency range and other parameters"
-
-              - name: "Confirm with user"
-                description: "Confirm settings with user (required for approval workflows)"
-                requires_user_approval: true
-
-          execute:
-            name: "Execute and Monitor"
-            needs: [configure]
-            steps:
-              - name: "Run pipeline"
-                tool: "ravepipeline-mcp_run_current_rave_pipeline"
-                description: "Execute analysis"
-                dangerous: true
-                requires_approval: true
-
-              - name: "Monitor progress"
-                tool: "ravepipeline-mcp_get_current_rave_pipeline_progress"
-                description: "Monitor until complete"
-                loop:
-                  until: "status == 'completed'"
-                  interval: "5 seconds"
-
-              - name: "Retrieve results"
-                tool: "ravepipeline-mcp_read_current_rave_pipeline_results"
-                description: "Retrieve analysis results"
-
-      - name: "Pattern 3: Iterative Analysis"
-        description: "Try different parameters to find optimal settings"
-        user_request: "Try different frequency ranges to find optimal parameters"
-        jobs:
-          iterate:
-            name: "Parameter Sweep"
-            steps:
-              - name: "Set parameters"
-                tool: "ravepipeline-mcp_set_current_rave_pipeline_settings"
-                loop:
-                  over: "parameter_sets"
-                  item: "params"
-
-              - name: "Run analysis"
-                tool: "ravepipeline-mcp_run_current_rave_pipeline"
-                requires_approval: true
-
-              - name: "Wait for completion"
-                tool: "ravepipeline-mcp_get_current_rave_pipeline_progress"
-                loop:
-                  until: "status == 'completed'"
-
-              - name: "Get results"
-                tool: "ravepipeline-mcp_read_current_rave_pipeline_results"
-
-              - name: "Evaluate"
-                description: "Evaluate results and adjust parameters"
-                action: "evaluate"
-
-            outputs:
-              comparison:
-                value: "all_results"
-                description: "Comparison of all parameter sets"
-
-      - name: "Pattern 4: Results Visualization"
-        description: "Read and visualize analysis results"
-        user_request: "Show me the power spectrum results"
-        jobs:
-          visualize:
-            name: "Generate Visualizations"
-            steps:
-              - name: "Read result data"
-                tool: "ravepipeline-mcp_read_current_rave_pipeline_results"
-                with:
-                  target_names: ["plot_data", "statistics"]
-                description: "Get result data for visualization"
-
-              - name: "Present with interpretation"
-                description: "Present visualization with statistical interpretation"
-                action: "present"
-
-  - title: "Advanced Workflows"
-    workflows:
-      - name: "Multi-Pipeline Workflow"
-        description: "Sequential pipeline execution: Preprocessing -> Analysis -> Visualization"
-        scenario: "Complete analysis pipeline with multiple stages"
-        settings:
-          requires_approval: true
-          estimated_duration: "hours"
-        jobs:
-          preprocess:
-            name: "Preprocessing Stage"
-            steps:
-              - name: "Load notch filter"
-                tool: "ravepipeline-mcp_load_rave_pipeline"
-                with:
-                  pipeline_name: "notch_filter"
-
-              - name: "Configure filtering"
-                tool: "ravepipeline-mcp_set_current_rave_pipeline_settings"
-                with:
-                  settings_json: '{"line_frequencies": [60, 120, 180]}'
-                description: "Configure line noise frequencies (60 Hz and harmonics)"
-
-              - name: "Execute filtering"
-                tool: "ravepipeline-mcp_run_current_rave_pipeline"
-                requires_approval: true
-
-              - name: "Verify results"
-                tool: "ravepipeline-mcp_read_current_rave_pipeline_results"
-                description: "Verify clean data"
-
-          analyze:
-            name: "Analysis Stage"
-            needs: [preprocess]
-            steps:
-              - name: "Load wavelet pipeline"
-                tool: "ravepipeline-mcp_load_rave_pipeline"
-                with:
-                  pipeline_name: "wavelet_module"
-
-              - name: "Configure analysis"
-                tool: "ravepipeline-mcp_set_current_rave_pipeline_settings"
-                description: "Configure time-frequency parameters using filtered data"
-
-              - name: "Execute wavelet"
-                tool: "ravepipeline-mcp_run_current_rave_pipeline"
-                requires_approval: true
-
-          visualize:
-            name: "Visualization Stage"
-            needs: [analyze]
-            steps:
-              - name: "Read wavelet results"
-                tool: "ravepipeline-mcp_read_current_rave_pipeline_results"
-
-              - name: "Present results"
-                description: "Generate spectrograms and summary plots"
-                action: "present"
-
-      - name: "Batch Processing Workflow"
-        description: "Analyze multiple subjects or sessions in parallel"
-        scenario: "Process multiple subjects with the same pipeline"
-        settings:
-          dangerous: true
-          requires_approval: true
-          estimated_duration: "hours"
-        jobs:
-          batch-execute:
-            name: "Parallel Subject Processing"
-            strategy:
-              parallel: true
-              max_concurrent: 4
-            steps:
-              - name: "Load pipeline per subject"
-                tool: "ravepipeline-mcp_load_rave_pipeline"
-                with:
-                  pipeline_name: "batch_processor"
-                loop:
-                  over: "subjects"
-                  item: "subject_id"
-
-              - name: "Configure subject settings"
-                tool: "ravepipeline-mcp_set_current_rave_pipeline_settings"
-                description: "Configure subject-specific settings"
-
-              - name: "Start async execution"
-                tool: "ravepipeline-mcp_run_current_rave_pipeline"
-                with:
-                  as_promise: true
-                description: "Start async execution for each subject"
-
-          monitor-all:
-            name: "Monitor All Jobs"
-            needs: [batch-execute]
-            steps:
-              - name: "Check progress"
-                tool: "ravepipeline-mcp_get_current_rave_pipeline_progress"
-                loop:
-                  until: "all_complete"
-                  interval: "10 seconds"
-                description: "Periodically check progress for all subjects"
-
-              - name: "Report status"
-                description: "Report completion status for each subject"
-                action: "report"
-
-          aggregate:
-            name: "Aggregate Results"
-            needs: [monitor-all]
-            steps:
-              - name: "Collect results"
-                tool: "ravepipeline-mcp_read_current_rave_pipeline_results"
-                loop:
-                  over: "subjects"
-                description: "Collect results from all subjects"
-
-              - name: "Generate statistics"
-                description: "Generate group-level statistics and comparison visualizations"
-                action: "aggregate"
-
-      - name: "Error Recovery Workflow"
-        description: "Handle and recover from pipeline execution errors"
-        scenario: "Pipeline execution fails - diagnose and retry"
-        jobs:
-          diagnose:
-            name: "Error Diagnosis"
-            steps:
-              - name: "Check error status"
-                tool: "ravepipeline-mcp_get_current_rave_pipeline_progress"
-                description: "Check current status and error messages"
-
-              - name: "Parse error"
-                description: "Identify issue: missing data, invalid parameter, resource issue, etc."
-                action: "parse_error"
-
-          recover:
-            name: "Recover from Error"
-            needs: [diagnose]
-            if: "error_type == 'parameter_issue'"
-            steps:
-              - name: "Review constraints"
-                tool: "ravepipeline-mcp_get_current_rave_pipeline_info"
-                description: "Review parameter constraints and valid ranges"
-
-              - name: "Suggest corrections"
-                description: "Suggest corrections to user based on schema"
-                action: "suggest"
-
-              - name: "Apply corrections"
-                tool: "ravepipeline-mcp_set_current_rave_pipeline_settings"
-                description: "Apply corrected parameters"
-
-              - name: "Retry execution"
-                tool: "ravepipeline-mcp_run_current_rave_pipeline"
-                requires_approval: true
-
-          escalate:
-            name: "Escalate to User"
-            needs: [diagnose]
-            if: "error_type == 'data_issue'"
-            steps:
-              - name: "Guide validation"
-                description: "Guide user through data validation steps"
-                action: "guide"
-
-              - name: "Suggest preprocessing"
-                description: "Suggest preprocessing steps to fix data issues"
-                action: "suggest"
-
-  - title: "Safety and Validation"
-    content: |
-      Critical safety guidelines for using RAVE MCP tools
-
-    best_practices:
-      - title: "Required Approval Workflows"
-        description: "For tools with requires_approval: true"
-        steps:
-          - "Present action details to user: tool name, purpose, parameters, expected outcomes, potential side effects"
-          - "Wait for explicit user confirmation - Do NOT auto-approve"
-          - "Execute only after approval"
-          - "Confirm execution started"
-
-      - title: "Dangerous Operations"
-        description: "For tools with dangerous: true"
-        warnings:
-          - "Extra confirmation required - Show WARNING clearly"
-          - "Explain risks and suggest safer alternatives if available"
-          - "Double confirmation: 'Are you sure? This action cannot be undone.'"
-          - "Log the operation: record what was approved with timestamp"
-          - "Verify results and alert user to any anomalies"
-
-      - title: "Parameter Validation"
-        description: "Always validate before setting parameters"
-        validation_steps:
-          - "Check against schema: type validation (string, number, boolean), enum validation, array type validation"
-          - "Range validation: numeric bounds, string length limits, array length constraints"
-          - "Dependency validation: required parameters present, conditional parameters valid, parameter relationships satisfied"
-          - "Warn user of issues with clear error messages, suggested corrections, and examples"
-
-  - title: "Best Practices"
-    best_practices:
-      - title: "1. Always Start with Discovery"
-        bad_example: |
-          User: "Run power analysis"
-          Assistant: [Immediately tries to run with guessed parameters]
-        good_example: |
-          User: "Run power analysis"
-          Assistant: [Calls mcp_list_rave_pipelines()]
-          "I found several power analysis pipelines. Let me get details..."
-          [Calls mcp_load_rave_pipeline then mcp_get_current_rave_pipeline_info]
-          "The power_explorer pipeline needs these parameters: ..."
-
-      - title: "2. Validate Before Executing"
-        bad_example: |
-          Assistant: [Sets parameters and runs without checking]
-        good_example: |
-          Assistant: [Loads pipeline and gets info first]
-          [Validates all parameters against schema]
-          [Confirms settings with user]
-          [Then executes]
-
-      - title: "3. Monitor Long-Running Operations"
-        bad_example: |
-          Assistant: [Starts pipeline, assumes it completed]
-        good_example: |
-          Assistant: [Starts pipeline]
-          "Pipeline started. Checking progress..."
-          [Polls mcp_get_current_rave_pipeline_progress every 5 seconds]
-          "Processing: 45% complete..."
-          "Analysis finished successfully!"
-
-      - title: "4. Provide Context with Results"
-        bad_example: |
-          Assistant: [Returns raw data dump]
-        good_example: |
-          Assistant: "Analysis complete! Here's what I found:
-
-          Power spectrum peak at 12 Hz (alpha band)
-          Mean power: 15.3 uV^2/Hz
-          95th percentile: 28.1 uV^2/Hz
-
-          Would you like me to visualize these results?"
-
-      - title: "5. Handle Errors Gracefully"
-        bad_example: |
-          Assistant: "Error occurred." [Stops]
-        good_example: |
-          Assistant: "The analysis encountered an error: 'Invalid frequency range'
-
-          This means the requested frequency range (2-500 Hz) exceeds the
-          data's sampling rate (1000 Hz). The maximum valid frequency is
-          500 Hz (Nyquist frequency).
-
-          Would you like me to rerun with 2-400 Hz instead?"
-
-# Examples of complete conversations
-examples:
-  - name: "Complete Discovery-to-Results Workflow"
-    user_query: "I need to analyze gamma power in my iEEG data"
-    expected_flow: "Discovery -> Load -> Configure -> Approve -> Execute -> Monitor -> Results"
-    conversation:
-      - role: "user"
-        message: "I need to analyze gamma power in my iEEG data"
-      - role: "assistant"
-        action: "mcp_list_rave_pipelines"
-        message: "Let me check what gamma analysis pipelines are available..."
-      - role: "assistant"
-        action: "filter_and_present"
-        message: "I found the power_explorer pipeline which can analyze gamma frequencies. Let me load it and see what parameters we need."
-      - role: "assistant"
-        action: "mcp_load_rave_pipeline"
-        tool_call: 'mcp_load_rave_pipeline("power_explorer")'
-      - role: "assistant"
-        action: "mcp_get_current_rave_pipeline_info"
-        message: "To analyze gamma power (30-100 Hz), I'll need to configure: frequency range, electrodes, and time windows. What electrodes would you like to analyze?"
-
-# Warnings for AI assistants
 warnings:
   - "Never execute dangerous operations without explicit user approval"
   - "Always validate parameters against schema before setting"
@@ -482,8 +156,306 @@ warnings:
   - "Handle errors gracefully with clear explanations and recovery suggestions"
   - "Start with discovery tools before assuming pipeline names or parameters"
   - "Provide context and interpretation with results, not just raw data"
+  - "For dangerous: true operations, show WARNING and request double confirmation"
 
-# Settings
+# ============================================================
+# JOBS
+# ============================================================
+jobs:
+  # Pattern 1: Discovery
+  pipeline-discovery:
+    name: "Pipeline Discovery"
+    description: "Discover and explore available analysis pipelines"
+    steps:
+      - name: "List all pipelines"
+        tool: "ravepipeline-mcp_list_rave_pipelines"
+        description: "Get all available pipelines"
+
+      - name: "Filter by relevance"
+        action: "filter"
+        description: "Parse results for pipelines matching user's needs (e.g., power, spectral, frequency)"
+
+      - name: "Load for details"
+        tool: "ravepipeline-mcp_load_rave_pipeline"
+        description: "Load each relevant pipeline to inspect"
+        loop:
+          over: "relevant_pipelines"
+
+      - name: "Get parameter info"
+        tool: "ravepipeline-mcp_get_current_rave_pipeline_info"
+        description: "Get details for each loaded pipeline"
+
+      - name: "Present options"
+        action: "present"
+        description: "Present options to user with descriptions"
+
+  # Pattern 2: Configure and Run
+  configure-and-run:
+    name: "Configure and Execute Pipeline"
+    description: "Complete workflow from configuration to execution"
+    steps:
+      - name: "Load pipeline"
+        tool: "ravepipeline-mcp_load_rave_pipeline"
+        description: "Load the target pipeline"
+
+      - name: "Get parameter schema"
+        tool: "ravepipeline-mcp_get_current_rave_pipeline_info"
+        description: "Get parameter schema and validation rules"
+
+      - name: "Validate requirements"
+        action: "validate"
+        description: "Check all required parameters exist and are valid"
+        validation:
+          check: "All required parameters present and valid"
+          on_fail: "error"
+
+      - name: "Set parameters"
+        tool: "ravepipeline-mcp_set_current_rave_pipeline_settings"
+        description: "Configure pipeline with validated parameters"
+
+      - name: "Confirm with user"
+        action: "confirm"
+        description: "Present settings and request user approval"
+        requires_approval: true
+
+      - name: "Execute pipeline"
+        tool: "ravepipeline-mcp_run_current_rave_pipeline"
+        description: "Run the analysis"
+        dangerous: true
+        requires_approval: true
+
+      - name: "Monitor progress"
+        tool: "ravepipeline-mcp_get_current_rave_pipeline_progress"
+        description: "Poll until complete"
+        loop:
+          until: "status == 'completed'"
+          interval: "5 seconds"
+
+      - name: "Retrieve results"
+        tool: "ravepipeline-mcp_read_current_rave_pipeline_results"
+        description: "Get and present analysis results"
+
+  # Pattern 3: Iterative Analysis
+  iterative-analysis:
+    name: "Iterative Parameter Exploration"
+    description: "Try different parameters to find optimal settings"
+    steps:
+      - name: "Set parameters"
+        tool: "ravepipeline-mcp_set_current_rave_pipeline_settings"
+        loop:
+          over: "parameter_sets"
+          item: "params"
+
+      - name: "Run analysis"
+        tool: "ravepipeline-mcp_run_current_rave_pipeline"
+        requires_approval: true
+
+      - name: "Wait for completion"
+        tool: "ravepipeline-mcp_get_current_rave_pipeline_progress"
+        loop:
+          until: "status == 'completed'"
+
+      - name: "Get results"
+        tool: "ravepipeline-mcp_read_current_rave_pipeline_results"
+
+      - name: "Evaluate and compare"
+        action: "evaluate"
+        description: "Compare results across parameter sets"
+
+  # Pattern 4: Results Visualization
+  results-visualization:
+    name: "Results Visualization"
+    description: "Read and visualize analysis results"
+    steps:
+      - name: "Read result data"
+        tool: "ravepipeline-mcp_read_current_rave_pipeline_results"
+        with:
+          target_names: ["plot_data", "statistics"]
+
+      - name: "Present with interpretation"
+        action: "present"
+        description: "Present visualization with statistical interpretation"
+
+  # Advanced: Multi-Pipeline Workflow
+  multi-pipeline:
+    name: "Multi-Pipeline Sequential Analysis"
+    description: "Sequential pipeline execution: Preprocessing → Analysis → Visualization"
+    steps:
+      # Preprocessing Stage
+      - name: "Load notch filter"
+        tool: "ravepipeline-mcp_load_rave_pipeline"
+        with:
+          pipeline_name: "notch_filter"
+
+      - name: "Configure filtering"
+        tool: "ravepipeline-mcp_set_current_rave_pipeline_settings"
+        with:
+          settings_json: '{"line_frequencies": [60, 120, 180]}'
+        description: "Configure line noise frequencies (60 Hz and harmonics)"
+
+      - name: "Execute filtering"
+        tool: "ravepipeline-mcp_run_current_rave_pipeline"
+        requires_approval: true
+
+      - name: "Verify clean data"
+        tool: "ravepipeline-mcp_read_current_rave_pipeline_results"
+
+      # Analysis Stage
+      - name: "Load wavelet pipeline"
+        tool: "ravepipeline-mcp_load_rave_pipeline"
+        with:
+          pipeline_name: "wavelet_module"
+
+      - name: "Configure time-frequency analysis"
+        tool: "ravepipeline-mcp_set_current_rave_pipeline_settings"
+        description: "Configure using filtered data from previous stage"
+
+      - name: "Execute wavelet analysis"
+        tool: "ravepipeline-mcp_run_current_rave_pipeline"
+        requires_approval: true
+
+      # Visualization Stage
+      - name: "Read wavelet results"
+        tool: "ravepipeline-mcp_read_current_rave_pipeline_results"
+
+      - name: "Generate visualizations"
+        action: "present"
+        description: "Generate spectrograms and summary plots"
+
+  # Advanced: Batch Processing
+  batch-processing:
+    name: "Batch Subject Processing"
+    description: "Analyze multiple subjects with the same pipeline"
+    strategy:
+      parallel: true
+      max_concurrent: 4
+    steps:
+      - name: "Load pipeline per subject"
+        tool: "ravepipeline-mcp_load_rave_pipeline"
+        loop:
+          over: "subjects"
+          item: "subject_id"
+
+      - name: "Configure subject settings"
+        tool: "ravepipeline-mcp_set_current_rave_pipeline_settings"
+        description: "Configure subject-specific settings"
+
+      - name: "Start async execution"
+        tool: "ravepipeline-mcp_run_current_rave_pipeline"
+        with:
+          as_promise: true
+        dangerous: true
+        requires_approval: true
+
+      - name: "Monitor all jobs"
+        tool: "ravepipeline-mcp_get_current_rave_pipeline_progress"
+        loop:
+          until: "all_complete"
+          interval: "10 seconds"
+
+      - name: "Collect results"
+        tool: "ravepipeline-mcp_read_current_rave_pipeline_results"
+        loop:
+          over: "subjects"
+
+      - name: "Generate group statistics"
+        action: "aggregate"
+        description: "Generate group-level statistics and comparisons"
+
+  # Error Recovery
+  error-recovery:
+    name: "Error Recovery"
+    description: "Handle and recover from pipeline execution errors"
+    if: "execution_failed"
+    steps:
+      - name: "Check error status"
+        tool: "ravepipeline-mcp_get_current_rave_pipeline_progress"
+        description: "Get current status and error messages"
+
+      - name: "Parse error type"
+        action: "parse_error"
+        description: "Identify issue: missing data, invalid parameter, resource issue"
+
+      - name: "Review constraints"
+        tool: "ravepipeline-mcp_get_current_rave_pipeline_info"
+        description: "Review parameter constraints and valid ranges"
+
+      - name: "Suggest corrections"
+        action: "suggest"
+        description: "Suggest corrections based on schema and error"
+
+      - name: "Apply corrections"
+        tool: "ravepipeline-mcp_set_current_rave_pipeline_settings"
+        description: "Apply corrected parameters"
+
+      - name: "Retry execution"
+        tool: "ravepipeline-mcp_run_current_rave_pipeline"
+        requires_approval: true
+
+# ============================================================
+# EXAMPLES
+# ============================================================
+examples:
+  - trigger: "I need to analyze gamma power in my iEEG data"
+    flow:
+      - tool: "ravepipeline-mcp_list_rave_pipelines"
+        says: "Let me check what gamma analysis pipelines are available..."
+
+      - action: "filter_and_present"
+        says: "I found the power_explorer pipeline which can analyze gamma frequencies. Let me load it and see what parameters we need."
+
+      - tool: "ravepipeline-mcp_load_rave_pipeline"
+        with:
+          pipeline_name: "power_explorer"
+
+      - tool: "ravepipeline-mcp_get_current_rave_pipeline_info"
+        says: "To analyze gamma power (30-100 Hz), I'll need to configure: frequency range, electrodes, and time windows. What electrodes would you like to analyze?"
+
+  - trigger: "What analysis pipelines are available for power spectral analysis?"
+    flow:
+      - tool: "ravepipeline-mcp_list_rave_pipelines"
+        says: "Let me find available power analysis pipelines..."
+
+      - action: "filter_and_present"
+        says: |
+          I found 3 pipelines for power spectral analysis:
+          
+          1. **power_explorer** - Interactive power spectral density visualization
+          2. **wavelet_module** - Time-frequency analysis using wavelet transforms
+          3. **coherence_analysis** - Cross-spectral coherence between channels
+          
+          Would you like details on any of these?
+
+  - trigger: "Run power analysis on my data with 2-150 Hz frequency range"
+    flow:
+      - tool: "ravepipeline-mcp_load_rave_pipeline"
+        with:
+          pipeline_name: "power_explorer"
+        says: "Loading the power_explorer pipeline..."
+
+      - tool: "ravepipeline-mcp_get_current_rave_pipeline_info"
+        says: "Let me verify the frequency range parameters..."
+
+      - tool: "ravepipeline-mcp_set_current_rave_pipeline_settings"
+        with:
+          settings_json: '{"freq_min": 2, "freq_max": 150}'
+        says: "I'll configure the frequency range to 2-150 Hz. Ready to execute?"
+
+      - action: "await_approval"
+        says: "This will run the analysis. Do you want to proceed?"
+
+      - tool: "ravepipeline-mcp_run_current_rave_pipeline"
+        says: "Starting analysis..."
+
+      - tool: "ravepipeline-mcp_get_current_rave_pipeline_progress"
+        says: "Processing: 45% complete..."
+
+      - tool: "ravepipeline-mcp_read_current_rave_pipeline_results"
+        says: "Analysis complete! Here are the power spectrum results..."
+
+# ============================================================
+# SETTINGS
+# ============================================================
 settings:
   dangerous: false
   requires_approval: false

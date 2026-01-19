@@ -2,35 +2,35 @@
 % Please edit documentation in R/mcp-workflows.R
 \name{mcpflow_job_validator}
 \alias{mcpflow_job_validator}
-\title{Create Job Execution Validator for Workflow}
+\title{Create validation tool for job execution}
 \usage{
 mcpflow_job_validator(workflow, strict = FALSE, verbose = TRUE)
 }
 \arguments{
-\item{workflow}{A \code{ravepipeline_mcp_workflow} object}
+\item{workflow}{A MCP workflow object}
 
 \item{strict}{Logical. If \code{TRUE}, reject out-of-order tool calls via
-\code{ellmer::tool_reject()}. If \code{FALSE} (default), only warn via
-\code{cli::cli_warn()}.}
+\code{\link[ellmer]{tool_reject}}. If \code{FALSE} (default), only warn via
+\code{\link[cli]{cli_warn}}.}
 
 \item{verbose}{Logical. If \code{TRUE} (default), print progress messages
 when jobs and steps are detected.}
 }
 \value{
 A list with two callback functions:
-\item{on_tool_request}{Callback for \code{chat$on_tool_request()}}
-\item{on_tool_result}{Callback for \code{chat$on_tool_result()}}
-\item{state}{An environment containing execution state (for inspection)}
+\item{\code{on_tool_request}}{Callback for \code{chat$on_tool_request()}}
+\item{\code{on_tool_result}}{Callback for \code{chat$on_tool_result()}}
+\item{\code{state}}{An environment containing execution state (for inspection)}
 }
 \description{
 Creates a callback function that validates tool calls against
-workflow job definitions. The validator tracks which jobs have been completed
+workflow job definitions. The validation tool tracks which jobs have been completed
 and warns (or rejects) when tools are called out of expected order or
 when job dependencies are not met.
 }
 \details{
-The validator maintains state about which jobs have been started/completed
-based on tool calls observed. It checks:
+The validation tool maintains state about which jobs have been
+started/completed based on tool calls observed. It checks:
 \itemize{
 \item Whether the tool being called matches expected job steps
 \item Whether job dependencies (\code{needs}) are satisfied
@@ -38,10 +38,11 @@ based on tool calls observed. It checks:
 }
 }
 \examples{
-\dontrun{
+
 wf <- mcpflow_read("ravepipeline::rave_pipeline_class_guide")
 validator <- mcpflow_job_validator(wf, strict = FALSE)
 
+\dontrun{
 chat <- ellmer::chat_ollama()
 chat$on_tool_request(validator$on_tool_request)
 chat$on_tool_result(validator$on_tool_result)
