@@ -138,6 +138,62 @@ power_explorer$visualize(glimpse = TRUE, aspect_ratio = 10)
   [`logger_error_condition()`](http://dipterix.org/ravepipeline/reference/logger.md)
   : Logger system used by 'RAVE'
 
+- [`mcpflow_export()`](http://dipterix.org/ravepipeline/reference/mcpflow_export.md)
+  : Export RAVE MCP workflows
+
+- [`mcpflow_instantiate()`](http://dipterix.org/ravepipeline/reference/mcpflow_instantiate.md)
+  : Instantiate workflow as a chat
+
+- [`mcpflow_job_validator()`](http://dipterix.org/ravepipeline/reference/mcpflow_job_validator.md)
+  : Create validation tool for job execution
+
+- [`mcpflow_list()`](http://dipterix.org/ravepipeline/reference/mcpflow_list.md)
+  : List RAVE MCP workflow names
+
+- [`mcpflow_load_all()`](http://dipterix.org/ravepipeline/reference/mcpflow_load_all.md)
+  : Load RAVE MCP workflows
+
+- [`mcpflow_path()`](http://dipterix.org/ravepipeline/reference/mcpflow_path.md)
+  : Find path to RAVE MCP workflow
+
+- [`mcpflow_read()`](http://dipterix.org/ravepipeline/reference/mcpflow_read.md)
+  : Read RAVE MCP workflow
+
+- [`mcpflow_tool_names()`](http://dipterix.org/ravepipeline/reference/mcpflow_tool_names.md)
+  : Extract tool names from workflows
+
+- [`mcpflow_tools()`](http://dipterix.org/ravepipeline/reference/mcpflow_tools.md)
+  : Load Tools for Workflow
+
+- [`mcpflow_validate()`](http://dipterix.org/ravepipeline/reference/mcpflow_validate.md)
+  : Validate RAVE MCP workflow
+
+- [`mcpflow_write()`](http://dipterix.org/ravepipeline/reference/mcpflow_write.md)
+  : Write RAVE MCP workflow to a file
+
+- [`mcptool_build()`](http://dipterix.org/ravepipeline/reference/mcptool_build.md)
+  : Build MCP Tool Definitions from Package Documentation
+
+- [`mcptool_instantiate()`](http://dipterix.org/ravepipeline/reference/mcptool_instantiate.md)
+  : Instantiate from RAVE MCP tool definition
+
+- [`mcptool_list()`](http://dipterix.org/ravepipeline/reference/mcptool_list.md)
+  : List MCP tool names from a package or directory
+
+- [`mcptool_load_all()`](http://dipterix.org/ravepipeline/reference/mcptool_load_all.md)
+  : Load MCP Tool Definitions from Package or Directory
+
+- [`mcptool_path()`](http://dipterix.org/ravepipeline/reference/mcptool_path.md)
+  : Find path to a specific MCP tool by name
+
+- [`mcptool_read()`](http://dipterix.org/ravepipeline/reference/mcptool_read.md)
+  :
+
+  Read MCP tool definition from `YAML` file
+
+- [`mcptool_write()`](http://dipterix.org/ravepipeline/reference/mcptool_write.md)
+  : Write MCP tool definition to file
+
 - [`module_add()`](http://dipterix.org/ravepipeline/reference/module_add.md)
   : Add new 'RAVE' (2.0) module to current project
 
@@ -244,3 +300,9 @@ power_explorer$visualize(glimpse = TRUE, aspect_ratio = 10)
   [`lapply_jobs()`](http://dipterix.org/ravepipeline/reference/with_rave_parallel.md)
   : Internal parallel functions
 
+# Articles
+
+### All vignettes
+
+- [Using RAVE Pipelines
+  Programmatically](http://dipterix.org/ravepipeline/articles/using-pipeline-class.md):
