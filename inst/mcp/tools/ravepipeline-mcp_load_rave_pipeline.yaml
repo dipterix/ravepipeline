@@ -1,13 +1,15 @@
 name: ravepipeline-mcp_load_rave_pipeline
 description: Load a RAVE pipeline by name. This makes the pipeline available for configuration
-  and execution. Creates a pipeline instance in the global environment as 'pipe'.
+  and execution. Stores the pipeline instance in internal state for use by subsequent
+  MCP tool calls.
 parameters:
   type: object
   properties:
     pipeline_name:
       type: string
-      description: 'Name of the pipeline to load. Use mcp_list_rave_pipelines to see
-        available options. Example values: "power_explorer", "notch_filter", "wavelet_module".'
+      description: 'Name of the pipeline to load. Use ravepipeline-mcp_list_rave_pipelines
+        to see available options. Example values: "power_explorer", "notch_filter",
+        "wavelet_module".'
       examples:
       - power_explorer
       - notch_filter
@@ -15,11 +17,6 @@ parameters:
   required:
   - pipeline_name
 category: setup
-example_response:
-  success: yes
-  message: 'Loaded pipeline: power_explorer'
-  description: Explore Power or Amplitude of iEEG Spectrogram
-  targets: 56
 returns:
   type: object
   properties:
@@ -38,3 +35,31 @@ returns:
     success:
       type: boolean
       description: Logical, whether the pipeline was loaded successfully
+implementation_example: |
+  # Direct implementation:
+  # The tool invokes an internal call to `ravepipeline:::mcp_load_rave_pipeline`
+  # From within R. While users should not execute the function directly,
+  # this function has the following equivalent implementation:
+  # Example using pipeline_name called "power_explorer"
+  # Use 'pipe' variable to avoid confusion with the pipeline() function
+  pipe <- ravepipeline::pipeline("power_explorer")
+  list(
+    success = TRUE,
+    message = sprintf("Loaded pipeline: %s", "power_explorer"),
+    description = pipe$description$Title,
+    targets = nrow(pipe$target_table)
+  )
+  #
+  #> $success
+  #> [1] TRUE
+  #> 
+  #> $message
+  #> [1] "Loaded pipeline: power_explorer"
+  #> 
+  #> $description
+  #> [1] "Explore Power or Amplitute of iEEG Spectrogram"
+  #> 
+  #> $targets
+  #> [1] 56
+  #>
+execution_time: 1.138

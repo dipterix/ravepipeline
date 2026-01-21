@@ -1,6 +1,6 @@
 name: ravepipeline-mcp_get_current_rave_pipeline_progress
 description: Check the execution progress of the pipeline. Shows which targets are
-  completed, running, or pending. Must call mcp_load_rave_pipeline first.
+  completed, running, or pending. Must call ravepipeline-mcp_load_rave_pipeline first.
 parameters:
   type: object
   properties:
@@ -23,8 +23,27 @@ returns:
       type: object
       description: Object with progress information. Contains a 'format' field ("structured"
         for data frame, "text" for string) and progress data. Summary shows counts
-        (skipped, dispatched, completed, errored, canceled, since), details shows
-        per-target status
+        ('skipped', 'dispatched', 'completed', 'errored', 'canceled', 'since'), details
+        shows per-target status
     success:
       type: boolean
       description: Logical, whether progress information was retrieved successfully
+implementation_example: |
+  # Complete example:
+  # The tool invokes an internal call to `ravepipeline:::mcp_get_current_rave_pipeline_progress`
+  # From within R. While users should not execute the function directly,
+  # this function has the following equivalent implementation:
+  # Example using pipeline_name called "power_explorer"
+  # Prepare: load, set & run pipeline
+  pipe <- ravepipeline::pipeline("power_explorer")
+  pipe$set_settings(project_name = "demo", subject_code = "DemoSubject")
+  pipe$run(names = c("settings"), return_values = FALSE)
+  # Check progress
+  pipe$progress(method = "details")
+  #
+  #> # A tibble: 2 × 2
+  #>   name          progress 
+  #>   <chr>         <chr>    
+  #> 1 settings_path skipped  
+  #> 2 settings      completed
+execution_time: 0.797

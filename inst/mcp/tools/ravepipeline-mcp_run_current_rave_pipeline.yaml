@@ -1,7 +1,8 @@
 name: ravepipeline-mcp_run_current_rave_pipeline
 description: Execute the pipeline. This will run computations - request explicit user
-  approval before calling. Can run all targets or specific ones. Execution may take
-  seconds to hours depending on pipeline complexity and data size. Must call mcp_load_rave_pipeline
+  approval before calling. Can run all targets or specific ones. Use `ravepipeline-mcp_get_current_rave_pipeline_info`
+  to discover valid target names. Execution may take seconds to hours depending on
+  pipeline complexity and data size. Must call ravepipeline-mcp_load_rave_pipeline
   first.
 parameters:
   type: object
@@ -10,8 +11,8 @@ parameters:
       type: array
       description: 'Specific target names to run. If empty, runs all targets. Pipeline
         automatically determines dependencies, so specifying a target will also run
-        its upstream dependencies if needed. Default is empty. Example values: "settings_path",
-        "settings", "repository".'
+        its upstream dependencies if needed. Default is empty. Do not guess names;
+        check valid targets first. Example values: "settings_path", "settings", "repository".'
       items:
         type: string
       examples:
@@ -21,22 +22,6 @@ parameters:
 category: execution
 dangerous: yes
 requires_approval: yes
-example_response:
-  success: yes
-  message: Pipeline execution completed
-  result_summary:
-    name:
-    - settings_path
-    - settings
-    type:
-    - stem
-    - stem
-    bytes:
-    - 1702
-    - 928
-    seconds:
-    - 0.006
-    - 0.0
 returns:
   type: object
   properties:
@@ -57,3 +42,37 @@ returns:
     success:
       type: boolean
       description: Logical, whether pipeline execution completed successfully
+implementation_example: |
+  # Complete example:
+  # The tool invokes an internal call to `ravepipeline:::mcp_run_current_rave_pipeline`
+  # From within R. While users should not execute the function directly,
+  # this function has the following equivalent implementation:
+  # Example using pipeline_name called "power_explorer" on "demo/DemoSubject"
+  # subject ID (A RAVE subject ID has <project/subject> format)
+  # Prepare: load & set pipeline
+  pipe <- ravepipeline::pipeline("power_explorer")
+  pipe$set_settings(project_name = "demo", subject_code = "DemoSubject")
+  # Run specific target(s)
+  pipe$run(names = c("settings"), return_values = FALSE)
+  list(
+    success = TRUE,
+    message = "Pipeline execution completed",
+    result_summary = head(pipe$result_table, 3) # Truncated
+  )
+  #
+  #> $success
+  #> [1] TRUE
+  #> 
+  #> $message
+  #> [1] "Pipeline execution completed"
+  #> 
+  #> $result_summary
+  #> # A tibble: 2 × 18
+  #>   name  type  data  command depend    seed path  time                size  bytes
+  #>   <chr> <chr> <chr> <chr>   <chr>    <int> <lis> <dttm>              <chr> <dbl>
+  #> 1 sett… stem  ecb2… 0bc648… 2c530…  8.53e8 <chr> 2026-01-21 18:52:13 s170…  1702
+  #> 2 sett… stem  aca4… f2df9b… 3690f… -4.16e8 <chr> 2026-01-21 18:52:14 s928b   928
+  #> # ℹ 8 more variables: format <chr>, repository <chr>, iteration <chr>,
+  #> #   parent <chr>, children <list>, seconds <dbl>, warnings <chr>, error <chr>
+  #>
+execution_time: 0.97

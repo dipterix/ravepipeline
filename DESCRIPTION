@@ -1,7 +1,7 @@
 Package: ravepipeline
 Type: Package
 Title: Reproducible Pipeline Infrastructure for Neuroscience
-Version: 0.0.3.6
+Version: 0.0.3.7
 Language: en-US
 Authors@R: c(
     person("Zhengjia", "Wang", email = "dipterix.wang@gmail.com", role = c("aut", "cre", "cph")),
@@ -63,6 +63,7 @@ Suggests:
     globals,
     ieegio,
     rpymat,
+    reprex,
     rmarkdown,
     rstudioapi,
     shidashi,

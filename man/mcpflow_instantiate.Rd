@@ -15,6 +15,7 @@ mcpflow_instantiate(
   use_job_validator = FALSE,
   validator_strict = FALSE,
   validator_verbose = TRUE,
+  state_env = NULL,
   ...
 )
 }
@@ -55,6 +56,9 @@ Default is \code{FALSE} (advisory warnings only).}
 
 \item{validator_verbose}{Logical. If \code{TRUE} (default) and
 \code{use_job_validator} is \code{TRUE}, print progress messages.}
+
+\item{state_env}{Environment or \code{NULL} (default). Environment in which
+the MCP tools share and store data; see \code{\link{mcptool_state_factory}}}
 
 \item{...}{Additional arguments passed to \code{\link{mcptool_instantiate}}
 for each tool.}

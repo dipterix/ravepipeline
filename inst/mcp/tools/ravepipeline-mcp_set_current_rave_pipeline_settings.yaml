@@ -1,14 +1,15 @@
 name: ravepipeline-mcp_set_current_rave_pipeline_settings
 description: Configure pipeline settings. This does NOT run the pipeline, only sets
-  parameters. Must call mcp_load_rave_pipeline first.
+  parameters. Must call `ravepipeline-mcp_load_rave_pipeline` first.
 parameters:
   type: object
   properties:
     settings_json:
       type: string
       description: 'Containing JSON with pipeline settings as key-value pairs. Use
-        mcp_get_rave_pipeline_info to see what settings are available. Example values:
-        ''{"project_name": "demo"''}, ''{"subject_code": "DemoSubject"''}.'
+        `ravepipeline-mcp_get_current_rave_pipeline_info` to see what settings are
+        available. Example values: ''{"project_name": "demo"''}, ''{"subject_code":
+        "DemoSubject"''}.'
       examples:
       - '{"project_name": "demo"}'
       - '{"subject_code": "DemoSubject"}'
@@ -30,3 +31,203 @@ returns:
     success:
       type: boolean
       description: Logical, whether settings were applied successfully
+implementation_example: |
+  # Complete example:
+  # The tool invokes an internal call to `ravepipeline:::mcp_set_current_rave_pipeline_settings`
+  # From within R. While users should not execute the function directly,
+  # this function has the following equivalent implementation:
+  # Example using pipeline_name called "power_explorer"
+  # Load pipeline with pipeline name
+  pipe <- ravepipeline::pipeline("power_explorer")
+  # Then set input settings
+  pipe$set_settings(project_name = "demo", subject_code = "DemoSubject")
+  # Construct response (optional for users)
+  list(
+    success = TRUE,
+    message = "Settings updated successfully",
+    current_settings = pipe$get_settings()
+  )
+  #
+  #> $success
+  #> [1] TRUE
+  #> 
+  #> $message
+  #> [1] "Settings updated successfully"
+  #> 
+  #> $current_settings
+  #> $current_settings$trials_to_export
+  #> [1] "Raw, Only trials used in grouping factors"
+  #> 
+  #> $current_settings$trial_outliers_list
+  #> NULL
+  #> 
+  #> $current_settings$times_to_export
+  #> [1] "Raw, All available times"
+  #> 
+  #> $current_settings$time_censor
+  #> $current_settings$time_censor$enabled
+  #> [1] FALSE
+  #> 
+  #> $current_settings$time_censor$window
+  #> [1] 0 1
+  #> 
+  #> 
+  #> $current_settings$subject_code
+  #> [1] "DemoSubject"
+  #> 
+  #> $current_settings$second_condition_groupings
+  #> $current_settings$second_condition_groupings$`1`
+  #> $current_settings$second_condition_groupings$`1`$label
+  #> [1] "ML"
+  #> 
+  #> $current_settings$second_condition_groupings$`1`$conditions
+  #> list()
+  #> 
+  #> 
+  #> $current_settings$second_condition_groupings$`2`
+  #> $current_settings$second_condition_groupings$`2`$label
+  #> [1] "VL"
+  #> 
+  #> $current_settings$second_condition_groupings$`2`$conditions
+  #> list()
+  #> 
+  #> 
+  #> 
+  #> $current_settings$reference_name
+  #> [1] "default"
+  #> 
+  #> $current_settings$project_name
+  #> [1] "demo"
+  #> 
+  #> $current_settings$omnibus_includes_all_electrodes
+  #> [1] TRUE
+  #> 
+  #> $current_settings$loaded_electrodes
+  #> [1] "13-16,24"
+  #> 
+  #> $current_settings$frequencies_to_export
+  #> [1] "Collapsed, Analysis window(s) only"
+  #> 
+  #> $current_settings$first_condition_groupings
+  #> $current_settings$first_condition_groupings$`1`
+  #> $current_settings$first_condition_groupings$`1`$label
+  #> [1] "audio_visual"
+  #> 
+  #> $current_settings$first_condition_groupings$`1`$conditions
+  #> [1] "known_av" "meant_av" "last_av"  "drive_av"
+  #> 
+  #> 
+  #> $current_settings$first_condition_groupings$`2`
+  #> $current_settings$first_condition_groupings$`2`$label
+  #> [1] "auditory_only"
+  #> 
+  #> $current_settings$first_condition_groupings$`2`$conditions
+  #> [1] "last_a"  "drive_a" "known_a" "meant_a"
+  #> 
+  #> 
+  #> $current_settings$first_condition_groupings$`3`
+  #> $current_settings$first_condition_groupings$`3`$label
+  #> [1] "visual_only"
+  #> 
+  #> $current_settings$first_condition_groupings$`3`$conditions
+  #> [1] "last_v"  "drive_v" "known_v" "meant_v"
+  #> 
+  #> 
+  #> 
+  #> $current_settings$epoch_choice__trial_starts_rel_to_event
+  #> [1] "Trial Onset"
+  #> 
+  #> $current_settings$epoch_choice__trial_starts
+  #> [1] -1
+  #> 
+  #> $current_settings$epoch_choice__trial_ends_rel_to_event
+  #> [1] "Trial Onset"
+  #> 
+  #> $current_settings$epoch_choice__trial_ends
+  #> [1] 2
+  #> 
+  #> $current_settings$epoch_choice
+  #> [1] "auditory_onset"
+  #> 
+  #> $current_settings$enable_second_condition_groupings
+  #> [1] FALSE
+  #> 
+  #> $current_settings$enable_custom_ROI
+  #> [1] FALSE
+  #> 
+  #> $current_settings$electrodes_to_export_roi_name
+  #> [1] "none"
+  #> 
+  #> $current_settings$electrodes_to_export_roi_categories
+  #> NULL
+  #> 
+  #> $current_settings$electrodes_to_export
+  #> [1] ""
+  #> 
+  #> $current_settings$electrode_export_file_type
+  #> [1] "HDF5"
+  #> 
+  #> $current_settings$electrode_export_data_type
+  #> [1] "tensor"
+  #> 
+  #> $current_settings$custom_roi_variable
+  #> [1] "none"
+  #> 
+  #> $current_settings$custom_roi_type
+  #> [1] "Filter only"
+  #> 
+  #> $current_settings$custom_roi_groupings
+  #> $current_settings$custom_roi_groupings$`1`
+  #> $current_settings$custom_roi_groupings$`1`$label
+  #> [1] ""
+  #> 
+  #> $current_settings$custom_roi_groupings$`1`$conditions
+  #> list()
+  #> 
+  #> 
+  #> 
+  #> $current_settings$condition_variable
+  #> [1] "Condition"
+  #> 
+  #> $current_settings$baseline_settings
+  #> $current_settings$baseline_settings$window
+  #> $current_settings$baseline_settings$window[[1]]
+  #> [1] -1.0 -0.5
+  #> 
+  #> 
+  #> $current_settings$baseline_settings$scope
+  #> [1] "Per frequency, trial, and electrode"
+  #> 
+  #> $current_settings$baseline_settings$unit_of_analysis
+  #> [1] "% Change Power"
+  #> 
+  #> 
+  #> $current_settings$analysis_settings
+  #> $current_settings$analysis_settings$`1`
+  #> $current_settings$analysis_settings$`1`$label
+  #> [1] "VisStart"
+  #> 
+  #> $current_settings$analysis_settings$`1`$event
+  #> [1] "Trial Onset"
+  #> 
+  #> $current_settings$analysis_settings$`1`$time
+  #> $current_settings$analysis_settings$`1`$time[[1]]
+  #> [1] 0
+  #> 
+  #> $current_settings$analysis_settings$`1`$time[[2]]
+  #> [1] 0.5
+  #> 
+  #> 
+  #> $current_settings$analysis_settings$`1`$frequency_dd
+  #> [1] "Select one"
+  #> 
+  #> $current_settings$analysis_settings$`1`$frequency
+  #> [1]  70 150
+  #> 
+  #> 
+  #> 
+  #> $current_settings$analysis_electrodes
+  #> [1] "14 "
+  #> 
+  #>
+execution_time: 0.009

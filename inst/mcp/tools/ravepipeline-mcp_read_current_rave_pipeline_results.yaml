@@ -1,16 +1,22 @@
 name: ravepipeline-mcp_read_current_rave_pipeline_results
-description: Read and summarize pipeline results. Returns metadata about results rather
-  than full data (which may be large). Use this to understand what outputs are available
-  after pipeline execution. Must call mcp_load_rave_pipeline first and mcp_run_rave_pipeline
-  before results are available.
+description: This MCP tool returns summary metadata about pipeline results, not the
+  actual data (which may be large). For direct R code generation, use pipe$read('target_name',
+  simplify = FALSE) to get the full data object. If unsure which result names are
+  available, first call ravepipeline-mcp_get_current_rave_pipeline_info and check
+  the 'targets' field (Names column). Do not guess target names. Must call ravepipeline-mcp_load_rave_pipeline
+  first and ravepipeline-mcp_run_current_rave_pipeline before results are available.
 parameters:
   type: object
   properties:
     target_names:
       type: array
-      description: 'Of specific target names to read. If NULL or empty, reads all
-        available results. Default is NULL. Example values: "settings_path", "settings",
-        "repository".'
+      description: 'Of specific target names to read. - Single target: "settings"
+        - returns summary for one result - Multiple targets: c("settings", "repository")
+        - returns summary for specific results - NULL or empty (default): reads ALL
+        available results (WARNING: may be slow and memory-intensive) To discover
+        available target names, use ravepipeline-mcp_get_current_rave_pipeline_info
+        and check the ''targets'' field for Names. Do not guess or read all results
+        for discovery. Example values: "settings_path", "settings", "repository".'
       items:
         type: string
       examples:
@@ -18,20 +24,6 @@ parameters:
       - settings
       - repository
 category: results
-example_response:
-  success: yes
-  results:
-  - name: settings_path
-    class: character
-    type: character
-    size: 120
-  - name: settings
-    class: list
-    type: list
-    size: 13400
-  result_names:
-  - settings_path
-  - settings
 returns:
   type: object
   properties:
@@ -43,10 +35,203 @@ returns:
       description: Character vector of result target names
       items:
         type: string
-    results:
+    result_summary:
       type: object
       description: 'List of result summaries, each containing: name, class, type,
         size, and summary (structure info for data frames/arrays)'
     success:
       type: boolean
       description: Logical, whether results were read successfully
+implementation_example: |
+  # Complete example:
+  # The tool invokes an internal call to `ravepipeline:::mcp_read_current_rave_pipeline_results`
+  # From within R. While users should not execute the function directly,
+  # this function has the following equivalent implementation:
+  # Example using pipeline_name called "power_explorer" and one of its building target "settings"
+  # Prepare: load, set & run pipeline
+  pipe <- ravepipeline::pipeline("power_explorer")
+  pipe$run(names = "settings")
+  # RECOMMENDED: Use simplify = FALSE for consistent output structure
+  # This is especially important for FileArray objects, which should NOT be simplified
+  results <- pipe$read("settings", simplify = FALSE)
+  # Note: simplify = TRUE (default) may return different types depending on result count
+  # Always use simplify = FALSE when generating code for reproducibility
+  results
+  #
+  #> $settings
+  #> $settings$analysis_electrodes
+  #> [1] "14 "
+  #> 
+  #> $settings$analysis_settings
+  #> $settings$analysis_settings$`1`
+  #> $settings$analysis_settings$`1`$label
+  #> [1] "VisStart"
+  #> 
+  #> $settings$analysis_settings$`1`$event
+  #> [1] "Trial Onset"
+  #> 
+  #> $settings$analysis_settings$`1`$time
+  #> $settings$analysis_settings$`1`$time[[1]]
+  #> [1] 0
+  #> 
+  #> $settings$analysis_settings$`1`$time[[2]]
+  #> [1] 0.5
+  #> 
+  #> 
+  #> $settings$analysis_settings$`1`$frequency_dd
+  #> [1] "Select one"
+  #> 
+  #> $settings$analysis_settings$`1`$frequency
+  #> [1]  70 150
+  #> 
+  #> 
+  #> 
+  #> $settings$baseline_settings
+  #> $settings$baseline_settings$window
+  #> $settings$baseline_settings$window[[1]]
+  #> [1] -1.0 -0.5
+  #> 
+  #> 
+  #> $settings$baseline_settings$scope
+  #> [1] "Per frequency, trial, and electrode"
+  #> 
+  #> $settings$baseline_settings$unit_of_analysis
+  #> [1] "% Change Power"
+  #> 
+  #> 
+  #> $settings$condition_variable
+  #> [1] "Condition"
+  #> 
+  #> $settings$custom_roi_groupings
+  #> $settings$custom_roi_groupings$`1`
+  #> $settings$custom_roi_groupings$`1`$label
+  #> [1] ""
+  #> 
+  #> $settings$custom_roi_groupings$`1`$conditions
+  #> list()
+  #> 
+  #> 
+  #> 
+  #> $settings$custom_roi_type
+  #> [1] "Filter only"
+  #> 
+  #> $settings$custom_roi_variable
+  #> [1] "none"
+  #> 
+  #> $settings$electrode_export_data_type
+  #> [1] "tensor"
+  #> 
+  #> $settings$electrode_export_file_type
+  #> [1] "HDF5"
+  #> 
+  #> $settings$electrodes_to_export
+  #> [1] ""
+  #> 
+  #> $settings$electrodes_to_export_roi_categories
+  #> NULL
+  #> 
+  #> $settings$electrodes_to_export_roi_name
+  #> [1] "none"
+  #> 
+  #> $settings$enable_custom_ROI
+  #> [1] FALSE
+  #> 
+  #> $settings$enable_second_condition_groupings
+  #> [1] FALSE
+  #> 
+  #> $settings$epoch_choice
+  #> [1] "auditory_onset"
+  #> 
+  #> $settings$epoch_choice__trial_ends
+  #> [1] 2
+  #> 
+  #> $settings$epoch_choice__trial_ends_rel_to_event
+  #> [1] "Trial Onset"
+  #> 
+  #> $settings$epoch_choice__trial_starts
+  #> [1] -1
+  #> 
+  #> $settings$epoch_choice__trial_starts_rel_to_event
+  #> [1] "Trial Onset"
+  #> 
+  #> $settings$first_condition_groupings
+  #> $settings$first_condition_groupings$`1`
+  #> $settings$first_condition_groupings$`1`$label
+  #> [1] "audio_visual"
+  #> 
+  #> $settings$first_condition_groupings$`1`$conditions
+  #> [1] "known_av" "meant_av" "last_av"  "drive_av"
+  #> 
+  #> 
+  #> $settings$first_condition_groupings$`2`
+  #> $settings$first_condition_groupings$`2`$label
+  #> [1] "auditory_only"
+  #> 
+  #> $settings$first_condition_groupings$`2`$conditions
+  #> [1] "last_a"  "drive_a" "known_a" "meant_a"
+  #> 
+  #> 
+  #> $settings$first_condition_groupings$`3`
+  #> $settings$first_condition_groupings$`3`$label
+  #> [1] "visual_only"
+  #> 
+  #> $settings$first_condition_groupings$`3`$conditions
+  #> [1] "last_v"  "drive_v" "known_v" "meant_v"
+  #> 
+  #> 
+  #> 
+  #> $settings$frequencies_to_export
+  #> [1] "Collapsed, Analysis window(s) only"
+  #> 
+  #> $settings$loaded_electrodes
+  #> [1] "13-16,24"
+  #> 
+  #> $settings$omnibus_includes_all_electrodes
+  #> [1] TRUE
+  #> 
+  #> $settings$project_name
+  #> [1] "demo"
+  #> 
+  #> $settings$reference_name
+  #> [1] "default"
+  #> 
+  #> $settings$second_condition_groupings
+  #> $settings$second_condition_groupings$`1`
+  #> $settings$second_condition_groupings$`1`$label
+  #> [1] "ML"
+  #> 
+  #> $settings$second_condition_groupings$`1`$conditions
+  #> list()
+  #> 
+  #> 
+  #> $settings$second_condition_groupings$`2`
+  #> $settings$second_condition_groupings$`2`$label
+  #> [1] "VL"
+  #> 
+  #> $settings$second_condition_groupings$`2`$conditions
+  #> list()
+  #> 
+  #> 
+  #> 
+  #> $settings$subject_code
+  #> [1] "DemoSubject"
+  #> 
+  #> $settings$time_censor
+  #> $settings$time_censor$enabled
+  #> [1] FALSE
+  #> 
+  #> $settings$time_censor$window
+  #> [1] 0 1
+  #> 
+  #> 
+  #> $settings$times_to_export
+  #> [1] "Raw, All available times"
+  #> 
+  #> $settings$trial_outliers_list
+  #> NULL
+  #> 
+  #> $settings$trials_to_export
+  #> [1] "Raw, Only trials used in grouping factors"
+  #> 
+  #>
+execution_time: 0.748

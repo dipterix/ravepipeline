@@ -4,10 +4,17 @@
 \alias{convert_workflow_to_markdown}
 \title{Convert Workflow to Markdown}
 \usage{
-convert_workflow_to_markdown(workflow)
+convert_workflow_to_markdown(workflow, sections = NULL)
 }
 \arguments{
 \item{workflow}{A MCP workflow object}
+
+\item{sections}{Character vector of section names to include, or \code{NULL}
+to include all sections. Valid section names are: \code{"overview"},
+\code{"tool_guide"}, \code{"warnings"}, \code{"coding_guidelines"},
+\code{"code_generation_rules"}, \code{"best_practices"}, \code{"jobs"},
+\code{"examples"}. Header, description, metadata, MCP tools, and settings
+are always included regardless of this parameter.}
 }
 \value{
 Character vector of markdown lines

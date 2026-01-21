@@ -1,17 +1,8 @@
+
 # MCP Tool Implementation Functions
 # These functions are called by MCP tools to interact with RAVE pipelines
-# Each function is documented with roxygen2 tags that are used to generate
-# the tool specifications in inst/mcp-tools.yaml
-
-mcp_state <- local({
-  env <- NULL
-  function() {
-    if(is.null(env)) {
-      env <<- new.env(parent = emptyenv())
-    }
-    env
-  }
-})
+# Each function is documented with \pkg{roxygen2} tags that are used to generate
+# the tool specifications in `inst/mcp`
 
 #' List Available RAVE Pipelines
 #'
@@ -25,22 +16,23 @@ mcp_state <- local({
 #'
 #' @examples
 #'
+
+#' # Direct implementation:
+#'
+#' # The tool invokes an internal call to `ravepipeline:::mcp_list_rave_pipelines`
+#' # From within R. While users should not execute the function directly,
+#' # this function has the following equivalent implementation:
+#'
+#' pipelines <- ravepipeline::pipeline_list()
+#' list(pipelines = pipelines, count = length(pipelines))
+#'
 #' # MCP example response:
 #' # {
 #' #   "pipelines": [
-#' #     "block_explorer", "custom_3d_viewer", "generate_surface_atlas",
-#' #     "group_3d_viewer", "import_bids", "import_lfp_native",
-#' #     "import_signals", "notch_filter", "power_clust",
-#' #     "power_explorer", "project_overview", "reference_module",
-#' #     "stimpulse_finder", "surface_reconstruction", "trace_viewer",
-#' #     "voltage_clust", "wavelet_module", "yael_preprocess"
+#' #     "power_explorer", "notch_filter", "wavelet_module", "..."
 #' #   ],
 #' #   "count": 18
 #' # }
-#'
-#' \dontrun{
-#' result <- mcp_list_rave_pipelines()
-#' }
 #'
 #' @keywords mcp-tool mcp-category-discovery
 #' @noRd
@@ -55,11 +47,11 @@ mcp_list_rave_pipelines <- function() {
 #' Load a RAVE Pipeline
 #'
 #' @description Load a RAVE pipeline by name. This makes the pipeline available
-#' for configuration and execution. Creates a pipeline instance in the global
-#' environment as 'pipe'.
+#' for configuration and execution. Stores the pipeline instance in internal
+#' state for use by subsequent MCP tool calls.
 #'
 #' @param pipeline_name Character string, name of the pipeline to load.
-#'   Use \code{mcp_list_rave_pipelines} to see available options.
+#'   Use \code{ravepipeline-mcp_list_rave_pipelines} to see available options.
 #'   Example values: \code{"power_explorer"}, \code{"notch_filter"}, \code{"wavelet_module"}.
 #'
 #' @return A list containing:
@@ -73,30 +65,33 @@ mcp_list_rave_pipelines <- function() {
 #'
 #' @examples
 #'
-#' # MCP example response:
-#' # {
-#' #   "success": true,
-#' #   "message": "Loaded pipeline: power_explorer",
-#' #   "description": "Explore Power or Amplitude of iEEG Spectrogram",
-#' #   "targets": 56
-#' # }
+#' # Direct implementation:
+#' # The tool invokes an internal call to `ravepipeline:::mcp_load_rave_pipeline`
+#' # From within R. While users should not execute the function directly,
+#' # this function has the following equivalent implementation:
+#' # Example using pipeline_name called "power_explorer"
 #'
-#' \dontrun{
-#' result <- mcp_load_rave_pipeline("power_explorer")
-#' }
+#' # Use 'pipe' variable to avoid confusion with the pipeline() function
+#' pipe <- ravepipeline::pipeline("power_explorer")
+#' list(
+#'   success = TRUE,
+#'   message = sprintf("Loaded pipeline: %s", "power_explorer"),
+#'   description = pipe$description$Title,
+#'   targets = nrow(pipe$target_table)
+#' )
 #'
 #' @keywords mcp-tool mcp-category-setup
 #' @noRd
-mcp_load_rave_pipeline <- function(pipeline_name) {
-  state <- mcp_state()
-
+mcp_load_rave_pipeline <- function(pipeline_name, .state_env = fastmap::fastmap()) {
   tryCatch({
-    state$pipe <- pipeline(pipeline_name)
+    pipe <- pipeline(pipeline_name)
+    .state_env$set("pipeline", pipe)
+
     list(
       success = TRUE,
       message = sprintf("Loaded pipeline: %s", pipeline_name),
-      description = state$pipe$description$Title,
-      targets = nrow(state$pipe$target_table)
+      description = pipe$description$Title,
+      targets = nrow(pipe$target_table)
     )
   }, error = function(e) {
     list(success = FALSE, error = conditionMessage(e))
@@ -107,7 +102,7 @@ mcp_load_rave_pipeline <- function(pipeline_name) {
 #'
 #' @description Get detailed information about the currently loaded pipeline
 #' including targets, current settings, and available reports.
-#' Must call \code{mcp_load_rave_pipeline} first.
+#' Must call \code{ravepipeline-mcp_load_rave_pipeline} first.
 #'
 #' @return A list containing:
 #' \describe{
@@ -123,41 +118,34 @@ mcp_load_rave_pipeline <- function(pipeline_name) {
 #'
 #' @examples
 #'
-#' # MCP example response (truncated for brevity):
-#' # {
-#' #   "success": true,
-#' #   "name": "power_explorer",
-#' #   "path": "/.../pipelines/power_explorer",
-#' #   "description": "Explore Power or Amplitude of iEEG Spectrogram",
-#' #   "targets": {
-#' #     "Names": ["settings_path", "settings", "trials_to_export", ...],
-#' #     "Description": ["Check settings file", "Load settings", ...]
-#' #   },
-#' #   "current_settings": {
-#' #     "subject_code": "DemoSubject",
-#' #     "project_name": "demo",
-#' #     "loaded_electrodes": "13-16,24",
-#' #     ...
-#' #   },
-#' #   "available_reports": {
-#' #     "univariatePower": {...}
-#' #   }
-#' # }
 #'
-#' \dontrun{
-#' mcp_load_rave_pipeline("power_explorer")
-#' info <- mcp_get_current_rave_pipeline_info()
-#' }
+#' # Complete example:
+#' # The tool invokes an internal call to `ravepipeline:::mcp_get_current_rave_pipeline_info`
+#' # From within R. While users should not execute the function directly,
+#' # this function has the following equivalent implementation:
+#' # Example using pipeline_name called "power_explorer"
+#'
+#' # Prepare: load the pipeline
+#' pipe <- ravepipeline::pipeline("power_explorer")
+#'
+#' list(
+#'   success = TRUE,
+#'   name = pipe$pipeline_name,
+#'   path = pipe$pipeline_path,
+#'   description = pipe$description$Title,
+#'   targets = head(pipe$target_table, 3),    # Truncated for display
+#'   current_settings = head(pipe$get_settings(), 3), # Truncated
+#'   available_reports = head(pipe$available_reports, 2) # Truncated
+#' )
 #'
 #' @keywords mcp-tool mcp-category-info
 #' @noRd
-mcp_get_current_rave_pipeline_info <- function() {
-  state <- mcp_state()
-  pipe <- state$pipe
+mcp_get_current_rave_pipeline_info <- function(.state_env = fastmap::fastmap()) {
+  pipe <- .state_env$get("pipeline")
   if(is.null(pipe)) {
-    return(list(success = FALSE, error = "No pipeline loaded. Use load_rave_pipeline first."))
+    return(list(success = FALSE, error = "No pipeline loaded. Use ravepipeline-mcp_load_rave_pipeline first."))
   }
-  list(
+  res <- list(
     success = TRUE,
     name = pipe$pipeline_name,
     path = pipe$pipeline_path,
@@ -166,16 +154,19 @@ mcp_get_current_rave_pipeline_info <- function() {
     current_settings = pipe$get_settings(),
     available_reports = pipe$available_reports
   )
+
+  res
+
 }
 
 #' Set Pipeline Settings
 #'
 #' @description Configure pipeline settings. This does NOT run the pipeline,
-#' only sets parameters. Must call \code{mcp_load_rave_pipeline} first.
+#' only sets parameters. Must call `ravepipeline-mcp_load_rave_pipeline` first.
 #'
 #' @param settings_json Character string containing JSON with pipeline settings
-#'   as key-value pairs. Use \code{mcp_get_rave_pipeline_info} to see what
-#'   settings are available.
+#'   as key-value pairs. Use `ravepipeline-mcp_get_current_rave_pipeline_info` to see
+#'   what settings are available.
 #'   Example values: \code{'{"project_name": "demo"}'}, \code{'{"subject_code": "DemoSubject"}'}.
 #'
 #' @return A list containing:
@@ -188,39 +179,40 @@ mcp_get_current_rave_pipeline_info <- function() {
 #'
 #' @examples
 #'
-#' # MCP example response (truncated for brevity):
-#' # {
-#' #   "success": true,
-#' #   "message": "Settings updated successfully",
-#' #   "current_settings": {
-#' #     "project_name": "demo",
-#' #     "subject_code": "DemoSubject",
-#' #     "loaded_electrodes": "13-16,24",
-#' #     "epoch_choice": "auditory_onset",
-#' #     "condition_variable": "Condition",
-#' #     ...
-#' #   }
-#' # }
 #'
-#' \dontrun{
-#' mcp_load_rave_pipeline("power_explorer")
-#' result <- mcp_set_current_rave_pipeline_settings(
-#'   '{"project_name": "demo", "subject_code": "DemoSubject"}'
+#' # Complete example:
+#' # The tool invokes an internal call to `ravepipeline:::mcp_set_current_rave_pipeline_settings`
+#' # From within R. While users should not execute the function directly,
+#' # this function has the following equivalent implementation:
+#' # Example using pipeline_name called "power_explorer"
+#'
+#' # Load pipeline with pipeline name
+#' pipe <- ravepipeline::pipeline("power_explorer")
+#'
+#' # Then set input settings
+#' pipe$set_settings(project_name = "demo", subject_code = "DemoSubject")
+#'
+#' # Construct response (optional for users)
+#' list(
+#'   success = TRUE,
+#'   message = "Settings updated successfully",
+#'   current_settings = pipe$get_settings()
 #' )
-#' }
 #'
 #' @keywords mcp-tool mcp-category-configuration
 #' @noRd
-mcp_set_current_rave_pipeline_settings <- function(settings_json) {
-  state <- mcp_state()
-  pipe <- state$pipe
+mcp_set_current_rave_pipeline_settings <- function(settings_json, .state_env = fastmap::fastmap()) {
+  # DEBUG
+  # .state_env = fastmap::fastmap()
+  # .state_env$set("pipeline", ravepipeline::pipeline("power_explorer"))
+  pipe <- .state_env$get("pipeline")
   if(is.null(pipe)) {
-    return(list(success = FALSE, error = "No pipeline loaded. Use load_rave_pipeline first."))
+    return(list(success = FALSE, error = "No pipeline loaded. Use ravepipeline-mcp_load_rave_pipeline first."))
   }
 
   tryCatch({
     settings <- jsonlite::fromJSON(settings_json, simplifyVector = FALSE)
-    do.call(pipe$set_settings, settings)
+    pipe$set_settings(.list = settings)
     list(
       success = TRUE,
       message = "Settings updated successfully",
@@ -235,13 +227,15 @@ mcp_set_current_rave_pipeline_settings <- function(settings_json) {
 #'
 #' @description Execute the pipeline. This will run computations - request
 #' explicit user approval before calling. Can run all targets or specific ones.
+#' Use `ravepipeline-mcp_get_current_rave_pipeline_info` to discover valid target names.
 #' Execution may take seconds to hours depending on pipeline complexity and data size.
-#' Must call \code{mcp_load_rave_pipeline} first.
+#' Must call \code{ravepipeline-mcp_load_rave_pipeline} first.
 #'
 #' @param target_names \code{Character[]}, specific target names to run.
 #'   If empty, runs all targets. Pipeline automatically determines
 #'   dependencies, so specifying a target will also run its upstream
 #'   dependencies if needed. Default is empty.
+#'   Do not guess names; check valid targets first.
 #'   Example values: \code{"settings_path"}, \code{"settings"}, \code{"repository"}.
 #'
 #' @return A list containing:
@@ -257,31 +251,35 @@ mcp_set_current_rave_pipeline_settings <- function(settings_json) {
 #'
 #' @examples
 #'
-#' # MCP example response:
-#' # {
-#' #   "success": true,
-#' #   "message": "Pipeline execution completed",
-#' #   "result_summary": {
-#' #     "name": ["settings_path", "settings"],
-#' #     "type": ["stem", "stem"],
-#' #     "bytes": [1702, 928],
-#' #     "seconds": [0.006, 0.000]
-#' #   }
-#' # }
+#' # Complete example:
+#' # The tool invokes an internal call to `ravepipeline:::mcp_run_current_rave_pipeline`
+#' # From within R. While users should not execute the function directly,
+#' # this function has the following equivalent implementation:
+#' # Example using pipeline_name called "power_explorer" on "demo/DemoSubject"
+#' # subject ID (A RAVE subject ID has <project/subject> format)
 #'
-#' \dontrun{
-#' mcp_load_rave_pipeline("power_explorer")
-#' mcp_set_current_rave_pipeline_settings('{"project_name": "demo"}')
-#' result <- mcp_run_current_rave_pipeline(c("settings_path", "settings"))
-#' }
+#' # Prepare: load & set pipeline
+#' pipe <- ravepipeline::pipeline("power_explorer")
+#' pipe$set_settings(project_name = "demo", subject_code = "DemoSubject")
+#'
+#' # Run specific target(s)
+#' pipe$run(names = c("settings"), return_values = FALSE)
+#'
+#' list(
+#'   success = TRUE,
+#'   message = "Pipeline execution completed",
+#'   result_summary = head(pipe$result_table, 3) # Truncated
+#' )
 #'
 #' @keywords mcp-tool mcp-category-execution mcp-dangerous mcp-requires-approval
 #' @noRd
-mcp_run_current_rave_pipeline <- function(target_names = NULL) {
-  state <- mcp_state()
-  pipe <- state$pipe
+mcp_run_current_rave_pipeline <- function(target_names = NULL, .state_env = fastmap::fastmap()) {
+  # DEBUG
+  # .state_env = fastmap::fastmap()
+  # .state_env$set("pipeline", ravepipeline::pipeline("power_explorer"))
+  pipe <- .state_env$get("pipeline")
   if(is.null(pipe)) {
-    return(list(success = FALSE, error = "No pipeline loaded. Use load_rave_pipeline first."))
+    return(list(success = FALSE, error = "No pipeline loaded. Use ravepipeline-mcp_load_rave_pipeline first."))
   }
 
   tryCatch({
@@ -292,14 +290,14 @@ mcp_run_current_rave_pipeline <- function(target_names = NULL) {
       paste(target_names, collapse = ", ")
     }
 
-    message(sprintf("Running pipeline: %s", pipe$pipeline_name))
-    message(sprintf("Targets: %s", targets_to_run))
+    logger(sprintf("Running pipeline: %s", pipe$pipeline_name), level = "info")
+    logger(sprintf("Targets: %s", targets_to_run), level = "info")
 
     # Execute
     if (is.null(target_names)) {
-      pipe$run()
+      pipe$run(return_values = FALSE)
     } else {
-      pipe$run(names = target_names)
+      pipe$run(names = target_names, return_values = FALSE)
     }
 
     list(
@@ -320,7 +318,7 @@ mcp_run_current_rave_pipeline <- function(target_names = NULL) {
 #'
 #' @description Check the execution progress of the pipeline. Shows which
 #' targets are completed, running, or pending.
-#' Must call \code{mcp_load_rave_pipeline} first.
+#' Must call \code{ravepipeline-mcp_load_rave_pipeline} first.
 #'
 #' @param detail_level Character string, level of detail for progress information.
 #'   Either "summary" (overview) or "details" (per-target status).
@@ -338,34 +336,36 @@ mcp_run_current_rave_pipeline <- function(target_names = NULL) {
 #'
 #' @examples
 #'
-#' # MCP example response (structured format):
-#' # {
-#' #   "success": true,
-#' #   "progress": {
-#' #     "format": "structured",
-#' #     "skipped": 0,
-#' #     "dispatched": 0,
-#' #     "completed": 2,
-#' #     "errored": 0,
-#' #     "canceled": 0,
-#' #     "since": "moments ago"
-#' #   }
-#' # }
 #'
-#' \dontrun{
-#' mcp_load_rave_pipeline("power_explorer")
-#' mcp_run_current_rave_pipeline(c("settings_path", "settings"))
-#' progress <- mcp_get_current_rave_pipeline_progress("summary")
-#' }
+#'
+#' # Complete example:
+#' # The tool invokes an internal call to `ravepipeline:::mcp_get_current_rave_pipeline_progress`
+#' # From within R. While users should not execute the function directly,
+#' # this function has the following equivalent implementation:
+#' # Example using pipeline_name called "power_explorer"
+#'
+#' # Prepare: load, set & run pipeline
+#' pipe <- ravepipeline::pipeline("power_explorer")
+#' pipe$set_settings(project_name = "demo", subject_code = "DemoSubject")
+#' pipe$run(names = c("settings"), return_values = FALSE)
+#'
+#' # Check progress
+#' pipe$progress(method = "details")
+#'
+#'
 #'
 #' @keywords mcp-tool mcp-category-monitoring
 #' @noRd
-mcp_get_current_rave_pipeline_progress <- function(detail_level = c("summary", "details")) {
+mcp_get_current_rave_pipeline_progress <- function(detail_level = c("summary", "details"),
+                                                   .state_env = fastmap::fastmap()) {
+  # DEBUG
+  # .state_env = fastmap::fastmap()
+  # .state_env$set("pipeline", ravepipeline::pipeline("power_explorer"))
+
   detail_level <- match.arg(detail_level)
-  state <- mcp_state()
-  pipe <- state$pipe
+  pipe <- .state_env$get("pipeline")
   if(is.null(pipe)) {
-    return(list(success = FALSE, error = "No pipeline loaded. Use load_rave_pipeline first."))
+    return(list(success = FALSE, error = "No pipeline loaded. Use ravepipeline-mcp_load_rave_pipeline first."))
   }
 
   progress <- pipe$progress(method = detail_level)
@@ -391,20 +391,27 @@ mcp_get_current_rave_pipeline_progress <- function(detail_level = c("summary", "
 
 #' Read Pipeline Results
 #'
-#' @description Read and summarize pipeline results. Returns metadata about
-#' results rather than full data (which may be large). Use this to understand
-#' what outputs are available after pipeline execution.
-#' Must call \code{mcp_load_rave_pipeline} first and \code{mcp_run_rave_pipeline}
-#' before results are available.
+#' @description This MCP tool returns summary metadata about pipeline results,
+#' not the actual data (which may be large). For direct R code generation, use
+#' \code{pipe$read('target_name', simplify = FALSE)} to get the full data object.
+#' If unsure which result names are available, first call
+#' \code{ravepipeline-mcp_get_current_rave_pipeline_info} and check the 'targets'
+#' field (Names column). Do not guess target names. Must call
+#' \code{ravepipeline-mcp_load_rave_pipeline} first and
+#' \code{ravepipeline-mcp_run_current_rave_pipeline} before results are available.
 #'
 #' @param target_names Character vector of specific target names to read.
-#'   If NULL or empty, reads all available results. Default is NULL.
+#'   - Single target: \code{"settings"} - returns summary for one result
+#'   - Multiple targets: \code{c("settings", "repository")} - returns summary for specific results
+#'   - NULL or empty (default): reads ALL available results (WARNING: may be slow and memory-intensive)
+#'   To discover available target names, use \code{ravepipeline-mcp_get_current_rave_pipeline_info}
+#'   and check the 'targets' field for Names. Do not guess or read all results for discovery.
 #'   Example values: \code{"settings_path"}, \code{"settings"}, \code{"repository"}.
 #'
 #' @return A list containing:
 #' \describe{
 #'   \item{success}{Logical, whether results were read successfully}
-#'   \item{results}{List of result summaries, each containing:
+#'   \item{result_summary}{List of result summaries, each containing:
 #'     name, class, type, size, and summary (structure info for data frames/arrays)}
 #'   \item{result_names}{Character vector of result target names}
 #'   \item{error}{Character, error message if success is FALSE}
@@ -412,69 +419,70 @@ mcp_get_current_rave_pipeline_progress <- function(detail_level = c("summary", "
 #'
 #' @examples
 #'
-#' # MCP example response:
-#' # {
-#' #   "success": true,
-#' #   "results": [
-#' #     {
-#' #       "name": "settings_path",
-#' #       "class": "character",
-#' #       "type": "character",
-#' #       "size": 120
-#' #     },
-#' #     {
-#' #       "name": "settings",
-#' #       "class": "list",
-#' #       "type": "list",
-#' #       "size": 13400
-#' #     }
-#' #   ],
-#' #   "result_names": ["settings_path", "settings"]
-#' # }
+#' # Complete example:
+#' # The tool invokes an internal call to `ravepipeline:::mcp_read_current_rave_pipeline_results`
+#' # From within R. While users should not execute the function directly,
+#' # this function has the following equivalent implementation:
+#' # Example using pipeline_name called "power_explorer" and one of its building target "settings"
 #'
-#' \dontrun{
-#' mcp_load_rave_pipeline("power_explorer")
-#' mcp_run_current_rave_pipeline(c("settings_path", "settings"))
-#' results <- mcp_read_current_rave_pipeline_results(c("settings_path", "settings"))
-#' }
+#' # Prepare: load, set & run pipeline
+#' pipe <- ravepipeline::pipeline("power_explorer")
+#' pipe$run(names = "settings")
+#'
+#' # RECOMMENDED: Use simplify = FALSE for consistent output structure
+#' # This is especially important for FileArray objects, which should NOT be simplified
+#' results <- pipe$read("settings", simplify = FALSE)
+#'
+#' # Note: simplify = TRUE (default) may return different types depending on result count
+#' # Always use simplify = FALSE when generating code for reproducibility
+#'
+#' results
+#'
+#'
 #'
 #' @keywords mcp-tool mcp-category-results
 #' @noRd
-mcp_read_current_rave_pipeline_results <- function(target_names = NULL) {
-  state <- mcp_state()
-  pipe <- state$pipe
+mcp_read_current_rave_pipeline_results <- function(target_names = NULL, .state_env = fastmap::fastmap()) {
+  # DEBUG
+  # .state_env = fastmap::fastmap()
+  # .state_env$set("pipeline", ravepipeline::pipeline("power_explorer"))
+
+  pipe <- .state_env$get("pipeline")
+
   if(is.null(pipe)) {
-    return(list(success = FALSE, error = "No pipeline loaded. Use load_rave_pipeline first."))
+    return(list(success = FALSE, error = "No pipeline loaded. Use ravepipeline-mcp_load_rave_pipeline first."))
   }
 
   tryCatch({
-    if (is.null(target_names)) {
+    if (!length(target_names)) {
       results <- pipe$read()
     } else {
-      results <- pipe$read(target_names)
+      results <- pipe$read(target_names, simplify = FALSE)
     }
 
     # Convert results to JSON-serializable format
-    results_summary <- lapply(names(results), function(name) {
-      obj <- results[[name]]
-      list(
-        name = name,
-        class = class(obj),
-        type = typeof(obj),
-        size = utils::object.size(obj),
-        summary = if (is.data.frame(obj)) {
-          list(rows = nrow(obj), cols = ncol(obj), names = names(obj))
-        } else if (is.array(obj)) {
-          list(dim = dim(obj), dimnames = dimnames(obj))
-        } else {
-          utils::str(obj, max.level = 1, give.attr = FALSE)
-        }
-      )
-    })
+    result_summary <- mcp_describe(results)
+
+    # results_summary <- lapply(names(results), function(name) {
+    #   obj <- results[[name]]
+    #   list(
+    #     name = name,
+    #     class = class(obj),
+    #     type = typeof(obj),
+    #     size = utils::object.size(obj),
+    #     summary = if (is.data.frame(obj)) {
+    #       list(rows = nrow(obj), cols = ncol(obj), names = names(obj))
+    #     } else if (is.array(obj)) {
+    #       list(dim = dim(obj), dimnames = dimnames(obj))
+    #     } else {
+    #       utils::str(obj, max.level = 1, give.attr = FALSE)
+    #     }
+    #   )
+    # })
 
     list(
       success = TRUE,
-      results = results_summary,
+      result_summary = result_summary,
       result_names = names(results)
     )
   }, error = function(e) {
@@ -482,3 +490,107 @@ mcp_read_current_rave_pipeline_results <- function(target_names = NULL) {
   })
 }
 
+#' Configure MCP Tool Output Settings
+#'
+#' @description
+#' (This function is intended for MCP calls directly, not for end-users).
+#' Adjusts runtime settings for MCP tool output formatting. Controls when
+#' results are returned as JSON versus formatted text. When JSON serialization
+#' fails (due to size or complexity), tools automatically fall back to
+#' human-readable text output via \code{\link{mcp_describe}}.
+#'
+#' @param max_size_for_json_output Integer. Maximum object size (in bytes)
+#'   for JSON serialization attempt. Default is \code{NULL} (no change).
+#'   When set, objects larger than this threshold will use text formatting.
+#'   Recommended range: 5120-102400 bytes. Set to \code{Inf} to always
+#'   attempt JSON serialization (not recommended).
+#' @param max_print_lines Integer. Maximum number of lines for text output
+#'   when using \code{\link{mcp_describe}}. Default is \code{NULL} (no change).
+#'   Controls verbosity of fallback text formatting. Typical range: 50-200.
+#' @param .state_env Environment. Internal state container (automatically
+#'   provided by MCP framework).
+#'
+#' @return List containing:
+#' \describe{
+#'   \item{success}{Logical, always \code{TRUE}}
+#'   \item{message}{Character, confirmation message}
+#'   \item{settings}{List, all current output settings with their values}
+#' }
+#'
+#' @examples
+#'
+#' # This function is intended for MCP calls directly, not for end-users
+#' ravepipeline:::mcp_configure_output_settings()
+#'
+#' @keywords mcp-tool mcp-category-configuration
+#' @noRd
+mcp_configure_output_settings <- function(
+    max_size_for_json_output = NULL,
+    max_print_lines = NULL,
+    .state_env = fastmap::fastmap()
+) {
+  updated <- character(0)
+
+  # Update max_size_for_json_output if provided
+  if (!is.null(max_size_for_json_output)) {
+    if (!is.numeric(max_size_for_json_output) || length(max_size_for_json_output) != 1) {
+      return(list(
+        success = FALSE,
+        error = "max_size_for_json_output must be a single numeric value"
+      ))
+    }
+    if (!is.infinite(max_size_for_json_output) && max_size_for_json_output < 1024) {
+      return(list(
+        success = FALSE,
+        error = "max_size_for_json_output must be >= 1024 bytes or Inf"
+      ))
+    }
+    .state_env$.max_size_for_json_output <- as.numeric(max_size_for_json_output)
+    updated <- c(updated, "max_size_for_json_output")
+  }
+
+  # Update max_print_lines if provided
+  if (!is.null(max_print_lines)) {
+    if (!is.numeric(max_print_lines) || length(max_print_lines) != 1) {
+      return(list(
+        success = FALSE,
+        error = "max_print_lines must be a single numeric value"
+      ))
+    }
+    if (max_print_lines < 10) {
+      return(list(
+        success = FALSE,
+        error = "max_print_lines must be >= 10"
+      ))
+    }
+    .state_env$.max_print_lines <- as.integer(max_print_lines)
+    updated <- c(updated, "max_print_lines")
+  }
+
+  # Get current settings (with defaults)
+  current_max_size <- .state_env$.max_size_for_json_output
+  if (is.null(current_max_size) || length(current_max_size) != 1 || is.na(current_max_size)) {
+    current_max_size <- getOption("ravepipeline.mcp.max_size_for_json_output", 20480)
+  }
+
+  current_max_lines <- .state_env$.max_print_lines
+  if (is.null(current_max_lines) || length(current_max_lines) != 1 || is.na(current_max_lines)) {
+    current_max_lines <- 100
+  }
+
+  # Build response
+  message <- if (length(updated) > 0) {
+    sprintf("Output settings updated: %s", paste(updated, collapse = ", "))
+  } else {
+    "No settings changed (returning current configuration)"
+  }
+
+  list(
+    success = TRUE,
+    message = message,
+    settings = list(
+      max_size_for_json_output = as.numeric(current_max_size),
+      max_print_lines = as.integer(current_max_lines)
+    )
+  )
+}

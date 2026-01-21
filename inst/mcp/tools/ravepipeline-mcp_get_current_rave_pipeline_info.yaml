@@ -1,6 +1,6 @@
 name: ravepipeline-mcp_get_current_rave_pipeline_info
 description: Get detailed information about the currently loaded pipeline including
-  targets, current settings, and available reports. Must call mcp_load_rave_pipeline
+  targets, current settings, and available reports. Must call ravepipeline-mcp_load_rave_pipeline
   first.
 parameters:
   type: object
@@ -33,3 +33,73 @@ returns:
     success:
       type: boolean
       description: Logical, whether information was retrieved successfully
+implementation_example: |
+  # Complete example:
+  # The tool invokes an internal call to `ravepipeline:::mcp_get_current_rave_pipeline_info`
+  # From within R. While users should not execute the function directly,
+  # this function has the following equivalent implementation:
+  # Example using pipeline_name called "power_explorer"
+  # Prepare: load the pipeline
+  pipe <- ravepipeline::pipeline("power_explorer")
+  list(
+    success = TRUE,
+    name = pipe$pipeline_name,
+    path = pipe$pipeline_path,
+    description = pipe$description$Title,
+    targets = head(pipe$target_table, 3),    # Truncated for display
+    current_settings = head(pipe$get_settings(), 3), # Truncated
+    available_reports = head(pipe$available_reports, 2) # Truncated
+  )
+  #
+  #> $success
+  #> [1] TRUE
+  #> 
+  #> $name
+  #> [1] "power_explorer"
+  #> 
+  #> $path
+  #> [1] "/Users/dipterix/rave_data/cache_dir/8d78a44857f17ae/pipelines/power_explorer"
+  #> attr(,"target_name")
+  #> [1] "power_explorer"
+  #> attr(,"target_script")
+  #> [1] "make-power_explorer.R"
+  #> attr(,"target_directory")
+  #> [1] "shared"
+  #> 
+  #> $description
+  #> [1] "Explore Power or Amplitute of iEEG Spectrogram"
+  #> 
+  #> $targets
+  #>              Names            Description
+  #> 1    settings_path    Check settings file
+  #> 2         settings          Load settings
+  #> 3 trials_to_export Input trials to export
+  #> 
+  #> $current_settings
+  #> $current_settings$trials_to_export
+  #> [1] "Raw, Only trials used in grouping factors"
+  #> 
+  #> $current_settings$trial_outliers_list
+  #> NULL
+  #> 
+  #> $current_settings$times_to_export
+  #> [1] "Raw, All available times"
+  #> 
+  #> 
+  #> $available_reports
+  #> $available_reports$univariatePower
+  #> $available_reports$univariatePower$name
+  #> [1] "univariatePower"
+  #> 
+  #> $available_reports$univariatePower$label
+  #> [1] "Univariate Power Spectrogram Analysis"
+  #> 
+  #> $available_reports$univariatePower$entry
+  #> [1] "report-univariate.Rmd"
+  #> 
+  #> $available_reports$univariatePower$fork_policy
+  #> [1] "minimal"
+  #> 
+  #> 
+  #>
+execution_time: 0.128

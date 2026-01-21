@@ -1,13 +1,13 @@
 name: ravepipeline-mcpflow_load_all
-description: Loads workflow YAML files from a package's MCP workflows directory and
-  returns them as S3 objects with class "ravepipeline_mcp_workflow".
+description: Loads workflow `YAML` files from a package's MCP workflows directory
+  and returns them as `S3` objects with class "ravepipeline_mcp_workflow".
 parameters:
   type: object
   properties:
     path:
       type: string
       description: . Optional path to workflows directory. If provided, loads from
-        this path instead of package mcp/workflows.
+        this path instead of package `mcp/workflows` directory.
     pkg:
       type: string
       description: '. Package name to load workflows from. Example values: "ravepipeline"'
@@ -16,12 +16,28 @@ parameters:
   required:
   - pkg
 category: discovery
-example_response:
-  rave_pipeline_class_guide:
-    name: rave_pipeline_class_guide
-    description: '...'
-    mcp_tools: yes
 returns:
   type: object
-  description: A named list of workflow objects, each with class   c("ravepipeline_mcp_workflow",
-    "list"). Returns empty list if no   workflows found.
+  description: A structured named list of workflow objects, or an empty list if no   workflows
+    found.
+implementation_example: |
+  # MCP example response:
+  # {
+  #   "rave_pipeline_class_guide": {
+  #     "name": "rave_pipeline_class_guide",
+  #     "description": "...",
+  #     "mcp_tools": true
+  #   }
+  # }
+  workflow <- mcpflow_load_all(pkg = "ravepipeline")
+  #
+  #> $rave_pipeline_class_guide
+  #> RAVE MCP Workflow: <rave_pipeline_class_guide>
+  #>   Description: AI Assistant Workflows for RAVE MCP Tools - Comprehensive gu ... 
+  #>   Version: 1.0.0 
+  #>   Category: guide 
+  #>   MCP Tools: 8 (attached)
+  #>   Jobs: 7 
+  #>   Examples: 3 
+  #>
+execution_time: 0.185

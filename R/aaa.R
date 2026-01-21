@@ -9,6 +9,9 @@
 #' @importFrom R6 is.R6Class
 #' @importFrom digest digest
 #' @importFrom remotes install_deps
+#' @importFrom utils capture.output
+#' @importFrom utils head
+#' @importFrom utils str
 NULL
 
 #' @export

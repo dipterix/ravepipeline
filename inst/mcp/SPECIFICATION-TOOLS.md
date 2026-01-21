@@ -1,10 +1,17 @@
-# RAVE MCP Tools YAML Specification
+# MCP Tools YAML Specification
 
-This document describes the YAML format specification for RAVE MCP (Model Context Protocol) tools generated from roxygen2 documentation.
+This document describes the YAML format specification for MCP (Model Context Protocol) tools generated from roxygen2 documentation.
 
 ## Overview
 
-MCP tools are automatically generated from R function documentation using roxygen2 comments. The parser extracts metadata, parameters, types, examples, and other information to create JSON Schema-compliant YAML files.
+MCP tools are automatically generated from R function documentation using roxygen2 comments. The build system (`mcptool_build()`) parses roxygen2 tags and extracts metadata, parameters, types, examples, and other information to create JSON Schema-compliant YAML files.
+
+Generated YAML files contain:
+- Tool names, descriptions, and categories
+- Parameter schemas (types, required, descriptions, examples)
+- Return value schemas
+- Safety annotations (dangerous tools, approval requirements)
+- Implementation examples with execution timing
 
 ## YAML File Structure
 
@@ -77,6 +84,45 @@ The `required` field is an array listing all mandatory parameters:
 
 ```yaml
 required: [param1, param2, param3]
+```
+
+## Hidden Parameters
+
+**Parameters starting with `.` are automatically excluded from MCP tool specifications.**
+
+This feature allows passing internal context without exposing it to AI agents in the generated YAML.
+
+### Use Case
+
+The standard hidden parameter is `.state_env` for session state:
+
+```r
+#' @param query Character. Search query (exposed to AI)
+#' @param .state_env Environment. Session state (hidden from AI)
+```
+
+When `mcptool_build()` processes this function, the generated YAML will only include the `query` parameter. The `.state_env` parameter is completely excluded from the MCP tool specification.
+
+### Implementation Pattern
+
+```r
+my_tool <- function(query, .state_env = mcptool_state_factory()) {
+  # AI only sees 'query' parameter
+  # Tool can access .state_env internally
+}
+```
+
+### Generated YAML
+
+```yaml
+parameters:
+  type: object
+  properties:
+    query:
+      type: string
+      description: Search query
+  required: [query]
+# .state_env is NOT included
 ```
 
 ## Type Inference Rules

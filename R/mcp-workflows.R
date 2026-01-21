@@ -150,7 +150,7 @@ mcpflow_validate_yaml <- function(x) {
 
         # Check for unknown fields in tool_guide entry
         known_tg_fields <- c("tool", "category", "when", "notes", "dangerous",
-                             "requires_approval", "preconditions")
+                             "requires_approval", "preconditions", "examples")
         unknown_tg <- setdiff(names(tg), known_tg_fields)
         if (length(unknown_tg) > 0) {
           add_error(path_prefix, sprintf("Unknown field(s): %s", paste(unknown_tg, collapse = ", ")))
@@ -449,10 +449,44 @@ mcpflow_validate_yaml <- function(x) {
     }
   }
 
+  # ---- PROMPT_SECTIONS ----
+  # Valid section names for prompt splitting
+  valid_section_names <- c("overview", "tool_guide", "warnings", "coding_guidelines",
+                           "code_generation_rules", "best_practices", "jobs", "examples")
+
+  if (!is.null(yaml_data$prompt_sections)) {
+    if (!check_type(yaml_data$prompt_sections, "list", "prompt_sections")) {
+      # Skip
+    } else {
+      # prompt_sections.core is required and must be a character vector
+      if (is.null(yaml_data$prompt_sections$core)) {
+        add_error("prompt_sections", "Missing required field 'core'. Must specify which sections are included in the core system prompt.")
+      } else if (!is.character(yaml_data$prompt_sections$core)) {
+        add_error("prompt_sections.core", "Must be a character vector of section names")
+      } else {
+        # Validate that all specified sections exist
+        invalid_sections <- setdiff(yaml_data$prompt_sections$core, valid_section_names)
+        if (length(invalid_sections) > 0) {
+          add_error("prompt_sections.core",
+                    sprintf("Invalid section name(s): %s. Valid sections are: %s",
+                            paste(invalid_sections, collapse = ", "),
+                            paste(valid_section_names, collapse = ", ")))
+        }
+      }
+
+      known_ps_fields <- c("core")
+      unknown_ps <- setdiff(names(yaml_data$prompt_sections), known_ps_fields)
+      if (length(unknown_ps) > 0) {
+        add_error("prompt_sections", sprintf("Unknown field(s): %s", paste(unknown_ps, collapse = ", ")))
+      }
+    }
+  }
+
   # ---- CHECK FOR UNKNOWN TOP-LEVEL FIELDS ----
   known_top_fields <- c("name", "description", "version", "category", "tags",
                         "mcp_tools", "tool_guide", "overview", "best_practices",
-                        "warnings", "jobs", "examples", "settings")
+                        "warnings", "jobs", "examples", "settings", "prompt_sections",
+                        "coding_guidelines", "code_generation_rules")
   unknown_top <- setdiff(names(yaml_data), known_top_fields)
   if (length(unknown_top) > 0) {
     add_error("ROOT", sprintf("Unknown top-level field(s): %s", paste(unknown_top, collapse = ", ")))
@@ -1329,11 +1363,27 @@ mcpflow_tools <- function(workflow, tools_dir = NULL) {
 #' @description Converts a workflow `YAML` object to formatted `Markdown`
 #'
 #' @param workflow A MCP workflow object
+#' @param sections Character vector of section names to include, or \code{NULL}
+#'   to include all sections. Valid section names are: \code{"overview"},
+#'   \code{"tool_guide"}, \code{"warnings"}, \code{"coding_guidelines"},
+#'   \code{"code_generation_rules"}, \code{"best_practices"}, \code{"jobs"},
+#'   \code{"examples"}. Header, description, metadata, MCP tools, and settings
+#'   are always included regardless of this parameter.
 #'
 #' @return Character vector of markdown lines
 #'
 #' @keywords internal
-convert_workflow_to_markdown <- function(workflow) {
+convert_workflow_to_markdown <- function(workflow, sections = NULL) {
+  # Define valid section names for filtering
+  valid_sections <- c("overview", "tool_guide", "warnings", "coding_guidelines",
+                      "code_generation_rules", "best_practices", "jobs", "examples")
+
+  # Helper to check if a section should be included
+  include_section <- function(section_name) {
+    if (is.null(sections)) return(TRUE)
+    section_name %in% sections
+  }
+
   lines <- character(0)
 
   # Header
@@ -1393,7 +1443,7 @@ convert_workflow_to_markdown <- function(workflow) {
   }
 
   # Overview
-  if (!is.null(workflow$overview) && nzchar(workflow$overview)) {
+  if (include_section("overview") && !is.null(workflow$overview) && nzchar(workflow$overview)) {
     lines <- c(lines, "## Overview")
     lines <- c(lines, "")
     lines <- c(lines, workflow$overview)
@@ -1401,7 +1451,7 @@ convert_workflow_to_markdown <- function(workflow) {
   }
 
   # Tool Guide
-  if (!is.null(workflow$tool_guide) && is.list(workflow$tool_guide)) {
+  if (include_section("tool_guide") && !is.null(workflow$tool_guide) && is.list(workflow$tool_guide)) {
     lines <- c(lines, "## Tool Guide")
     lines <- c(lines, "")
     for (tg in workflow$tool_guide) {
@@ -1435,7 +1485,7 @@ convert_workflow_to_markdown <- function(workflow) {
   }
 
   # Jobs
-  if (!is.null(workflow$jobs) && is.list(workflow$jobs)) {
+  if (include_section("jobs") && !is.null(workflow$jobs) && is.list(workflow$jobs)) {
     lines <- c(lines, "## Workflow Jobs")
     lines <- c(lines, "")
 
@@ -1565,7 +1615,7 @@ convert_workflow_to_markdown <- function(workflow) {
   }
 
   # Examples
-  if (!is.null(workflow$examples) && is.list(workflow$examples)) {
+  if (include_section("examples") && !is.null(workflow$examples) && is.list(workflow$examples)) {
     lines <- c(lines, "## Examples")
     lines <- c(lines, "")
 
@@ -1603,7 +1653,7 @@ convert_workflow_to_markdown <- function(workflow) {
   }
 
   # Warnings
-  if (!is.null(workflow$warnings) && length(workflow$warnings) > 0) {
+  if (include_section("warnings") && !is.null(workflow$warnings) && length(workflow$warnings) > 0) {
     lines <- c(lines, "## Warnings")
     lines <- c(lines, "")
     for (warning_msg in workflow$warnings) {
@@ -1612,8 +1662,120 @@ convert_workflow_to_markdown <- function(workflow) {
     lines <- c(lines, "")
   }
 
+  # Coding Guidelines
+  if (include_section("coding_guidelines") && !is.null(workflow$coding_guidelines) && length(workflow$coding_guidelines) > 0) {
+    lines <- c(lines, "## Coding Guidelines")
+    lines <- c(lines, "")
+    lines <- c(lines, "**MANDATORY rules when generating R code:**")
+    lines <- c(lines, "")
+    for (guideline in workflow$coding_guidelines) {
+      lines <- c(lines, paste0("- ", guideline))
+    }
+    lines <- c(lines, "")
+  }
+
+  # Code Generation Rules
+  if (include_section("code_generation_rules") && !is.null(workflow$code_generation_rules) && is.list(workflow$code_generation_rules)) {
+    cgr <- workflow$code_generation_rules
+    lines <- c(lines, "## Code Generation Rules")
+    lines <- c(lines, "")
+
+    if (!is.null(cgr$description)) {
+      lines <- c(lines, cgr$description)
+      lines <- c(lines, "")
+    }
+
+    # Before writing code
+    if (!is.null(cgr$before_writing_code) && length(cgr$before_writing_code) > 0) {
+      lines <- c(lines, "### Before Writing Code")
+      lines <- c(lines, "")
+      for (rule in cgr$before_writing_code) {
+        lines <- c(lines, paste0("- ", rule))
+      }
+      lines <- c(lines, "")
+    }
+
+    # Pipeline object methods
+    if (!is.null(cgr$pipeline_object_methods) && is.list(cgr$pipeline_object_methods)) {
+      lines <- c(lines, "### Pipeline Object Methods")
+      lines <- c(lines, "")
+      if (!is.null(cgr$pipeline_object_methods$correct)) {
+        lines <- c(lines, "**Correct methods (USE THESE):**")
+        lines <- c(lines, "")
+        for (m in cgr$pipeline_object_methods$correct) {
+          lines <- c(lines, paste0("- `", m, "`"))
+        }
+        lines <- c(lines, "")
+      }
+      if (!is.null(cgr$pipeline_object_methods$wrong)) {
+        lines <- c(lines, "**Wrong methods (DO NOT USE):**")
+        lines <- c(lines, "")
+        for (m in cgr$pipeline_object_methods$wrong) {
+          lines <- c(lines, paste0("- `", m, "`"))
+        }
+        lines <- c(lines, "")
+      }
+    }
+
+    # Plotting
+    if (!is.null(cgr$plotting) && is.list(cgr$plotting)) {
+      lines <- c(lines, "### Plotting")
+      lines <- c(lines, "")
+      if (!is.null(cgr$plotting$do)) {
+        lines <- c(lines, "**Do**:")
+        lines <- c(lines, "")
+        lines <- c(lines, cgr$plotting$do)
+        lines <- c(lines, "")
+      }
+      if (!is.null(cgr$plotting$dont)) {
+        lines <- c(lines, "**Don't**:")
+        lines <- c(lines, "")
+        lines <- c(lines, cgr$plotting$dont)
+        lines <- c(lines, "")
+      }
+    }
+
+    # Data manipulation
+    if (!is.null(cgr$data_manipulation) && is.list(cgr$data_manipulation)) {
+      lines <- c(lines, "### Data Manipulation")
+      lines <- c(lines, "")
+      if (!is.null(cgr$data_manipulation$do)) {
+        lines <- c(lines, "**Do**:")
+        lines <- c(lines, "")
+        lines <- c(lines, cgr$data_manipulation$do)
+        lines <- c(lines, "")
+      }
+      if (!is.null(cgr$data_manipulation$dont)) {
+        lines <- c(lines, "**Don't**:")
+        lines <- c(lines, "")
+        lines <- c(lines, cgr$data_manipulation$dont)
+        lines <- c(lines, "")
+      }
+    }
+
+    # Result handling
+    if (!is.null(cgr$result_handling) && length(cgr$result_handling) > 0) {
+      lines <- c(lines, "### Result Handling")
+      lines <- c(lines, "")
+      for (rule in cgr$result_handling) {
+        lines <- c(lines, paste0("- ", rule))
+      }
+      lines <- c(lines, "")
+    }
+
+    # Electrode selection
+    if (!is.null(cgr$electrode_selection) && length(cgr$electrode_selection) > 0) {
+      lines <- c(lines, "### Electrode Selection")
+      lines <- c(lines, "")
+      for (rule in cgr$electrode_selection) {
+        lines <- c(lines, paste0("- ", rule))
+      }
+      lines <- c(lines, "")
+    }
+  }
+
   # Best Practices
-  if (!is.null(workflow$best_practices) && length(workflow$best_practices) > 0) {
+  if (include_section("best_practices") && !is.null(workflow$best_practices) && length(workflow$best_practices) > 0) {
     lines <- c(lines, "## Best Practices")
     lines <- c(lines, "")
     for (bp in workflow$best_practices) {
@@ -1914,6 +2076,63 @@ mcpflow_job_validator <- function(workflow, strict = FALSE, verbose = TRUE) {
 }
 
 
+#' Create workflow guidance tool
+#'
+#' @description Creates an \code{'ellmer'} tool that provides on-demand access
+#' to workflow documentation sections. This is used internally by
+#' \code{\link{mcpflow_instantiate}} when a workflow has \code{prompt_sections}
+#' defined, allowing the AI to fetch detailed documentation only when needed
+#' to reduce initial system prompt size.
+#'
+#' @param workflow A \code{'ravepipeline_mcp_workflow'} object.
+#' @param sections Character vector of available section names.
+#'
+#' @return An \code{'ellmer'} tool object.
+#'
+#' @keywords internal
+mcpflow_guidance_tool <- function(workflow, sections) {
+  if (!requireNamespace("ellmer", quietly = TRUE)) {
+    stop("Package 'ellmer' is required to create guidance tool.")
+  }
+
+  # Build description
+  sections_list <- paste(sprintf("'%s'", sections), collapse = ", ")
+  description <- sprintf(
+    "Retrieves detailed workflow guidance for a specific section. Available sections: %s. Use this tool when you need more detailed information about a particular aspect of the workflow that is not in the core system prompt.",
+    sections_list
+  )
+
+  # Create the tool function that captures workflow in closure
+  guidance_fn <- function(section) {
+    if (!section %in% sections) {
+      return(sprintf("Invalid section '%s'. Available sections: %s",
+                     section, paste(sections, collapse = ", ")))
+    }
+    # Generate markdown for just this section
+    md <- convert_workflow_to_markdown(workflow, sections = section)
+    if (length(md) == 0 || all(!nzchar(md))) {
+      return(sprintf("Section '%s' is empty or not defined in this workflow.", section))
+    }
+    paste(md, collapse = "\n")
+  }
+
+  # Build arguments list for the tool
+  arguments <- list(
+    section = ellmer::type_enum(
+      values = sections,
+      description = "The workflow documentation section to retrieve"
+    )
+  )
+
+  ellmer::tool(
+    fun = guidance_fn,
+    name = "get_workflow_guidance",
+    description = description,
+    arguments = arguments
+  )
+}
+
+
 #' Instantiate workflow as a chat
 #'
 #' @description Creates a chat object configured with the workflow's
@@ -1948,6 +2167,8 @@ mcpflow_job_validator <- function(workflow, strict = FALSE, verbose = TRUE) {
 #'   Default is \code{FALSE} (advisory warnings only).
 #' @param validator_verbose Logical. If \code{TRUE} (default) and
 #'   \code{use_job_validator} is \code{TRUE}, print progress messages.
+#' @param state_env Environment or \code{NULL} (default). Environment in which
+#'   the MCP tools share and store data; see \code{\link{mcptool_state_factory}}
 #' @param ... Additional arguments passed to \code{\link{mcptool_instantiate}}
 #'   for each tool.
 #'
@@ -2014,16 +2235,19 @@ mcpflow_instantiate <- function(
     use_job_validator = FALSE,
     validator_strict = FALSE,
     validator_verbose = TRUE,
+    state_env = NULL,
     ...
 ) {
-  # Ensure workflow is loaded with tools
-  workflow <- mcpflow_read(workflow, tools = TRUE)
-
   # Check ellmer is available
   if (!requireNamespace("ellmer", quietly = TRUE)) {
     stop("Package 'ellmer' is required to instantiate workflow chat.")
   }
   ellmer <- asNamespace("ellmer")
+
+  # Ensure workflow is loaded with tools
+  workflow <- mcpflow_read(workflow, tools = TRUE)
+
+  state_env <- mcptool_state_factory(.state = state_env)
 
   # Create or validate chat object
   if (is.null(chat)) {
@@ -2037,8 +2261,43 @@ mcpflow_instantiate <- function(
     chat <- do.call(chat_constructor, chat_args)
   }
 
-  # Generate system prompt from workflow
-  system_prompt <- paste(convert_workflow_to_markdown(workflow), collapse = "\n")
+  attr(chat, "rave_state_env") <- state_env
+
+  # Define all possible sections
+
+  all_sections <- c("overview", "tool_guide", "warnings", "coding_guidelines",
+                    "code_generation_rules", "best_practices", "jobs", "examples")
+
+  # Check if workflow has prompt_sections for lazy loading
+  prompt_sections <- workflow$prompt_sections
+  on_demand_sections <- NULL
+
+  if (!is.null(prompt_sections) && !is.null(prompt_sections$core)) {
+    # Use only core sections in system prompt
+    core_sections <- prompt_sections$core
+    on_demand_sections <- setdiff(all_sections, core_sections)
+    # Filter to only sections that actually exist in the workflow
+    on_demand_sections <- on_demand_sections[vapply(on_demand_sections, function(s) {
+      !is.null(workflow[[s]]) && length(workflow[[s]]) > 0
+    }, logical(1))]
+
+    system_prompt <- paste(convert_workflow_to_markdown(workflow, sections = core_sections), collapse = "\n")
+
+    # Append guidance about available on-demand sections
+    if (length(on_demand_sections) > 0) {
+      system_prompt <- paste0(
+        system_prompt,
+        "\n\n---\n\n",
+        "**Additional Documentation Available**\n\n",
+        "The following sections are available on-demand via the `get_workflow_guidance` tool: ",
+        paste(sprintf("`%s`", on_demand_sections), collapse = ", "),
+        ". Use this tool when you need detailed information about these topics."
+      )
+    }
+  } else {
+    # No prompt_sections defined - include everything
+    system_prompt <- paste(convert_workflow_to_markdown(workflow), collapse = "\n")
+  }
 
   # Set system prompt
   # ellmer chat objects store system prompt - try common methods
@@ -2063,10 +2322,16 @@ mcpflow_instantiate <- function(
   if (!is.null(tools) && length(tools) > 0) {
     for (tool in tools) {
       if (!is.null(tool)) {
-        ellmer_tool <- mcptool_instantiate(tool, ...)
+        ellmer_tool <- mcptool_instantiate(tool, ..., state_env = state_env)
         chat$register_tool(ellmer_tool)
       }
     }
+  }
+
+  # Register guidance tool for on-demand sections
+  if (!is.null(on_demand_sections) && length(on_demand_sections) > 0) {
+    guidance_tool <- mcpflow_guidance_tool(workflow, on_demand_sections)
+    chat$register_tool(guidance_tool)
   }
 
   # Set up job validator if requested and no custom callbacks provided

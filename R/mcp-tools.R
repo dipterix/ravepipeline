@@ -572,6 +572,14 @@ extract_tool_from_roxygen_block <- function(
 
     if (length(matches) >= 3) {
       param_name <- matches[2]
+
+      # Skip internal parameters (starting with '.')
+      # These are used for passing context like state environments that
+      # should not be exposed to AI agents in MCP tool specifications
+      if (startsWith(param_name, ".")) {
+        return(NULL)
+      }
+
       param_desc_raw <- matches[3]
       # Normalize whitespace
       param_desc_raw <- gsub("\\s+", " ", param_desc_raw)
@@ -806,8 +814,10 @@ extract_tool_from_roxygen_block <- function(
     }
   }
 
-  # Extract example responses
-  example_response <- NULL
+  # Extract implementation examples and execution time
+  implementation_example <- NULL
+  execution_time <- NULL
+
   examples_idx <- grep("^@examples\\s*", clean_lines)
 
   if (length(examples_idx) > 0) {
@@ -822,40 +832,45 @@ extract_tool_from_roxygen_block <- function(
     if (examples_end > examples_start) {
       examples_lines <- clean_lines[examples_start:(examples_end - 1)]
 
-      # Look for "# MCP example response:" pattern
-      response_marker_idx <- grep("MCP\\s+example\\s+response:", examples_lines, ignore.case = TRUE)
+      # Extract all code lines (no longer looking for MCP example response marker)
+      code_lines <- examples_lines[nzchar(trimws(examples_lines))]
 
-      if (length(response_marker_idx) > 0) {
-        # Collect lines after the marker
-        response_start <- response_marker_idx[1] + 1
-        response_lines <- c()
+      if (length(code_lines) > 0 && !all(startsWith(trimws(code_lines), "#"))) {
+        # Strip the leading #' from each line to get actual R code
+        code_text <- paste(code_lines, collapse = "\n")
 
-        for (i in seq(response_start, length(examples_lines))) {
-          line <- examples_lines[i]
-          # Stop at empty line, \dontrun, or non-comment line
-          if (!nzchar(trimws(line)) || grepl("^\\\\dontrun", line) || !grepl("^#|^\\\\/\\\\/", line)) {
-            break
-          }
-          # Strip leading # and // from comment lines
-          cleaned <- sub("^#\\s*", "", line)
-          cleaned <- sub("^\\\\/\\\\/\\s*", "", cleaned)
-          response_lines <- c(response_lines, cleaned)
+        # Create display code (what ends up in the YAML)
+        display_code <- paste0(code_text, "\n\n#\n")
+
+        # Create execution code (captures the output)
+        exec_code <- paste0(
+          "res <- { ", code_text, " }\n",
+          "ravepipeline::mcp_describe(res)"
+        )
+
+        timing <- system.time({
+          # Execute in a new environment to avoid polluting globalenv
+          # but allow access to globalenv (packages etc.)
+          result_str <- eval(parse(text = exec_code), new.env(parent = globalenv()))
+        })
+
+        # Format output with comment prefix '#>'
+        # Ensure result_str is not NULL/empty
+        if (length(result_str) > 0) {
+          formatted_output <- paste(sprintf("#> %s", result_str), collapse = "\n")
+
+          # Combine code and output
+          implementation_example <- structure(
+            paste(display_code, formatted_output, sep = "\n\n"),
+            class = "literal"
+          )
+        } else {
+           # Fallback if no output
+           implementation_example <- structure(display_code, class = "literal")
         }
 
-        if (length(response_lines) > 0) {
-          response_text <- paste(response_lines, collapse = "\n")
-
-          # Try to parse as JSON
-          tryCatch({
-            example_response <- jsonlite::fromJSON(response_text, simplifyVector = FALSE)
-          }, error = function(e) {
-            warning(
-              "Example response in function '", func_name, "' contains text that cannot be parsed as JSON. ",
-              "Error: ", e$message, ". Ignoring example response.",
-              call. = FALSE
-            )
-          })
-        }
+        # Store execution time in seconds
+        execution_time <- as.numeric(timing["elapsed"])
       }
     }
   }
@@ -896,12 +911,16 @@ extract_tool_from_roxygen_block <- function(
     tool_def$requires_approval <- TRUE
   }
 
-  if (!is.null(example_response)) {
-    tool_def$example_response <- example_response
-  }
-
   if (!is.null(returns)) {
     tool_def$returns <- returns
+  }
+
+  if (!is.null(implementation_example)) {
+    tool_def$implementation_example <- implementation_example
+  }
+
+  if (!is.null(execution_time)) {
+    tool_def$execution_time <- execution_time
   }
 
   # Add class
@@ -1084,6 +1103,9 @@ mcptool_build <- function(path = ".", verbose = TRUE) {
       })
 
       # Extract tool definition
+      if (verbose) {
+        message(sprintf("Extracting tool: %s-%s", pkg_name, func_name))
+      }
       tool <- extract_tool_from_roxygen_block(
         block_lines,
         func_name,
@@ -1158,18 +1180,40 @@ mcptool_build <- function(path = ".", verbose = TRUE) {
         tool_def$returns <- tool$returns
       }
 
+
+      # Mark implementation_example as literal block scalar for proper YAML formatting
+      if (!is.null(tool$implementation_example)) {
+        tool_def$implementation_example <- structure("__Placeholder__\n", class = "literal")
+      }
+
+      if (!is.null(tool$execution_time)) {
+        tool_def$execution_time <- tool$execution_time
+      }
+
+
+
       # Write YAML
-      tryCatch(
-        {
-          yaml::write_yaml(x = tool_def, file = tool_file)
-          if (verbose) {
-            message("  Generated: ", basename(tool_file))
-          }
-        },
-        error = function(e) {
-          warning("Failed to write '", tool$name, "': ", e$message)
-        }
-      )
+      # yaml::as.yaml will use literal block style (|-) for strings with class "literal"
+      yaml_str <- yaml::as.yaml(x = tool_def, indent = 2L, line.sep = "\n")
+      yaml_str <- strsplit(yaml_str, "\n")[[1]]
+
+      # Find placeholder
+      if(length(tool_def$implementation_example)) {
+        line_no <- which(grepl("\\s+__Placeholder__\\s*$", yaml_str))[[1]]
+        indent <- gsub("__Placeholder__\\s*$", "", yaml_str[[line_no]])
+        implementation_example_str <- strsplit(trimws(paste(tool$implementation_example, collapse = "\n")), "\n")[[1]]
+        implementation_example_str <- implementation_example_str[trimws(implementation_example_str) != ""]
+        implementation_example_str <- paste0(indent, implementation_example_str)
+        yaml_str <- c(yaml_str[seq_len(line_no - 1)], implementation_example_str, yaml_str[-seq_len(line_no)])
+      }
+
+      # Write to file
+      cat(yaml_str, file = tool_file, sep = "\n")
+
+      if (verbose) {
+        message("  Generated: ", basename(tool_file))
+      }
+
     }
   }
 
@@ -1708,6 +1752,41 @@ mcptool_list <- function(pkg) {
 }
 
 
+# Helper function to format returns section from YAML
+#' @keywords internal
+#' @noRd
+format_returns_section <- function(returns_def) {
+  if (is.null(returns_def)) return("")
+
+  # If returns is a simple string, return it
+  if (is.character(returns_def) && length(returns_def) == 1) {
+    return(returns_def)
+  }
+
+  # If returns has properties (object type), format them
+  lines <- character()
+
+  if (!is.null(returns_def$type)) {
+    lines <- c(lines, paste0("Type: `", returns_def$type, "`"))
+  }
+
+  if (!is.null(returns_def$description)) {
+    lines <- c(lines, paste0("\n", returns_def$description))
+  }
+
+  if (!is.null(returns_def$properties)) {
+    lines <- c(lines, "\n\nProperties:")
+    for (prop_name in names(returns_def$properties)) {
+      prop <- returns_def$properties[[prop_name]]
+      prop_type <- prop$type %||% "unknown"
+      prop_desc <- prop$description %||% ""
+      lines <- c(lines, paste0("- `", prop_name, "` (", prop_type, "): ", prop_desc))
+    }
+  }
+
+  paste(lines, collapse = "\n")
+}
+
 #' Find path to a specific MCP tool by name
 #'
 #' @description
@@ -1843,13 +1922,15 @@ mcptool_path <- function(tool_name, tools_dir = "../tools") {
 #'
 #' @param tool An object of class \code{ravepipeline_mcp_tool} (loaded via
 #'   \code{\link{mcptool_read}} or \code{\link{mcptool_load_all}}).
+#' @param state_env Environment or \code{NULL} (default). Environment in which
+#'   the MCP tools share and store data; see \code{\link{mcptool_state_factory}}
 #' @param ... Additional arguments passed to \code{\link[ellmer]{tool}}.
 #'
 #' @return An \code{\link[ellmer]{ToolDef}} object ready to be registered
 #'  with a chat session.
 #'
 #' @export
-mcptool_instantiate <- function(tool, ...) {
+mcptool_instantiate <- function(tool, ..., state_env = NULL) {
   stopifnot(inherits(tool, "ravepipeline_mcp_tool"))
 
   if (!requireNamespace("ellmer", quietly = TRUE)) {
@@ -1863,6 +1944,12 @@ mcptool_instantiate <- function(tool, ...) {
     stop("Tool definition is missing 'name' field.")
   }
 
+  force(state_env)
+  if(!is.environment(state_env)) {
+    # Debug/isolated mode, use mcpflow_instantiate or construct your own state
+    state_env <- mcptool_state_factory()
+  }
+
   # obtain the function
   impl <- mcptool_seek_function(tool)
 
@@ -1870,26 +1957,30 @@ mcptool_instantiate <- function(tool, ...) {
   wrapper_fun <- function() {
     call <- match.call()
     call[[1]] <- quote(impl)
-    res <- eval(call)
-    if (!inherits(res, "json")) {
-      res <- jsonlite::toJSON(
-        res,
-        auto_unbox = TRUE,
-        dataframe = "rows",
-        null = "null",
-        na = "null",
-        digits = 16,
-        force = TRUE,
-        keep_vec_names = TRUE,
-        rownames = FALSE,
-        POSIXt = "ISO8601",
-        UTC = TRUE,
-        strict_atomic = TRUE
-      )
+    if(".state_env" %in% names(formals(impl))) {
+      call$.state_env <- quote(state_env)
     }
+    res <- eval(call)
+
+    if (!inherits(res, "json")) {
+      max_size <- as.numeric(state_env$.max_size_for_json_output)
+      if(length(max_size) != 1 || is.na(max_size)) {
+        max_size <- getOption(
+          "ravepipeline.mcp.max_size_for_json_output",
+          20480
+        )
+      }
+      res <- r_to_mcp_output(res, max_size = max_size)
+    }
+
     res
   }
-  formals(wrapper_fun) <- formals(impl)
+  fmls <- formals(impl)
+  fml_names <- names(fmls)
+  if(length(fml_names)) {
+    fmls <- fmls[!startsWith(fml_names, ".")]
+  }
+  formals(wrapper_fun) <- fmls
 
   # Helper to map types to ellmer types
   map_type <- function(param_def) {
@@ -1940,11 +2031,109 @@ mcptool_instantiate <- function(tool, ...) {
     }
   }
 
+  # Build rich description from YAML fields
+  description_parts <- list()
+
+  # Start with base description
+  base_desc <- tool$description %||% ""
+  if (nzchar(base_desc)) {
+    description_parts <- c(description_parts, base_desc)
+  }
+
+  # Add category section
+  if (!is.null(tool$category) && nzchar(tool$category)) {
+    description_parts <- c(
+      description_parts,
+      paste0("\n\n## Category\n", tool$category)
+    )
+  }
+
+  # Add implementation example section
+  if (!is.null(tool$implementation_example) && nzchar(tool$implementation_example)) {
+    description_parts <- c(
+      description_parts,
+      paste0("\n\n## Implementation Example\n\n```r\n", tool$implementation_example, "\n```")
+    )
+  }
+
+  # Add returns section
+  if (!is.null(tool$returns)) {
+    returns_text <- format_returns_section(tool$returns)
+    if (nzchar(returns_text)) {
+      description_parts <- c(
+        description_parts,
+        paste0("\n\n## Returns\n\n**Output format**: R console output (via `ravepipeline::mcp_describe()`), not JSON.\n\nThe output represents the following structure:\n\n", returns_text)
+      )
+    }
+  }
+
+  # Combine all parts into final description
+  final_description <- paste(description_parts, collapse = "")
+
+  # Prepare MCP protocol hints for tool_annotations()
+  annotation_args <- list()
+
+  # Map our custom fields to MCP hints where applicable
+  if (!is.null(tool$dangerous) && isTRUE(tool$dangerous)) {
+    annotation_args$destructive_hint <- TRUE
+  }
+
+  # Keep only flag-type fields in annotations
+  flag_fields <- c("requires_approval", "execution_time")
+
+  for (field in flag_fields) {
+    if (!is.null(tool[[field]])) {
+      annotation_args[[field]] <- tool[[field]]
+    }
+  }
+
+  # Create tool_annotations object (always create it, even if empty)
+  annotations <- do.call(ellmer::tool_annotations, annotation_args)
+
   ellmer::tool(
     fun = wrapper_fun,
-    description = tool$description %||% "",
+    description = final_description,
     arguments = arguments,
     name = gsub("[^a-zA-Z0-9_-]+", "-", fun_name),
+    annotations = annotations,
     ...
   )
 }
+
+r_to_mcp_output <- function(x, max_size = 20480) {
+
+  # x <- tryCatch({
+  #   if(object.size(x) > max_size) {
+  #     stop("Object size too large for JSON")
+  #   }
+  #   jsonlite::toJSON(
+  #     x,
+  #     auto_unbox = TRUE,
+  #     dataframe = "rows",
+  #     null = "null",
+  #     na = "null",
+  #     digits = 16,
+  #     force = TRUE,
+  #     keep_vec_names = TRUE,
+  #     rownames = FALSE,
+  #     POSIXt = "ISO8601",
+  #     UTC = TRUE,
+  #     strict_atomic = TRUE,
+  #     pretty = TRUE
+  #   )
+  # }, error = function(e) {
+  #   paste(
+  #     c(
+  #       "Unable to serialize results to json due to the total size or unserializable objects",
+  #       "Fallback to the printed results directly from the R console:\n\n``` r",
+  #       mcp_describe(x),
+  #       "```"
+  #     ),
+  #     collapse = "\n"
+  #   )
+  # })
+  #
+  # return(x)
+  return(mcp_describe(x, max_print = max_size))
+}
+

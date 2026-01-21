@@ -10,6 +10,86 @@ This guide explains how to properly format roxygen2 documentation for automatic 
 4. Run `mcptool_build()` to generate YAML files
 5. Load tools with `mcptool_load_all()` for MCP server integration
 
+## Hidden Parameters
+
+**Parameters starting with `.` are automatically excluded from MCP tool specifications.**
+
+This allows you to pass internal context (like session state environments) without exposing these parameters to AI agents.
+
+### Standard Parameter: `.state_env`
+
+Use `.state_env` for session state with a default factory:
+
+```r
+#' Search Pipeline Results
+#'
+#' @param query Character. Search query to execute
+#' @param max_results Integer. Maximum number of results (default: 10)
+#' @param .state_env Environment. Session state (auto-initialized)
+#'
+#' @keywords mcp-tool mcp-category-search
+#' @export
+mcp_search_results <- function(query, 
+                                max_results = 10,
+                                .state_env = mcptool_state_factory()) {
+  
+  # Check cache in session state
+  cache_key <- paste0("search:", query)
+  cached <- .state_env$get(cache_key)
+  
+  if (!is.null(cached)) {
+    return(cached)
+  }
+  
+  # Perform search
+  results <- perform_search(query, max_results)
+  
+  # Cache results
+  .state_env$set(cache_key, results)
+  
+  results
+}
+```
+
+**What gets hidden:**
+- Parameters starting with `.` (like `.state_env`) are excluded from YAML
+- AI agents only see `query` and `max_results` parameters
+- Tools can still access session state internally
+
+**State operations:**
+```r
+# Store value
+.state_env$set("key", value)
+
+# Retrieve value
+value <- .state_env$get("key", missing = NULL)
+
+# Check existence
+if (.state_env$has("key")) { ... }
+
+# Remove value
+.state_env$remove("key")
+
+# Get all keys
+keys <- .state_env$keys()
+
+# Clear all
+.state_env$reset()
+```
+
+**Workflow integration:**
+```r
+# Create session-scoped state
+state <- mcptool_state_factory(initialize = function(env) {
+  env$set("search_cache", fastmap::fastmap())
+})
+
+# Instantiate workflow with state
+tools <- mcpflow_instantiate("my-workflow", session_state = state)
+
+# All tools automatically receive .state_env = state
+```
+
 ## Complete Example
 
 ```r
