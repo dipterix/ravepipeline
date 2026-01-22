@@ -11,7 +11,7 @@ registered. Optionally attaches validation callbacks to track job execution."></
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,6 +60,7 @@ registered. Optionally attaches validation callbacks to track job execution.</p>
 <span>  use_job_validator <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  validator_strict <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  validator_verbose <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  state_env <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -121,6 +122,11 @@ Default is <code>FALSE</code> (advisory warnings only).</p></dd>
 <dt id="arg-validator-verbose">validator_verbose<a class="anchor" aria-label="anchor" href="#arg-validator-verbose"></a></dt>
 <dd><p>Logical. If <code>TRUE</code> (default) and
 <code>use_job_validator</code> is <code>TRUE</code>, print progress messages.</p></dd>
+
+
+<dt id="arg-state-env">state_env<a class="anchor" aria-label="anchor" href="#arg-state-env"></a></dt>
+<dd><p>Environment or <code>NULL</code> (default). Environment in which
+the MCP tools share and store data; see <code><a href="mcptool_state_factory.html">mcptool_state_factory</a></code></p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

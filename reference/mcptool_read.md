@@ -40,5 +40,5 @@ tool_def <- mcptool_read(path)
 tool_def$name
 #> [1] "ravepipeline-mcp_list_rave_pipelines"
 tool_def$description
-#> [1] "List all installed RAVE pipelines available on the system."
+#> NULL
 ```

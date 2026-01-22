@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,7 +88,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Description: AI Assistant Workflows for RAVE MCP Tools - Comprehensive gu ... </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Version: 1.0.0 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Category: guide </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   MCP Tools: 7 (attached)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   MCP Tools: 8 (attached)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Jobs: 7 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Examples: 3 </span>
 <span class="r-in"><span></span></span>
@@ -113,6 +113,13 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - data-analysis</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - pipelines</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - workflows</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> prompt_sections:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   core:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - overview</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool_guide</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - warnings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - coding_guidelines</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - code_generation_rules</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> mcp_tools:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_list_rave_pipelines</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_load_rave_pipeline</span>
@@ -121,6 +128,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_run_current_rave_pipeline</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_get_current_rave_pipeline_progress</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_read_current_rave_pipeline_results</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_configure_output_settings</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> tool_guide:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_list_rave_pipelines</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   category: discovery</span>
@@ -160,21 +168,96 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_read_current_rave_pipeline_results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   category: results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   when: Pipeline execution completed successfully</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   notes: Present results with interpretation, not raw data dumps</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   preconditions: Pipeline execution completed</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> overview: "RAVE (Reproducible Analysis and Visualization of iEEG) is primarily built</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   \nwith R programming language. Please use R language for reference.\n\nThe RAVE-MCP</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   tools enable AI assistants to:\n- Discover and explore available analysis pipelines\n-</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Configure pipeline parameters\n- Execute analyses with proper validation\n- Monitor</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   execution progress\n- Retrieve and visualize results\n"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   notes: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Read specific pipeline results. If unsure which result names are available,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     run ravepipeline-mcp_get_current_rave_pipeline_info to see the 'targets' field.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     WARNING: Calling without target_names extracts ALL results, which can be memory-intensive</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     and slow for large datasets. Always specify target_names when possible.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   preconditions:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Pipeline execution completed</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Know target names from pipeline info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_configure_output_settings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   category: configuration</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   when: Need to adjust output format for large results or token optimization</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   notes: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Controls how tool results are formatted:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - JSON (structured, machine-readable) vs text (human-readable)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Automatically falls back to text for large/complex objects</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Adjust thresholds based on your needs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   examples:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Results too large? Increase max_size_for_json_output to 102400</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Want more compact output? Reduce max_print_lines to 50</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Need detailed output? Increase max_print_lines to 500</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> overview: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   RAVE (Reproducible Analysis and Visualization of iEEG) is primarily built</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   with R programming language. Please use R language for reference.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   The RAVE-MCP tools enable AI assistants to:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Discover and explore available analysis pipelines</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Configure pipeline parameters</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Execute analyses with proper validation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Monitor execution progress</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Retrieve and visualize results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> best_practices:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - title: Always Start with Discovery</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   do: |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1. Call mcp_list_rave_pipelines() to find available options</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     2. Load the relevant pipeline with mcp_load_rave_pipeline()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     3. Get parameter details with mcp_get_current_rave_pipeline_info()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     1. Call ravepipeline-mcp_list_rave_pipelines to find available options</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2. Load the relevant pipeline with ravepipeline-mcp_load_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     3. Get parameter details with ravepipeline-mcp_get_current_rave_pipeline_info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     4. Present options to user with descriptions</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   dont: Immediately try to run with guessed pipeline names or parameters</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - title: Code Generation Workflow</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   do: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     When user asks for code:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     1. Call ravepipeline-mcp_list_rave_pipelines to find correct pipeline name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2. Call ravepipeline-mcp_load_rave_pipeline with the correct name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     3. Call ravepipeline-mcp_get_current_rave_pipeline_info to get:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        - Available targets from targets$Names (for pipe$read())</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        - Current settings (use as defaults)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        - Parameter constraints</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     4. Generate code using ONLY methods shown in implementation_example:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        - pipe$read(target_name, simplify = FALSE) to read results (use 'pipe' variable, not 'pipeline')</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        - pipe$set_settings(...) to configure</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        - pipe$run(names = 'target', return_values = FALSE) to execute</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     5. Use base R for plotting (plot, lines, legend) and data manipulation (aggregate, subset)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   dont: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Guess pipeline names, target names, or method names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Use tidyverse packages (dplyr, ggplot2, tidyr, purrr)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Invent methods like $get_result(), $execute(), $get()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Use the magrittr pipe %&gt;%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Use variable name 'pipeline' (use 'pipe' instead to avoid function name conflict)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - title: Progressive Code Generation (Discovery-First Pattern)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   do: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     When generating R code that works with pipeline results:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Step 1 - DISCOVERY PHASE (Always do this first):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       1. Load pipeline and run it to generate results</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       2. Call ravepipeline-mcp_get_current_rave_pipeline_info to get targets$Names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       3. Read specific result: pipe$read("target_name", simplify = FALSE)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       4. Inspect structure: str(result_object) or dim(array_object)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       5. Verify FileArray dimension order, data frame columns, object classes</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Step 2 - CODE GENERATION PHASE (Only after discovery):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       1. Write code based on DISCOVERED structure, not assumptions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       2. Example: If str() shows array is [Frequency, Time, Trial, Electrode],</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>          write code using indices in that order: power_array[freq_idx, time_idx, trial_idx, electrode_idx]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       3. For FileArray objects, always use simplify = FALSE to preserve class</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Example workflow:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ```</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     # Discovery</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pipe$run(names = "power")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     power &lt;- pipe$read("power", simplify = FALSE)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     str(power)  # Shows: num [1:100, 1:200, 1:30, 1:10] - [Freq, Time, Trial, Elec]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     # Now generate code with correct indices</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     freq_idx &lt;- which(frequencies &gt; 70 &amp; frequencies &lt; 150)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     high_gamma &lt;- power[freq_idx, , , ]  # Correct: freq is 1st dimension</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     ```</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   dont: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Assume dimension order without checking (e.g., guessing [Time, Freq] when it's actually [Freq, Time])</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Read all results with pipe$read() for discovery (use info tool instead)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Generate code before inspecting actual data structure</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Simplify FileArray objects (always use simplify = FALSE)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - title: Validate Before Executing</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   do: |</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     1. Load pipeline and get parameter schema</span>
@@ -185,7 +268,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - title: Monitor Long-Running Operations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   do: |</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     1. Start pipeline execution</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     2. Poll mcp_get_current_rave_pipeline_progress every 5 seconds</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2. Poll ravepipeline-mcp_get_current_rave_pipeline_progress every 5 seconds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     3. Report progress to user: "Processing: 45% complete..."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     4. Confirm completion: "Analysis finished successfully!"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   dont: Start pipeline and assume it completed without checking</span>
@@ -221,6 +304,78 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - Required parameters: all present</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - Dependencies: conditional parameters valid</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   dont: Pass parameters without validation against schema</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - title: Output Format Optimization</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   do: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     (Typically you don't need this tool)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Outputs of RAVE MCP are typically JSON. However, in some cases, the</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     outputs might show R's direct output. This is because either some</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     objects in the returns cannot be serialized to JSON (such as R environment</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     or external pointers), or the object size is too large. If you read the</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     outputs and find the object should be able to serialize to JSON but did</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     not, adjust output settings for optimal results:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     1. If results fail JSON serialization because the object is simply too large: increase max_size_for_json_output</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2. If text output is too verbose: reduce max_print_lines</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     3. If you need more detail: increase max_print_lines</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Example: mcp_configure_output_settings(max_size_for_json_output = 51200)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   dont: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Accept default limits when results are truncated or fail.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Never execute this tool right after dangerous operations</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> anti_patterns:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - pattern: Using 'pipeline' as variable name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   wrong: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pipeline &lt;- ravepipeline::pipeline("power_explorer")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   why: '''pipeline'' is both a function name and variable - creates confusion'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   correct: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pipe &lt;- ravepipeline::pipeline("power_explorer")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     # This clearly distinguishes the instance from the function</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - pattern: Reading all results to discover names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   wrong: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     # Don't do this - expensive!</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     results &lt;- pipe$read()  # Loads ALL results into memory</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   why: Extracts all results which can be slow and memory-intensive for large datasets</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   correct: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     # First, check what targets are available</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     info &lt;- ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     # Look at info$targets to see available result names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     # Then read only what you need</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     result &lt;- pipe$read("specific_target_name", simplify = FALSE)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - pattern: Using non-existent pipeline methods</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   wrong: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     data &lt;- pipe$get_result("power")     # DOES NOT EXIST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pipe$execute()                       # DOES NOT EXIST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pipe$run()                          # Missing return_values = FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   why: These methods don't exist or have wrong signatures</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   correct: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     data &lt;- pipe$read("power", simplify = FALSE)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pipe$run(names = "target", return_values = FALSE)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - pattern: Guessing parameter or result names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   wrong: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pipe$set_settings(baseline = c(-1, 0))  # Guessed parameter name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     power &lt;- pipe$read("high_gamma_power")  # Guessed result name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   why: Parameter and result names vary by pipeline - always verify first</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   correct: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     # Always call info tool first to discover actual names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     info &lt;- ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     # Check current_settings for parameter names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     # Check targets for result names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pipe$set_settings(actual_param_name = value)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - pattern: Using tidyverse packages</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   wrong: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     library(dplyr)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     df %&gt;% filter(Freq &gt; 70) %&gt;% group_by(Condition) %&gt;% summarize(mean_power = mean(Power))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   why: Tidyverse not allowed unless shown in user's sessionInfo</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   correct: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     df_filtered &lt;- df[df$Freq &gt; 70, ]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     aggregate(Power ~ Condition, data = df_filtered, FUN = mean)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - pattern: Ignoring implementation examples</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   wrong: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     # Inventing your own pattern</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     results &lt;- pipe$get_data("settings")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   why: Implementation examples in tool definitions show the ONLY correct patterns</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   correct: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     # Follow the implementation_example exactly</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     results &lt;- pipe$read("settings", simplify = FALSE)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     # This is the canonical pattern from the tool definition</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> warnings:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Never execute dangerous operations without explicit user approval</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Always validate parameters against schema before setting</span>
@@ -229,6 +384,107 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Start with discovery tools before assuming pipeline names or parameters</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Provide context and interpretation with results, not just raw data</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - 'For dangerous: true operations, show WARNING and request double confirmation'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> coding_guidelines:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - 'Package Usage Restrictions: If the user provides session information, ONLY use</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   packages listed as attached. Otherwise, the ONLY allowed packages are: `ravecore`,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   `ravepipeline`, `ieegio`, `bidsr`, `threeBrain`, `dipsaus`, `filearray`, and standard</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   base R packages.'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - NEVER use tidyverse packages (dplyr, ggplot2, tidyr, purrr, magrittr) unless explicitly</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   shown in user's sessionInfo as attached.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - NEVER use the magrittr pipe `%&gt;%`. If a pipe is needed, use R's native `|&gt;` (R &gt;=</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   4.1).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Do not guess pipeline result names. If unsure which results are available, run ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   and check the 'targets' field.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - RAVE pipeline results are stored in the pipeline object. Use pipe$read(target_name,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   simplify = FALSE) to access them in generated code.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Always use variable name 'pipe' (not 'pipeline') for pipeline instances to avoid</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   confusion with the pipeline() function.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Do not try to read non-existent files or variables. Verify existence with discovery</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   tools.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - 'CRITICAL: The implementation_example in each tool definition is the ONLY source</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   of truth for correct usage patterns. Follow these examples exactly - do not invent</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   variations or alternatives.'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Do not guess function arguments. If an argument is not in the tool definition or</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   example, do not use it.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - The `ravepipeline` package is the only source of truth. Do not call internal functions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   (e.g. `ravepipeline:::...`) unless explicitly shown in an example.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - See the anti_patterns section for common mistakes to avoid.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - 'BEFORE suggesting any function: Use btw_tool_docs_package_help_topics() to verify</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   the function exists in that package. If you cannot verify, DO NOT suggest it.'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - 'BEFORE using a package: Use btw_tool_session_check_package_installed() to verify</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   it is installed. If not installed, do not use it.'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> code_generation_rules:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   description: MANDATORY rules when generating R code for RAVE pipelines</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   before_writing_code:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - ALWAYS call ravepipeline-mcp_list_rave_pipelines to discover available pipelines</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - NEVER guess pipeline names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - ALWAYS call ravepipeline-mcp_load_rave_pipeline then ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     to get parameter schema and target names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - NEVER guess target names - read them from the 'targets' field in pipeline info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     (NOT by calling read without arguments)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - NEVER guess parameter names or structures - use 'current_settings' from pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     info as reference, then modify only what user requested</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Use variable name 'pipe' (not 'pipeline') for pipeline instances to avoid naming</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     conflicts with the pipeline() function</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - NEVER assume result data structure - after reading results, use str() to inspect</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     before writing extraction code</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - If you don't know a parameter or target name, STOP and call ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     to look it up</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   pipeline_object_methods:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     correct:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - pipeline$read(target_name) - Read a computed result</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - pipeline$set_settings(...) - Set parameters (parameter names come from mcp_get_current_rave_pipeline_info)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - pipeline$run(names = 'target_name', return_values = FALSE) - Run specific target</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - pipeline$get_settings() - Get current settings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     wrong:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - pipeline$get_result() - DOES NOT EXIST, use pipeline$read()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - pipeline$get() - DOES NOT EXIST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - pipeline$execute() - DOES NOT EXIST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - pipeline$run() without return_values = FALSE - Will print too much output</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - pipeline$targets() - DOES NOT EXIST</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Guessing parameter names like 'baseline = c(-1, 0)' - MUST check actual parameter</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       schema first</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   result_handling:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - After reading a result with pipeline$read(), use str(result) to understand its</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     structure</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - NEVER assume result has specific slots like $Power, $Time, $Frequency - inspect</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     first</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - If generating code for the user, include a str() call so they can verify the structure</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - For array data, document which dimensions correspond to what (time, frequency,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     electrode, trial)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   plotting:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     do: "Use base R graphics:\n```r\nplot(time, power, type = \"l\", col = \"blue\",</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       \n     main = \"High-Gamma Power\", xlab = \"Time (s)\", ylab = \"Power\")\nlines(time,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       power2, col = \"red\")\nabline(v = 0, lty = 2)\nlegend(\"topright\", legend</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       = c(\"meant_a\", \"meant_av\"), \n       col = c(\"blue\", \"red\"), lty = 1)\n```\n"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     dont: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       NEVER use ggplot2:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       ```r</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       # WRONG - do not generate code like this</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       ggplot(df, aes(x, y)) + geom_line()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       ```</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   data_manipulation:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     do: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       Use base R for filtering and aggregation:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       ```r</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       # Subset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       df_subset &lt;- df[df$Frequency &gt;= 70 &amp; df$Frequency &lt;= 150, ]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       # Aggregate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       agg &lt;- aggregate(Power ~ Condition + Time, data = df_subset, FUN = mean, na.rm = TRUE)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       # Split and process</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       by_condition &lt;- split(df, df$Condition)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       ```</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     dont: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       NEVER use dplyr/tidyverse:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       ```r</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       # WRONG - do not generate code like this</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       df %&gt;% filter(...) %&gt;% group_by(...) %&gt;% summarize(...)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       ```</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   electrode_selection:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - If user specifies electrodes, use those exactly</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - If user does not specify, check pipeline info for available electrodes or use</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     a safe range like 1:100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - NEVER use 'ALL' as a string - use actual electrode numbers</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> jobs:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   pipeline-discovery:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     name: Pipeline Discovery</span>
@@ -316,10 +572,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     steps:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Read result data</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_read_current_rave_pipeline_results</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       with:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         target_names:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         - plot_data</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         - statistics</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       description: Check available results first, then read relevant targets</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Present with interpretation</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       action: present</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Present visualization with statistical interpretation</span>
@@ -485,6 +738,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_run_current_rave_pipeline`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_get_current_rave_pipeline_progress`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_read_current_rave_pipeline_results`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_configure_output_settings`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ## Settings</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -492,7 +746,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ## Overview</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RAVE (Reproducible Analysis and Visualization of iEEG) is primarily built </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> RAVE (Reproducible Analysis and Visualization of iEEG) is primarily built</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> with R programming language. Please use R language for reference.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> The RAVE-MCP tools enable AI assistants to:</span>
@@ -559,9 +813,24 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Category**: results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **When to use**: Pipeline execution completed successfully</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> **Notes**: Present results with interpretation, not raw data dumps</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Notes**: Read specific pipeline results. If unsure which result names are available,</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> run ravepipeline-mcp_get_current_rave_pipeline_info to see the 'targets' field.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> WARNING: Calling without target_names extracts ALL results, which can be memory-intensive</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> and slow for large datasets. Always specify target_names when possible.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Preconditions**:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Pipeline execution completed</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Know target names from pipeline info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_configure_output_settings`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Category**: configuration</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **When to use**: Need to adjust output format for large results or token optimization</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Notes**: Controls how tool results are formatted:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - JSON (structured, machine-readable) vs text (human-readable)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Automatically falls back to text for large/complex objects</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Adjust thresholds based on your needs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ## Workflow Jobs</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -657,8 +926,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1. **Read result data**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_read_current_rave_pipeline_results`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Parameters:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      - `target_names`: ["plot_data", "statistics"]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Check available results first, then read relevant targets</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2. **Present with interpretation**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Action: present</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Present visualization with statistical interpretation</span>
@@ -811,21 +1079,198 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Provide context and interpretation with results, not just raw data</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - For dangerous: true operations, show WARNING and request double confirmation</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ## Coding Guidelines</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **MANDATORY rules when generating R code:**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Package Usage Restrictions: If the user provides session information, ONLY use packages listed as attached. Otherwise, the ONLY allowed packages are: `ravecore`, `ravepipeline`, `ieegio`, `bidsr`, `threeBrain`, `dipsaus`, `filearray`, and standard base R packages.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - NEVER use tidyverse packages (dplyr, ggplot2, tidyr, purrr, magrittr) unless explicitly shown in user's sessionInfo as attached.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - NEVER use the magrittr pipe `%&gt;%`. If a pipe is needed, use R's native `|&gt;` (R &gt;= 4.1).</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Do not guess pipeline result names. If unsure which results are available, run ravepipeline-mcp_get_current_rave_pipeline_info and check the 'targets' field.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - RAVE pipeline results are stored in the pipeline object. Use pipe$read(target_name, simplify = FALSE) to access them in generated code.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Always use variable name 'pipe' (not 'pipeline') for pipeline instances to avoid confusion with the pipeline() function.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Do not try to read non-existent files or variables. Verify existence with discovery tools.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - CRITICAL: The implementation_example in each tool definition is the ONLY source of truth for correct usage patterns. Follow these examples exactly - do not invent variations or alternatives.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Do not guess function arguments. If an argument is not in the tool definition or example, do not use it.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - The `ravepipeline` package is the only source of truth. Do not call internal functions (e.g. `ravepipeline:::...`) unless explicitly shown in an example.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - See the anti_patterns section for common mistakes to avoid.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - BEFORE suggesting any function: Use btw_tool_docs_package_help_topics() to verify the function exists in that package. If you cannot verify, DO NOT suggest it.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - BEFORE using a package: Use btw_tool_session_check_package_installed() to verify it is installed. If not installed, do not use it.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ## Code Generation Rules</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> MANDATORY rules when generating R code for RAVE pipelines</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### Before Writing Code</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ALWAYS call ravepipeline-mcp_list_rave_pipelines to discover available pipelines - NEVER guess pipeline names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ALWAYS call ravepipeline-mcp_load_rave_pipeline then ravepipeline-mcp_get_current_rave_pipeline_info to get parameter schema and target names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - NEVER guess target names - read them from the 'targets' field in pipeline info (NOT by calling read without arguments)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - NEVER guess parameter names or structures - use 'current_settings' from pipeline info as reference, then modify only what user requested</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Use variable name 'pipe' (not 'pipeline') for pipeline instances to avoid naming conflicts with the pipeline() function</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - NEVER assume result data structure - after reading results, use str() to inspect before writing extraction code</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - If you don't know a parameter or target name, STOP and call ravepipeline-mcp_get_current_rave_pipeline_info to look it up</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### Pipeline Object Methods</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Correct methods (USE THESE):**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `pipeline$read(target_name) - Read a computed result`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `pipeline$set_settings(...) - Set parameters (parameter names come from mcp_get_current_rave_pipeline_info)`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `pipeline$run(names = 'target_name', return_values = FALSE) - Run specific target`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `pipeline$get_settings() - Get current settings`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Wrong methods (DO NOT USE):**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `pipeline$get_result() - DOES NOT EXIST, use pipeline$read()`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `pipeline$get() - DOES NOT EXIST`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `pipeline$execute() - DOES NOT EXIST`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `pipeline$run() without return_values = FALSE - Will print too much output`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `pipeline$targets() - DOES NOT EXIST`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `Guessing parameter names like 'baseline = c(-1, 0)' - MUST check actual parameter schema first`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### Plotting</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Do**:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Use base R graphics:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ```r</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> plot(time, power, type = "l", col = "blue", </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      main = "High-Gamma Power", xlab = "Time (s)", ylab = "Power")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> lines(time, power2, col = "red")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> abline(v = 0, lty = 2)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> legend("topright", legend = c("meant_a", "meant_av"), </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        col = c("blue", "red"), lty = 1)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ```</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Don't**:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NEVER use ggplot2:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ```r</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> # WRONG - do not generate code like this</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ggplot(df, aes(x, y)) + geom_line()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ```</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### Data Manipulation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Do**:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Use base R for filtering and aggregation:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ```r</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> # Subset</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> df_subset &lt;- df[df$Frequency &gt;= 70 &amp; df$Frequency &lt;= 150, ]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> # Aggregate</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> agg &lt;- aggregate(Power ~ Condition + Time, data = df_subset, FUN = mean, na.rm = TRUE)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> # Split and process</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> by_condition &lt;- split(df, df$Condition)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ```</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Don't**:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> NEVER use dplyr/tidyverse:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ```r</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> # WRONG - do not generate code like this</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> df %&gt;% filter(...) %&gt;% group_by(...) %&gt;% summarize(...)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ```</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### Result Handling</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - After reading a result with pipeline$read(), use str(result) to understand its structure</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - NEVER assume result has specific slots like $Power, $Time, $Frequency - inspect first</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - If generating code for the user, include a str() call so they can verify the structure</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - For array data, document which dimensions correspond to what (time, frequency, electrode, trial)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### Electrode Selection</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - If user specifies electrodes, use those exactly</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - If user does not specify, check pipeline info for available electrodes or use a safe range like 1:100</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - NEVER use 'ALL' as a string - use actual electrode numbers</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ## Best Practices</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ### Always Start with Discovery</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Do**:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1. Call mcp_list_rave_pipelines() to find available options</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2. Load the relevant pipeline with mcp_load_rave_pipeline()</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3. Get parameter details with mcp_get_current_rave_pipeline_info()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1. Call ravepipeline-mcp_list_rave_pipelines to find available options</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2. Load the relevant pipeline with ravepipeline-mcp_load_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3. Get parameter details with ravepipeline-mcp_get_current_rave_pipeline_info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4. Present options to user with descriptions</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Don't**:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Immediately try to run with guessed pipeline names or parameters</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### Code Generation Workflow</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Do**:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> When user asks for code:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1. Call ravepipeline-mcp_list_rave_pipelines to find correct pipeline name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2. Call ravepipeline-mcp_load_rave_pipeline with the correct name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3. Call ravepipeline-mcp_get_current_rave_pipeline_info to get:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Available targets from targets$Names (for pipe$read())</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Current settings (use as defaults)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Parameter constraints</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4. Generate code using ONLY methods shown in implementation_example:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - pipe$read(target_name, simplify = FALSE) to read results (use 'pipe' variable, not 'pipeline')</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - pipe$set_settings(...) to configure</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - pipe$run(names = 'target', return_values = FALSE) to execute</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5. Use base R for plotting (plot, lines, legend) and data manipulation (aggregate, subset)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Don't**:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Guess pipeline names, target names, or method names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Use tidyverse packages (dplyr, ggplot2, tidyr, purrr)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Invent methods like $get_result(), $execute(), $get()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Use the magrittr pipe %&gt;%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Use variable name 'pipeline' (use 'pipe' instead to avoid function name conflict)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### Progressive Code Generation (Discovery-First Pattern)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Do**:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> When generating R code that works with pipeline results:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Step 1 - DISCOVERY PHASE (Always do this first):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1. Load pipeline and run it to generate results</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   2. Call ravepipeline-mcp_get_current_rave_pipeline_info to get targets$Names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3. Read specific result: pipe$read("target_name", simplify = FALSE)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   4. Inspect structure: str(result_object) or dim(array_object)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   5. Verify FileArray dimension order, data frame columns, object classes</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Step 2 - CODE GENERATION PHASE (Only after discovery):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   1. Write code based on DISCOVERED structure, not assumptions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   2. Example: If str() shows array is [Frequency, Time, Trial, Electrode],</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      write code using indices in that order: power_array[freq_idx, time_idx, trial_idx, electrode_idx]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   3. For FileArray objects, always use simplify = FALSE to preserve class</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Example workflow:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ```</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> # Discovery</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> pipe$run(names = "power")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> power &lt;- pipe$read("power", simplify = FALSE)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> str(power)  # Shows: num [1:100, 1:200, 1:30, 1:10] - [Freq, Time, Trial, Elec]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> # Now generate code with correct indices</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> freq_idx &lt;- which(frequencies &gt; 70 &amp; frequencies &lt; 150)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> high_gamma &lt;- power[freq_idx, , , ]  # Correct: freq is 1st dimension</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ```</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Don't**:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Assume dimension order without checking (e.g., guessing [Time, Freq] when it's actually [Freq, Time])</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Read all results with pipe$read() for discovery (use info tool instead)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Generate code before inspecting actual data structure</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Simplify FileArray objects (always use simplify = FALSE)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ### Validate Before Executing</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -846,7 +1291,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Do**:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1. Start pipeline execution</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2. Poll mcp_get_current_rave_pipeline_progress every 5 seconds</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2. Poll ravepipeline-mcp_get_current_rave_pipeline_progress every 5 seconds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3. Report progress to user: "Processing: 45% complete..."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4. Confirm completion: "Analysis finished successfully!"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -914,6 +1359,29 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Don't**:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Pass parameters without validation against schema</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### Output Format Optimization</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Do**:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Typically you don't need this tool)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Outputs of RAVE MCP are typically JSON. However, in some cases, the</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> outputs might show R's direct output. This is because either some</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> objects in the returns cannot be serialized to JSON (such as R environment</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> or external pointers), or the object size is too large. If you read the</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> outputs and find the object should be able to serialize to JSON but did</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> not, adjust output settings for optimal results:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1. If results fail JSON serialization because the object is simply too large: increase max_size_for_json_output</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2. If text output is too verbose: reduce max_print_lines</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3. If you need more detail: increase max_print_lines</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Example: mcp_configure_output_settings(max_size_for_json_output = 51200)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Don't**:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Accept default limits when results are truncated or fail.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Never execute this tool right after dangerous operations</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

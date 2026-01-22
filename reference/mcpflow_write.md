@@ -47,7 +47,7 @@ mcpflow_read("ravepipeline::rave_pipeline_class_guide")
 #>   Description: AI Assistant Workflows for RAVE MCP Tools - Comprehensive gu ... 
 #>   Version: 1.0.0 
 #>   Category: guide 
-#>   MCP Tools: 7 (attached)
+#>   MCP Tools: 8 (attached)
 #>   Jobs: 7 
 #>   Examples: 3 
 
@@ -72,6 +72,13 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #> - data-analysis
 #> - pipelines
 #> - workflows
+#> prompt_sections:
+#>   core:
+#>   - overview
+#>   - tool_guide
+#>   - warnings
+#>   - coding_guidelines
+#>   - code_generation_rules
 #> mcp_tools:
 #> - ravepipeline-mcp_list_rave_pipelines
 #> - ravepipeline-mcp_load_rave_pipeline
@@ -80,6 +87,7 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #> - ravepipeline-mcp_run_current_rave_pipeline
 #> - ravepipeline-mcp_get_current_rave_pipeline_progress
 #> - ravepipeline-mcp_read_current_rave_pipeline_results
+#> - ravepipeline-mcp_configure_output_settings
 #> tool_guide:
 #> - tool: ravepipeline-mcp_list_rave_pipelines
 #>   category: discovery
@@ -119,21 +127,96 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #> - tool: ravepipeline-mcp_read_current_rave_pipeline_results
 #>   category: results
 #>   when: Pipeline execution completed successfully
-#>   notes: Present results with interpretation, not raw data dumps
-#>   preconditions: Pipeline execution completed
-#> overview: "RAVE (Reproducible Analysis and Visualization of iEEG) is primarily built
-#>   \nwith R programming language. Please use R language for reference.\n\nThe RAVE-MCP
-#>   tools enable AI assistants to:\n- Discover and explore available analysis pipelines\n-
-#>   Configure pipeline parameters\n- Execute analyses with proper validation\n- Monitor
-#>   execution progress\n- Retrieve and visualize results\n"
+#>   notes: |
+#>     Read specific pipeline results. If unsure which result names are available,
+#>     run ravepipeline-mcp_get_current_rave_pipeline_info to see the 'targets' field.
+#>     WARNING: Calling without target_names extracts ALL results, which can be memory-intensive
+#>     and slow for large datasets. Always specify target_names when possible.
+#>   preconditions:
+#>   - Pipeline execution completed
+#>   - Know target names from pipeline info
+#> - tool: ravepipeline-mcp_configure_output_settings
+#>   category: configuration
+#>   when: Need to adjust output format for large results or token optimization
+#>   notes: |
+#>     Controls how tool results are formatted:
+#>     - JSON (structured, machine-readable) vs text (human-readable)
+#>     - Automatically falls back to text for large/complex objects
+#>     - Adjust thresholds based on your needs
+#>   examples:
+#>   - Results too large? Increase max_size_for_json_output to 102400
+#>   - Want more compact output? Reduce max_print_lines to 50
+#>   - Need detailed output? Increase max_print_lines to 500
+#> overview: |
+#>   RAVE (Reproducible Analysis and Visualization of iEEG) is primarily built
+#>   with R programming language. Please use R language for reference.
+#> 
+#>   The RAVE-MCP tools enable AI assistants to:
+#>   - Discover and explore available analysis pipelines
+#>   - Configure pipeline parameters
+#>   - Execute analyses with proper validation
+#>   - Monitor execution progress
+#>   - Retrieve and visualize results
 #> best_practices:
 #> - title: Always Start with Discovery
 #>   do: |
-#>     1. Call mcp_list_rave_pipelines() to find available options
-#>     2. Load the relevant pipeline with mcp_load_rave_pipeline()
-#>     3. Get parameter details with mcp_get_current_rave_pipeline_info()
+#>     1. Call ravepipeline-mcp_list_rave_pipelines to find available options
+#>     2. Load the relevant pipeline with ravepipeline-mcp_load_rave_pipeline
+#>     3. Get parameter details with ravepipeline-mcp_get_current_rave_pipeline_info
 #>     4. Present options to user with descriptions
 #>   dont: Immediately try to run with guessed pipeline names or parameters
+#> - title: Code Generation Workflow
+#>   do: |
+#>     When user asks for code:
+#>     1. Call ravepipeline-mcp_list_rave_pipelines to find correct pipeline name
+#>     2. Call ravepipeline-mcp_load_rave_pipeline with the correct name
+#>     3. Call ravepipeline-mcp_get_current_rave_pipeline_info to get:
+#>        - Available targets from targets$Names (for pipe$read())
+#>        - Current settings (use as defaults)
+#>        - Parameter constraints
+#>     4. Generate code using ONLY methods shown in implementation_example:
+#>        - pipe$read(target_name, simplify = FALSE) to read results (use 'pipe' variable, not 'pipeline')
+#>        - pipe$set_settings(...) to configure
+#>        - pipe$run(names = 'target', return_values = FALSE) to execute
+#>     5. Use base R for plotting (plot, lines, legend) and data manipulation (aggregate, subset)
+#>   dont: |
+#>     - Guess pipeline names, target names, or method names
+#>     - Use tidyverse packages (dplyr, ggplot2, tidyr, purrr)
+#>     - Invent methods like $get_result(), $execute(), $get()
+#>     - Use the magrittr pipe %>%
+#>     - Use variable name 'pipeline' (use 'pipe' instead to avoid function name conflict)
+#> - title: Progressive Code Generation (Discovery-First Pattern)
+#>   do: |
+#>     When generating R code that works with pipeline results:
+#>     Step 1 - DISCOVERY PHASE (Always do this first):
+#>       1. Load pipeline and run it to generate results
+#>       2. Call ravepipeline-mcp_get_current_rave_pipeline_info to get targets$Names
+#>       3. Read specific result: pipe$read("target_name", simplify = FALSE)
+#>       4. Inspect structure: str(result_object) or dim(array_object)
+#>       5. Verify FileArray dimension order, data frame columns, object classes
+#> 
+#>     Step 2 - CODE GENERATION PHASE (Only after discovery):
+#>       1. Write code based on DISCOVERED structure, not assumptions
+#>       2. Example: If str() shows array is [Frequency, Time, Trial, Electrode],
+#>          write code using indices in that order: power_array[freq_idx, time_idx, trial_idx, electrode_idx]
+#>       3. For FileArray objects, always use simplify = FALSE to preserve class
+#> 
+#>     Example workflow:
+#>     ```
+#>     # Discovery
+#>     pipe$run(names = "power")
+#>     power <- pipe$read("power", simplify = FALSE)
+#>     str(power)  # Shows: num [1:100, 1:200, 1:30, 1:10] - [Freq, Time, Trial, Elec]
+#> 
+#>     # Now generate code with correct indices
+#>     freq_idx <- which(frequencies > 70 & frequencies < 150)
+#>     high_gamma <- power[freq_idx, , , ]  # Correct: freq is 1st dimension
+#>     ```
+#>   dont: |
+#>     - Assume dimension order without checking (e.g., guessing [Time, Freq] when it's actually [Freq, Time])
+#>     - Read all results with pipe$read() for discovery (use info tool instead)
+#>     - Generate code before inspecting actual data structure
+#>     - Simplify FileArray objects (always use simplify = FALSE)
 #> - title: Validate Before Executing
 #>   do: |
 #>     1. Load pipeline and get parameter schema
@@ -144,7 +227,7 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #> - title: Monitor Long-Running Operations
 #>   do: |
 #>     1. Start pipeline execution
-#>     2. Poll mcp_get_current_rave_pipeline_progress every 5 seconds
+#>     2. Poll ravepipeline-mcp_get_current_rave_pipeline_progress every 5 seconds
 #>     3. Report progress to user: "Processing: 45% complete..."
 #>     4. Confirm completion: "Analysis finished successfully!"
 #>   dont: Start pipeline and assume it completed without checking
@@ -180,6 +263,78 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #>     - Required parameters: all present
 #>     - Dependencies: conditional parameters valid
 #>   dont: Pass parameters without validation against schema
+#> - title: Output Format Optimization
+#>   do: |
+#>     (Typically you don't need this tool)
+#>     Outputs of RAVE MCP are typically JSON. However, in some cases, the
+#>     outputs might show R's direct output. This is because either some
+#>     objects in the returns cannot be serialized to JSON (such as R environment
+#>     or external pointers), or the object size is too large. If you read the
+#>     outputs and find the object should be able to serialize to JSON but did
+#>     not, adjust output settings for optimal results:
+#>     1. If results fail JSON serialization because the object is simply too large: increase max_size_for_json_output
+#>     2. If text output is too verbose: reduce max_print_lines
+#>     3. If you need more detail: increase max_print_lines
+#>     Example: mcp_configure_output_settings(max_size_for_json_output = 51200)
+#>   dont: |
+#>     Accept default limits when results are truncated or fail.
+#>     Never execute this tool right after dangerous operations
+#> anti_patterns:
+#> - pattern: Using 'pipeline' as variable name
+#>   wrong: |
+#>     pipeline <- ravepipeline::pipeline("power_explorer")
+#>   why: '''pipeline'' is both a function name and variable - creates confusion'
+#>   correct: |
+#>     pipe <- ravepipeline::pipeline("power_explorer")
+#>     # This clearly distinguishes the instance from the function
+#> - pattern: Reading all results to discover names
+#>   wrong: |
+#>     # Don't do this - expensive!
+#>     results <- pipe$read()  # Loads ALL results into memory
+#>   why: Extracts all results which can be slow and memory-intensive for large datasets
+#>   correct: |
+#>     # First, check what targets are available
+#>     info <- ravepipeline-mcp_get_current_rave_pipeline_info
+#>     # Look at info$targets to see available result names
+#>     # Then read only what you need
+#>     result <- pipe$read("specific_target_name", simplify = FALSE)
+#> - pattern: Using non-existent pipeline methods
+#>   wrong: |
+#>     data <- pipe$get_result("power")     # DOES NOT EXIST
+#>     pipe$execute()                       # DOES NOT EXIST
+#>     pipe$run()                          # Missing return_values = FALSE
+#>   why: These methods don't exist or have wrong signatures
+#>   correct: |
+#>     data <- pipe$read("power", simplify = FALSE)
+#>     pipe$run(names = "target", return_values = FALSE)
+#> - pattern: Guessing parameter or result names
+#>   wrong: |
+#>     pipe$set_settings(baseline = c(-1, 0))  # Guessed parameter name
+#>     power <- pipe$read("high_gamma_power")  # Guessed result name
+#>   why: Parameter and result names vary by pipeline - always verify first
+#>   correct: |
+#>     # Always call info tool first to discover actual names
+#>     info <- ravepipeline-mcp_get_current_rave_pipeline_info
+#>     # Check current_settings for parameter names
+#>     # Check targets for result names
+#>     pipe$set_settings(actual_param_name = value)
+#> - pattern: Using tidyverse packages
+#>   wrong: |
+#>     library(dplyr)
+#>     df %>% filter(Freq > 70) %>% group_by(Condition) %>% summarize(mean_power = mean(Power))
+#>   why: Tidyverse not allowed unless shown in user's sessionInfo
+#>   correct: |
+#>     df_filtered <- df[df$Freq > 70, ]
+#>     aggregate(Power ~ Condition, data = df_filtered, FUN = mean)
+#> - pattern: Ignoring implementation examples
+#>   wrong: |
+#>     # Inventing your own pattern
+#>     results <- pipe$get_data("settings")
+#>   why: Implementation examples in tool definitions show the ONLY correct patterns
+#>   correct: |
+#>     # Follow the implementation_example exactly
+#>     results <- pipe$read("settings", simplify = FALSE)
+#>     # This is the canonical pattern from the tool definition
 #> warnings:
 #> - Never execute dangerous operations without explicit user approval
 #> - Always validate parameters against schema before setting
@@ -188,6 +343,107 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #> - Start with discovery tools before assuming pipeline names or parameters
 #> - Provide context and interpretation with results, not just raw data
 #> - 'For dangerous: true operations, show WARNING and request double confirmation'
+#> coding_guidelines:
+#> - 'Package Usage Restrictions: If the user provides session information, ONLY use
+#>   packages listed as attached. Otherwise, the ONLY allowed packages are: `ravecore`,
+#>   `ravepipeline`, `ieegio`, `bidsr`, `threeBrain`, `dipsaus`, `filearray`, and standard
+#>   base R packages.'
+#> - NEVER use tidyverse packages (dplyr, ggplot2, tidyr, purrr, magrittr) unless explicitly
+#>   shown in user's sessionInfo as attached.
+#> - NEVER use the magrittr pipe `%>%`. If a pipe is needed, use R's native `|>` (R >=
+#>   4.1).
+#> - Do not guess pipeline result names. If unsure which results are available, run ravepipeline-mcp_get_current_rave_pipeline_info
+#>   and check the 'targets' field.
+#> - RAVE pipeline results are stored in the pipeline object. Use pipe$read(target_name,
+#>   simplify = FALSE) to access them in generated code.
+#> - Always use variable name 'pipe' (not 'pipeline') for pipeline instances to avoid
+#>   confusion with the pipeline() function.
+#> - Do not try to read non-existent files or variables. Verify existence with discovery
+#>   tools.
+#> - 'CRITICAL: The implementation_example in each tool definition is the ONLY source
+#>   of truth for correct usage patterns. Follow these examples exactly - do not invent
+#>   variations or alternatives.'
+#> - Do not guess function arguments. If an argument is not in the tool definition or
+#>   example, do not use it.
+#> - The `ravepipeline` package is the only source of truth. Do not call internal functions
+#>   (e.g. `ravepipeline:::...`) unless explicitly shown in an example.
+#> - See the anti_patterns section for common mistakes to avoid.
+#> - 'BEFORE suggesting any function: Use btw_tool_docs_package_help_topics() to verify
+#>   the function exists in that package. If you cannot verify, DO NOT suggest it.'
+#> - 'BEFORE using a package: Use btw_tool_session_check_package_installed() to verify
+#>   it is installed. If not installed, do not use it.'
+#> code_generation_rules:
+#>   description: MANDATORY rules when generating R code for RAVE pipelines
+#>   before_writing_code:
+#>   - ALWAYS call ravepipeline-mcp_list_rave_pipelines to discover available pipelines
+#>     - NEVER guess pipeline names
+#>   - ALWAYS call ravepipeline-mcp_load_rave_pipeline then ravepipeline-mcp_get_current_rave_pipeline_info
+#>     to get parameter schema and target names
+#>   - NEVER guess target names - read them from the 'targets' field in pipeline info
+#>     (NOT by calling read without arguments)
+#>   - NEVER guess parameter names or structures - use 'current_settings' from pipeline
+#>     info as reference, then modify only what user requested
+#>   - Use variable name 'pipe' (not 'pipeline') for pipeline instances to avoid naming
+#>     conflicts with the pipeline() function
+#>   - NEVER assume result data structure - after reading results, use str() to inspect
+#>     before writing extraction code
+#>   - If you don't know a parameter or target name, STOP and call ravepipeline-mcp_get_current_rave_pipeline_info
+#>     to look it up
+#>   pipeline_object_methods:
+#>     correct:
+#>     - pipeline$read(target_name) - Read a computed result
+#>     - pipeline$set_settings(...) - Set parameters (parameter names come from mcp_get_current_rave_pipeline_info)
+#>     - pipeline$run(names = 'target_name', return_values = FALSE) - Run specific target
+#>     - pipeline$get_settings() - Get current settings
+#>     wrong:
+#>     - pipeline$get_result() - DOES NOT EXIST, use pipeline$read()
+#>     - pipeline$get() - DOES NOT EXIST
+#>     - pipeline$execute() - DOES NOT EXIST
+#>     - pipeline$run() without return_values = FALSE - Will print too much output
+#>     - pipeline$targets() - DOES NOT EXIST
+#>     - Guessing parameter names like 'baseline = c(-1, 0)' - MUST check actual parameter
+#>       schema first
+#>   result_handling:
+#>   - After reading a result with pipeline$read(), use str(result) to understand its
+#>     structure
+#>   - NEVER assume result has specific slots like $Power, $Time, $Frequency - inspect
+#>     first
+#>   - If generating code for the user, include a str() call so they can verify the structure
+#>   - For array data, document which dimensions correspond to what (time, frequency,
+#>     electrode, trial)
+#>   plotting:
+#>     do: "Use base R graphics:\n```r\nplot(time, power, type = \"l\", col = \"blue\",
+#>       \n     main = \"High-Gamma Power\", xlab = \"Time (s)\", ylab = \"Power\")\nlines(time,
+#>       power2, col = \"red\")\nabline(v = 0, lty = 2)\nlegend(\"topright\", legend
+#>       = c(\"meant_a\", \"meant_av\"), \n       col = c(\"blue\", \"red\"), lty = 1)\n```\n"
+#>     dont: |
+#>       NEVER use ggplot2:
+#>       ```r
+#>       # WRONG - do not generate code like this
+#>       ggplot(df, aes(x, y)) + geom_line()
+#>       ```
+#>   data_manipulation:
+#>     do: |
+#>       Use base R for filtering and aggregation:
+#>       ```r
+#>       # Subset
+#>       df_subset <- df[df$Frequency >= 70 & df$Frequency <= 150, ]
+#>       # Aggregate
+#>       agg <- aggregate(Power ~ Condition + Time, data = df_subset, FUN = mean, na.rm = TRUE)
+#>       # Split and process
+#>       by_condition <- split(df, df$Condition)
+#>       ```
+#>     dont: |
+#>       NEVER use dplyr/tidyverse:
+#>       ```r
+#>       # WRONG - do not generate code like this
+#>       df %>% filter(...) %>% group_by(...) %>% summarize(...)
+#>       ```
+#>   electrode_selection:
+#>   - If user specifies electrodes, use those exactly
+#>   - If user does not specify, check pipeline info for available electrodes or use
+#>     a safe range like 1:100
+#>   - NEVER use 'ALL' as a string - use actual electrode numbers
 #> jobs:
 #>   pipeline-discovery:
 #>     name: Pipeline Discovery
@@ -275,10 +531,7 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #>     steps:
 #>     - name: Read result data
 #>       tool: ravepipeline-mcp_read_current_rave_pipeline_results
-#>       with:
-#>         target_names:
-#>         - plot_data
-#>         - statistics
+#>       description: Check available results first, then read relevant targets
 #>     - name: Present with interpretation
 #>       action: present
 #>       description: Present visualization with statistical interpretation
@@ -444,6 +697,7 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> - `ravepipeline-mcp_run_current_rave_pipeline`
 #> - `ravepipeline-mcp_get_current_rave_pipeline_progress`
 #> - `ravepipeline-mcp_read_current_rave_pipeline_results`
+#> - `ravepipeline-mcp_configure_output_settings`
 #> 
 #> ## Settings
 #> 
@@ -451,7 +705,7 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> 
 #> ## Overview
 #> 
-#> RAVE (Reproducible Analysis and Visualization of iEEG) is primarily built 
+#> RAVE (Reproducible Analysis and Visualization of iEEG) is primarily built
 #> with R programming language. Please use R language for reference.
 #> 
 #> The RAVE-MCP tools enable AI assistants to:
@@ -518,9 +772,24 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> 
 #> **Category**: results
 #> **When to use**: Pipeline execution completed successfully
-#> **Notes**: Present results with interpretation, not raw data dumps
+#> **Notes**: Read specific pipeline results. If unsure which result names are available,
+#> run ravepipeline-mcp_get_current_rave_pipeline_info to see the 'targets' field.
+#> WARNING: Calling without target_names extracts ALL results, which can be memory-intensive
+#> and slow for large datasets. Always specify target_names when possible.
+#> 
 #> **Preconditions**:
 #>   - Pipeline execution completed
+#>   - Know target names from pipeline info
+#> 
+#> ### `ravepipeline-mcp_configure_output_settings`
+#> 
+#> **Category**: configuration
+#> **When to use**: Need to adjust output format for large results or token optimization
+#> **Notes**: Controls how tool results are formatted:
+#> - JSON (structured, machine-readable) vs text (human-readable)
+#> - Automatically falls back to text for large/complex objects
+#> - Adjust thresholds based on your needs
+#> 
 #> 
 #> ## Workflow Jobs
 #> 
@@ -616,8 +885,7 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> 
 #> 1. **Read result data**
 #>    - Tool: `ravepipeline-mcp_read_current_rave_pipeline_results`
-#>    - Parameters:
-#>      - `target_names`: ["plot_data", "statistics"]
+#>    - Check available results first, then read relevant targets
 #> 2. **Present with interpretation**
 #>    - Action: present
 #>    - Present visualization with statistical interpretation
@@ -770,21 +1038,198 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> - Provide context and interpretation with results, not just raw data
 #> - For dangerous: true operations, show WARNING and request double confirmation
 #> 
+#> ## Coding Guidelines
+#> 
+#> **MANDATORY rules when generating R code:**
+#> 
+#> - Package Usage Restrictions: If the user provides session information, ONLY use packages listed as attached. Otherwise, the ONLY allowed packages are: `ravecore`, `ravepipeline`, `ieegio`, `bidsr`, `threeBrain`, `dipsaus`, `filearray`, and standard base R packages.
+#> - NEVER use tidyverse packages (dplyr, ggplot2, tidyr, purrr, magrittr) unless explicitly shown in user's sessionInfo as attached.
+#> - NEVER use the magrittr pipe `%>%`. If a pipe is needed, use R's native `|>` (R >= 4.1).
+#> - Do not guess pipeline result names. If unsure which results are available, run ravepipeline-mcp_get_current_rave_pipeline_info and check the 'targets' field.
+#> - RAVE pipeline results are stored in the pipeline object. Use pipe$read(target_name, simplify = FALSE) to access them in generated code.
+#> - Always use variable name 'pipe' (not 'pipeline') for pipeline instances to avoid confusion with the pipeline() function.
+#> - Do not try to read non-existent files or variables. Verify existence with discovery tools.
+#> - CRITICAL: The implementation_example in each tool definition is the ONLY source of truth for correct usage patterns. Follow these examples exactly - do not invent variations or alternatives.
+#> - Do not guess function arguments. If an argument is not in the tool definition or example, do not use it.
+#> - The `ravepipeline` package is the only source of truth. Do not call internal functions (e.g. `ravepipeline:::...`) unless explicitly shown in an example.
+#> - See the anti_patterns section for common mistakes to avoid.
+#> - BEFORE suggesting any function: Use btw_tool_docs_package_help_topics() to verify the function exists in that package. If you cannot verify, DO NOT suggest it.
+#> - BEFORE using a package: Use btw_tool_session_check_package_installed() to verify it is installed. If not installed, do not use it.
+#> 
+#> ## Code Generation Rules
+#> 
+#> MANDATORY rules when generating R code for RAVE pipelines
+#> 
+#> ### Before Writing Code
+#> 
+#> - ALWAYS call ravepipeline-mcp_list_rave_pipelines to discover available pipelines - NEVER guess pipeline names
+#> - ALWAYS call ravepipeline-mcp_load_rave_pipeline then ravepipeline-mcp_get_current_rave_pipeline_info to get parameter schema and target names
+#> - NEVER guess target names - read them from the 'targets' field in pipeline info (NOT by calling read without arguments)
+#> - NEVER guess parameter names or structures - use 'current_settings' from pipeline info as reference, then modify only what user requested
+#> - Use variable name 'pipe' (not 'pipeline') for pipeline instances to avoid naming conflicts with the pipeline() function
+#> - NEVER assume result data structure - after reading results, use str() to inspect before writing extraction code
+#> - If you don't know a parameter or target name, STOP and call ravepipeline-mcp_get_current_rave_pipeline_info to look it up
+#> 
+#> ### Pipeline Object Methods
+#> 
+#> **Correct methods (USE THESE):**
+#> 
+#> - `pipeline$read(target_name) - Read a computed result`
+#> - `pipeline$set_settings(...) - Set parameters (parameter names come from mcp_get_current_rave_pipeline_info)`
+#> - `pipeline$run(names = 'target_name', return_values = FALSE) - Run specific target`
+#> - `pipeline$get_settings() - Get current settings`
+#> 
+#> **Wrong methods (DO NOT USE):**
+#> 
+#> - `pipeline$get_result() - DOES NOT EXIST, use pipeline$read()`
+#> - `pipeline$get() - DOES NOT EXIST`
+#> - `pipeline$execute() - DOES NOT EXIST`
+#> - `pipeline$run() without return_values = FALSE - Will print too much output`
+#> - `pipeline$targets() - DOES NOT EXIST`
+#> - `Guessing parameter names like 'baseline = c(-1, 0)' - MUST check actual parameter schema first`
+#> 
+#> ### Plotting
+#> 
+#> **Do**:
+#> 
+#> Use base R graphics:
+#> ```r
+#> plot(time, power, type = "l", col = "blue", 
+#>      main = "High-Gamma Power", xlab = "Time (s)", ylab = "Power")
+#> lines(time, power2, col = "red")
+#> abline(v = 0, lty = 2)
+#> legend("topright", legend = c("meant_a", "meant_av"), 
+#>        col = c("blue", "red"), lty = 1)
+#> ```
+#> 
+#> 
+#> **Don't**:
+#> 
+#> NEVER use ggplot2:
+#> ```r
+#> # WRONG - do not generate code like this
+#> ggplot(df, aes(x, y)) + geom_line()
+#> ```
+#> 
+#> 
+#> ### Data Manipulation
+#> 
+#> **Do**:
+#> 
+#> Use base R for filtering and aggregation:
+#> ```r
+#> # Subset
+#> df_subset <- df[df$Frequency >= 70 & df$Frequency <= 150, ]
+#> # Aggregate
+#> agg <- aggregate(Power ~ Condition + Time, data = df_subset, FUN = mean, na.rm = TRUE)
+#> # Split and process
+#> by_condition <- split(df, df$Condition)
+#> ```
+#> 
+#> 
+#> **Don't**:
+#> 
+#> NEVER use dplyr/tidyverse:
+#> ```r
+#> # WRONG - do not generate code like this
+#> df %>% filter(...) %>% group_by(...) %>% summarize(...)
+#> ```
+#> 
+#> 
+#> ### Result Handling
+#> 
+#> - After reading a result with pipeline$read(), use str(result) to understand its structure
+#> - NEVER assume result has specific slots like $Power, $Time, $Frequency - inspect first
+#> - If generating code for the user, include a str() call so they can verify the structure
+#> - For array data, document which dimensions correspond to what (time, frequency, electrode, trial)
+#> 
+#> ### Electrode Selection
+#> 
+#> - If user specifies electrodes, use those exactly
+#> - If user does not specify, check pipeline info for available electrodes or use a safe range like 1:100
+#> - NEVER use 'ALL' as a string - use actual electrode numbers
+#> 
 #> ## Best Practices
 #> 
 #> ### Always Start with Discovery
 #> 
 #> **Do**:
 #> 
-#> 1. Call mcp_list_rave_pipelines() to find available options
-#> 2. Load the relevant pipeline with mcp_load_rave_pipeline()
-#> 3. Get parameter details with mcp_get_current_rave_pipeline_info()
+#> 1. Call ravepipeline-mcp_list_rave_pipelines to find available options
+#> 2. Load the relevant pipeline with ravepipeline-mcp_load_rave_pipeline
+#> 3. Get parameter details with ravepipeline-mcp_get_current_rave_pipeline_info
 #> 4. Present options to user with descriptions
 #> 
 #> 
 #> **Don't**:
 #> 
 #> Immediately try to run with guessed pipeline names or parameters
+#> 
+#> ### Code Generation Workflow
+#> 
+#> **Do**:
+#> 
+#> When user asks for code:
+#> 1. Call ravepipeline-mcp_list_rave_pipelines to find correct pipeline name
+#> 2. Call ravepipeline-mcp_load_rave_pipeline with the correct name
+#> 3. Call ravepipeline-mcp_get_current_rave_pipeline_info to get:
+#>    - Available targets from targets$Names (for pipe$read())
+#>    - Current settings (use as defaults)
+#>    - Parameter constraints
+#> 4. Generate code using ONLY methods shown in implementation_example:
+#>    - pipe$read(target_name, simplify = FALSE) to read results (use 'pipe' variable, not 'pipeline')
+#>    - pipe$set_settings(...) to configure
+#>    - pipe$run(names = 'target', return_values = FALSE) to execute
+#> 5. Use base R for plotting (plot, lines, legend) and data manipulation (aggregate, subset)
+#> 
+#> 
+#> **Don't**:
+#> 
+#> - Guess pipeline names, target names, or method names
+#> - Use tidyverse packages (dplyr, ggplot2, tidyr, purrr)
+#> - Invent methods like $get_result(), $execute(), $get()
+#> - Use the magrittr pipe %>%
+#> - Use variable name 'pipeline' (use 'pipe' instead to avoid function name conflict)
+#> 
+#> 
+#> ### Progressive Code Generation (Discovery-First Pattern)
+#> 
+#> **Do**:
+#> 
+#> When generating R code that works with pipeline results:
+#> Step 1 - DISCOVERY PHASE (Always do this first):
+#>   1. Load pipeline and run it to generate results
+#>   2. Call ravepipeline-mcp_get_current_rave_pipeline_info to get targets$Names
+#>   3. Read specific result: pipe$read("target_name", simplify = FALSE)
+#>   4. Inspect structure: str(result_object) or dim(array_object)
+#>   5. Verify FileArray dimension order, data frame columns, object classes
+#> 
+#> Step 2 - CODE GENERATION PHASE (Only after discovery):
+#>   1. Write code based on DISCOVERED structure, not assumptions
+#>   2. Example: If str() shows array is [Frequency, Time, Trial, Electrode],
+#>      write code using indices in that order: power_array[freq_idx, time_idx, trial_idx, electrode_idx]
+#>   3. For FileArray objects, always use simplify = FALSE to preserve class
+#> 
+#> Example workflow:
+#> ```
+#> # Discovery
+#> pipe$run(names = "power")
+#> power <- pipe$read("power", simplify = FALSE)
+#> str(power)  # Shows: num [1:100, 1:200, 1:30, 1:10] - [Freq, Time, Trial, Elec]
+#> 
+#> # Now generate code with correct indices
+#> freq_idx <- which(frequencies > 70 & frequencies < 150)
+#> high_gamma <- power[freq_idx, , , ]  # Correct: freq is 1st dimension
+#> ```
+#> 
+#> 
+#> **Don't**:
+#> 
+#> - Assume dimension order without checking (e.g., guessing [Time, Freq] when it's actually [Freq, Time])
+#> - Read all results with pipe$read() for discovery (use info tool instead)
+#> - Generate code before inspecting actual data structure
+#> - Simplify FileArray objects (always use simplify = FALSE)
+#> 
 #> 
 #> ### Validate Before Executing
 #> 
@@ -805,7 +1250,7 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> **Do**:
 #> 
 #> 1. Start pipeline execution
-#> 2. Poll mcp_get_current_rave_pipeline_progress every 5 seconds
+#> 2. Poll ravepipeline-mcp_get_current_rave_pipeline_progress every 5 seconds
 #> 3. Report progress to user: "Processing: 45% complete..."
 #> 4. Confirm completion: "Analysis finished successfully!"
 #> 
@@ -873,5 +1318,28 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> **Don't**:
 #> 
 #> Pass parameters without validation against schema
+#> 
+#> ### Output Format Optimization
+#> 
+#> **Do**:
+#> 
+#> (Typically you don't need this tool)
+#> Outputs of RAVE MCP are typically JSON. However, in some cases, the
+#> outputs might show R's direct output. This is because either some
+#> objects in the returns cannot be serialized to JSON (such as R environment
+#> or external pointers), or the object size is too large. If you read the
+#> outputs and find the object should be able to serialize to JSON but did
+#> not, adjust output settings for optimal results:
+#> 1. If results fail JSON serialization because the object is simply too large: increase max_size_for_json_output
+#> 2. If text output is too verbose: reduce max_print_lines
+#> 3. If you need more detail: increase max_print_lines
+#> Example: mcp_configure_output_settings(max_size_for_json_output = 51200)
+#> 
+#> 
+#> **Don't**:
+#> 
+#> Accept default limits when results are truncated or fail.
+#> Never execute this tool right after dangerous operations
+#> 
 #> 
 ```

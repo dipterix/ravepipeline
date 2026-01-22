@@ -7,7 +7,7 @@ package.
 ## Usage
 
 ``` r
-mcptool_instantiate(tool, ...)
+mcptool_instantiate(tool, ..., state_env = NULL)
 ```
 
 ## Arguments
@@ -23,6 +23,12 @@ mcptool_instantiate(tool, ...)
 
   Additional arguments passed to
   [`tool`](https://ellmer.tidyverse.org/reference/tool.html).
+
+- state_env:
+
+  Environment or `NULL` (default). Environment in which the MCP tools
+  share and store data; see
+  [`mcptool_state_factory`](http://dipterix.org/ravepipeline/reference/mcptool_state_factory.md)
 
 ## Value
 

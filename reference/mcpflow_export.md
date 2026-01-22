@@ -67,15 +67,16 @@ written_files <- mcpflow_export(
 
 # Show exported files
 list.files(temp_dir, recursive = TRUE)
-#> [1] "tools/ravepipeline-mcp_get_current_rave_pipeline_info.yaml"    
-#> [2] "tools/ravepipeline-mcp_get_current_rave_pipeline_progress.yaml"
-#> [3] "tools/ravepipeline-mcp_list_rave_pipelines.yaml"               
-#> [4] "tools/ravepipeline-mcp_load_rave_pipeline.yaml"                
-#> [5] "tools/ravepipeline-mcp_read_current_rave_pipeline_results.yaml"
-#> [6] "tools/ravepipeline-mcp_run_current_rave_pipeline.yaml"         
-#> [7] "tools/ravepipeline-mcp_set_current_rave_pipeline_settings.yaml"
-#> [8] "workflows/rave_pipeline_class_guide.md"                        
-#> [9] "workflows/rave_pipeline_class_guide.yaml"                      
+#>  [1] "tools/ravepipeline-mcp_configure_output_settings.yaml"         
+#>  [2] "tools/ravepipeline-mcp_get_current_rave_pipeline_info.yaml"    
+#>  [3] "tools/ravepipeline-mcp_get_current_rave_pipeline_progress.yaml"
+#>  [4] "tools/ravepipeline-mcp_list_rave_pipelines.yaml"               
+#>  [5] "tools/ravepipeline-mcp_load_rave_pipeline.yaml"                
+#>  [6] "tools/ravepipeline-mcp_read_current_rave_pipeline_results.yaml"
+#>  [7] "tools/ravepipeline-mcp_run_current_rave_pipeline.yaml"         
+#>  [8] "tools/ravepipeline-mcp_set_current_rave_pipeline_settings.yaml"
+#>  [9] "workflows/rave_pipeline_class_guide.md"                        
+#> [10] "workflows/rave_pipeline_class_guide.yaml"                      
 
 # Cleanup
 unlink(temp_dir, recursive = TRUE)

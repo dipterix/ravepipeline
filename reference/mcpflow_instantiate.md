@@ -18,6 +18,7 @@ mcpflow_instantiate(
   use_job_validator = FALSE,
   validator_strict = FALSE,
   validator_verbose = TRUE,
+  state_env = NULL,
   ...
 )
 ```
@@ -79,6 +80,12 @@ mcpflow_instantiate(
 
   Logical. If `TRUE` (default) and `use_job_validator` is `TRUE`, print
   progress messages.
+
+- state_env:
+
+  Environment or `NULL` (default). Environment in which the MCP tools
+  share and store data; see
+  [`mcptool_state_factory`](http://dipterix.org/ravepipeline/reference/mcptool_state_factory.md)
 
 - ...:
 

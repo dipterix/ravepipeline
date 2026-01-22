@@ -59,5 +59,5 @@ result$valid
 # Validate (strict schema validation)
 result <- mcpflow_validate(wf, strict = TRUE)
 result$valid
-#> [1] TRUE
+#> [1] FALSE
 ```

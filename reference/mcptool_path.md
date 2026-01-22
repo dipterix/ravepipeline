@@ -37,10 +37,8 @@ an error if tool not found.
 tool_path <- mcptool_path("ravepipeline-mcp_list_rave_pipelines")
 attr(tool_path, "mcp_definition")
 #> RAVE MCP Tool: ravepipeline-mcp_list_rave_pipelines
-#>   List all installed RAVE pipelines available on the system.
 #> Parameters: 0
-#> Category: discovery
-#> Returns: object 
+#> Category: discovery 
 
 
 if (FALSE) { # \dontrun{

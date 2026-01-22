@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -82,63 +82,17 @@
 <span class="r-in"><span><span class="co"># Write as YAML to temporary file</span></span></span>
 <span class="r-in"><span><span class="fu">mcptool_write</span><span class="op">(</span><span class="va">tool</span>, <span class="fu"><a href="https://rdrr.io/r/base/showConnections.html" class="external-link">stdout</a></span><span class="op">(</span><span class="op">)</span>, method <span class="op">=</span> <span class="st">"yaml"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> name: ravepipeline-mcp_list_rave_pipelines</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> description: List all installed RAVE pipelines available on the system.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> description: ~</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> parameters:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   type: object</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   properties: {}</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> category: discovery</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> example_response:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   pipelines:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - block_explorer</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - custom_3d_viewer</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - generate_surface_atlas</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - group_3d_viewer</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - import_bids</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - import_lfp_native</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - import_signals</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - notch_filter</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - power_clust</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - power_explorer</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - project_overview</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - reference_module</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - stimpulse_finder</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - surface_reconstruction</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - trace_viewer</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - voltage_clust</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - wavelet_module</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - yael_preprocess</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   count: 18</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> returns:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   type: object</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   properties:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     count:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       type: integer</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       description: Integer, total number of available pipelines</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     pipelines:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       type: array</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       description: Character vector, pipeline names</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       items:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         type: string</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Write as Markdown</span></span></span>
 <span class="r-in"><span><span class="fu">mcptool_write</span><span class="op">(</span><span class="va">tool</span>, <span class="fu"><a href="https://rdrr.io/r/base/showConnections.html" class="external-link">stdout</a></span><span class="op">(</span><span class="op">)</span>, method <span class="op">=</span> <span class="st">"markdown"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # ravepipeline-mcp_list_rave_pipelines</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> List all installed RAVE pipelines available on the system.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ## Parameters</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ## Returns</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Type: `object`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ### Properties</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - **count** (integer)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Integer, total number of available pipelines</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - **pipelines** (array)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   Character vector, pipeline names</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ## Metadata</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>

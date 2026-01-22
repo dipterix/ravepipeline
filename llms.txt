@@ -138,6 +138,9 @@ power_explorer$visualize(glimpse = TRUE, aspect_ratio = 10)
   [`logger_error_condition()`](http://dipterix.org/ravepipeline/reference/logger.md)
   : Logger system used by 'RAVE'
 
+- [`mcp_describe()`](http://dipterix.org/ravepipeline/reference/mcp_describe.md)
+  : Describe an R object for use in MCP tools
+
 - [`mcpflow_export()`](http://dipterix.org/ravepipeline/reference/mcpflow_export.md)
   : Export RAVE MCP workflows
 
@@ -190,6 +193,9 @@ power_explorer$visualize(glimpse = TRUE, aspect_ratio = 10)
   :
 
   Read MCP tool definition from `YAML` file
+
+- [`mcptool_state_factory()`](http://dipterix.org/ravepipeline/reference/mcptool_state_factory.md)
+  : Create Session-Scoped MCP State Environment
 
 - [`mcptool_write()`](http://dipterix.org/ravepipeline/reference/mcptool_write.md)
   : Write MCP tool definition to file
