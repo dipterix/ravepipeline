@@ -17,7 +17,8 @@ See \code{type}
 
 A table of the progress
 
-Nothing
+a list where the names are target names and values are the
+corresponding dependence
 
 ancestor target names (including \code{names})
 
@@ -35,6 +36,9 @@ A list of the preferences. If \code{simplify} is true and length
 if keys is 1, then returns the value of that preference
 
 logical whether the keys exist
+
+characters if the source document (\code{main.Rmd}) is found,
+otherwise \code{NULL}
 
 A job identification number, see \code{\link{resolve_job}} for
 querying job details
@@ -130,6 +134,7 @@ signatures of data and commands}
 \item \href{#method-PipelineTools-set_preferences}{\code{PipelineTools$set_preferences()}}
 \item \href{#method-PipelineTools-get_preferences}{\code{PipelineTools$get_preferences()}}
 \item \href{#method-PipelineTools-has_preferences}{\code{PipelineTools$has_preferences()}}
+\item \href{#method-PipelineTools-source_document}{\code{PipelineTools$source_document()}}
 \item \href{#method-PipelineTools-generate_report}{\code{PipelineTools$generate_report()}}
 \item \href{#method-PipelineTools-clone}{\code{PipelineTools$clone()}}
 }
@@ -764,6 +769,16 @@ whether pipeline has preference keys
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipelineTools-source_document"></a>}}
+\if{latex}{\out{\hypertarget{method-PipelineTools-source_document}{}}}
+\subsection{Method \code{source_document()}}{
+obtain the source document
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$source_document()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-generate_report"></a>}}

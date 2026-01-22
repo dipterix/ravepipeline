@@ -276,8 +276,8 @@ Tool names follow the pattern: `{package}-{function_name}`
 - First hyphen separates package from function
 - Function names may contain underscores
 - Examples:
-  - `ravepipeline-mcp_load_rave_pipeline`
-  - `ravepipeline-mcp_list_rave_pipelines`
+  - `ravepipeline-mcp_tool_pipeline_load`
+  - `ravepipeline-mcp_tool_pipeline_list`
 
 ---
 

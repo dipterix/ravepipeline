@@ -1,6 +1,0 @@
-name: ravepipeline-mcp_list_rave_pipelines
-description: ~
-parameters:
-  type: object
-  properties: {}
-category: discovery

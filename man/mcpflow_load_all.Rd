@@ -37,5 +37,3 @@ directory and returns them as \code{S3} objects with class
 workflow <- mcpflow_load_all(pkg = "ravepipeline")
 
 }
-\keyword{mcp-category-discovery}
-\keyword{mcp-tool}

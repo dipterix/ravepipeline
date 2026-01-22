@@ -4,12 +4,18 @@
 \alias{mcptool_load_all}
 \title{Load MCP Tool Definitions from Package or Directory}
 \usage{
-mcptool_load_all(pkg)
+mcptool_load_all(pkg, groups = NULL)
 }
 \arguments{
 \item{pkg}{Character. Package name or path to tools directory.
 If \code{pkg} contains path separators, space, or \code{.}, it is treated as a
 directory path. Otherwise, it is treated as a package name.}
+
+\item{groups}{Character vector or NULL. Optional group filter(s) to load only
+tools from specific group(s). Groups are extracted from tool names following
+the pattern \code{pkg-mcp_tool_{group}_{action}}. Each group can be a regexp
+pattern. For example, "pipeline", "config", or "(pipeline|config)".
+If \code{NULL} (default), all tools are loaded.}
 }
 \value{
 List of MCP tool definitions
@@ -19,9 +25,14 @@ Load MCP Tool Definitions from Package or Directory
 }
 \examples{
 
-# Load from package
+# Load all tools from package
 tools <- mcptool_load_all("ravepipeline")
 
+# Load only pipeline group tools
+pipeline_tools <- mcptool_load_all("ravepipeline", groups = "pipeline")
+
+# Load multiple groups
+tools <- mcptool_load_all("ravepipeline", groups = c("pipeline", "config"))
 
 # Load from directory
 path <- system.file("mcp", "tools", package = "ravepipeline")

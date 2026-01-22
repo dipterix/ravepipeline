@@ -25,7 +25,7 @@ Writes an MCP tool definition to a file in either \code{YAML} or \code{Markdown}
 \examples{
 
 # Load a tool from package
-path <- mcptool_path("ravepipeline-mcp_list_rave_pipelines")
+path <- mcptool_path("ravepipeline-mcp_tool_pipeline_list")
 tool <- mcptool_read(path)
 
 # Write as YAML to temporary file

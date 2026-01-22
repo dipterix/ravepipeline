@@ -57,13 +57,13 @@ Imports:
     logger
 Suggests:
     ellmer (>= 0.4.0),
+    btw,
     dipsaus,
     filearray,
     future.apply,
     globals,
     ieegio,
     rpymat,
-    reprex,
     rmarkdown,
     rstudioapi,
     shidashi,

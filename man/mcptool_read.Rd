@@ -24,7 +24,7 @@ and \code{mcptool_path}.
 \examples{
 
 path <- system.file(
-  "mcp", "tools", "ravepipeline-mcp_list_rave_pipelines.yaml",
+  "mcp", "tools", "ravepipeline-mcp_tool_pipeline_list.yaml",
   package = "ravepipeline"
 )
 

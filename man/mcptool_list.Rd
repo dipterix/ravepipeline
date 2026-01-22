@@ -4,12 +4,17 @@
 \alias{mcptool_list}
 \title{List MCP tool names from a package or directory}
 \usage{
-mcptool_list(pkg)
+mcptool_list(pkg, groups = NULL)
 }
 \arguments{
 \item{pkg}{Character. Package name or path to tools directory.
 If \code{pkg} contains path separators, space, or \code{'.'}, it is
 treated as a directory path. Otherwise, it is treated as a package name.}
+
+\item{groups}{Character vector or NULL. Optional group filter(s) to list only
+tools from specific group(s). Groups are extracted from tool names following
+the pattern \code{pkg-mcp_tool_{group}_{action}}. Each group can be a regexp
+pattern. If \code{NULL} (default), all tools are listed.}
 }
 \value{
 Character vector of tool names (in format \code{pkg-function_name}).
@@ -22,9 +27,14 @@ only the tool names without loading full definitions.
 }
 \examples{
 
-# List tools from package
+# List all tools from package
 mcptool_list("ravepipeline")
 
+# List only pipeline group tools
+mcptool_list("ravepipeline", groups = "pipeline")
+
+# List multiple groups
+mcptool_list("ravepipeline", groups = c("pipeline", "config"))
 
 # Or list tools from directory
 path <- system.file("mcp", "tools", package = "ravepipeline")

@@ -484,8 +484,24 @@ PipelineTools <- R6::R6Class(
     #' @param aspect_ratio controls node spacing
     #' @param node_size,label_size size of nodes and node labels
     #' @param ... passed to \code{\link{pipeline_visualize}}
-    #' @returns Nothing
+    #' @returns a list where the names are target names and values are the
+    #'   corresponding dependence
     visualize = function(glimpse = FALSE, aspect_ratio = 2, node_size = 30, label_size = 40, ...) {
+      all_targets <- self$with_activated({
+        load_target("make-main.R")
+      })
+      dep_graph <- fastmap2()
+      lapply(all_targets, function(target) {
+        name <- unname(get_target_name(target))
+        deps <- unname(get_target_deps(target))
+        dep_graph[[name]] <- deps
+        return()
+      })
+      dep_graph <- as.list(dep_graph)
+      if(glimpse) {
+        return(dep_graph)
+      }
+
       args <- list(pipe_dir = private$.pipeline_path, glimpse = glimpse, ...)
       tryCatch({
         widget <- pipeline_dependency_graph(
@@ -499,7 +515,7 @@ PipelineTools <- R6::R6Class(
           print(re)
         }
       })
-      return(invisible())
+      return(invisible(dep_graph))
     },
 
     #' @description a helper function to get target ancestors
@@ -790,6 +806,18 @@ PipelineTools <- R6::R6Class(
     has_preferences = function(keys, ...) {
       pipeline_has_preferences(keys = keys, ...,
                                .preference_instance = private$.preferences)
+    },
+
+    #' @description obtain the source document
+    #' @returns characters if the source document (`main.Rmd`) is found,
+    #' otherwise \code{NULL}
+    source_document = function() {
+      md_path <- file.path(self$pipeline_path, "main.Rmd")
+      if(file.exists(readLines(md_path))) {
+        return(readLines(md_path))
+      } else {
+        return(NULL)
+      }
     },
 
     #' @description generate pipeline

@@ -14,7 +14,7 @@ test_that("mcpflow_load_all loads YAML files correctly", {
       job1 = list(
         name = "Test Job",
         steps = list(
-          list(name = "Step 1", tool = "ravepipeline-mcp_list_rave_pipelines")
+          list(name = "Step 1", tool = "ravepipeline-mcp_tool_pipeline_list")
         )
       )
     )
@@ -32,7 +32,7 @@ test_that("mcpflow_load_all loads YAML files correctly", {
   expect_equal(length(workflows), 1)
   expect_true(inherits(workflows[[1]], "ravepipeline_mcp_workflow"))
   expect_equal(workflows[[1]]$name, "test_workflow")
-  expect_equal(workflows[[1]]$mcp_tools, "ravepipeline-mcp_list_rave_pipelines") # TRUE -> "all" -> explicit tool names
+  expect_equal(workflows[[1]]$mcp_tools, "ravepipeline-mcp_tool_pipeline_list") # TRUE -> "all" -> explicit tool names
 })
 
 test_that("mcpflow_load_all normalizes mcp_tools field", {
@@ -301,11 +301,11 @@ test_that("mcpflow_export with save_tools=TRUE exports tools", {
   workflow <- structure(
     list(
       name = "test_with_tools",
-      mcp_tools = c("ravepipeline-mcp_list_rave_pipelines"),
+      mcp_tools = c("ravepipeline-mcp_tool_pipeline_list"),
       jobs = list(
         job1 = list(
           steps = list(
-            list(tool = "ravepipeline-mcp_list_rave_pipelines")
+            list(tool = "ravepipeline-mcp_tool_pipeline_list")
           )
         )
       )

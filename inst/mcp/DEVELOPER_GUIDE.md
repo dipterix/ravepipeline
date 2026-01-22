@@ -559,11 +559,50 @@ mcptool_build()
 # Output location: inst/mcp/tools/
 ```
 
+### Tool Groups
+
+Organize related tools into groups using the naming convention `mcp_tool_{group}_{action}`:
+
+**Naming Pattern**:
+```r
+# Pipeline group tools
+mcp_tool_pipeline_list <- function(...) { }
+mcp_tool_pipeline_load <- function(...) { }
+mcp_tool_pipeline_get_info <- function(...) { }
+
+# Config group tools
+mcp_tool_config_set_outputs <- function(...) { }
+mcp_tool_config_set_options <- function(...) { }
+```
+
+**File naming**:
+- `ravepipeline-mcp_tool_pipeline_list.yaml`
+- `ravepipeline-mcp_tool_pipeline_load.yaml`
+- `ravepipeline-mcp_tool_config_set_outputs.yaml`
+
+**Benefits**:
+- Logical organization by domain/category
+- Easy filtering and discovery
+- Clear naming hierarchy
+- Improved maintainability
+
+**Example groups**:
+- `pipeline` - Pipeline management operations
+- `config` - Configuration and settings
+- `data` - Data access and manipulation
+- `analysis` - Analysis and processing
+
 ### Load Tools for MCP Server
 
 ```r
-# Load tool definitions
-tools <- mcptool_load_all()
+# Load all tool definitions
+tools <- mcptool_load_all("ravepipeline")
+
+# Load only pipeline group tools
+pipeline_tools <- mcptool_load_all("ravepipeline", groups = "pipeline")
+
+# Load multiple groups
+tools <- mcptool_load_all("ravepipeline", groups = c("pipeline", "config"))
 
 # Returns a list of tool definitions suitable for MCP integration
 ```
@@ -574,7 +613,31 @@ List available MCP tools:
 
 ```r
 # Get all tool names
-tool_names <- names(mcptool_load_all())
+tool_names <- mcptool_list("ravepipeline")
+
+# Get only pipeline group tools
+pipeline_names <- mcptool_list("ravepipeline", groups = "pipeline")
+
+# Get only config group tools
+config_names <- mcptool_list("ravepipeline", groups = "config")
+
+# List multiple groups
+selected_tools <- mcptool_list("ravepipeline", groups = c("pipeline", "config"))
+```
+
+**Group filtering with regexp**:
+
+The `groups` parameter accepts regexp patterns for flexible matching:
+
+```r
+# Match all pipeline "get" tools (get_info, get_script, get_helpers, etc.)
+mcptool_list("ravepipeline", groups = "pipeline_get")
+
+# Match pipeline or config groups using alternation
+mcptool_list("ravepipeline", groups = "(pipeline|config)")
+
+# Match any config-related tools
+mcptool_list("ravepipeline", groups = "config")
 ```
 
 ## Testing Your Documentation
@@ -599,7 +662,7 @@ tool_names <- names(mcptool_load_all())
 2. **Check generated YAML**:
    ```r
    yaml_file <- system.file(
-     "mcp/tools/ravepipeline-mcp_your_function.yaml",
+     "mcp/tools/ravepipeline-mcp_tool_{groupname}_{your_function}.yaml",
      package = "ravepipeline"
    )
    cat(readLines(yaml_file), sep = "\n")

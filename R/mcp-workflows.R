@@ -1080,7 +1080,6 @@ mcpflow_path <- function(workflow_name, pkg, path = system.file("mcp", "workflow
 #'
 #' workflow <- mcpflow_load_all(pkg = "ravepipeline")
 #'
-#' @keywords mcp-tool mcp-category-discovery
 #' @export
 mcpflow_load_all <- function(pkg, path = system.file("mcp", package = pkg)) {
   # Determine workflow directory

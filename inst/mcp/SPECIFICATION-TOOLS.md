@@ -1,10 +1,10 @@
-# MCP Tools YAML Specification
+# RAVE MCP Tools YAML Specification
 
-This document describes the YAML format specification for MCP (Model Context Protocol) tools generated from roxygen2 documentation.
+This document describes the YAML format specification for RAVE MCP (Model Context Protocol) tools generated from roxygen2 documentation.
 
 ## Overview
 
-MCP tools are automatically generated from R function documentation using roxygen2 comments. The build system (`mcptool_build()`) parses roxygen2 tags and extracts metadata, parameters, types, examples, and other information to create JSON Schema-compliant YAML files.
+RAVE MCP tools are automatically generated from R function documentation using roxygen2 comments. The build system (`mcptool_build()`) parses roxygen2 tags and extracts metadata, parameters, types, examples, and other information to create JSON Schema-compliant YAML files.
 
 Generated YAML files contain:
 - Tool names, descriptions, and categories
@@ -281,9 +281,60 @@ YAML files are named using the pattern:
 {package}-{function_name}.yaml
 ```
 
-Example: `ravepipeline-mcp_load_rave_pipeline.yaml`
+Example: `ravepipeline-mcp_tool_pipeline_load.yaml`
 
-Note: The tool name in the YAML uses hyphen format: `pkg-function_name` (e.g., `ravepipeline-mcp_load_rave_pipeline`). The first hyphen separates the package name from the function name.
+Note: The tool name in the YAML uses hyphen format: `pkg-function_name` (e.g., `ravepipeline-mcp_tool_pipeline_load`). The first hyphen separates the package name from the function name.
+
+## Tool Groups
+
+MCP tools can be organized into groups using a structured naming convention:
+
+```
+{package}-mcp_tool_{group}_{action}.yaml
+```
+
+**Group Naming Pattern**: `mcp_tool_{group}_{action}`
+
+- **group**: Category or domain (e.g., `pipeline`, `config`)
+- **action**: Specific operation (e.g., `list`, `load`, `get_info`, `set_settings`)
+
+**Examples**:
+- Pipeline group: `ravepipeline-mcp_tool_pipeline_list.yaml`
+- Config group: `ravepipeline-mcp_tool_config_set_outputs.yaml`
+
+### Filtering Tools by Group
+
+Tools can be filtered by group using the `groups` parameter in `mcptool_list()` and `mcptool_load_all()`:
+
+```r
+# List all pipeline group tools
+mcptool_list("ravepipeline", groups = "pipeline")
+
+# List multiple groups
+mcptool_list("ravepipeline", groups = c("pipeline", "config"))
+
+# Load only pipeline group tools
+tools <- mcptool_load_all("ravepipeline", groups = "pipeline")
+```
+
+**Group Filtering**:
+- The `groups` parameter accepts character vectors or NULL
+- Each group can be a regexp pattern
+- Pattern matching: `^[a-zA-Z0-9]+-mcp_tool_{group}`
+- Multiple groups are combined (OR logic)
+- NULL (default) returns all tools
+
+**Example Use Cases**:
+```r
+# Get all pipeline management tools
+mcptool_list("ravepipeline", groups = "pipeline")
+
+# Get configuration tools only
+mcptool_list("ravepipeline", groups = "config")
+
+# Use regexp for partial matching
+mcptool_list("ravepipeline", groups = "pipeline_get")
+```
 
 ## Output Directory
 
