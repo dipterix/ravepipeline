@@ -101,72 +101,73 @@
 #' \code{\link{mcptool_load_all}}, \code{\link{mcptool_instantiate}},
 #' \code{\link{mcptool_state_factory}}, \code{\link{mcp_describe}}
 #'
-#' @export
-ravepipeline_serve_mcp <- function(
-    tools_pkg = "ravepipeline",
-    workflow = NULL,
-    state_env = NULL
-) {
-  # Check if btw is available
-  if (!requireNamespace("btw", quietly = TRUE)) {
-    stop(
-      "Package 'btw' is required but not installed.\n",
-      "Install it with: pak::pak('btw')",
-      call. = FALSE
-    )
-  }
-
-  # Display startup message
-  message("Starting RAVE Pipeline MCP Server...")
-
-  # Load all MCP tools from the package
-  message("Loading MCP tools from package: ", tools_pkg)
-  tools <- mcptool_load_all(tools_pkg)
-  message("Loaded ", length(tools), " tool(s)")
-
-  # Create shared state environment if not provided
-  if (is.null(state_env)) {
-    message("Creating shared state environment...")
-    state_env <- mcptool_state_factory()
-  }
-
-  # Optionally load workflow guidance
-  if (!is.null(workflow)) {
-    message("Loading workflow guidance: ", workflow)
-    # The workflow will be loaded by mcp_describe when tools are called
-    # We don't need to do anything here, just document the intent
-  }
-
-  # Instantiate each tool as an ellmer::ToolDef object
-  # This converts our YAML-based tool definitions into ellmer's format
-  message("Instantiating tools for MCP protocol...")
-  ellmer_tools <- lapply(tools, function(tool) {
-    mcptool_instantiate(
-      tool = tool,
-      state_env = state_env
-    )
-  })
-
-  # Filter out any NULL results (in case some tools failed to instantiate)
-  ellmer_tools <- ellmer_tools[!vapply(ellmer_tools, is.null, logical(1))]
-
-  if (length(ellmer_tools) == 0) {
-    stop("No tools were successfully instantiated. Cannot start server.", call. = FALSE)
-  }
-
-  message("Successfully instantiated ", length(ellmer_tools), " tool(s)")
-
-  # Start the MCP server using btw
-  # This function blocks indefinitely and serves via stdio
-  message("\n", strrep("=", 60))
-  message("MCP Server is running. Press Ctrl+C to stop.")
-  message(strrep("=", 60), "\n")
-
-  btw::btw_mcp_server(
-    tools = ellmer_tools
-  )
-
-  # This line is never reached unless the server is stopped
-  message("MCP Server stopped.")
-  invisible(NULL)
-}
+#' @noRd
+NULL
+# ravepipeline_serve_mcp <- function(
+#     tools_pkg = "ravepipeline",
+#     workflow = NULL,
+#     state_env = NULL
+# ) {
+#   # Check if btw is available
+#   if (!requireNamespace("btw", quietly = TRUE)) {
+#     stop(
+#       "Package 'btw' is required but not installed.\n",
+#       "Install it with: pak::pak('btw')",
+#       call. = FALSE
+#     )
+#   }
+#
+#   # Display startup message
+#   message("Starting RAVE Pipeline MCP Server...")
+#
+#   # Load all MCP tools from the package
+#   message("Loading MCP tools from package: ", tools_pkg)
+#   tools <- mcptool_load_all(tools_pkg)
+#   message("Loaded ", length(tools), " tool(s)")
+#
+#   # Create shared state environment if not provided
+#   if (is.null(state_env)) {
+#     message("Creating shared state environment...")
+#     state_env <- mcptool_state_factory()
+#   }
+#
+#   # Optionally load workflow guidance
+#   if (!is.null(workflow)) {
+#     message("Loading workflow guidance: ", workflow)
+#     # The workflow will be loaded by mcp_describe when tools are called
+#     # We don't need to do anything here, just document the intent
+#   }
+#
+#   # Instantiate each tool as an ellmer::ToolDef object
+#   # This converts our YAML-based tool definitions into ellmer's format
+#   message("Instantiating tools for MCP protocol...")
+#   ellmer_tools <- lapply(tools, function(tool) {
+#     mcptool_instantiate(
+#       tool = tool,
+#       state_env = state_env
+#     )
+#   })
+#
+#   # Filter out any NULL results (in case some tools failed to instantiate)
+#   ellmer_tools <- ellmer_tools[!vapply(ellmer_tools, is.null, logical(1))]
+#
+#   if (length(ellmer_tools) == 0) {
+#     stop("No tools were successfully instantiated. Cannot start server.", call. = FALSE)
+#   }
+#
+#   message("Successfully instantiated ", length(ellmer_tools), " tool(s)")
+#
+#   # Start the MCP server using btw
+#   # This function blocks indefinitely and serves via stdio
+#   message("\n", strrep("=", 60))
+#   message("MCP Server is running. Press Ctrl+C to stop.")
+#   message(strrep("=", 60), "\n")
+#
+#   btw::btw_mcp_server(
+#     tools = ellmer_tools
+#   )
+#
+#   # This line is never reached unless the server is stopped
+#   message("MCP Server stopped.")
+#   invisible(NULL)
+# }

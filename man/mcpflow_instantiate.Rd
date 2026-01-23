@@ -10,6 +10,7 @@ mcpflow_instantiate(
   chat_provider = c("ollama", "openai", "claude", "gemini", "cortex", "azure_openai",
     "bedrock", "databricks", "github", "groq", "perplexity", "snowflake", "vllm"),
   chat_args = list(),
+  additional_tools = NULL,
   on_tool_request = NULL,
   on_tool_result = NULL,
   use_job_validator = FALSE,
@@ -36,6 +37,10 @@ new chat. One of \code{"ollama"} (default), \code{"openai"},
 \item{chat_args}{A named list of additional arguments passed to the
 \code{'ellmer'} constructor (e.g., \code{model}, \code{api_key},
 \code{base_url}). Only used when \code{chat} is \code{NULL}.}
+
+\item{additional_tools}{A list or vector of MCP tools in addition to
+what workflow implicates, to be added to the chat; can be strings or
+a list of MCP tool objects; default is \code{NULL} (default)}
 
 \item{on_tool_request}{Optional callback function for tool request events.
 Passed to \code{chat$on_tool_request()}. Receives a "content tool request"

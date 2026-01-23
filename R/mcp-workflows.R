@@ -2151,6 +2151,9 @@ mcpflow_guidance_tool <- function(workflow, sections) {
 #' @param chat_args A named list of additional arguments passed to the
 #'   \code{'ellmer'} constructor (e.g., \code{model}, \code{api_key},
 #'   \code{base_url}). Only used when \code{chat} is \code{NULL}.
+#' @param additional_tools A list or vector of MCP tools in addition to
+#'   what workflow implicates, to be added to the chat; can be strings or
+#'   a list of MCP tool objects; default is \code{NULL} (default)
 #' @param on_tool_request Optional callback function for tool request events.
 #'   Passed to \code{chat$on_tool_request()}. Receives a "content tool request"
 #'   object. Can call \code{\link[ellmer]{tool_reject}} to prevent execution.
@@ -2229,6 +2232,7 @@ mcpflow_instantiate <- function(
                    "azure_openai", "bedrock", "databricks", "github",
                    "groq", "perplexity", "snowflake", "vllm"),
     chat_args = list(),
+    additional_tools = NULL,
     on_tool_request = NULL,
     on_tool_result = NULL,
     use_job_validator = FALSE,
@@ -2300,21 +2304,7 @@ mcpflow_instantiate <- function(
 
   # Set system prompt
   # ellmer chat objects store system prompt - try common methods
-  if (is.function(chat$set_system_prompt)) {
-    chat$set_system_prompt(system_prompt)
-  } else {
-    # For ellmer Chat R6 class, system_prompt is typically set at construction
-    # or via a method. Try direct assignment if available
-    if ("system_prompt" %in% names(chat)) {
-      chat$system_prompt <- system_prompt
-    } else {
-      warning(
-        "Could not set system prompt on chat object. ",
-        "Consider passing system_prompt via chat_args.",
-        call. = FALSE
-      )
-    }
-  }
+  chat$set_system_prompt(system_prompt)
 
   # Register tools
   tools <- attr(workflow, "mcp_tools")
@@ -2324,6 +2314,21 @@ mcpflow_instantiate <- function(
         ellmer_tool <- mcptool_instantiate(tool, ..., state_env = state_env)
         chat$register_tool(ellmer_tool)
       }
+    }
+  }
+
+  # Also add additional tools
+  for(additional_tool in additional_tools) {
+    if(is.character(additional_tool)) {
+      tool_path <- mcptool_resolve_path(additional_tool)
+      additional_tool <- mcptool_read(tool_path)
+    }
+    if(inherits(additional_tool, "ravepipeline_mcp_tool")) {
+      additional_tool <- mcptool_instantiate(additional_tool, ..., state_env = state_env)
+    }
+    if(inherits(additional_tool, "ellmer::ToolDef") &&
+       !additional_tool@name %in% names(chat$get_tools())) {
+      chat$register_tool(additional_tool)
     }
   }
 
