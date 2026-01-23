@@ -11,7 +11,7 @@ only the tool names without loading full definitions."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -49,7 +49,7 @@ only the tool names without loading full definitions.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">mcptool_list</span><span class="op">(</span><span class="va">pkg</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">mcptool_list</span><span class="op">(</span><span class="va">pkg</span>, groups <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -61,6 +61,13 @@ only the tool names without loading full definitions.</p>
 If <code>pkg</code> contains path separators, space, or <code>'.'</code>, it is
 treated as a directory path. Otherwise, it is treated as a package name.</p></dd>
 
+
+<dt id="arg-groups">groups<a class="anchor" aria-label="anchor" href="#arg-groups"></a></dt>
+<dd><p>Character vector or NULL. Optional group filter(s) to list only
+tools from specific group(s). Groups are extracted from tool names following
+the pattern <code>pkg-mcp_tool_{group}_{action}</code>. Each group can be a regexp
+pattern. If <code>NULL</code> (default), all tools are listed.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -71,31 +78,75 @@ Returns empty character vector if no tools found.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># List tools from package</span></span></span>
+<span class="r-in"><span><span class="co"># List all tools from package</span></span></span>
 <span class="r-in"><span><span class="fu">mcptool_list</span><span class="op">(</span><span class="st">"ravepipeline"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "ravepipeline-mcp_configure_output_settings"         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2] "ravepipeline-mcp_get_current_rave_pipeline_info"    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3] "ravepipeline-mcp_get_current_rave_pipeline_progress"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4] "ravepipeline-mcp_list_rave_pipelines"               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5] "ravepipeline-mcp_load_rave_pipeline"                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [6] "ravepipeline-mcp_read_current_rave_pipeline_results"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [7] "ravepipeline-mcp_run_current_rave_pipeline"         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [8] "ravepipeline-mcp_set_current_rave_pipeline_settings"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [9] "ravepipeline-mcpflow_load_all"                      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "ravepipeline-mcp_tool_config_set_outputs"              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2] "ravepipeline-mcp_tool_docs_available_vignettes"        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "ravepipeline-mcp_tool_docs_help_page"                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4] "ravepipeline-mcp_tool_docs_package_help_topics"        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "ravepipeline-mcp_tool_docs_vignette"                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "ravepipeline-mcp_tool_pipeline_get_helpers"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "ravepipeline-mcp_tool_pipeline_get_info"               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] "ravepipeline-mcp_tool_pipeline_get_progress"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "ravepipeline-mcp_tool_pipeline_get_script"             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "ravepipeline-mcp_tool_pipeline_get_target_dependencies"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "ravepipeline-mcp_tool_pipeline_list"                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [12] "ravepipeline-mcp_tool_pipeline_load"                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "ravepipeline-mcp_tool_pipeline_read_results"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [14] "ravepipeline-mcp_tool_pipeline_run"                    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [15] "ravepipeline-mcp_tool_pipeline_set_settings"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [16] "ravepipeline-mcp_tool_run_r"                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [17] "ravepipeline-mcp_tool_search_package_info"             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [18] "ravepipeline-mcp_tool_search_packages"                 </span>
 <span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># List only pipeline group tools</span></span></span>
+<span class="r-in"><span><span class="fu">mcptool_list</span><span class="op">(</span><span class="st">"ravepipeline"</span>, groups <span class="op">=</span> <span class="st">"pipeline"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "ravepipeline-mcp_tool_pipeline_get_helpers"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2] "ravepipeline-mcp_tool_pipeline_get_info"               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "ravepipeline-mcp_tool_pipeline_get_progress"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4] "ravepipeline-mcp_tool_pipeline_get_script"             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "ravepipeline-mcp_tool_pipeline_get_target_dependencies"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "ravepipeline-mcp_tool_pipeline_list"                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "ravepipeline-mcp_tool_pipeline_load"                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] "ravepipeline-mcp_tool_pipeline_read_results"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "ravepipeline-mcp_tool_pipeline_run"                    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "ravepipeline-mcp_tool_pipeline_set_settings"           </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># List multiple groups</span></span></span>
+<span class="r-in"><span><span class="fu">mcptool_list</span><span class="op">(</span><span class="st">"ravepipeline"</span>, groups <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"pipeline"</span>, <span class="st">"config"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "ravepipeline-mcp_tool_config_set_outputs"              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2] "ravepipeline-mcp_tool_pipeline_get_helpers"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "ravepipeline-mcp_tool_pipeline_get_info"               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4] "ravepipeline-mcp_tool_pipeline_get_progress"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "ravepipeline-mcp_tool_pipeline_get_script"             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "ravepipeline-mcp_tool_pipeline_get_target_dependencies"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "ravepipeline-mcp_tool_pipeline_list"                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] "ravepipeline-mcp_tool_pipeline_load"                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "ravepipeline-mcp_tool_pipeline_read_results"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "ravepipeline-mcp_tool_pipeline_run"                    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "ravepipeline-mcp_tool_pipeline_set_settings"           </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Or list tools from directory</span></span></span>
 <span class="r-in"><span><span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"mcp"</span>, <span class="st">"tools"</span>, package <span class="op">=</span> <span class="st">"ravepipeline"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">mcptool_list</span><span class="op">(</span><span class="va">path</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "ravepipeline-mcp_configure_output_settings"         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [2] "ravepipeline-mcp_get_current_rave_pipeline_info"    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [3] "ravepipeline-mcp_get_current_rave_pipeline_progress"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [4] "ravepipeline-mcp_list_rave_pipelines"               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [5] "ravepipeline-mcp_load_rave_pipeline"                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [6] "ravepipeline-mcp_read_current_rave_pipeline_results"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [7] "ravepipeline-mcp_run_current_rave_pipeline"         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [8] "ravepipeline-mcp_set_current_rave_pipeline_settings"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [9] "ravepipeline-mcpflow_load_all"                      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "ravepipeline-mcp_tool_config_set_outputs"              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2] "ravepipeline-mcp_tool_docs_available_vignettes"        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "ravepipeline-mcp_tool_docs_help_page"                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4] "ravepipeline-mcp_tool_docs_package_help_topics"        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "ravepipeline-mcp_tool_docs_vignette"                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "ravepipeline-mcp_tool_pipeline_get_helpers"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "ravepipeline-mcp_tool_pipeline_get_info"               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] "ravepipeline-mcp_tool_pipeline_get_progress"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "ravepipeline-mcp_tool_pipeline_get_script"             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "ravepipeline-mcp_tool_pipeline_get_target_dependencies"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "ravepipeline-mcp_tool_pipeline_list"                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [12] "ravepipeline-mcp_tool_pipeline_load"                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "ravepipeline-mcp_tool_pipeline_read_results"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [14] "ravepipeline-mcp_tool_pipeline_run"                    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [15] "ravepipeline-mcp_tool_pipeline_set_settings"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [16] "ravepipeline-mcp_tool_run_r"                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [17] "ravepipeline-mcp_tool_search_package_info"             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [18] "ravepipeline-mcp_tool_search_packages"                 </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

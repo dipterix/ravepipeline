@@ -67,16 +67,25 @@ written_files <- mcpflow_export(
 
 # Show exported files
 list.files(temp_dir, recursive = TRUE)
-#>  [1] "tools/ravepipeline-mcp_configure_output_settings.yaml"         
-#>  [2] "tools/ravepipeline-mcp_get_current_rave_pipeline_info.yaml"    
-#>  [3] "tools/ravepipeline-mcp_get_current_rave_pipeline_progress.yaml"
-#>  [4] "tools/ravepipeline-mcp_list_rave_pipelines.yaml"               
-#>  [5] "tools/ravepipeline-mcp_load_rave_pipeline.yaml"                
-#>  [6] "tools/ravepipeline-mcp_read_current_rave_pipeline_results.yaml"
-#>  [7] "tools/ravepipeline-mcp_run_current_rave_pipeline.yaml"         
-#>  [8] "tools/ravepipeline-mcp_set_current_rave_pipeline_settings.yaml"
-#>  [9] "workflows/rave_pipeline_class_guide.md"                        
-#> [10] "workflows/rave_pipeline_class_guide.yaml"                      
+#>  [1] "tools/ravepipeline-mcp_tool_config_set_outputs.yaml"              
+#>  [2] "tools/ravepipeline-mcp_tool_docs_available_vignettes.yaml"        
+#>  [3] "tools/ravepipeline-mcp_tool_docs_help_page.yaml"                  
+#>  [4] "tools/ravepipeline-mcp_tool_docs_package_help_topics.yaml"        
+#>  [5] "tools/ravepipeline-mcp_tool_docs_vignette.yaml"                   
+#>  [6] "tools/ravepipeline-mcp_tool_pipeline_get_helpers.yaml"            
+#>  [7] "tools/ravepipeline-mcp_tool_pipeline_get_info.yaml"               
+#>  [8] "tools/ravepipeline-mcp_tool_pipeline_get_progress.yaml"           
+#>  [9] "tools/ravepipeline-mcp_tool_pipeline_get_script.yaml"             
+#> [10] "tools/ravepipeline-mcp_tool_pipeline_get_target_dependencies.yaml"
+#> [11] "tools/ravepipeline-mcp_tool_pipeline_list.yaml"                   
+#> [12] "tools/ravepipeline-mcp_tool_pipeline_load.yaml"                   
+#> [13] "tools/ravepipeline-mcp_tool_pipeline_read_results.yaml"           
+#> [14] "tools/ravepipeline-mcp_tool_pipeline_run.yaml"                    
+#> [15] "tools/ravepipeline-mcp_tool_pipeline_set_settings.yaml"           
+#> [16] "tools/ravepipeline-mcp_tool_search_package_info.yaml"             
+#> [17] "tools/ravepipeline-mcp_tool_search_packages.yaml"                 
+#> [18] "workflows/rave_pipeline_class_guide.md"                           
+#> [19] "workflows/rave_pipeline_class_guide.yaml"                         
 
 # Cleanup
 unlink(temp_dir, recursive = TRUE)

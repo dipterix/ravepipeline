@@ -47,7 +47,7 @@ mcpflow_read("ravepipeline::rave_pipeline_class_guide")
 #>   Description: AI Assistant Workflows for RAVE MCP Tools - Comprehensive gu ... 
 #>   Version: 1.0.0 
 #>   Category: guide 
-#>   MCP Tools: 8 (attached)
+#>   MCP Tools: 17 (attached)
 #>   Jobs: 7 
 #>   Examples: 3 
 
@@ -75,42 +75,79 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #> prompt_sections:
 #>   core:
 #>   - overview
-#>   - tool_guide
 #>   - warnings
-#>   - coding_guidelines
-#>   - code_generation_rules
 #> mcp_tools:
-#> - ravepipeline-mcp_list_rave_pipelines
-#> - ravepipeline-mcp_load_rave_pipeline
-#> - ravepipeline-mcp_get_current_rave_pipeline_info
-#> - ravepipeline-mcp_set_current_rave_pipeline_settings
-#> - ravepipeline-mcp_run_current_rave_pipeline
-#> - ravepipeline-mcp_get_current_rave_pipeline_progress
-#> - ravepipeline-mcp_read_current_rave_pipeline_results
-#> - ravepipeline-mcp_configure_output_settings
+#> - ravepipeline-mcp_tool_config_set_outputs
+#> - ravepipeline-mcp_tool_docs_available_vignettes
+#> - ravepipeline-mcp_tool_docs_help_page
+#> - ravepipeline-mcp_tool_docs_package_help_topics
+#> - ravepipeline-mcp_tool_docs_vignette
+#> - ravepipeline-mcp_tool_pipeline_get_helpers
+#> - ravepipeline-mcp_tool_pipeline_get_info
+#> - ravepipeline-mcp_tool_pipeline_get_progress
+#> - ravepipeline-mcp_tool_pipeline_get_script
+#> - ravepipeline-mcp_tool_pipeline_get_target_dependencies
+#> - ravepipeline-mcp_tool_pipeline_list
+#> - ravepipeline-mcp_tool_pipeline_load
+#> - ravepipeline-mcp_tool_pipeline_read_results
+#> - ravepipeline-mcp_tool_search_package_info
+#> - ravepipeline-mcp_tool_search_packages
+#> - ravepipeline-mcp_tool_pipeline_set_settings
+#> - ravepipeline-mcp_tool_pipeline_run
 #> tool_guide:
-#> - tool: ravepipeline-mcp_list_rave_pipelines
+#> - tool: ravepipeline-mcp_tool_pipeline_list
 #>   category: discovery
 #>   when: User asks about available analyses or pipelines
 #>   notes: Always start here - never assume pipeline names
-#> - tool: ravepipeline-mcp_load_rave_pipeline
+#> - tool: ravepipeline-mcp_tool_pipeline_load
 #>   category: discovery
 #>   when: After identifying a pipeline, before any other operations
 #>   notes: Required before get_info, set_settings, or run
-#>   preconditions: Know the pipeline name from mcp_list_rave_pipelines
-#> - tool: ravepipeline-mcp_get_current_rave_pipeline_info
+#>   preconditions: Know the pipeline name from mcp_tool_pipeline_list
+#> - tool: ravepipeline-mcp_tool_pipeline_get_info
 #>   category: info
 #>   when: Need parameter schema, validation rules, or pipeline details
 #>   notes: Use this to discover required parameters before configuration
 #>   preconditions: Pipeline must be loaded
-#> - tool: ravepipeline-mcp_set_current_rave_pipeline_settings
+#> - tool: ravepipeline-mcp_tool_pipeline_get_script
+#>   category: info
+#>   when: Need to understand pipeline workflow, computational steps, or documentation
+#>   notes: |
+#>     Reads the pipeline's main.Rmd workflow document. Use pattern parameter to
+#>     extract specific sections (e.g., "^# " for headers, "target.*<-" for target
+#>     definitions) to reduce output size. Without pattern, returns full document
+#>     with a warning about potentially large output.
+#>   preconditions:
+#>   - Pipeline must be loaded
+#>   - Pipeline must have an R Markdown workflow (main.Rmd)
+#>   examples:
+#>   - 'Find all section headers: pattern = ''^# '''
+#>   - 'Find target definitions: pattern = ''^```\{rave'''
+#>   - 'Search for specific analysis steps: pattern = ''wavelet|frequency'''
+#> - tool: ravepipeline-mcp_tool_pipeline_get_helpers
+#>   category: discovery
+#>   when: REQUIRED when user requests custom code, pipeline result reproduction, or
+#>     data customization. OPTIONAL for standard pipeline operations (run/info/results)
+#>   notes: |
+#>     MANDATORY for customization: MUST call this FIRST before writing any custom code.
+#>     Loads pipeline's shared environment and returns function signatures (names and
+#>     arguments) from R/shared-*.R files. Use pattern parameter to filter by keywords
+#>     (e.g., pattern='plot' or pattern='condition'). Discovery is required, but using
+#>     the discovered helpers is optional if you're unsure about their use-cases.
+#>     This prevents reinventing existing functionality.
+#>   preconditions: Pipeline must be loaded
+#>   examples:
+#>   - pattern='plot|draw' to find plotting functions
+#>   - pattern='condition' to find condition-related helpers
+#>   - pattern='baseline' to find baseline computation functions
+#> - tool: ravepipeline-mcp_tool_pipeline_set_settings
 #>   category: configuration
 #>   when: User provides parameter values or you need to configure analysis
 #>   notes: Always validate against schema from get_info first
 #>   preconditions:
 #>   - Pipeline must be loaded
 #>   - Parameters validated against schema
-#> - tool: ravepipeline-mcp_run_current_rave_pipeline
+#> - tool: ravepipeline-mcp_tool_pipeline_run
 #>   category: execution
 #>   when: User confirms they want to execute the analysis
 #>   dangerous: yes
@@ -119,23 +156,23 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #>   - Pipeline must be loaded
 #>   - Settings must be configured
 #>   - User must explicitly approve execution
-#> - tool: ravepipeline-mcp_get_current_rave_pipeline_progress
+#> - tool: ravepipeline-mcp_tool_pipeline_get_progress
 #>   category: monitoring
 #>   when: After starting execution, to track progress
 #>   notes: Poll every 5 seconds until status is 'completed'
 #>   preconditions: Pipeline execution has been started
-#> - tool: ravepipeline-mcp_read_current_rave_pipeline_results
+#> - tool: ravepipeline-mcp_tool_pipeline_read_results
 #>   category: results
 #>   when: Pipeline execution completed successfully
 #>   notes: |
 #>     Read specific pipeline results. If unsure which result names are available,
-#>     run ravepipeline-mcp_get_current_rave_pipeline_info to see the 'targets' field.
+#>     run ravepipeline-mcp_tool_pipeline_get_info to see the 'targets' field.
 #>     WARNING: Calling without target_names extracts ALL results, which can be memory-intensive
 #>     and slow for large datasets. Always specify target_names when possible.
 #>   preconditions:
 #>   - Pipeline execution completed
 #>   - Know target names from pipeline info
-#> - tool: ravepipeline-mcp_configure_output_settings
+#> - tool: ravepipeline-mcp_tool_config_set_outputs
 #>   category: configuration
 #>   when: Need to adjust output format for large results or token optimization
 #>   notes: |
@@ -157,40 +194,123 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #>   - Execute analyses with proper validation
 #>   - Monitor execution progress
 #>   - Retrieve and visualize results
+#> 
+#>   # Available Guidance Sections
+#> 
+#>   This workflow provides additional guidance sections that should be loaded on-demand
+#>   using the `get_workflow_guidance` tool based on the user's request:
+#> 
+#>   ## When to Load Additional Sections:
+#> 
+#>   **Scenario 1: User asks about workflows, patterns, or best practices**
+#>   → Load: `best_practices`, `anti_patterns`
+#>   - Common workflow patterns (discovery-first, validation, monitoring)
+#>   - Anti-patterns and common mistakes to avoid
+#>   - Parameter validation checklist
+#>   - Progressive code generation patterns
+#> 
+#>   **Scenario 2: User requests code generation, customization, or script writing**
+#>   → Load: `coding_guidelines`, `code_generation_rules`, `best_practices`, `anti_patterns`
+#>   - MANDATORY before writing any R code for the user
+#>   - Package usage restrictions and allowed dependencies
+#>   - Correct pipeline object methods and signatures
+#>   - Required discovery steps before code generation
+#>   - Shows correct vs incorrect usage patterns with examples
+#> 
+#>   **Scenario 3: User wants to execute pipelines, configure parameters, or run analyses**
+#>   → Load: `best_practices`, `tool_guide`
+#>   - Proper tool sequencing and dependencies
+#>   - Parameter validation workflows
+#>   - Execution approval patterns for dangerous operations
+#>   - Monitoring and progress tracking
+#> 
+#>   **Scenario 4: User asks "how does this pipeline work?" or needs implementation details**
+#>   → Load: `best_practices` (focus on "Understanding Pipeline Internals" section)
+#>   - How to use get_script with pattern filtering
+#>   - How to discover and use helper functions
+#>   - Documentation exploration patterns
+#>   - Workflow explanation strategies
+#> 
+#>   **Scenario 5: User encounters errors or unexpected behavior**
+#>   → Load: `anti_patterns`, `best_practices`, `coding_guidelines`
+#>   - Common error patterns and solutions
+#>   - Validation and recovery workflows
+#>   - Debugging strategies
+#> 
+#>   Use the `get_workflow_guidance` tool to load these sections when needed.
+#>   Example: `get_workflow_guidance(section_names = c("coding_guidelines", "code_generation_rules"))`
+#> 
+#>   **Important**: Always load the appropriate sections BEFORE attempting to help the user.
+#>   Do not guess at code patterns or tool usage without consulting the guidance sections first.
 #> best_practices:
 #> - title: Always Start with Discovery
 #>   do: |
-#>     1. Call ravepipeline-mcp_list_rave_pipelines to find available options
-#>     2. Load the relevant pipeline with ravepipeline-mcp_load_rave_pipeline
-#>     3. Get parameter details with ravepipeline-mcp_get_current_rave_pipeline_info
+#>     1. Call ravepipeline-mcp_tool_pipeline_list to find available options
+#>     2. Load the relevant pipeline with ravepipeline-mcp_tool_pipeline_load
+#>     3. Get parameter details with ravepipeline-mcp_tool_pipeline_get_info
 #>     4. Present options to user with descriptions
 #>   dont: Immediately try to run with guessed pipeline names or parameters
 #> - title: Code Generation Workflow
 #>   do: |
 #>     When user asks for code:
-#>     1. Call ravepipeline-mcp_list_rave_pipelines to find correct pipeline name
-#>     2. Call ravepipeline-mcp_load_rave_pipeline with the correct name
-#>     3. Call ravepipeline-mcp_get_current_rave_pipeline_info to get:
+#>     1. Call ravepipeline-mcp_tool_pipeline_list to find correct pipeline name
+#>     2. Call ravepipeline-mcp_tool_pipeline_load with the correct name
+#>     3. Call ravepipeline-mcp_tool_pipeline_get_info to get:
 #>        - Available targets from targets$Names (for pipe$read())
 #>        - Current settings (use as defaults)
 #>        - Parameter constraints
-#>     4. Generate code using ONLY methods shown in implementation_example:
+#>     4. MUST call ravepipeline-mcp_tool_pipeline_get_helpers to discover utility functions
+#>        - Use pattern parameter to filter (e.g., pattern='plot' for plotting, pattern='condition' for conditions)
+#>        - Review discovered helpers and reuse if names/signatures suggest relevance
+#>        - Acceptable to write custom code if unsure about helper use-cases, but discovery is mandatory
+#>     5. Generate code using ONLY methods shown in implementation_example:
 #>        - pipe$read(target_name, simplify = FALSE) to read results (use 'pipe' variable, not 'pipeline')
 #>        - pipe$set_settings(...) to configure
 #>        - pipe$run(names = 'target', return_values = FALSE) to execute
-#>     5. Use base R for plotting (plot, lines, legend) and data manipulation (aggregate, subset)
+#>        - Reuse helper functions from step 4 when their purpose is clear
+#>     6. Use base R for plotting (plot, lines, legend) and data manipulation (aggregate, subset)
 #>   dont: |
 #>     - Guess pipeline names, target names, or method names
 #>     - Use tidyverse packages (dplyr, ggplot2, tidyr, purrr)
 #>     - Invent methods like $get_result(), $execute(), $get()
 #>     - Use the magrittr pipe %>%
 #>     - Use variable name 'pipeline' (use 'pipe' instead to avoid function name conflict)
+#>     - Skip helper discovery when generating custom code (it's mandatory, not optional)
+#>     - Write custom utility code without first calling get_helpers to check what exists
+#> - title: Understanding Pipeline Internals
+#>   do: |
+#>     When user asks "how does this pipeline work?" or needs to understand implementation:
+#>     1. Call ravepipeline-mcp_tool_pipeline_get_script with pattern to extract
+#>        relevant sections (e.g., pattern = "^# " for section headers)
+#>     2. Call ravepipeline-mcp_tool_pipeline_get_helpers to see available utility functions
+#>     3. Use pattern searches to find specific targets or computational steps:
+#>        - Section headers: pattern = "^# "
+#>        - Target definitions: pattern = "^```\\{rave"
+#>        - Specific keywords: pattern = "wavelet|frequency|baseline"
+#>     4. Explain the workflow in plain language based on discovered documentation
+#>   dont: |
+#>     - Read entire main.Rmd without pattern (will be large and waste tokens)
+#>     - Assume helper functions don't exist - check first to avoid reinventing
+#>     - Guess at pipeline implementation details without checking documentation
+#> - title: Efficient Code Generation with Helper Discovery
+#>   do: |
+#>     When generating custom code or data customization for a loaded pipeline:
+#>     1. MUST call ravepipeline-mcp_tool_pipeline_get_helpers FIRST (use pattern to filter)
+#>     2. Review discovered helper signatures - use them if names suggest relevance
+#>     3. It's acceptable to write custom code if you're unsure about helper use-cases
+#>     4. The discovery step is mandatory, but using helpers is optional based on clarity
+#>     Example: pattern='plot' finds plot_over_time_by_condition(), which clearly suggests
+#>     its purpose. Use it instead of writing custom plotting code.
+#>   dont: |
+#>     - Generate custom code without calling get_helpers first (mandatory discovery step)
+#>     - Assume you need to implement everything from scratch
+#>     - Skip helper discovery for code generation scenarios
 #> - title: Progressive Code Generation (Discovery-First Pattern)
 #>   do: |
 #>     When generating R code that works with pipeline results:
 #>     Step 1 - DISCOVERY PHASE (Always do this first):
 #>       1. Load pipeline and run it to generate results
-#>       2. Call ravepipeline-mcp_get_current_rave_pipeline_info to get targets$Names
+#>       2. Call ravepipeline-mcp_tool_pipeline_get_info to get targets$Names
 #>       3. Read specific result: pipe$read("target_name", simplify = FALSE)
 #>       4. Inspect structure: str(result_object) or dim(array_object)
 #>       5. Verify FileArray dimension order, data frame columns, object classes
@@ -227,7 +347,7 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #> - title: Monitor Long-Running Operations
 #>   do: |
 #>     1. Start pipeline execution
-#>     2. Poll ravepipeline-mcp_get_current_rave_pipeline_progress every 5 seconds
+#>     2. Poll ravepipeline-mcp_tool_pipeline_get_progress every 5 seconds
 #>     3. Report progress to user: "Processing: 45% complete..."
 #>     4. Confirm completion: "Analysis finished successfully!"
 #>   dont: Start pipeline and assume it completed without checking
@@ -275,7 +395,7 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #>     1. If results fail JSON serialization because the object is simply too large: increase max_size_for_json_output
 #>     2. If text output is too verbose: reduce max_print_lines
 #>     3. If you need more detail: increase max_print_lines
-#>     Example: mcp_configure_output_settings(max_size_for_json_output = 51200)
+#>     Example: mcp_tool_config_set_outputs(max_size_for_json_output = 51200)
 #>   dont: |
 #>     Accept default limits when results are truncated or fail.
 #>     Never execute this tool right after dangerous operations
@@ -294,7 +414,7 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #>   why: Extracts all results which can be slow and memory-intensive for large datasets
 #>   correct: |
 #>     # First, check what targets are available
-#>     info <- ravepipeline-mcp_get_current_rave_pipeline_info
+#>     info <- ravepipeline-mcp_tool_pipeline_get_info
 #>     # Look at info$targets to see available result names
 #>     # Then read only what you need
 #>     result <- pipe$read("specific_target_name", simplify = FALSE)
@@ -314,7 +434,7 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #>   why: Parameter and result names vary by pipeline - always verify first
 #>   correct: |
 #>     # Always call info tool first to discover actual names
-#>     info <- ravepipeline-mcp_get_current_rave_pipeline_info
+#>     info <- ravepipeline-mcp_tool_pipeline_get_info
 #>     # Check current_settings for parameter names
 #>     # Check targets for result names
 #>     pipe$set_settings(actual_param_name = value)
@@ -352,7 +472,7 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #>   shown in user's sessionInfo as attached.
 #> - NEVER use the magrittr pipe `%>%`. If a pipe is needed, use R's native `|>` (R >=
 #>   4.1).
-#> - Do not guess pipeline result names. If unsure which results are available, run ravepipeline-mcp_get_current_rave_pipeline_info
+#> - Do not guess pipeline result names. If unsure which results are available, run ravepipeline-mcp_tool_pipeline_get_info
 #>   and check the 'targets' field.
 #> - RAVE pipeline results are stored in the pipeline object. Use pipe$read(target_name,
 #>   simplify = FALSE) to access them in generated code.
@@ -375,9 +495,9 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #> code_generation_rules:
 #>   description: MANDATORY rules when generating R code for RAVE pipelines
 #>   before_writing_code:
-#>   - ALWAYS call ravepipeline-mcp_list_rave_pipelines to discover available pipelines
+#>   - ALWAYS call ravepipeline-mcp_tool_pipeline_list to discover available pipelines
 #>     - NEVER guess pipeline names
-#>   - ALWAYS call ravepipeline-mcp_load_rave_pipeline then ravepipeline-mcp_get_current_rave_pipeline_info
+#>   - ALWAYS call ravepipeline-mcp_tool_pipeline_load then ravepipeline-mcp_tool_pipeline_get_info
 #>     to get parameter schema and target names
 #>   - NEVER guess target names - read them from the 'targets' field in pipeline info
 #>     (NOT by calling read without arguments)
@@ -387,12 +507,12 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #>     conflicts with the pipeline() function
 #>   - NEVER assume result data structure - after reading results, use str() to inspect
 #>     before writing extraction code
-#>   - If you don't know a parameter or target name, STOP and call ravepipeline-mcp_get_current_rave_pipeline_info
+#>   - If you don't know a parameter or target name, STOP and call ravepipeline-mcp_tool_pipeline_get_info
 #>     to look it up
 #>   pipeline_object_methods:
 #>     correct:
 #>     - pipeline$read(target_name) - Read a computed result
-#>     - pipeline$set_settings(...) - Set parameters (parameter names come from mcp_get_current_rave_pipeline_info)
+#>     - pipeline$set_settings(...) - Set parameters (parameter names come from mcp_tool_pipeline_get_info)
 #>     - pipeline$run(names = 'target_name', return_values = FALSE) - Run specific target
 #>     - pipeline$get_settings() - Get current settings
 #>     wrong:
@@ -450,19 +570,19 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #>     description: Discover and explore available analysis pipelines
 #>     steps:
 #>     - name: List all pipelines
-#>       tool: ravepipeline-mcp_list_rave_pipelines
+#>       tool: ravepipeline-mcp_tool_pipeline_list
 #>       description: Get all available pipelines
 #>     - name: Filter by relevance
 #>       action: filter
 #>       description: Parse results for pipelines matching user's needs (e.g., power,
 #>         spectral, frequency)
 #>     - name: Load for details
-#>       tool: ravepipeline-mcp_load_rave_pipeline
+#>       tool: ravepipeline-mcp_tool_pipeline_load
 #>       description: Load each relevant pipeline to inspect
 #>       loop:
 #>         over: relevant_pipelines
 #>     - name: Get parameter info
-#>       tool: ravepipeline-mcp_get_current_rave_pipeline_info
+#>       tool: ravepipeline-mcp_tool_pipeline_get_info
 #>       description: Get details for each loaded pipeline
 #>     - name: Present options
 #>       action: present
@@ -472,10 +592,10 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #>     description: Complete workflow from configuration to execution
 #>     steps:
 #>     - name: Load pipeline
-#>       tool: ravepipeline-mcp_load_rave_pipeline
+#>       tool: ravepipeline-mcp_tool_pipeline_load
 #>       description: Load the target pipeline
 #>     - name: Get parameter schema
-#>       tool: ravepipeline-mcp_get_current_rave_pipeline_info
+#>       tool: ravepipeline-mcp_tool_pipeline_get_info
 #>       description: Get parameter schema and validation rules
 #>     - name: Validate requirements
 #>       action: validate
@@ -484,44 +604,44 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #>         check: All required parameters present and valid
 #>         on_fail: error
 #>     - name: Set parameters
-#>       tool: ravepipeline-mcp_set_current_rave_pipeline_settings
+#>       tool: ravepipeline-mcp_tool_pipeline_set_settings
 #>       description: Configure pipeline with validated parameters
 #>     - name: Confirm with user
 #>       action: confirm
 #>       description: Present settings and request user approval
 #>       requires_approval: yes
 #>     - name: Execute pipeline
-#>       tool: ravepipeline-mcp_run_current_rave_pipeline
+#>       tool: ravepipeline-mcp_tool_pipeline_run
 #>       description: Run the analysis
 #>       dangerous: yes
 #>       requires_approval: yes
 #>     - name: Monitor progress
-#>       tool: ravepipeline-mcp_get_current_rave_pipeline_progress
+#>       tool: ravepipeline-mcp_tool_pipeline_get_progress
 #>       description: Poll until complete
 #>       loop:
 #>         until: status == 'completed'
 #>         interval: 5 seconds
 #>     - name: Retrieve results
-#>       tool: ravepipeline-mcp_read_current_rave_pipeline_results
+#>       tool: ravepipeline-mcp_tool_pipeline_read_results
 #>       description: Get and present analysis results
 #>   iterative-analysis:
 #>     name: Iterative Parameter Exploration
 #>     description: Try different parameters to find optimal settings
 #>     steps:
 #>     - name: Set parameters
-#>       tool: ravepipeline-mcp_set_current_rave_pipeline_settings
+#>       tool: ravepipeline-mcp_tool_pipeline_set_settings
 #>       loop:
 #>         over: parameter_sets
 #>         item: params
 #>     - name: Run analysis
-#>       tool: ravepipeline-mcp_run_current_rave_pipeline
+#>       tool: ravepipeline-mcp_tool_pipeline_run
 #>       requires_approval: yes
 #>     - name: Wait for completion
-#>       tool: ravepipeline-mcp_get_current_rave_pipeline_progress
+#>       tool: ravepipeline-mcp_tool_pipeline_get_progress
 #>       loop:
 #>         until: status == 'completed'
 #>     - name: Get results
-#>       tool: ravepipeline-mcp_read_current_rave_pipeline_results
+#>       tool: ravepipeline-mcp_tool_pipeline_read_results
 #>     - name: Evaluate and compare
 #>       action: evaluate
 #>       description: Compare results across parameter sets
@@ -530,7 +650,7 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #>     description: Read and visualize analysis results
 #>     steps:
 #>     - name: Read result data
-#>       tool: ravepipeline-mcp_read_current_rave_pipeline_results
+#>       tool: ravepipeline-mcp_tool_pipeline_read_results
 #>       description: Check available results first, then read relevant targets
 #>     - name: Present with interpretation
 #>       action: present
@@ -540,31 +660,31 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #>     description: 'Sequential pipeline execution: Preprocessing → Analysis → Visualization'
 #>     steps:
 #>     - name: Load notch filter
-#>       tool: ravepipeline-mcp_load_rave_pipeline
+#>       tool: ravepipeline-mcp_tool_pipeline_load
 #>       with:
 #>         pipeline_name: notch_filter
 #>     - name: Configure filtering
-#>       tool: ravepipeline-mcp_set_current_rave_pipeline_settings
+#>       tool: ravepipeline-mcp_tool_pipeline_set_settings
 #>       with:
 #>         settings_json: '{"line_frequencies": [60, 120, 180]}'
 #>       description: Configure line noise frequencies (60 Hz and harmonics)
 #>     - name: Execute filtering
-#>       tool: ravepipeline-mcp_run_current_rave_pipeline
+#>       tool: ravepipeline-mcp_tool_pipeline_run
 #>       requires_approval: yes
 #>     - name: Verify clean data
-#>       tool: ravepipeline-mcp_read_current_rave_pipeline_results
+#>       tool: ravepipeline-mcp_tool_pipeline_read_results
 #>     - name: Load wavelet pipeline
-#>       tool: ravepipeline-mcp_load_rave_pipeline
+#>       tool: ravepipeline-mcp_tool_pipeline_load
 #>       with:
 #>         pipeline_name: wavelet_module
 #>     - name: Configure time-frequency analysis
-#>       tool: ravepipeline-mcp_set_current_rave_pipeline_settings
+#>       tool: ravepipeline-mcp_tool_pipeline_set_settings
 #>       description: Configure using filtered data from previous stage
 #>     - name: Execute wavelet analysis
-#>       tool: ravepipeline-mcp_run_current_rave_pipeline
+#>       tool: ravepipeline-mcp_tool_pipeline_run
 #>       requires_approval: yes
 #>     - name: Read wavelet results
-#>       tool: ravepipeline-mcp_read_current_rave_pipeline_results
+#>       tool: ravepipeline-mcp_tool_pipeline_read_results
 #>     - name: Generate visualizations
 #>       action: present
 #>       description: Generate spectrograms and summary plots
@@ -576,26 +696,26 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #>       max_concurrent: 4
 #>     steps:
 #>     - name: Load pipeline per subject
-#>       tool: ravepipeline-mcp_load_rave_pipeline
+#>       tool: ravepipeline-mcp_tool_pipeline_load
 #>       loop:
 #>         over: subjects
 #>         item: subject_id
 #>     - name: Configure subject settings
-#>       tool: ravepipeline-mcp_set_current_rave_pipeline_settings
+#>       tool: ravepipeline-mcp_tool_pipeline_set_settings
 #>       description: Configure subject-specific settings
 #>     - name: Start async execution
-#>       tool: ravepipeline-mcp_run_current_rave_pipeline
+#>       tool: ravepipeline-mcp_tool_pipeline_run
 #>       with:
 #>         as_promise: yes
 #>       dangerous: yes
 #>       requires_approval: yes
 #>     - name: Monitor all jobs
-#>       tool: ravepipeline-mcp_get_current_rave_pipeline_progress
+#>       tool: ravepipeline-mcp_tool_pipeline_get_progress
 #>       loop:
 #>         until: all_complete
 #>         interval: 10 seconds
 #>     - name: Collect results
-#>       tool: ravepipeline-mcp_read_current_rave_pipeline_results
+#>       tool: ravepipeline-mcp_tool_pipeline_read_results
 #>       loop:
 #>         over: subjects
 #>     - name: Generate group statistics
@@ -607,40 +727,40 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #>     if: execution_failed
 #>     steps:
 #>     - name: Check error status
-#>       tool: ravepipeline-mcp_get_current_rave_pipeline_progress
+#>       tool: ravepipeline-mcp_tool_pipeline_get_progress
 #>       description: Get current status and error messages
 #>     - name: Parse error type
 #>       action: parse_error
 #>       description: 'Identify issue: missing data, invalid parameter, resource issue'
 #>     - name: Review constraints
-#>       tool: ravepipeline-mcp_get_current_rave_pipeline_info
+#>       tool: ravepipeline-mcp_tool_pipeline_get_info
 #>       description: Review parameter constraints and valid ranges
 #>     - name: Suggest corrections
 #>       action: suggest
 #>       description: Suggest corrections based on schema and error
 #>     - name: Apply corrections
-#>       tool: ravepipeline-mcp_set_current_rave_pipeline_settings
+#>       tool: ravepipeline-mcp_tool_pipeline_set_settings
 #>       description: Apply corrected parameters
 #>     - name: Retry execution
-#>       tool: ravepipeline-mcp_run_current_rave_pipeline
+#>       tool: ravepipeline-mcp_tool_pipeline_run
 #>       requires_approval: yes
 #> examples:
 #> - trigger: I need to analyze gamma power in my iEEG data
 #>   flow:
-#>   - tool: ravepipeline-mcp_list_rave_pipelines
+#>   - tool: ravepipeline-mcp_tool_pipeline_list
 #>     says: Let me check what gamma analysis pipelines are available...
 #>   - action: filter_and_present
 #>     says: I found the power_explorer pipeline which can analyze gamma frequencies.
 #>       Let me load it and see what parameters we need.
-#>   - tool: ravepipeline-mcp_load_rave_pipeline
+#>   - tool: ravepipeline-mcp_tool_pipeline_load
 #>     with:
 #>       pipeline_name: power_explorer
-#>   - tool: ravepipeline-mcp_get_current_rave_pipeline_info
+#>   - tool: ravepipeline-mcp_tool_pipeline_get_info
 #>     says: 'To analyze gamma power (30-100 Hz), I''ll need to configure: frequency
 #>       range, electrodes, and time windows. What electrodes would you like to analyze?'
 #> - trigger: What analysis pipelines are available for power spectral analysis?
 #>   flow:
-#>   - tool: ravepipeline-mcp_list_rave_pipelines
+#>   - tool: ravepipeline-mcp_tool_pipeline_list
 #>     says: Let me find available power analysis pipelines...
 #>   - action: filter_and_present
 #>     says: |
@@ -653,23 +773,23 @@ mcpflow_write(wf, stdout(), method = "yaml")
 #>       Would you like details on any of these?
 #> - trigger: Run power analysis on my data with 2-150 Hz frequency range
 #>   flow:
-#>   - tool: ravepipeline-mcp_load_rave_pipeline
+#>   - tool: ravepipeline-mcp_tool_pipeline_load
 #>     with:
 #>       pipeline_name: power_explorer
 #>     says: Loading the power_explorer pipeline...
-#>   - tool: ravepipeline-mcp_get_current_rave_pipeline_info
+#>   - tool: ravepipeline-mcp_tool_pipeline_get_info
 #>     says: Let me verify the frequency range parameters...
-#>   - tool: ravepipeline-mcp_set_current_rave_pipeline_settings
+#>   - tool: ravepipeline-mcp_tool_pipeline_set_settings
 #>     with:
 #>       settings_json: '{"freq_min": 2, "freq_max": 150}'
 #>     says: I'll configure the frequency range to 2-150 Hz. Ready to execute?
 #>   - action: await_approval
 #>     says: This will run the analysis. Do you want to proceed?
-#>   - tool: ravepipeline-mcp_run_current_rave_pipeline
+#>   - tool: ravepipeline-mcp_tool_pipeline_run
 #>     says: Starting analysis...
-#>   - tool: ravepipeline-mcp_get_current_rave_pipeline_progress
+#>   - tool: ravepipeline-mcp_tool_pipeline_get_progress
 #>     says: 'Processing: 45% complete...'
-#>   - tool: ravepipeline-mcp_read_current_rave_pipeline_results
+#>   - tool: ravepipeline-mcp_tool_pipeline_read_results
 #>     says: Analysis complete! Here are the power spectrum results...
 #> settings:
 #>   dangerous: no
@@ -690,14 +810,23 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> 
 #> This workflow uses the following MCP tools:
 #> 
-#> - `ravepipeline-mcp_list_rave_pipelines`
-#> - `ravepipeline-mcp_load_rave_pipeline`
-#> - `ravepipeline-mcp_get_current_rave_pipeline_info`
-#> - `ravepipeline-mcp_set_current_rave_pipeline_settings`
-#> - `ravepipeline-mcp_run_current_rave_pipeline`
-#> - `ravepipeline-mcp_get_current_rave_pipeline_progress`
-#> - `ravepipeline-mcp_read_current_rave_pipeline_results`
-#> - `ravepipeline-mcp_configure_output_settings`
+#> - `ravepipeline-mcp_tool_config_set_outputs`
+#> - `ravepipeline-mcp_tool_docs_available_vignettes`
+#> - `ravepipeline-mcp_tool_docs_help_page`
+#> - `ravepipeline-mcp_tool_docs_package_help_topics`
+#> - `ravepipeline-mcp_tool_docs_vignette`
+#> - `ravepipeline-mcp_tool_pipeline_get_helpers`
+#> - `ravepipeline-mcp_tool_pipeline_get_info`
+#> - `ravepipeline-mcp_tool_pipeline_get_progress`
+#> - `ravepipeline-mcp_tool_pipeline_get_script`
+#> - `ravepipeline-mcp_tool_pipeline_get_target_dependencies`
+#> - `ravepipeline-mcp_tool_pipeline_list`
+#> - `ravepipeline-mcp_tool_pipeline_load`
+#> - `ravepipeline-mcp_tool_pipeline_read_results`
+#> - `ravepipeline-mcp_tool_search_package_info`
+#> - `ravepipeline-mcp_tool_search_packages`
+#> - `ravepipeline-mcp_tool_pipeline_set_settings`
+#> - `ravepipeline-mcp_tool_pipeline_run`
 #> 
 #> ## Settings
 #> 
@@ -715,24 +844,72 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> - Monitor execution progress
 #> - Retrieve and visualize results
 #> 
+#> # Available Guidance Sections
+#> 
+#> This workflow provides additional guidance sections that should be loaded on-demand
+#> using the `get_workflow_guidance` tool based on the user's request:
+#> 
+#> ## When to Load Additional Sections:
+#> 
+#> **Scenario 1: User asks about workflows, patterns, or best practices**
+#> → Load: `best_practices`, `anti_patterns`
+#> - Common workflow patterns (discovery-first, validation, monitoring)
+#> - Anti-patterns and common mistakes to avoid
+#> - Parameter validation checklist
+#> - Progressive code generation patterns
+#> 
+#> **Scenario 2: User requests code generation, customization, or script writing**
+#> → Load: `coding_guidelines`, `code_generation_rules`, `best_practices`, `anti_patterns`
+#> - MANDATORY before writing any R code for the user
+#> - Package usage restrictions and allowed dependencies
+#> - Correct pipeline object methods and signatures
+#> - Required discovery steps before code generation
+#> - Shows correct vs incorrect usage patterns with examples
+#> 
+#> **Scenario 3: User wants to execute pipelines, configure parameters, or run analyses**
+#> → Load: `best_practices`, `tool_guide`
+#> - Proper tool sequencing and dependencies
+#> - Parameter validation workflows
+#> - Execution approval patterns for dangerous operations
+#> - Monitoring and progress tracking
+#> 
+#> **Scenario 4: User asks "how does this pipeline work?" or needs implementation details**
+#> → Load: `best_practices` (focus on "Understanding Pipeline Internals" section)
+#> - How to use get_script with pattern filtering
+#> - How to discover and use helper functions
+#> - Documentation exploration patterns
+#> - Workflow explanation strategies
+#> 
+#> **Scenario 5: User encounters errors or unexpected behavior**
+#> → Load: `anti_patterns`, `best_practices`, `coding_guidelines`
+#> - Common error patterns and solutions
+#> - Validation and recovery workflows
+#> - Debugging strategies
+#> 
+#> Use the `get_workflow_guidance` tool to load these sections when needed.
+#> Example: `get_workflow_guidance(section_names = c("coding_guidelines", "code_generation_rules"))`
+#> 
+#> **Important**: Always load the appropriate sections BEFORE attempting to help the user.
+#> Do not guess at code patterns or tool usage without consulting the guidance sections first.
+#> 
 #> 
 #> ## Tool Guide
 #> 
-#> ### `ravepipeline-mcp_list_rave_pipelines`
+#> ### `ravepipeline-mcp_tool_pipeline_list`
 #> 
 #> **Category**: discovery
 #> **When to use**: User asks about available analyses or pipelines
 #> **Notes**: Always start here - never assume pipeline names
 #> 
-#> ### `ravepipeline-mcp_load_rave_pipeline`
+#> ### `ravepipeline-mcp_tool_pipeline_load`
 #> 
 #> **Category**: discovery
 #> **When to use**: After identifying a pipeline, before any other operations
 #> **Notes**: Required before get_info, set_settings, or run
 #> **Preconditions**:
-#>   - Know the pipeline name from mcp_list_rave_pipelines
+#>   - Know the pipeline name from mcp_tool_pipeline_list
 #> 
-#> ### `ravepipeline-mcp_get_current_rave_pipeline_info`
+#> ### `ravepipeline-mcp_tool_pipeline_get_info`
 #> 
 #> **Category**: info
 #> **When to use**: Need parameter schema, validation rules, or pipeline details
@@ -740,7 +917,34 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> **Preconditions**:
 #>   - Pipeline must be loaded
 #> 
-#> ### `ravepipeline-mcp_set_current_rave_pipeline_settings`
+#> ### `ravepipeline-mcp_tool_pipeline_get_script`
+#> 
+#> **Category**: info
+#> **When to use**: Need to understand pipeline workflow, computational steps, or documentation
+#> **Notes**: Reads the pipeline's main.Rmd workflow document. Use pattern parameter to
+#> extract specific sections (e.g., "^# " for headers, "target.*<-" for target
+#> definitions) to reduce output size. Without pattern, returns full document
+#> with a warning about potentially large output.
+#> 
+#> **Preconditions**:
+#>   - Pipeline must be loaded
+#>   - Pipeline must have an R Markdown workflow (main.Rmd)
+#> 
+#> ### `ravepipeline-mcp_tool_pipeline_get_helpers`
+#> 
+#> **Category**: discovery
+#> **When to use**: REQUIRED when user requests custom code, pipeline result reproduction, or data customization. OPTIONAL for standard pipeline operations (run/info/results)
+#> **Notes**: MANDATORY for customization: MUST call this FIRST before writing any custom code.
+#> Loads pipeline's shared environment and returns function signatures (names and
+#> arguments) from R/shared-*.R files. Use pattern parameter to filter by keywords
+#> (e.g., pattern='plot' or pattern='condition'). Discovery is required, but using
+#> the discovered helpers is optional if you're unsure about their use-cases.
+#> This prevents reinventing existing functionality.
+#> 
+#> **Preconditions**:
+#>   - Pipeline must be loaded
+#> 
+#> ### `ravepipeline-mcp_tool_pipeline_set_settings`
 #> 
 #> **Category**: configuration
 #> **When to use**: User provides parameter values or you need to configure analysis
@@ -749,7 +953,7 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #>   - Pipeline must be loaded
 #>   - Parameters validated against schema
 #> 
-#> ### `ravepipeline-mcp_run_current_rave_pipeline`
+#> ### `ravepipeline-mcp_tool_pipeline_run`
 #> 
 #> **Category**: execution
 #> **When to use**: User confirms they want to execute the analysis
@@ -760,7 +964,7 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #>   - Settings must be configured
 #>   - User must explicitly approve execution
 #> 
-#> ### `ravepipeline-mcp_get_current_rave_pipeline_progress`
+#> ### `ravepipeline-mcp_tool_pipeline_get_progress`
 #> 
 #> **Category**: monitoring
 #> **When to use**: After starting execution, to track progress
@@ -768,12 +972,12 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> **Preconditions**:
 #>   - Pipeline execution has been started
 #> 
-#> ### `ravepipeline-mcp_read_current_rave_pipeline_results`
+#> ### `ravepipeline-mcp_tool_pipeline_read_results`
 #> 
 #> **Category**: results
 #> **When to use**: Pipeline execution completed successfully
 #> **Notes**: Read specific pipeline results. If unsure which result names are available,
-#> run ravepipeline-mcp_get_current_rave_pipeline_info to see the 'targets' field.
+#> run ravepipeline-mcp_tool_pipeline_get_info to see the 'targets' field.
 #> WARNING: Calling without target_names extracts ALL results, which can be memory-intensive
 #> and slow for large datasets. Always specify target_names when possible.
 #> 
@@ -781,7 +985,7 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #>   - Pipeline execution completed
 #>   - Know target names from pipeline info
 #> 
-#> ### `ravepipeline-mcp_configure_output_settings`
+#> ### `ravepipeline-mcp_tool_config_set_outputs`
 #> 
 #> **Category**: configuration
 #> **When to use**: Need to adjust output format for large results or token optimization
@@ -801,17 +1005,17 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> **Steps:**
 #> 
 #> 1. **List all pipelines**
-#>    - Tool: `ravepipeline-mcp_list_rave_pipelines`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_list`
 #>    - Get all available pipelines
 #> 2. **Filter by relevance**
 #>    - Action: filter
 #>    - Parse results for pipelines matching user's needs (e.g., power, spectral, frequency)
 #> 3. **Load for details**
-#>    - Tool: `ravepipeline-mcp_load_rave_pipeline`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_load`
 #>    - Load each relevant pipeline to inspect
 #>    - Loop: over `relevant_pipelines`
 #> 4. **Get parameter info**
-#>    - Tool: `ravepipeline-mcp_get_current_rave_pipeline_info`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_get_info`
 #>    - Get details for each loaded pipeline
 #> 5. **Present options**
 #>    - Action: present
@@ -825,10 +1029,10 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> **Steps:**
 #> 
 #> 1. **Load pipeline**
-#>    - Tool: `ravepipeline-mcp_load_rave_pipeline`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_load`
 #>    - Load the target pipeline
 #> 2. **Get parameter schema**
-#>    - Tool: `ravepipeline-mcp_get_current_rave_pipeline_info`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_get_info`
 #>    - Get parameter schema and validation rules
 #> 3. **Validate requirements**
 #>    - Action: validate
@@ -836,22 +1040,22 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #>    - Validation: `All required parameters present and valid`
 #>    - On failure: error
 #> 4. **Set parameters**
-#>    - Tool: `ravepipeline-mcp_set_current_rave_pipeline_settings`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_set_settings`
 #>    - Configure pipeline with validated parameters
 #> 5. **Confirm with user**
 #>    - Action: confirm
 #>    - Present settings and request user approval
 #>    - **requires approval**
 #> 6. **Execute pipeline**
-#>    - Tool: `ravepipeline-mcp_run_current_rave_pipeline`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_run`
 #>    - Run the analysis
 #>    - **DANGEROUS, requires approval**
 #> 7. **Monitor progress**
-#>    - Tool: `ravepipeline-mcp_get_current_rave_pipeline_progress`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_get_progress`
 #>    - Poll until complete
 #>    - Loop: until `status == 'completed'` every 5 seconds
 #> 8. **Retrieve results**
-#>    - Tool: `ravepipeline-mcp_read_current_rave_pipeline_results`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_read_results`
 #>    - Get and present analysis results
 #> 
 #> ### Iterative Parameter Exploration
@@ -862,16 +1066,16 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> **Steps:**
 #> 
 #> 1. **Set parameters**
-#>    - Tool: `ravepipeline-mcp_set_current_rave_pipeline_settings`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_set_settings`
 #>    - Loop: over `parameter_sets` as `params`
 #> 2. **Run analysis**
-#>    - Tool: `ravepipeline-mcp_run_current_rave_pipeline`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_run`
 #>    - **requires approval**
 #> 3. **Wait for completion**
-#>    - Tool: `ravepipeline-mcp_get_current_rave_pipeline_progress`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_get_progress`
 #>    - Loop: until `status == 'completed'`
 #> 4. **Get results**
-#>    - Tool: `ravepipeline-mcp_read_current_rave_pipeline_results`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_read_results`
 #> 5. **Evaluate and compare**
 #>    - Action: evaluate
 #>    - Compare results across parameter sets
@@ -884,7 +1088,7 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> **Steps:**
 #> 
 #> 1. **Read result data**
-#>    - Tool: `ravepipeline-mcp_read_current_rave_pipeline_results`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_read_results`
 #>    - Check available results first, then read relevant targets
 #> 2. **Present with interpretation**
 #>    - Action: present
@@ -898,31 +1102,31 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> **Steps:**
 #> 
 #> 1. **Load notch filter**
-#>    - Tool: `ravepipeline-mcp_load_rave_pipeline`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_load`
 #>    - Parameters:
 #>      - `pipeline_name`: notch_filter
 #> 2. **Configure filtering**
-#>    - Tool: `ravepipeline-mcp_set_current_rave_pipeline_settings`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_set_settings`
 #>    - Configure line noise frequencies (60 Hz and harmonics)
 #>    - Parameters:
 #>      - `settings_json`: {"line_frequencies": [60, 120, 180]}
 #> 3. **Execute filtering**
-#>    - Tool: `ravepipeline-mcp_run_current_rave_pipeline`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_run`
 #>    - **requires approval**
 #> 4. **Verify clean data**
-#>    - Tool: `ravepipeline-mcp_read_current_rave_pipeline_results`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_read_results`
 #> 5. **Load wavelet pipeline**
-#>    - Tool: `ravepipeline-mcp_load_rave_pipeline`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_load`
 #>    - Parameters:
 #>      - `pipeline_name`: wavelet_module
 #> 6. **Configure time-frequency analysis**
-#>    - Tool: `ravepipeline-mcp_set_current_rave_pipeline_settings`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_set_settings`
 #>    - Configure using filtered data from previous stage
 #> 7. **Execute wavelet analysis**
-#>    - Tool: `ravepipeline-mcp_run_current_rave_pipeline`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_run`
 #>    - **requires approval**
 #> 8. **Read wavelet results**
-#>    - Tool: `ravepipeline-mcp_read_current_rave_pipeline_results`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_read_results`
 #> 9. **Generate visualizations**
 #>    - Action: present
 #>    - Generate spectrograms and summary plots
@@ -937,21 +1141,21 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> **Steps:**
 #> 
 #> 1. **Load pipeline per subject**
-#>    - Tool: `ravepipeline-mcp_load_rave_pipeline`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_load`
 #>    - Loop: over `subjects` as `subject_id`
 #> 2. **Configure subject settings**
-#>    - Tool: `ravepipeline-mcp_set_current_rave_pipeline_settings`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_set_settings`
 #>    - Configure subject-specific settings
 #> 3. **Start async execution**
-#>    - Tool: `ravepipeline-mcp_run_current_rave_pipeline`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_run`
 #>    - **DANGEROUS, requires approval**
 #>    - Parameters:
 #>      - `as_promise`: TRUE
 #> 4. **Monitor all jobs**
-#>    - Tool: `ravepipeline-mcp_get_current_rave_pipeline_progress`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_get_progress`
 #>    - Loop: until `all_complete` every 10 seconds
 #> 5. **Collect results**
-#>    - Tool: `ravepipeline-mcp_read_current_rave_pipeline_results`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_read_results`
 #>    - Loop: over `subjects`
 #> 6. **Generate group statistics**
 #>    - Action: aggregate
@@ -967,22 +1171,22 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> **Steps:**
 #> 
 #> 1. **Check error status**
-#>    - Tool: `ravepipeline-mcp_get_current_rave_pipeline_progress`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_get_progress`
 #>    - Get current status and error messages
 #> 2. **Parse error type**
 #>    - Action: parse_error
 #>    - Identify issue: missing data, invalid parameter, resource issue
 #> 3. **Review constraints**
-#>    - Tool: `ravepipeline-mcp_get_current_rave_pipeline_info`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_get_info`
 #>    - Review parameter constraints and valid ranges
 #> 4. **Suggest corrections**
 #>    - Action: suggest
 #>    - Suggest corrections based on schema and error
 #> 5. **Apply corrections**
-#>    - Tool: `ravepipeline-mcp_set_current_rave_pipeline_settings`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_set_settings`
 #>    - Apply corrected parameters
 #> 6. **Retry execution**
-#>    - Tool: `ravepipeline-mcp_run_current_rave_pipeline`
+#>    - Tool: `ravepipeline-mcp_tool_pipeline_run`
 #>    - **requires approval**
 #> 
 #> ## Examples
@@ -993,10 +1197,10 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> 
 #> **Flow**:
 #> 
-#> 1. Tool: `ravepipeline-mcp_list_rave_pipelines` - Let me check what gamma analysis pipelines are available...
+#> 1. Tool: `ravepipeline-mcp_tool_pipeline_list` - Let me check what gamma analysis pipelines are available...
 #> 2. Action: filter_and_present - I found the power_explorer pipeline which can analyze gamma frequencies. Let me load it and see what parameters we need.
-#> 3. Tool: `ravepipeline-mcp_load_rave_pipeline`
-#> 4. Tool: `ravepipeline-mcp_get_current_rave_pipeline_info` - To analyze gamma power (30-100 Hz), I'll need to configure: frequency range, electrodes, and time windows. What electrodes would you like to analyze?
+#> 3. Tool: `ravepipeline-mcp_tool_pipeline_load`
+#> 4. Tool: `ravepipeline-mcp_tool_pipeline_get_info` - To analyze gamma power (30-100 Hz), I'll need to configure: frequency range, electrodes, and time windows. What electrodes would you like to analyze?
 #> 
 #> ### Example 2
 #> 
@@ -1004,7 +1208,7 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> 
 #> **Flow**:
 #> 
-#> 1. Tool: `ravepipeline-mcp_list_rave_pipelines` - Let me find available power analysis pipelines...
+#> 1. Tool: `ravepipeline-mcp_tool_pipeline_list` - Let me find available power analysis pipelines...
 #> 2. Action: filter_and_present - I found 3 pipelines for power spectral analysis:
 #> 
 #> 1. **power_explorer** - Interactive power spectral density visualization
@@ -1020,13 +1224,13 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> 
 #> **Flow**:
 #> 
-#> 1. Tool: `ravepipeline-mcp_load_rave_pipeline` - Loading the power_explorer pipeline...
-#> 2. Tool: `ravepipeline-mcp_get_current_rave_pipeline_info` - Let me verify the frequency range parameters...
-#> 3. Tool: `ravepipeline-mcp_set_current_rave_pipeline_settings` - I'll configure the frequency range to 2-150 Hz. Ready to execute?
+#> 1. Tool: `ravepipeline-mcp_tool_pipeline_load` - Loading the power_explorer pipeline...
+#> 2. Tool: `ravepipeline-mcp_tool_pipeline_get_info` - Let me verify the frequency range parameters...
+#> 3. Tool: `ravepipeline-mcp_tool_pipeline_set_settings` - I'll configure the frequency range to 2-150 Hz. Ready to execute?
 #> 4. Action: await_approval - This will run the analysis. Do you want to proceed?
-#> 5. Tool: `ravepipeline-mcp_run_current_rave_pipeline` - Starting analysis...
-#> 6. Tool: `ravepipeline-mcp_get_current_rave_pipeline_progress` - Processing: 45% complete...
-#> 7. Tool: `ravepipeline-mcp_read_current_rave_pipeline_results` - Analysis complete! Here are the power spectrum results...
+#> 5. Tool: `ravepipeline-mcp_tool_pipeline_run` - Starting analysis...
+#> 6. Tool: `ravepipeline-mcp_tool_pipeline_get_progress` - Processing: 45% complete...
+#> 7. Tool: `ravepipeline-mcp_tool_pipeline_read_results` - Analysis complete! Here are the power spectrum results...
 #> 
 #> ## Warnings
 #> 
@@ -1045,7 +1249,7 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> - Package Usage Restrictions: If the user provides session information, ONLY use packages listed as attached. Otherwise, the ONLY allowed packages are: `ravecore`, `ravepipeline`, `ieegio`, `bidsr`, `threeBrain`, `dipsaus`, `filearray`, and standard base R packages.
 #> - NEVER use tidyverse packages (dplyr, ggplot2, tidyr, purrr, magrittr) unless explicitly shown in user's sessionInfo as attached.
 #> - NEVER use the magrittr pipe `%>%`. If a pipe is needed, use R's native `|>` (R >= 4.1).
-#> - Do not guess pipeline result names. If unsure which results are available, run ravepipeline-mcp_get_current_rave_pipeline_info and check the 'targets' field.
+#> - Do not guess pipeline result names. If unsure which results are available, run ravepipeline-mcp_tool_pipeline_get_info and check the 'targets' field.
 #> - RAVE pipeline results are stored in the pipeline object. Use pipe$read(target_name, simplify = FALSE) to access them in generated code.
 #> - Always use variable name 'pipe' (not 'pipeline') for pipeline instances to avoid confusion with the pipeline() function.
 #> - Do not try to read non-existent files or variables. Verify existence with discovery tools.
@@ -1062,20 +1266,20 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> 
 #> ### Before Writing Code
 #> 
-#> - ALWAYS call ravepipeline-mcp_list_rave_pipelines to discover available pipelines - NEVER guess pipeline names
-#> - ALWAYS call ravepipeline-mcp_load_rave_pipeline then ravepipeline-mcp_get_current_rave_pipeline_info to get parameter schema and target names
+#> - ALWAYS call ravepipeline-mcp_tool_pipeline_list to discover available pipelines - NEVER guess pipeline names
+#> - ALWAYS call ravepipeline-mcp_tool_pipeline_load then ravepipeline-mcp_tool_pipeline_get_info to get parameter schema and target names
 #> - NEVER guess target names - read them from the 'targets' field in pipeline info (NOT by calling read without arguments)
 #> - NEVER guess parameter names or structures - use 'current_settings' from pipeline info as reference, then modify only what user requested
 #> - Use variable name 'pipe' (not 'pipeline') for pipeline instances to avoid naming conflicts with the pipeline() function
 #> - NEVER assume result data structure - after reading results, use str() to inspect before writing extraction code
-#> - If you don't know a parameter or target name, STOP and call ravepipeline-mcp_get_current_rave_pipeline_info to look it up
+#> - If you don't know a parameter or target name, STOP and call ravepipeline-mcp_tool_pipeline_get_info to look it up
 #> 
 #> ### Pipeline Object Methods
 #> 
 #> **Correct methods (USE THESE):**
 #> 
 #> - `pipeline$read(target_name) - Read a computed result`
-#> - `pipeline$set_settings(...) - Set parameters (parameter names come from mcp_get_current_rave_pipeline_info)`
+#> - `pipeline$set_settings(...) - Set parameters (parameter names come from mcp_tool_pipeline_get_info)`
 #> - `pipeline$run(names = 'target_name', return_values = FALSE) - Run specific target`
 #> - `pipeline$get_settings() - Get current settings`
 #> 
@@ -1155,9 +1359,9 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> 
 #> **Do**:
 #> 
-#> 1. Call ravepipeline-mcp_list_rave_pipelines to find available options
-#> 2. Load the relevant pipeline with ravepipeline-mcp_load_rave_pipeline
-#> 3. Get parameter details with ravepipeline-mcp_get_current_rave_pipeline_info
+#> 1. Call ravepipeline-mcp_tool_pipeline_list to find available options
+#> 2. Load the relevant pipeline with ravepipeline-mcp_tool_pipeline_load
+#> 3. Get parameter details with ravepipeline-mcp_tool_pipeline_get_info
 #> 4. Present options to user with descriptions
 #> 
 #> 
@@ -1170,17 +1374,22 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> **Do**:
 #> 
 #> When user asks for code:
-#> 1. Call ravepipeline-mcp_list_rave_pipelines to find correct pipeline name
-#> 2. Call ravepipeline-mcp_load_rave_pipeline with the correct name
-#> 3. Call ravepipeline-mcp_get_current_rave_pipeline_info to get:
+#> 1. Call ravepipeline-mcp_tool_pipeline_list to find correct pipeline name
+#> 2. Call ravepipeline-mcp_tool_pipeline_load with the correct name
+#> 3. Call ravepipeline-mcp_tool_pipeline_get_info to get:
 #>    - Available targets from targets$Names (for pipe$read())
 #>    - Current settings (use as defaults)
 #>    - Parameter constraints
-#> 4. Generate code using ONLY methods shown in implementation_example:
+#> 4. MUST call ravepipeline-mcp_tool_pipeline_get_helpers to discover utility functions
+#>    - Use pattern parameter to filter (e.g., pattern='plot' for plotting, pattern='condition' for conditions)
+#>    - Review discovered helpers and reuse if names/signatures suggest relevance
+#>    - Acceptable to write custom code if unsure about helper use-cases, but discovery is mandatory
+#> 5. Generate code using ONLY methods shown in implementation_example:
 #>    - pipe$read(target_name, simplify = FALSE) to read results (use 'pipe' variable, not 'pipeline')
 #>    - pipe$set_settings(...) to configure
 #>    - pipe$run(names = 'target', return_values = FALSE) to execute
-#> 5. Use base R for plotting (plot, lines, legend) and data manipulation (aggregate, subset)
+#>    - Reuse helper functions from step 4 when their purpose is clear
+#> 6. Use base R for plotting (plot, lines, legend) and data manipulation (aggregate, subset)
 #> 
 #> 
 #> **Don't**:
@@ -1190,6 +1399,50 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> - Invent methods like $get_result(), $execute(), $get()
 #> - Use the magrittr pipe %>%
 #> - Use variable name 'pipeline' (use 'pipe' instead to avoid function name conflict)
+#> - Skip helper discovery when generating custom code (it's mandatory, not optional)
+#> - Write custom utility code without first calling get_helpers to check what exists
+#> 
+#> 
+#> ### Understanding Pipeline Internals
+#> 
+#> **Do**:
+#> 
+#> When user asks "how does this pipeline work?" or needs to understand implementation:
+#> 1. Call ravepipeline-mcp_tool_pipeline_get_script with pattern to extract
+#>    relevant sections (e.g., pattern = "^# " for section headers)
+#> 2. Call ravepipeline-mcp_tool_pipeline_get_helpers to see available utility functions
+#> 3. Use pattern searches to find specific targets or computational steps:
+#>    - Section headers: pattern = "^# "
+#>    - Target definitions: pattern = "^```\\{rave"
+#>    - Specific keywords: pattern = "wavelet|frequency|baseline"
+#> 4. Explain the workflow in plain language based on discovered documentation
+#> 
+#> 
+#> **Don't**:
+#> 
+#> - Read entire main.Rmd without pattern (will be large and waste tokens)
+#> - Assume helper functions don't exist - check first to avoid reinventing
+#> - Guess at pipeline implementation details without checking documentation
+#> 
+#> 
+#> ### Efficient Code Generation with Helper Discovery
+#> 
+#> **Do**:
+#> 
+#> When generating custom code or data customization for a loaded pipeline:
+#> 1. MUST call ravepipeline-mcp_tool_pipeline_get_helpers FIRST (use pattern to filter)
+#> 2. Review discovered helper signatures - use them if names suggest relevance
+#> 3. It's acceptable to write custom code if you're unsure about helper use-cases
+#> 4. The discovery step is mandatory, but using helpers is optional based on clarity
+#> Example: pattern='plot' finds plot_over_time_by_condition(), which clearly suggests
+#> its purpose. Use it instead of writing custom plotting code.
+#> 
+#> 
+#> **Don't**:
+#> 
+#> - Generate custom code without calling get_helpers first (mandatory discovery step)
+#> - Assume you need to implement everything from scratch
+#> - Skip helper discovery for code generation scenarios
 #> 
 #> 
 #> ### Progressive Code Generation (Discovery-First Pattern)
@@ -1199,7 +1452,7 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> When generating R code that works with pipeline results:
 #> Step 1 - DISCOVERY PHASE (Always do this first):
 #>   1. Load pipeline and run it to generate results
-#>   2. Call ravepipeline-mcp_get_current_rave_pipeline_info to get targets$Names
+#>   2. Call ravepipeline-mcp_tool_pipeline_get_info to get targets$Names
 #>   3. Read specific result: pipe$read("target_name", simplify = FALSE)
 #>   4. Inspect structure: str(result_object) or dim(array_object)
 #>   5. Verify FileArray dimension order, data frame columns, object classes
@@ -1250,7 +1503,7 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> **Do**:
 #> 
 #> 1. Start pipeline execution
-#> 2. Poll ravepipeline-mcp_get_current_rave_pipeline_progress every 5 seconds
+#> 2. Poll ravepipeline-mcp_tool_pipeline_get_progress every 5 seconds
 #> 3. Report progress to user: "Processing: 45% complete..."
 #> 4. Confirm completion: "Analysis finished successfully!"
 #> 
@@ -1333,7 +1586,7 @@ mcpflow_write(wf, stdout(), method = "markdown")
 #> 1. If results fail JSON serialization because the object is simply too large: increase max_size_for_json_output
 #> 2. If text output is too verbose: reduce max_print_lines
 #> 3. If you need more detail: increase max_print_lines
-#> Example: mcp_configure_output_settings(max_size_for_json_output = 51200)
+#> Example: mcp_tool_config_set_outputs(max_size_for_json_output = 51200)
 #> 
 #> 
 #> **Don't**:

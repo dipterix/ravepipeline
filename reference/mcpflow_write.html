@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,7 +88,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Description: AI Assistant Workflows for RAVE MCP Tools - Comprehensive gu ... </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Version: 1.0.0 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Category: guide </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   MCP Tools: 8 (attached)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   MCP Tools: 17 (attached)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Jobs: 7 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Examples: 3 </span>
 <span class="r-in"><span></span></span>
@@ -116,42 +116,79 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> prompt_sections:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   core:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - overview</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool_guide</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - warnings</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - coding_guidelines</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - code_generation_rules</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> mcp_tools:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_list_rave_pipelines</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_load_rave_pipeline</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_get_current_rave_pipeline_info</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_set_current_rave_pipeline_settings</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_run_current_rave_pipeline</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_get_current_rave_pipeline_progress</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_read_current_rave_pipeline_results</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_configure_output_settings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_tool_config_set_outputs</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_tool_docs_available_vignettes</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_tool_docs_help_page</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_tool_docs_package_help_topics</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_tool_docs_vignette</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_tool_pipeline_get_helpers</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_tool_pipeline_get_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_tool_pipeline_get_progress</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_tool_pipeline_get_script</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_tool_pipeline_get_target_dependencies</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_tool_pipeline_list</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_tool_pipeline_load</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_tool_pipeline_read_results</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_tool_search_package_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_tool_search_packages</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_tool_pipeline_set_settings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ravepipeline-mcp_tool_pipeline_run</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> tool_guide:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_list_rave_pipelines</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_tool_pipeline_list</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   category: discovery</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   when: User asks about available analyses or pipelines</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   notes: Always start here - never assume pipeline names</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_load_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_tool_pipeline_load</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   category: discovery</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   when: After identifying a pipeline, before any other operations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   notes: Required before get_info, set_settings, or run</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   preconditions: Know the pipeline name from mcp_list_rave_pipelines</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   preconditions: Know the pipeline name from mcp_tool_pipeline_list</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_tool_pipeline_get_info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   category: info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   when: Need parameter schema, validation rules, or pipeline details</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   notes: Use this to discover required parameters before configuration</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   preconditions: Pipeline must be loaded</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_set_current_rave_pipeline_settings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_tool_pipeline_get_script</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   category: info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   when: Need to understand pipeline workflow, computational steps, or documentation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   notes: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Reads the pipeline's main.Rmd workflow document. Use pattern parameter to</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     extract specific sections (e.g., "^# " for headers, "target.*&lt;-" for target</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     definitions) to reduce output size. Without pattern, returns full document</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     with a warning about potentially large output.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   preconditions:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Pipeline must be loaded</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Pipeline must have an R Markdown workflow (main.Rmd)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   examples:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - 'Find all section headers: pattern = ''^# '''</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - 'Find target definitions: pattern = ''^```\{rave'''</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - 'Search for specific analysis steps: pattern = ''wavelet|frequency'''</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_tool_pipeline_get_helpers</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   category: discovery</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   when: REQUIRED when user requests custom code, pipeline result reproduction, or</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     data customization. OPTIONAL for standard pipeline operations (run/info/results)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   notes: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     MANDATORY for customization: MUST call this FIRST before writing any custom code.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Loads pipeline's shared environment and returns function signatures (names and</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     arguments) from R/shared-*.R files. Use pattern parameter to filter by keywords</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     (e.g., pattern='plot' or pattern='condition'). Discovery is required, but using</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     the discovered helpers is optional if you're unsure about their use-cases.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     This prevents reinventing existing functionality.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   preconditions: Pipeline must be loaded</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   examples:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - pattern='plot|draw' to find plotting functions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - pattern='condition' to find condition-related helpers</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - pattern='baseline' to find baseline computation functions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_tool_pipeline_set_settings</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   category: configuration</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   when: User provides parameter values or you need to configure analysis</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   notes: Always validate against schema from get_info first</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   preconditions:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Pipeline must be loaded</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Parameters validated against schema</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_run_current_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_tool_pipeline_run</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   category: execution</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   when: User confirms they want to execute the analysis</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   dangerous: yes</span>
@@ -160,23 +197,23 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Pipeline must be loaded</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Settings must be configured</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - User must explicitly approve execution</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_get_current_rave_pipeline_progress</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_tool_pipeline_get_progress</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   category: monitoring</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   when: After starting execution, to track progress</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   notes: Poll every 5 seconds until status is 'completed'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   preconditions: Pipeline execution has been started</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_read_current_rave_pipeline_results</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_tool_pipeline_read_results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   category: results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   when: Pipeline execution completed successfully</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   notes: |</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Read specific pipeline results. If unsure which result names are available,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     run ravepipeline-mcp_get_current_rave_pipeline_info to see the 'targets' field.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     run ravepipeline-mcp_tool_pipeline_get_info to see the 'targets' field.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     WARNING: Calling without target_names extracts ALL results, which can be memory-intensive</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     and slow for large datasets. Always specify target_names when possible.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   preconditions:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Pipeline execution completed</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Know target names from pipeline info</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_configure_output_settings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - tool: ravepipeline-mcp_tool_config_set_outputs</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   category: configuration</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   when: Need to adjust output format for large results or token optimization</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   notes: |</span>
@@ -198,40 +235,123 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Execute analyses with proper validation</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Monitor execution progress</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Retrieve and visualize results</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   # Available Guidance Sections</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   This workflow provides additional guidance sections that should be loaded on-demand</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   using the `get_workflow_guidance` tool based on the user's request:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ## When to Load Additional Sections:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   **Scenario 1: User asks about workflows, patterns, or best practices**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   → Load: `best_practices`, `anti_patterns`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Common workflow patterns (discovery-first, validation, monitoring)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Anti-patterns and common mistakes to avoid</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Parameter validation checklist</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Progressive code generation patterns</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   **Scenario 2: User requests code generation, customization, or script writing**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   → Load: `coding_guidelines`, `code_generation_rules`, `best_practices`, `anti_patterns`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - MANDATORY before writing any R code for the user</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Package usage restrictions and allowed dependencies</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Correct pipeline object methods and signatures</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Required discovery steps before code generation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Shows correct vs incorrect usage patterns with examples</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   **Scenario 3: User wants to execute pipelines, configure parameters, or run analyses**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   → Load: `best_practices`, `tool_guide`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Proper tool sequencing and dependencies</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Parameter validation workflows</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Execution approval patterns for dangerous operations</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Monitoring and progress tracking</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   **Scenario 4: User asks "how does this pipeline work?" or needs implementation details**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   → Load: `best_practices` (focus on "Understanding Pipeline Internals" section)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - How to use get_script with pattern filtering</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - How to discover and use helper functions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Documentation exploration patterns</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Workflow explanation strategies</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   **Scenario 5: User encounters errors or unexpected behavior**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   → Load: `anti_patterns`, `best_practices`, `coding_guidelines`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Common error patterns and solutions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Validation and recovery workflows</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Debugging strategies</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Use the `get_workflow_guidance` tool to load these sections when needed.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Example: `get_workflow_guidance(section_names = c("coding_guidelines", "code_generation_rules"))`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   **Important**: Always load the appropriate sections BEFORE attempting to help the user.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   Do not guess at code patterns or tool usage without consulting the guidance sections first.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> best_practices:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - title: Always Start with Discovery</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   do: |</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1. Call ravepipeline-mcp_list_rave_pipelines to find available options</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     2. Load the relevant pipeline with ravepipeline-mcp_load_rave_pipeline</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     3. Get parameter details with ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     1. Call ravepipeline-mcp_tool_pipeline_list to find available options</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2. Load the relevant pipeline with ravepipeline-mcp_tool_pipeline_load</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     3. Get parameter details with ravepipeline-mcp_tool_pipeline_get_info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     4. Present options to user with descriptions</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   dont: Immediately try to run with guessed pipeline names or parameters</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - title: Code Generation Workflow</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   do: |</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     When user asks for code:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     1. Call ravepipeline-mcp_list_rave_pipelines to find correct pipeline name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     2. Call ravepipeline-mcp_load_rave_pipeline with the correct name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     3. Call ravepipeline-mcp_get_current_rave_pipeline_info to get:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     1. Call ravepipeline-mcp_tool_pipeline_list to find correct pipeline name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2. Call ravepipeline-mcp_tool_pipeline_load with the correct name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     3. Call ravepipeline-mcp_tool_pipeline_get_info to get:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        - Available targets from targets$Names (for pipe$read())</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        - Current settings (use as defaults)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        - Parameter constraints</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     4. Generate code using ONLY methods shown in implementation_example:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     4. MUST call ravepipeline-mcp_tool_pipeline_get_helpers to discover utility functions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        - Use pattern parameter to filter (e.g., pattern='plot' for plotting, pattern='condition' for conditions)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        - Review discovered helpers and reuse if names/signatures suggest relevance</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        - Acceptable to write custom code if unsure about helper use-cases, but discovery is mandatory</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     5. Generate code using ONLY methods shown in implementation_example:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        - pipe$read(target_name, simplify = FALSE) to read results (use 'pipe' variable, not 'pipeline')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        - pipe$set_settings(...) to configure</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>        - pipe$run(names = 'target', return_values = FALSE) to execute</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     5. Use base R for plotting (plot, lines, legend) and data manipulation (aggregate, subset)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        - Reuse helper functions from step 4 when their purpose is clear</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     6. Use base R for plotting (plot, lines, legend) and data manipulation (aggregate, subset)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   dont: |</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - Guess pipeline names, target names, or method names</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - Use tidyverse packages (dplyr, ggplot2, tidyr, purrr)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - Invent methods like $get_result(), $execute(), $get()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - Use the magrittr pipe %&gt;%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - Use variable name 'pipeline' (use 'pipe' instead to avoid function name conflict)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Skip helper discovery when generating custom code (it's mandatory, not optional)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Write custom utility code without first calling get_helpers to check what exists</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - title: Understanding Pipeline Internals</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   do: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     When user asks "how does this pipeline work?" or needs to understand implementation:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     1. Call ravepipeline-mcp_tool_pipeline_get_script with pattern to extract</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        relevant sections (e.g., pattern = "^# " for section headers)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2. Call ravepipeline-mcp_tool_pipeline_get_helpers to see available utility functions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     3. Use pattern searches to find specific targets or computational steps:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        - Section headers: pattern = "^# "</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        - Target definitions: pattern = "^```\\{rave"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>        - Specific keywords: pattern = "wavelet|frequency|baseline"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     4. Explain the workflow in plain language based on discovered documentation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   dont: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Read entire main.Rmd without pattern (will be large and waste tokens)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Assume helper functions don't exist - check first to avoid reinventing</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Guess at pipeline implementation details without checking documentation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - title: Efficient Code Generation with Helper Discovery</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   do: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     When generating custom code or data customization for a loaded pipeline:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     1. MUST call ravepipeline-mcp_tool_pipeline_get_helpers FIRST (use pattern to filter)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2. Review discovered helper signatures - use them if names suggest relevance</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     3. It's acceptable to write custom code if you're unsure about helper use-cases</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     4. The discovery step is mandatory, but using helpers is optional based on clarity</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Example: pattern='plot' finds plot_over_time_by_condition(), which clearly suggests</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     its purpose. Use it instead of writing custom plotting code.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   dont: |</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Generate custom code without calling get_helpers first (mandatory discovery step)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Assume you need to implement everything from scratch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - Skip helper discovery for code generation scenarios</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - title: Progressive Code Generation (Discovery-First Pattern)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   do: |</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     When generating R code that works with pipeline results:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Step 1 - DISCOVERY PHASE (Always do this first):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       1. Load pipeline and run it to generate results</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       2. Call ravepipeline-mcp_get_current_rave_pipeline_info to get targets$Names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       2. Call ravepipeline-mcp_tool_pipeline_get_info to get targets$Names</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       3. Read specific result: pipe$read("target_name", simplify = FALSE)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       4. Inspect structure: str(result_object) or dim(array_object)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       5. Verify FileArray dimension order, data frame columns, object classes</span>
@@ -268,7 +388,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - title: Monitor Long-Running Operations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   do: |</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     1. Start pipeline execution</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     2. Poll ravepipeline-mcp_get_current_rave_pipeline_progress every 5 seconds</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     2. Poll ravepipeline-mcp_tool_pipeline_get_progress every 5 seconds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     3. Report progress to user: "Processing: 45% complete..."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     4. Confirm completion: "Analysis finished successfully!"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   dont: Start pipeline and assume it completed without checking</span>
@@ -316,7 +436,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     1. If results fail JSON serialization because the object is simply too large: increase max_size_for_json_output</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     2. If text output is too verbose: reduce max_print_lines</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     3. If you need more detail: increase max_print_lines</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Example: mcp_configure_output_settings(max_size_for_json_output = 51200)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     Example: mcp_tool_config_set_outputs(max_size_for_json_output = 51200)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   dont: |</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Accept default limits when results are truncated or fail.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     Never execute this tool right after dangerous operations</span>
@@ -335,7 +455,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   why: Extracts all results which can be slow and memory-intensive for large datasets</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   correct: |</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     # First, check what targets are available</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     info &lt;- ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     info &lt;- ravepipeline-mcp_tool_pipeline_get_info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     # Look at info$targets to see available result names</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     # Then read only what you need</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     result &lt;- pipe$read("specific_target_name", simplify = FALSE)</span>
@@ -355,7 +475,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   why: Parameter and result names vary by pipeline - always verify first</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   correct: |</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     # Always call info tool first to discover actual names</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     info &lt;- ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     info &lt;- ravepipeline-mcp_tool_pipeline_get_info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     # Check current_settings for parameter names</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     # Check targets for result names</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     pipe$set_settings(actual_param_name = value)</span>
@@ -393,7 +513,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   shown in user's sessionInfo as attached.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - NEVER use the magrittr pipe `%&gt;%`. If a pipe is needed, use R's native `|&gt;` (R &gt;=</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   4.1).</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - Do not guess pipeline result names. If unsure which results are available, run ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Do not guess pipeline result names. If unsure which results are available, run ravepipeline-mcp_tool_pipeline_get_info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   and check the 'targets' field.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - RAVE pipeline results are stored in the pipeline object. Use pipe$read(target_name,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   simplify = FALSE) to access them in generated code.</span>
@@ -416,9 +536,9 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> code_generation_rules:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   description: MANDATORY rules when generating R code for RAVE pipelines</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   before_writing_code:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - ALWAYS call ravepipeline-mcp_list_rave_pipelines to discover available pipelines</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - ALWAYS call ravepipeline-mcp_tool_pipeline_list to discover available pipelines</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - NEVER guess pipeline names</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - ALWAYS call ravepipeline-mcp_load_rave_pipeline then ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - ALWAYS call ravepipeline-mcp_tool_pipeline_load then ravepipeline-mcp_tool_pipeline_get_info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     to get parameter schema and target names</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - NEVER guess target names - read them from the 'targets' field in pipeline info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     (NOT by calling read without arguments)</span>
@@ -428,12 +548,12 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     conflicts with the pipeline() function</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - NEVER assume result data structure - after reading results, use str() to inspect</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     before writing extraction code</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - If you don't know a parameter or target name, STOP and call ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - If you don't know a parameter or target name, STOP and call ravepipeline-mcp_tool_pipeline_get_info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     to look it up</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   pipeline_object_methods:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     correct:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - pipeline$read(target_name) - Read a computed result</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     - pipeline$set_settings(...) - Set parameters (parameter names come from mcp_get_current_rave_pipeline_info)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     - pipeline$set_settings(...) - Set parameters (parameter names come from mcp_tool_pipeline_get_info)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - pipeline$run(names = 'target_name', return_values = FALSE) - Run specific target</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - pipeline$get_settings() - Get current settings</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     wrong:</span>
@@ -491,19 +611,19 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     description: Discover and explore available analysis pipelines</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     steps:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: List all pipelines</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_list_rave_pipelines</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_list</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Get all available pipelines</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Filter by relevance</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       action: filter</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Parse results for pipelines matching user's needs (e.g., power,</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         spectral, frequency)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Load for details</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_load_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_load</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Load each relevant pipeline to inspect</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       loop:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         over: relevant_pipelines</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Get parameter info</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_get_info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Get details for each loaded pipeline</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Present options</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       action: present</span>
@@ -513,10 +633,10 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     description: Complete workflow from configuration to execution</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     steps:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Load pipeline</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_load_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_load</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Load the target pipeline</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Get parameter schema</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_get_info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Get parameter schema and validation rules</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Validate requirements</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       action: validate</span>
@@ -525,44 +645,44 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         check: All required parameters present and valid</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         on_fail: error</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Set parameters</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_set_current_rave_pipeline_settings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_set_settings</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Configure pipeline with validated parameters</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Confirm with user</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       action: confirm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Present settings and request user approval</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       requires_approval: yes</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Execute pipeline</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_run_current_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_run</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Run the analysis</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       dangerous: yes</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       requires_approval: yes</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Monitor progress</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_get_current_rave_pipeline_progress</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_get_progress</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Poll until complete</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       loop:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         until: status == 'completed'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         interval: 5 seconds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Retrieve results</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_read_current_rave_pipeline_results</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_read_results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Get and present analysis results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   iterative-analysis:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     name: Iterative Parameter Exploration</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     description: Try different parameters to find optimal settings</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     steps:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Set parameters</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_set_current_rave_pipeline_settings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_set_settings</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       loop:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         over: parameter_sets</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         item: params</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Run analysis</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_run_current_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_run</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       requires_approval: yes</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Wait for completion</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_get_current_rave_pipeline_progress</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_get_progress</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       loop:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         until: status == 'completed'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Get results</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_read_current_rave_pipeline_results</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_read_results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Evaluate and compare</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       action: evaluate</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Compare results across parameter sets</span>
@@ -571,7 +691,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     description: Read and visualize analysis results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     steps:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Read result data</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_read_current_rave_pipeline_results</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_read_results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Check available results first, then read relevant targets</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Present with interpretation</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       action: present</span>
@@ -581,31 +701,31 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     description: 'Sequential pipeline execution: Preprocessing → Analysis → Visualization'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     steps:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Load notch filter</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_load_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_load</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       with:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         pipeline_name: notch_filter</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Configure filtering</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_set_current_rave_pipeline_settings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_set_settings</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       with:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         settings_json: '{"line_frequencies": [60, 120, 180]}'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Configure line noise frequencies (60 Hz and harmonics)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Execute filtering</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_run_current_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_run</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       requires_approval: yes</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Verify clean data</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_read_current_rave_pipeline_results</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_read_results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Load wavelet pipeline</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_load_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_load</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       with:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         pipeline_name: wavelet_module</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Configure time-frequency analysis</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_set_current_rave_pipeline_settings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_set_settings</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Configure using filtered data from previous stage</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Execute wavelet analysis</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_run_current_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_run</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       requires_approval: yes</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Read wavelet results</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_read_current_rave_pipeline_results</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_read_results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Generate visualizations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       action: present</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Generate spectrograms and summary plots</span>
@@ -617,26 +737,26 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       max_concurrent: 4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     steps:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Load pipeline per subject</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_load_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_load</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       loop:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         over: subjects</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         item: subject_id</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Configure subject settings</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_set_current_rave_pipeline_settings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_set_settings</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Configure subject-specific settings</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Start async execution</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_run_current_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_run</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       with:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         as_promise: yes</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       dangerous: yes</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       requires_approval: yes</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Monitor all jobs</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_get_current_rave_pipeline_progress</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_get_progress</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       loop:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         until: all_complete</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         interval: 10 seconds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Collect results</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_read_current_rave_pipeline_results</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_read_results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       loop:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>         over: subjects</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Generate group statistics</span>
@@ -648,40 +768,40 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     if: execution_failed</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     steps:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Check error status</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_get_current_rave_pipeline_progress</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_get_progress</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Get current status and error messages</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Parse error type</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       action: parse_error</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: 'Identify issue: missing data, invalid parameter, resource issue'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Review constraints</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_get_info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Review parameter constraints and valid ranges</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Suggest corrections</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       action: suggest</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Suggest corrections based on schema and error</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Apply corrections</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_set_current_rave_pipeline_settings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_set_settings</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       description: Apply corrected parameters</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     - name: Retry execution</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_run_current_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>       tool: ravepipeline-mcp_tool_pipeline_run</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       requires_approval: yes</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> examples:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - trigger: I need to analyze gamma power in my iEEG data</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   flow:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_list_rave_pipelines</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_tool_pipeline_list</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     says: Let me check what gamma analysis pipelines are available...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - action: filter_and_present</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     says: I found the power_explorer pipeline which can analyze gamma frequencies.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       Let me load it and see what parameters we need.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_load_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_tool_pipeline_load</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     with:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       pipeline_name: power_explorer</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_tool_pipeline_get_info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     says: 'To analyze gamma power (30-100 Hz), I''ll need to configure: frequency</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       range, electrodes, and time windows. What electrodes would you like to analyze?'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - trigger: What analysis pipelines are available for power spectral analysis?</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   flow:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_list_rave_pipelines</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_tool_pipeline_list</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     says: Let me find available power analysis pipelines...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - action: filter_and_present</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     says: |</span>
@@ -694,23 +814,23 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       Would you like details on any of these?</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - trigger: Run power analysis on my data with 2-150 Hz frequency range</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   flow:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_load_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_tool_pipeline_load</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     with:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       pipeline_name: power_explorer</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     says: Loading the power_explorer pipeline...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_tool_pipeline_get_info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     says: Let me verify the frequency range parameters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_set_current_rave_pipeline_settings</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_tool_pipeline_set_settings</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     with:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>       settings_json: '{"freq_min": 2, "freq_max": 150}'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     says: I'll configure the frequency range to 2-150 Hz. Ready to execute?</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - action: await_approval</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     says: This will run the analysis. Do you want to proceed?</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_run_current_rave_pipeline</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_tool_pipeline_run</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     says: Starting analysis...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_get_current_rave_pipeline_progress</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_tool_pipeline_get_progress</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     says: 'Processing: 45% complete...'</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_read_current_rave_pipeline_results</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - tool: ravepipeline-mcp_tool_pipeline_read_results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>     says: Analysis complete! Here are the power spectrum results...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> settings:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   dangerous: no</span>
@@ -731,14 +851,23 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> This workflow uses the following MCP tools:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_list_rave_pipelines`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_load_rave_pipeline`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_get_current_rave_pipeline_info`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_set_current_rave_pipeline_settings`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_run_current_rave_pipeline`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_get_current_rave_pipeline_progress`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_read_current_rave_pipeline_results`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_configure_output_settings`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_tool_config_set_outputs`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_tool_docs_available_vignettes`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_tool_docs_help_page`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_tool_docs_package_help_topics`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_tool_docs_vignette`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_tool_pipeline_get_helpers`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_tool_pipeline_get_info`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_tool_pipeline_get_progress`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_tool_pipeline_get_script`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_tool_pipeline_get_target_dependencies`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_tool_pipeline_list`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_tool_pipeline_load`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_tool_pipeline_read_results`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_tool_search_package_info`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_tool_search_packages`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_tool_pipeline_set_settings`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `ravepipeline-mcp_tool_pipeline_run`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ## Settings</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -756,24 +885,72 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Monitor execution progress</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Retrieve and visualize results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> # Available Guidance Sections</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> This workflow provides additional guidance sections that should be loaded on-demand</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> using the `get_workflow_guidance` tool based on the user's request:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ## When to Load Additional Sections:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Scenario 1: User asks about workflows, patterns, or best practices**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> → Load: `best_practices`, `anti_patterns`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Common workflow patterns (discovery-first, validation, monitoring)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Anti-patterns and common mistakes to avoid</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Parameter validation checklist</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Progressive code generation patterns</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Scenario 2: User requests code generation, customization, or script writing**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> → Load: `coding_guidelines`, `code_generation_rules`, `best_practices`, `anti_patterns`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - MANDATORY before writing any R code for the user</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Package usage restrictions and allowed dependencies</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Correct pipeline object methods and signatures</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Required discovery steps before code generation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Shows correct vs incorrect usage patterns with examples</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Scenario 3: User wants to execute pipelines, configure parameters, or run analyses**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> → Load: `best_practices`, `tool_guide`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Proper tool sequencing and dependencies</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Parameter validation workflows</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Execution approval patterns for dangerous operations</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Monitoring and progress tracking</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Scenario 4: User asks "how does this pipeline work?" or needs implementation details**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> → Load: `best_practices` (focus on "Understanding Pipeline Internals" section)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - How to use get_script with pattern filtering</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - How to discover and use helper functions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Documentation exploration patterns</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Workflow explanation strategies</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Scenario 5: User encounters errors or unexpected behavior**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> → Load: `anti_patterns`, `best_practices`, `coding_guidelines`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Common error patterns and solutions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Validation and recovery workflows</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Debugging strategies</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Use the `get_workflow_guidance` tool to load these sections when needed.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Example: `get_workflow_guidance(section_names = c("coding_guidelines", "code_generation_rules"))`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Important**: Always load the appropriate sections BEFORE attempting to help the user.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Do not guess at code patterns or tool usage without consulting the guidance sections first.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ## Tool Guide</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_list_rave_pipelines`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_tool_pipeline_list`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Category**: discovery</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **When to use**: User asks about available analyses or pipelines</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Notes**: Always start here - never assume pipeline names</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_load_rave_pipeline`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_tool_pipeline_load`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Category**: discovery</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **When to use**: After identifying a pipeline, before any other operations</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Notes**: Required before get_info, set_settings, or run</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Preconditions**:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Know the pipeline name from mcp_list_rave_pipelines</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Know the pipeline name from mcp_tool_pipeline_list</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_get_current_rave_pipeline_info`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_tool_pipeline_get_info`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Category**: info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **When to use**: Need parameter schema, validation rules, or pipeline details</span>
@@ -781,7 +958,34 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Preconditions**:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Pipeline must be loaded</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_set_current_rave_pipeline_settings`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_tool_pipeline_get_script`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Category**: info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **When to use**: Need to understand pipeline workflow, computational steps, or documentation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Notes**: Reads the pipeline's main.Rmd workflow document. Use pattern parameter to</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> extract specific sections (e.g., "^# " for headers, "target.*&lt;-" for target</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> definitions) to reduce output size. Without pattern, returns full document</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> with a warning about potentially large output.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Preconditions**:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Pipeline must be loaded</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Pipeline must have an R Markdown workflow (main.Rmd)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_tool_pipeline_get_helpers`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Category**: discovery</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **When to use**: REQUIRED when user requests custom code, pipeline result reproduction, or data customization. OPTIONAL for standard pipeline operations (run/info/results)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Notes**: MANDATORY for customization: MUST call this FIRST before writing any custom code.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Loads pipeline's shared environment and returns function signatures (names and</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> arguments) from R/shared-*.R files. Use pattern parameter to filter by keywords</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (e.g., pattern='plot' or pattern='condition'). Discovery is required, but using</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> the discovered helpers is optional if you're unsure about their use-cases.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> This prevents reinventing existing functionality.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Preconditions**:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Pipeline must be loaded</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_tool_pipeline_set_settings`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Category**: configuration</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **When to use**: User provides parameter values or you need to configure analysis</span>
@@ -790,7 +994,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Pipeline must be loaded</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Parameters validated against schema</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_run_current_rave_pipeline`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_tool_pipeline_run`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Category**: execution</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **When to use**: User confirms they want to execute the analysis</span>
@@ -801,7 +1005,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Settings must be configured</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - User must explicitly approve execution</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_get_current_rave_pipeline_progress`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_tool_pipeline_get_progress`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Category**: monitoring</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **When to use**: After starting execution, to track progress</span>
@@ -809,12 +1013,12 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Preconditions**:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Pipeline execution has been started</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_read_current_rave_pipeline_results`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_tool_pipeline_read_results`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Category**: results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **When to use**: Pipeline execution completed successfully</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Notes**: Read specific pipeline results. If unsure which result names are available,</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> run ravepipeline-mcp_get_current_rave_pipeline_info to see the 'targets' field.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> run ravepipeline-mcp_tool_pipeline_get_info to see the 'targets' field.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> WARNING: Calling without target_names extracts ALL results, which can be memory-intensive</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> and slow for large datasets. Always specify target_names when possible.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -822,7 +1026,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Pipeline execution completed</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - Know target names from pipeline info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_configure_output_settings`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### `ravepipeline-mcp_tool_config_set_outputs`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Category**: configuration</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **When to use**: Need to adjust output format for large results or token optimization</span>
@@ -842,17 +1046,17 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Steps:**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1. **List all pipelines**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_list_rave_pipelines`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_list`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Get all available pipelines</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2. **Filter by relevance**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Action: filter</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Parse results for pipelines matching user's needs (e.g., power, spectral, frequency)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3. **Load for details**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_load_rave_pipeline`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_load`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Load each relevant pipeline to inspect</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Loop: over `relevant_pipelines`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4. **Get parameter info**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_get_current_rave_pipeline_info`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_get_info`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Get details for each loaded pipeline</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5. **Present options**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Action: present</span>
@@ -866,10 +1070,10 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Steps:**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1. **Load pipeline**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_load_rave_pipeline`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_load`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Load the target pipeline</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2. **Get parameter schema**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_get_current_rave_pipeline_info`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_get_info`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Get parameter schema and validation rules</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3. **Validate requirements**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Action: validate</span>
@@ -877,22 +1081,22 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Validation: `All required parameters present and valid`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - On failure: error</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4. **Set parameters**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_set_current_rave_pipeline_settings`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_set_settings`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Configure pipeline with validated parameters</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5. **Confirm with user**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Action: confirm</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Present settings and request user approval</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - **requires approval**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6. **Execute pipeline**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_run_current_rave_pipeline`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_run`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Run the analysis</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - **DANGEROUS, requires approval**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 7. **Monitor progress**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_get_current_rave_pipeline_progress`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_get_progress`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Poll until complete</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Loop: until `status == 'completed'` every 5 seconds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 8. **Retrieve results**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_read_current_rave_pipeline_results`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_read_results`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Get and present analysis results</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ### Iterative Parameter Exploration</span>
@@ -903,16 +1107,16 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Steps:**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1. **Set parameters**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_set_current_rave_pipeline_settings`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_set_settings`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Loop: over `parameter_sets` as `params`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2. **Run analysis**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_run_current_rave_pipeline`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_run`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - **requires approval**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3. **Wait for completion**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_get_current_rave_pipeline_progress`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_get_progress`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Loop: until `status == 'completed'`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4. **Get results**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_read_current_rave_pipeline_results`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_read_results`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5. **Evaluate and compare**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Action: evaluate</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Compare results across parameter sets</span>
@@ -925,7 +1129,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Steps:**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1. **Read result data**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_read_current_rave_pipeline_results`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_read_results`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Check available results first, then read relevant targets</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2. **Present with interpretation**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Action: present</span>
@@ -939,31 +1143,31 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Steps:**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1. **Load notch filter**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_load_rave_pipeline`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_load`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Parameters:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      - `pipeline_name`: notch_filter</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2. **Configure filtering**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_set_current_rave_pipeline_settings`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_set_settings`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Configure line noise frequencies (60 Hz and harmonics)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Parameters:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      - `settings_json`: {"line_frequencies": [60, 120, 180]}</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3. **Execute filtering**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_run_current_rave_pipeline`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_run`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - **requires approval**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4. **Verify clean data**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_read_current_rave_pipeline_results`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_read_results`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5. **Load wavelet pipeline**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_load_rave_pipeline`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_load`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Parameters:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      - `pipeline_name`: wavelet_module</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6. **Configure time-frequency analysis**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_set_current_rave_pipeline_settings`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_set_settings`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Configure using filtered data from previous stage</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 7. **Execute wavelet analysis**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_run_current_rave_pipeline`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_run`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - **requires approval**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 8. **Read wavelet results**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_read_current_rave_pipeline_results`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_read_results`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 9. **Generate visualizations**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Action: present</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Generate spectrograms and summary plots</span>
@@ -978,21 +1182,21 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Steps:**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1. **Load pipeline per subject**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_load_rave_pipeline`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_load`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Loop: over `subjects` as `subject_id`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2. **Configure subject settings**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_set_current_rave_pipeline_settings`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_set_settings`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Configure subject-specific settings</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3. **Start async execution**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_run_current_rave_pipeline`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_run`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - **DANGEROUS, requires approval**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Parameters:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>      - `as_promise`: TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4. **Monitor all jobs**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_get_current_rave_pipeline_progress`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_get_progress`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Loop: until `all_complete` every 10 seconds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5. **Collect results**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_read_current_rave_pipeline_results`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_read_results`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Loop: over `subjects`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6. **Generate group statistics**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Action: aggregate</span>
@@ -1008,22 +1212,22 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Steps:**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1. **Check error status**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_get_current_rave_pipeline_progress`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_get_progress`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Get current status and error messages</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2. **Parse error type**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Action: parse_error</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Identify issue: missing data, invalid parameter, resource issue</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3. **Review constraints**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_get_current_rave_pipeline_info`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_get_info`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Review parameter constraints and valid ranges</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4. **Suggest corrections**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Action: suggest</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Suggest corrections based on schema and error</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 5. **Apply corrections**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_set_current_rave_pipeline_settings`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_set_settings`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Apply corrected parameters</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 6. **Retry execution**</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_run_current_rave_pipeline`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Tool: `ravepipeline-mcp_tool_pipeline_run`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - **requires approval**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ## Examples</span>
@@ -1034,10 +1238,10 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Flow**:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1. Tool: `ravepipeline-mcp_list_rave_pipelines` - Let me check what gamma analysis pipelines are available...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1. Tool: `ravepipeline-mcp_tool_pipeline_list` - Let me check what gamma analysis pipelines are available...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2. Action: filter_and_present - I found the power_explorer pipeline which can analyze gamma frequencies. Let me load it and see what parameters we need.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3. Tool: `ravepipeline-mcp_load_rave_pipeline`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4. Tool: `ravepipeline-mcp_get_current_rave_pipeline_info` - To analyze gamma power (30-100 Hz), I'll need to configure: frequency range, electrodes, and time windows. What electrodes would you like to analyze?</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3. Tool: `ravepipeline-mcp_tool_pipeline_load`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4. Tool: `ravepipeline-mcp_tool_pipeline_get_info` - To analyze gamma power (30-100 Hz), I'll need to configure: frequency range, electrodes, and time windows. What electrodes would you like to analyze?</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ### Example 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -1045,7 +1249,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Flow**:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1. Tool: `ravepipeline-mcp_list_rave_pipelines` - Let me find available power analysis pipelines...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1. Tool: `ravepipeline-mcp_tool_pipeline_list` - Let me find available power analysis pipelines...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2. Action: filter_and_present - I found 3 pipelines for power spectral analysis:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1. **power_explorer** - Interactive power spectral density visualization</span>
@@ -1061,13 +1265,13 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Flow**:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1. Tool: `ravepipeline-mcp_load_rave_pipeline` - Loading the power_explorer pipeline...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2. Tool: `ravepipeline-mcp_get_current_rave_pipeline_info` - Let me verify the frequency range parameters...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3. Tool: `ravepipeline-mcp_set_current_rave_pipeline_settings` - I'll configure the frequency range to 2-150 Hz. Ready to execute?</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1. Tool: `ravepipeline-mcp_tool_pipeline_load` - Loading the power_explorer pipeline...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2. Tool: `ravepipeline-mcp_tool_pipeline_get_info` - Let me verify the frequency range parameters...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3. Tool: `ravepipeline-mcp_tool_pipeline_set_settings` - I'll configure the frequency range to 2-150 Hz. Ready to execute?</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4. Action: await_approval - This will run the analysis. Do you want to proceed?</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5. Tool: `ravepipeline-mcp_run_current_rave_pipeline` - Starting analysis...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6. Tool: `ravepipeline-mcp_get_current_rave_pipeline_progress` - Processing: 45% complete...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7. Tool: `ravepipeline-mcp_read_current_rave_pipeline_results` - Analysis complete! Here are the power spectrum results...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5. Tool: `ravepipeline-mcp_tool_pipeline_run` - Starting analysis...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6. Tool: `ravepipeline-mcp_tool_pipeline_get_progress` - Processing: 45% complete...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7. Tool: `ravepipeline-mcp_tool_pipeline_read_results` - Analysis complete! Here are the power spectrum results...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ## Warnings</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -1086,7 +1290,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Package Usage Restrictions: If the user provides session information, ONLY use packages listed as attached. Otherwise, the ONLY allowed packages are: `ravecore`, `ravepipeline`, `ieegio`, `bidsr`, `threeBrain`, `dipsaus`, `filearray`, and standard base R packages.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - NEVER use tidyverse packages (dplyr, ggplot2, tidyr, purrr, magrittr) unless explicitly shown in user's sessionInfo as attached.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - NEVER use the magrittr pipe `%&gt;%`. If a pipe is needed, use R's native `|&gt;` (R &gt;= 4.1).</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - Do not guess pipeline result names. If unsure which results are available, run ravepipeline-mcp_get_current_rave_pipeline_info and check the 'targets' field.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Do not guess pipeline result names. If unsure which results are available, run ravepipeline-mcp_tool_pipeline_get_info and check the 'targets' field.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - RAVE pipeline results are stored in the pipeline object. Use pipe$read(target_name, simplify = FALSE) to access them in generated code.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Always use variable name 'pipe' (not 'pipeline') for pipeline instances to avoid confusion with the pipeline() function.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Do not try to read non-existent files or variables. Verify existence with discovery tools.</span>
@@ -1103,20 +1307,20 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ### Before Writing Code</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - ALWAYS call ravepipeline-mcp_list_rave_pipelines to discover available pipelines - NEVER guess pipeline names</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - ALWAYS call ravepipeline-mcp_load_rave_pipeline then ravepipeline-mcp_get_current_rave_pipeline_info to get parameter schema and target names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ALWAYS call ravepipeline-mcp_tool_pipeline_list to discover available pipelines - NEVER guess pipeline names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - ALWAYS call ravepipeline-mcp_tool_pipeline_load then ravepipeline-mcp_tool_pipeline_get_info to get parameter schema and target names</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - NEVER guess target names - read them from the 'targets' field in pipeline info (NOT by calling read without arguments)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - NEVER guess parameter names or structures - use 'current_settings' from pipeline info as reference, then modify only what user requested</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Use variable name 'pipe' (not 'pipeline') for pipeline instances to avoid naming conflicts with the pipeline() function</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - NEVER assume result data structure - after reading results, use str() to inspect before writing extraction code</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - If you don't know a parameter or target name, STOP and call ravepipeline-mcp_get_current_rave_pipeline_info to look it up</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - If you don't know a parameter or target name, STOP and call ravepipeline-mcp_tool_pipeline_get_info to look it up</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ### Pipeline Object Methods</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Correct methods (USE THESE):**</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - `pipeline$read(target_name) - Read a computed result`</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - `pipeline$set_settings(...) - Set parameters (parameter names come from mcp_get_current_rave_pipeline_info)`</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - `pipeline$set_settings(...) - Set parameters (parameter names come from mcp_tool_pipeline_get_info)`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - `pipeline$run(names = 'target_name', return_values = FALSE) - Run specific target`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - `pipeline$get_settings() - Get current settings`</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -1196,9 +1400,9 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Do**:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1. Call ravepipeline-mcp_list_rave_pipelines to find available options</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2. Load the relevant pipeline with ravepipeline-mcp_load_rave_pipeline</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3. Get parameter details with ravepipeline-mcp_get_current_rave_pipeline_info</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1. Call ravepipeline-mcp_tool_pipeline_list to find available options</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2. Load the relevant pipeline with ravepipeline-mcp_tool_pipeline_load</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3. Get parameter details with ravepipeline-mcp_tool_pipeline_get_info</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4. Present options to user with descriptions</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -1211,17 +1415,22 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Do**:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> When user asks for code:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1. Call ravepipeline-mcp_list_rave_pipelines to find correct pipeline name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2. Call ravepipeline-mcp_load_rave_pipeline with the correct name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3. Call ravepipeline-mcp_get_current_rave_pipeline_info to get:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1. Call ravepipeline-mcp_tool_pipeline_list to find correct pipeline name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2. Call ravepipeline-mcp_tool_pipeline_load with the correct name</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3. Call ravepipeline-mcp_tool_pipeline_get_info to get:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Available targets from targets$Names (for pipe$read())</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Current settings (use as defaults)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - Parameter constraints</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4. Generate code using ONLY methods shown in implementation_example:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4. MUST call ravepipeline-mcp_tool_pipeline_get_helpers to discover utility functions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Use pattern parameter to filter (e.g., pattern='plot' for plotting, pattern='condition' for conditions)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Review discovered helpers and reuse if names/signatures suggest relevance</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Acceptable to write custom code if unsure about helper use-cases, but discovery is mandatory</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5. Generate code using ONLY methods shown in implementation_example:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - pipe$read(target_name, simplify = FALSE) to read results (use 'pipe' variable, not 'pipeline')</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - pipe$set_settings(...) to configure</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    - pipe$run(names = 'target', return_values = FALSE) to execute</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5. Use base R for plotting (plot, lines, legend) and data manipulation (aggregate, subset)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Reuse helper functions from step 4 when their purpose is clear</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6. Use base R for plotting (plot, lines, legend) and data manipulation (aggregate, subset)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Don't**:</span>
@@ -1231,6 +1440,50 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Invent methods like $get_result(), $execute(), $get()</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Use the magrittr pipe %&gt;%</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> - Use variable name 'pipeline' (use 'pipe' instead to avoid function name conflict)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Skip helper discovery when generating custom code (it's mandatory, not optional)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Write custom utility code without first calling get_helpers to check what exists</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### Understanding Pipeline Internals</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Do**:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> When user asks "how does this pipeline work?" or needs to understand implementation:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1. Call ravepipeline-mcp_tool_pipeline_get_script with pattern to extract</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    relevant sections (e.g., pattern = "^# " for section headers)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2. Call ravepipeline-mcp_tool_pipeline_get_helpers to see available utility functions</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3. Use pattern searches to find specific targets or computational steps:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Section headers: pattern = "^# "</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Target definitions: pattern = "^```\\{rave"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    - Specific keywords: pattern = "wavelet|frequency|baseline"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4. Explain the workflow in plain language based on discovered documentation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Don't**:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Read entire main.Rmd without pattern (will be large and waste tokens)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Assume helper functions don't exist - check first to avoid reinventing</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Guess at pipeline implementation details without checking documentation</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> ### Efficient Code Generation with Helper Discovery</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Do**:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> When generating custom code or data customization for a loaded pipeline:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1. MUST call ravepipeline-mcp_tool_pipeline_get_helpers FIRST (use pattern to filter)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2. Review discovered helper signatures - use them if names suggest relevance</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3. It's acceptable to write custom code if you're unsure about helper use-cases</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4. The discovery step is mandatory, but using helpers is optional based on clarity</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Example: pattern='plot' finds plot_over_time_by_condition(), which clearly suggests</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> its purpose. Use it instead of writing custom plotting code.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> **Don't**:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Generate custom code without calling get_helpers first (mandatory discovery step)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Assume you need to implement everything from scratch</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - Skip helper discovery for code generation scenarios</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ### Progressive Code Generation (Discovery-First Pattern)</span>
@@ -1240,7 +1493,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> When generating R code that works with pipeline results:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Step 1 - DISCOVERY PHASE (Always do this first):</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   1. Load pipeline and run it to generate results</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   2. Call ravepipeline-mcp_get_current_rave_pipeline_info to get targets$Names</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   2. Call ravepipeline-mcp_tool_pipeline_get_info to get targets$Names</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   3. Read specific result: pipe$read("target_name", simplify = FALSE)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   4. Inspect structure: str(result_object) or dim(array_object)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   5. Verify FileArray dimension order, data frame columns, object classes</span>
@@ -1291,7 +1544,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Do**:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1. Start pipeline execution</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2. Poll ravepipeline-mcp_get_current_rave_pipeline_progress every 5 seconds</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2. Poll ravepipeline-mcp_tool_pipeline_get_progress every 5 seconds</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3. Report progress to user: "Processing: 45% complete..."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4. Confirm completion: "Analysis finished successfully!"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
@@ -1374,7 +1627,7 @@ formats</p></dd>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 1. If results fail JSON serialization because the object is simply too large: increase max_size_for_json_output</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 2. If text output is too verbose: reduce max_print_lines</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 3. If you need more detail: increase max_print_lines</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Example: mcp_configure_output_settings(max_size_for_json_output = 51200)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Example: mcp_tool_config_set_outputs(max_size_for_json_output = 51200)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> **Don't**:</span>

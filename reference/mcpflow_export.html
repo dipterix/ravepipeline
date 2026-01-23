@@ -13,7 +13,7 @@ output_dir/tools/."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -116,16 +116,25 @@ default is <code>TRUE</code></p></dd>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Show exported files</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">temp_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "tools/ravepipeline-mcp_configure_output_settings.yaml"         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [2] "tools/ravepipeline-mcp_get_current_rave_pipeline_info.yaml"    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "tools/ravepipeline-mcp_get_current_rave_pipeline_progress.yaml"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4] "tools/ravepipeline-mcp_list_rave_pipelines.yaml"               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "tools/ravepipeline-mcp_load_rave_pipeline.yaml"                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "tools/ravepipeline-mcp_read_current_rave_pipeline_results.yaml"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "tools/ravepipeline-mcp_run_current_rave_pipeline.yaml"         </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] "tools/ravepipeline-mcp_set_current_rave_pipeline_settings.yaml"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "workflows/rave_pipeline_class_guide.md"                        </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "workflows/rave_pipeline_class_guide.yaml"                      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "tools/ravepipeline-mcp_tool_config_set_outputs.yaml"              </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [2] "tools/ravepipeline-mcp_tool_docs_available_vignettes.yaml"        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "tools/ravepipeline-mcp_tool_docs_help_page.yaml"                  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4] "tools/ravepipeline-mcp_tool_docs_package_help_topics.yaml"        </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "tools/ravepipeline-mcp_tool_docs_vignette.yaml"                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [6] "tools/ravepipeline-mcp_tool_pipeline_get_helpers.yaml"            </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "tools/ravepipeline-mcp_tool_pipeline_get_info.yaml"               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] "tools/ravepipeline-mcp_tool_pipeline_get_progress.yaml"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "tools/ravepipeline-mcp_tool_pipeline_get_script.yaml"             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "tools/ravepipeline-mcp_tool_pipeline_get_target_dependencies.yaml"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "tools/ravepipeline-mcp_tool_pipeline_list.yaml"                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [12] "tools/ravepipeline-mcp_tool_pipeline_load.yaml"                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] "tools/ravepipeline-mcp_tool_pipeline_read_results.yaml"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [14] "tools/ravepipeline-mcp_tool_pipeline_run.yaml"                    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [15] "tools/ravepipeline-mcp_tool_pipeline_set_settings.yaml"           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [16] "tools/ravepipeline-mcp_tool_search_package_info.yaml"             </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [17] "tools/ravepipeline-mcp_tool_search_packages.yaml"                 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [18] "workflows/rave_pipeline_class_guide.md"                           </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] "workflows/rave_pipeline_class_guide.yaml"                         </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Cleanup</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/unlink.html" class="external-link">unlink</a></span><span class="op">(</span><span class="va">temp_dir</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>

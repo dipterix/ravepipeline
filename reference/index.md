@@ -38,6 +38,9 @@
   [`logger_error_condition()`](http://dipterix.org/ravepipeline/reference/logger.md)
   : Logger system used by 'RAVE'
 
+- [`mcp_context()`](http://dipterix.org/ravepipeline/reference/mcp_context.md)
+  : Add Context to Chat Messages
+
 - [`mcp_describe()`](http://dipterix.org/ravepipeline/reference/mcp_describe.md)
   : Describe an R object for use in MCP tools
 

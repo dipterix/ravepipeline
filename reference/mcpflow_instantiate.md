@@ -13,6 +13,7 @@ mcpflow_instantiate(
   chat_provider = c("ollama", "openai", "claude", "gemini", "cortex", "azure_openai",
     "bedrock", "databricks", "github", "groq", "perplexity", "snowflake", "vllm"),
   chat_args = list(),
+  additional_tools = NULL,
   on_tool_request = NULL,
   on_tool_result = NULL,
   use_job_validator = FALSE,
@@ -49,6 +50,12 @@ mcpflow_instantiate(
   A named list of additional arguments passed to the `'ellmer'`
   constructor (e.g., `model`, `api_key`, `base_url`). Only used when
   `chat` is `NULL`.
+
+- additional_tools:
+
+  A list or vector of MCP tools in addition to what workflow implicates,
+  to be added to the chat; can be strings or a list of MCP tool objects;
+  default is `NULL` (default)
 
 - on_tool_request:
 

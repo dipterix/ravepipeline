@@ -34,9 +34,9 @@ an error if tool not found.
 
 ``` r
 # Find tool from package
-tool_path <- mcptool_path("ravepipeline-mcp_list_rave_pipelines")
+tool_path <- mcptool_path("ravepipeline-mcp_tool_pipeline_list")
 attr(tool_path, "mcp_definition")
-#> RAVE MCP Tool: ravepipeline-mcp_list_rave_pipelines
+#> RAVE MCP Tool: ravepipeline-mcp_tool_pipeline_list
 #> Parameters: 0
 #> Category: discovery 
 

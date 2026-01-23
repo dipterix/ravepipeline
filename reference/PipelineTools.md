@@ -21,7 +21,8 @@ See `type`
 
 A table of the progress
 
-Nothing
+a list where the names are target names and values are the corresponding
+dependence
 
 ancestor target names (including `names`)
 
@@ -39,6 +40,9 @@ A list of the preferences. If `simplify` is true and length if keys is
 1, then returns the value of that preference
 
 logical whether the keys exist
+
+characters if the source document (`main.Rmd`) is found, otherwise
+`NULL`
 
 A job identification number, see
 [`resolve_job`](http://dipterix.org/ravepipeline/reference/rave-pipeline-jobs.md)
@@ -140,6 +144,8 @@ for querying job details
 - [`PipelineTools$get_preferences()`](#method-PipelineTools-get_preferences)
 
 - [`PipelineTools$has_preferences()`](#method-PipelineTools-has_preferences)
+
+- [`PipelineTools$source_document()`](#method-PipelineTools-source_document)
 
 - [`PipelineTools$generate_report()`](#method-PipelineTools-generate_report)
 
@@ -824,6 +830,16 @@ whether pipeline has preference keys
 - `...`:
 
   passed to internal methods
+
+------------------------------------------------------------------------
+
+### Method `source_document()`
+
+obtain the source document
+
+#### Usage
+
+    PipelineTools$source_document()
 
 ------------------------------------------------------------------------
 

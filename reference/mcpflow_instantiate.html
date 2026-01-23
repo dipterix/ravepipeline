@@ -11,7 +11,7 @@ registered. Optionally attaches validation callbacks to track job execution."></
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +55,7 @@ registered. Optionally attaches validation callbacks to track job execution.</p>
 <span>  chat_provider <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ollama"</span>, <span class="st">"openai"</span>, <span class="st">"claude"</span>, <span class="st">"gemini"</span>, <span class="st">"cortex"</span>, <span class="st">"azure_openai"</span>,</span>
 <span>    <span class="st">"bedrock"</span>, <span class="st">"databricks"</span>, <span class="st">"github"</span>, <span class="st">"groq"</span>, <span class="st">"perplexity"</span>, <span class="st">"snowflake"</span>, <span class="st">"vllm"</span><span class="op">)</span>,</span>
 <span>  chat_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  additional_tools <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_tool_request <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  on_tool_result <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  use_job_validator <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -92,6 +93,12 @@ new chat. One of <code>"ollama"</code> (default), <code>"openai"</code>,
 <dd><p>A named list of additional arguments passed to the
 <code>'ellmer'</code> constructor (e.g., <code>model</code>, <code>api_key</code>,
 <code>base_url</code>). Only used when <code>chat</code> is <code>NULL</code>.</p></dd>
+
+
+<dt id="arg-additional-tools">additional_tools<a class="anchor" aria-label="anchor" href="#arg-additional-tools"></a></dt>
+<dd><p>A list or vector of MCP tools in addition to
+what workflow implicates, to be added to the chat; can be strings or
+a list of MCP tool objects; default is <code>NULL</code> (default)</p></dd>
 
 
 <dt id="arg-on-tool-request">on_tool_request<a class="anchor" aria-label="anchor" href="#arg-on-tool-request"></a></dt>

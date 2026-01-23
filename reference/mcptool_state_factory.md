@@ -168,7 +168,7 @@ get(".session_info", state1)
 #> [1] stats     graphics  grDevices utils     datasets  methods   base     
 #> 
 #> other attached packages:
-#> [1] ravepipeline_0.0.3.7
+#> [1] ravepipeline_0.0.3.8
 #> 
 #> loaded via a namespace (and not attached):
 #>  [1] xfun_0.56         bslib_0.9.0       httr2_1.2.2       htmlwidgets_1.6.4

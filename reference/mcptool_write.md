@@ -35,12 +35,12 @@ Invisibly returns the input tool object
 
 ``` r
 # Load a tool from package
-path <- mcptool_path("ravepipeline-mcp_list_rave_pipelines")
+path <- mcptool_path("ravepipeline-mcp_tool_pipeline_list")
 tool <- mcptool_read(path)
 
 # Write as YAML to temporary file
 mcptool_write(tool, stdout(), method = "yaml")
-#> name: ravepipeline-mcp_list_rave_pipelines
+#> name: ravepipeline-mcp_tool_pipeline_list
 #> description: ~
 #> parameters:
 #>   type: object
@@ -49,7 +49,7 @@ mcptool_write(tool, stdout(), method = "yaml")
 
 # Write as Markdown
 mcptool_write(tool, stdout(), method = "markdown")
-#> # ravepipeline-mcp_list_rave_pipelines
+#> # ravepipeline-mcp_tool_pipeline_list
 #> 
 #> ## Parameters
 #> 

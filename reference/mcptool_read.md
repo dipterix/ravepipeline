@@ -30,7 +30,7 @@ cannot be read or parsed.
 
 ``` r
 path <- system.file(
-  "mcp", "tools", "ravepipeline-mcp_list_rave_pipelines.yaml",
+  "mcp", "tools", "ravepipeline-mcp_tool_pipeline_list.yaml",
   package = "ravepipeline"
 )
 
@@ -38,7 +38,7 @@ tool_def <- mcptool_read(path)
 
 # Check tool name and description
 tool_def$name
-#> [1] "ravepipeline-mcp_list_rave_pipelines"
+#> [1] "ravepipeline-mcp_tool_pipeline_list"
 tool_def$description
 #> NULL
 ```
