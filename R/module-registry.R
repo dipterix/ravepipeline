@@ -235,13 +235,13 @@ get_modules_registries <- function(update = NA) {
   conf_root <- ravepipeline_config_dir()
   registry_path <- file.path(conf_root, "module-registry.yaml")
   updated <- TRUE
-  if(!isFALSE(update)) {
-    if(!is.na(update) && is.character(update)) {
+  if (!isFALSE(update)) {
+    if (!is.na(update) && is.character(update)) {
       url <- update
     } else {
       url <- "https://raw.githubusercontent.com/dipterix/ravepipeline/master/inst/module-registry.yaml"
     }
-  } else if(file.exists(registry_path)){
+  } else if (file.exists(registry_path)) {
     updated <- FALSE
     url <- registry_path
   } else {
@@ -261,11 +261,11 @@ get_modules_registries <- function(update = NA) {
   regs <- validate_modules_registries(regs, verbose = FALSE)
 
   # save
-  if( updated ) {
+  if ( updated ) {
     dir_create2(conf_root)
     save_yaml(regs, file = registry_path)
-  } else if(isTRUE(update)) {
-    stop("Failed to update the RAVE module registry: Cannot access to \n  https://raw.githubusercontent.com/beauchamplab/raveio/master/inst/module-registry.yaml")
+  } else if (isTRUE(update)) {
+    stop("Failed to update the RAVE module registry: Cannot access \n  https://raw.githubusercontent.com/beauchamplab/raveio/master/inst/module-registry.yaml")
   }
 
   regs

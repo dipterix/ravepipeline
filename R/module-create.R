@@ -52,9 +52,10 @@
 #'
 #' @export
 module_add <- function(
-    module_id, module_label, path = ".", type = c("default", "bare", "scheduler", "python"), ...,
+    module_id, module_label, path = ".", 
+    type = c("default", "bare", "scheduler", "python"), ...,
     pipeline_name = module_id, overwrite = FALSE
-){
+) {
 
   force(module_id)
   force(module_label)
@@ -66,14 +67,18 @@ module_add <- function(
   module_path <- file.path(module_root, pipeline_name)
 
   # TODO: Add template-bare
-  template_root <- system.file("rave-modules", "template", package = "ravepipeline")
+  template_root <- system.file(
+    "rave-modules",
+    "template",
+    package = "ravepipeline"
+  )
 
-  stopifnot(template_root != '')
+  stopifnot(template_root != "")
 
-  template_type <- switch (
+  template_type <- switch(
     type,
-    'bare' = "rmd-bare",
-    'scheduler' = "rmd-scheduler",
+    "bare" = "rmd-bare",
+    "scheduler" = "rmd-scheduler",
     "python" = "rmd-python",
     "rmd"
   )
@@ -92,7 +97,7 @@ module_add <- function(
                    full.names = FALSE, recursive = TRUE,
                    include.dirs = FALSE, no.. = TRUE)
 
-  for(f in fs) {
+  for (f in fs) {
     s <- readLines(file.path(template_root, f))
     s <- gsub("\\{\\{[ ]*PIPELINE_NAME[ ]*\\}\\}", pipeline_name, s)
     s <- gsub("\\{\\{[ ]*MODULE_ID[ ]*\\}\\}", module_id, s)
@@ -103,7 +108,7 @@ module_add <- function(
 
   # add to module.yaml
   yaml <- file.path(path, "modules.yaml")
-  if(file.exists(yaml)) {
+  if (file.exists(yaml)) {
     yaml_settings <- as.list(load_yaml(yaml))
     backup_file(yaml)
   } else {
@@ -134,11 +139,17 @@ module_dev_create <- function(
   catgl("Creating RAVE 2.0 Repository -", path)
 
   template_path <- ravepipeline_data_dir("rave-pipelines")
-  if(!dir.exists(template_path)) {
+  if (!dir.exists(template_path)) {
     ravepipeline_finalize_installation(upgrade = "never", async = FALSE)
   }
 
-  fs <- list.files(template_path, recursive = FALSE, all.files = FALSE, no.. = TRUE, include.dirs = TRUE)
+  fs <- list.files(
+    template_path,
+    recursive = FALSE,
+    all.files = FALSE,
+    no.. = TRUE,
+    include.dirs = TRUE
+  )
   fs <- fs[!grepl("\\.Rproj$", fs, perl = TRUE)]
 
   dir_create2(path)
@@ -148,7 +159,7 @@ module_dev_create <- function(
   file.copy(file.path(template_path, fs), path, recursive = TRUE)
 
   writeLines(
-    con = file.path(path, '.Rprofile'),
+    con = file.path(path, ".Rprofile"),
     c(
       'message("Welcome to the Module Developement Project for RAVE 2.0.")',
       'message("  Your module has been created at `modules/` folder")',
@@ -158,7 +169,7 @@ module_dev_create <- function(
   )
 
   module_id <- args[["module_id"]]
-  if(isTRUE(is.character(module_id)) && nchar(module_id) > 0) {
+  if (isTRUE(is.character(module_id)) && nchar(module_id) > 0) {
     module_add(path = path, ..., type = "bare", overwrite = TRUE)
   }
 

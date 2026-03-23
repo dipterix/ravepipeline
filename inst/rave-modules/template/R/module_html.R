@@ -1,10 +1,9 @@
 
 
-module_html <- function(){
+module_html <- function() {
 
   shiny::fluidPage(
     shiny::fluidRow(
-
       shiny::column(
         width = 3L,
         shiny::div(
@@ -20,7 +19,6 @@ module_html <- function(){
             baseline_choices$ui_func(),
 
             comp_analysis_ranges$ui_func()
-
           )
         )
       ),
@@ -32,17 +30,20 @@ module_html <- function(){
           shiny::column(
             width = 12L,
             ravedash::output_card(
-              'Collapsed over frequency',
-              class_body = "no-padding fill-width height-450 min-height-450 resize-vertical",
+              "Collapsed over frequency",
+              class_body = "no-padding fill-width height-450 min-height-450 resize-vertical", # nolint: line_length_linter.
               shiny::div(
-                class = 'position-relative fill',
-                shiny::plotOutput(ns("collapse_over_trial"), width = '100%', height = "100%")
+                class = "position-relative fill",
+                shiny::plotOutput(
+                  ns("collapse_over_trial"),
+                  width = "100%",
+                  height = "100%"
+                )
               )
             )
           )
         )
       )
-
     )
   )
 }

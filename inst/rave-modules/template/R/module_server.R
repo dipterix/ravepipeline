@@ -1,5 +1,5 @@
 
-module_server <- function(input, output, session, ...){
+module_server <- function(input, output, session, ...) {
 
 
   # Local reactive values, used to store reactive event triggers
@@ -26,17 +26,22 @@ module_server <- function(input, output, session, ...){
   shiny::bindEvent(
     ravedash::safe_observe({
 
-      # Invalidate previous results (stop them because they are no longer needed)
-      if(!is.null(local_data$results)) {
+      # Invalidate previous results (stop as they are no longer needed)
+      if (!is.null(local_data$results)) {
         local_data$results$invalidate()
         ravedash::logger("Invalidating previous run", level = "trace")
       }
 
 
       # Collect input data
-      settings <- component_container$collect_settings(ids = c(
-        "electrode_text", "baseline_choices", "condition_groups", "analysis_ranges"
-      ))
+      settings <- component_container$collect_settings(
+        ids = c(
+          "electrode_text",
+          "baseline_choices",
+          "condition_groups",
+          "analysis_ranges"
+        )
+      )
 
       pipeline$set_settings(.list = settings)
 
@@ -70,21 +75,21 @@ module_server <- function(input, output, session, ...){
 
       local_data$results <- results
       ravedash::logger("Scheduled: ", pipeline$pipeline_name,
-                       level = 'debug', reset_timer = TRUE)
+                       level = "debug", reset_timer = TRUE)
 
       results$promise$then(
-        onFulfilled = function(...){
+        onFulfilled = function(...) {
           ravedash::logger("Fulfilled: ", pipeline$pipeline_name,
-                           level = 'debug')
+                           level = "debug")
           shidashi::clear_notifications(class = "pipeline-error")
           local_reactives$update_outputs <- Sys.time()
           return(TRUE)
         },
-        onRejected = function(e, ...){
+        onRejected = function(e, ...) {
           msg <- paste(e$message, collapse = "\n")
-          if(inherits(e, "error")){
-            ravedash::logger(msg, level = 'error')
-            ravedash::logger(traceback(e), level = 'error', .sep = "\n")
+          if (inherits(e, "error")) {
+            ravedash::logger(msg, level = "error")
+            ravedash::logger(traceback(e), level = "error", .sep = "\n")
             shidashi::show_notification(
               message = msg,
               title = "Error while running pipeline", type = "danger",
@@ -107,21 +112,34 @@ module_server <- function(input, output, session, ...){
   shiny::bindEvent(
     ravedash::safe_observe({
       loaded_flag <- ravedash::watch_data_loaded()
-      if(!loaded_flag){ return() }
-      new_repository <- pipeline$read("repository")
-      if(!inherits(new_repository, "rave_prepare_power")){
-        ravedash::logger("Repository read from the pipeline, but it is not an instance of `rave_prepare_power`. Abort initialization", level = "warning")
+      if (!loaded_flag) {
         return()
       }
-      ravedash::logger("Repository read from the pipeline; initializing the module UI", level = "debug")
+      new_repository <- pipeline$read("repository")
+      if (!inherits(new_repository, "rave_prepare_power")) {
+        ravedash::logger(
+          "Repository read from the pipeline, but it is not an instance of `rave_prepare_power`. Abort initialization", # nolint: line_length_linter.
+          level = "warning"
+        )
+        return()
+      }
+      ravedash::logger(
+        "Repository read from the pipeline; initializing the module UI",
+        level = "debug"
+      )
 
       # check if the repository has the same subject as current one
       old_repository <- component_container$data$repository
-      if(inherits(old_repository, "rave_prepare_power")){
-
-        if( !attr(loaded_flag, "force") &&
-            identical(old_repository$signature, new_repository$signature) ){
-          ravedash::logger("The repository data remain unchanged ({new_repository$subject$subject_id}), skip initialization", level = "debug", use_glue = TRUE)
+      if (inherits(old_repository, "rave_prepare_power")) {
+        if (
+          !attr(loaded_flag, "force") &&
+            identical(old_repository$signature, new_repository$signature)
+        ) {
+          ravedash::logger(
+            "The repository data remain unchanged ({new_repository$subject$subject_id}), skip initialization", # nolint: line_length_linter.
+            level = "debug",
+            use_glue = TRUE
+          )
           return()
         }
       }
@@ -157,8 +175,8 @@ module_server <- function(input, output, session, ...){
     )
     shiny::validate(
       shiny::need(
-          isTRUE(local_data$results$valid),
-        message = "One or more errors while executing pipeline. Please check the notification."
+        isTRUE(local_data$results$valid),
+        message = "One or more errors while executing pipeline. Please check the notification." # nolint: line_length_linter.
       )
     )
 
@@ -169,7 +187,11 @@ module_server <- function(input, output, session, ...){
     frequencies <- repository$frequency
 
     data <- collapsed_data[[1]]$collasped$range_1
-    image(t(data$freq_time), x = time_points[data$cube_index$Time], y = frequencies[data$cube_index$Frequency])
+    image(
+      t(data$freq_time),
+      x = time_points[data$cube_index$Time],
+      y = frequencies[data$cube_index$Frequency]
+    )
 
   })
 
