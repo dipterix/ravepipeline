@@ -35,6 +35,7 @@ URL: https://dipterix.org/ravepipeline/, https://rave.wiki
 BugReports: https://github.com/dipterix/ravepipeline/issues
 Imports: 
     stats,
+    tools,
     utils,
     base64enc,
     callr,
