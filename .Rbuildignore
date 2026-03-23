@@ -9,3 +9,4 @@
 ^CRAN-SUBMISSION$
 ^inst/for_test$
 ^adhoc$
+^\.vscode$
