@@ -99,6 +99,7 @@ cat(
 #> modules/mylab_my_first_module/R/module_server.R
 #> modules/mylab_my_first_module/R/shared-scripts.R
 #> modules/mylab_my_first_module/_targets.yaml
+#> modules/mylab_my_first_module/agents.yaml
 #> modules/mylab_my_first_module/common.R
 #> modules/mylab_my_first_module/configure.R
 #> modules/mylab_my_first_module/debug.R
