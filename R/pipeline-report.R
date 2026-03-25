@@ -23,17 +23,17 @@ pipeline_report_list <- function(
 
   # check the possible reports
   report_config <- file.path(pipe_dir, "report-list.yaml")
-  if(!file.exists(report_config)) {
+  if (!file.exists(report_config)) {
     return(list())
   }
   report_config <- as.list(yaml::read_yaml(report_config))
 
   report_config <- lapply(report_config, function(item) {
 
-    if(is.character(item)) {
-      if(length(item) != 1 || is.na(item) || !nzchar(item)) { return(NULL) }
+    if (is.character(item)) {
+      if (length(item) != 1 || is.na(item) || !nzchar(item)) { return(NULL) }
       entry_path <- file.path(pipe_dir, item)
-      if(!file.exists(entry_path)) { return(NULL) }
+      if (!file.exists(entry_path)) { return(NULL) }
       return(list(
         name = basename(entry_path),
         label = basename(entry_path),
@@ -41,17 +41,17 @@ pipeline_report_list <- function(
         fork_policy = "default"
       ))
     }
-    if(!is.list(item) || length(item$entry) != 1 || is.na(item$entry) || !is.character(item$entry)) { return(NULL) }
+    if (!is.list(item) || length(item$entry) != 1 || is.na(item$entry) || !is.character(item$entry)) { return(NULL) }
     entry_path <- file.path(pipe_dir, item$entry)
-    if(!file.exists(entry_path)) { return(NULL) }
+    if (!file.exists(entry_path)) { return(NULL) }
 
-    if(is.null(item$name)) {
+    if (is.null(item$name)) {
       item$name <- basename(entry_path)
     }
-    if(is.null(item$label)) {
+    if (is.null(item$label)) {
       item$label <- basename(entry_path)
     }
-    if(length(item$fork_policy) == 0) {
+    if (length(item$fork_policy) == 0) {
       item$fork_policy <- "default"
     }
     return(item)
@@ -72,13 +72,13 @@ pipeline_report_by_name <- function(
   report_list <- pipeline_report_list(pipe_dir = pipe_dir)
   pipe_dir <- report_list$pipeline_path
   reports <- report_list$report_configurations
-  if(!length(reports)) {
+  if (!length(reports)) {
     stop("This pipeline does not have any report template available.")
   }
   report_names <- unlist(lapply(reports, "[[", "name"))
   report_idx <- which(report_names %in% name)
 
-  if(!length(report_idx)) {
+  if (!length(report_idx)) {
     stop("Unable to find report ", sQuote(name), ". Available reports are: ", paste(sQuote(report_names), collapse = ", "), ".")
   }
 
@@ -122,25 +122,25 @@ pipeline_report_generate <- function(
   attributes$report_filename <- report_filename
   attributes <- as.list(attributes[!names(attributes) %in% ""])
 
-  if(length(output_dir) != 1 || is.na(output_dir)) {
+  if (length(output_dir) != 1 || is.na(output_dir)) {
     output_dir <- file.path(pipe_dir, "reports")
   } else {
     output_dir <- file.path(output_dir, report_filename)
   }
 
-  if(length(work_dir) != 1 || is.na(work_dir)) {
+  if (length(work_dir) != 1 || is.na(work_dir)) {
     # work_dir <- file.path(cache_root(), "ravepipeline-reports", report_filename)
     work_dir <- file.path(tempdir(), report_filename)
   }
   dir_create2(work_dir)
 
   fork_policy <- report$fork_policy
-  if(length(fork_policy) == 1) {
+  if (length(fork_policy) == 1) {
     pipeline <- pipeline$fork(path = file.path(work_dir, "pipeline"))
   }
 
   report_template_path <- file.path(pipeline$pipeline_path, report$entry)
-  if(!file.exists(report_template_path)) {
+  if (!file.exists(report_template_path)) {
     report_template_path_orig <- file.path(report$pipeline_path, report$entry)
     file.copy(report_template_path_orig, report_template_path, overwrite = TRUE)
   }
@@ -152,12 +152,12 @@ pipeline_report_generate <- function(
   # )
 
   custom_css <- "report_styles.css"
-  if(!file.exists(file.path(pipeline$pipeline_path, custom_css))) {
+  if (!file.exists(file.path(pipeline$pipeline_path, custom_css))) {
     custom_css <- NULL
   }
 
   custom_js <- "report_script.js"
-  if(!file.exists(file.path(pipeline$pipeline_path, custom_js))) {
+  if (!file.exists(file.path(pipeline$pipeline_path, custom_js))) {
     custom_js <- NULL
   }
 
@@ -188,15 +188,15 @@ pipeline_report_generate <- function(
     all_files = FALSE
   ))
 
-  if(identical(output_format, "auto")) {
+  if (identical(output_format, "auto")) {
     # output_format <- "rmarkdown::html_document"
-    if(package_installed("distill")) {
+    if (package_installed("distill")) {
       output_format <- "distill::distill_article"
     } else {
       output_format <- "rmarkdown::html_document"
     }
   }
-  if(identical(output_format, "distill::distill_article")) {
+  if (identical(output_format, "distill::distill_article")) {
     output_options$code_folding <- !identical(code_folding, "show")
   }
 
@@ -215,7 +215,7 @@ pipeline_report_generate <- function(
   envvars <- list()
   rmarkdown <- asNamespace("rmarkdown")
   pandoc <- rmarkdown$pandoc_exec()
-  if(length(pandoc) && !is.na(pandoc[[1]]) && file.exists(pandoc[[1]])) {
+  if (length(pandoc) && !is.na(pandoc[[1]]) && file.exists(pandoc[[1]])) {
     envvars$RSTUDIO_PANDOC <- dirname(pandoc[[1]])
   }
 
@@ -232,7 +232,7 @@ pipeline_report_generate <- function(
 
       rmarkdown <- asNamespace("rmarkdown")
 
-      if(length(call_args$output_format) == 1 && is.character(call_args$output_format)) {
+      if (length(call_args$output_format) == 1 && is.character(call_args$output_format)) {
         tryCatch(
           {
             output_format_txt <- call_args$output_format
@@ -264,7 +264,7 @@ pipeline_report_generate <- function(
       output_dir <- normalizePath(output_dir, winslash = "/")
 
       # To avoid same-path copy
-      if(output_dir != source_path) {
+      if (output_dir != source_path) {
         try({
           file.copy(
             from = source_path,
