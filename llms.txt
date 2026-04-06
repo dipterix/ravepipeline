@@ -244,9 +244,3 @@ power_explorer$visualize(glimpse = TRUE, aspect_ratio = 10)
   [`lapply_jobs()`](http://dipterix.org/ravepipeline/reference/with_rave_parallel.md)
   : Internal parallel functions
 
-# Articles
-
-### All vignettes
-
-- [Using RAVE Pipelines
-  Programmatically](http://dipterix.org/ravepipeline/articles/using-pipeline-class.md):
