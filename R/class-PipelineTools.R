@@ -15,7 +15,8 @@ PipelineTools <- R6::R6Class(
     .settings_external_inputs = list(),
     .description = NULL,
     .preferences = NULL,
-    .task = NULL
+    .task = NULL,
+    .task_flag = NULL
   ),
 
   public = list(
@@ -129,7 +130,14 @@ PipelineTools <- R6::R6Class(
       # initialize shiny extended task
       if (package_installed("shiny")) {
 
-        task_impl <- function(names = NULL) {
+        task_impl <- function(names, flag) {
+          if (!identical(private$.task_flag, flag)) {
+            # task is obsolete
+            return(promises::promise_reject(structure(
+              list(message = "The pipeline task is cancelled/outdated. Abort."),
+              class = c("ravepipeline_task_abort", "error", "condition")
+            )))
+          }
           job_id <- start_job(
             fun = function(names, path) {
               ravepipeline <- asNamespace('ravepipeline')
@@ -369,12 +377,14 @@ PipelineTools <- R6::R6Class(
     #' }
     run_as_task = function(names = NULL, with_progress = TRUE, check_internals = 0.5, ...) {
 
+      flag <- Sys.time()
+      private$.task_flag <- flag
       task <- private$.task
 
       if (is.null(task)) {
         stop("`pipeline$run_as_task()` must run with package `shiny` installed")
       }
-      task$invoke(names = names)
+      task$invoke(names = names, flag = flag)
 
       if (with_progress) {
 
@@ -398,6 +408,15 @@ PipelineTools <- R6::R6Class(
         current <- 0
 
         task_check <- function() {
+
+          # check if the task is up-to-date
+          if (!identical(private$.task_flag, flag)) {
+            if (!progress$is_closed()) {
+              progress$close()
+            }
+            return()
+          }
+
           status <- shiny::isolate(task$status())
           finished <- FALSE
           switch(
@@ -415,32 +434,33 @@ PipelineTools <- R6::R6Class(
                 } else {
                   targets <- "..."
                 }
+                if (n_finished >= current) {
+                  amount <- n_finished - current
+                  current <<- n_finished
+                } else {
+                  amount <- 0
+                }
                 progress$inc(detail = sprintf("Building target %s", targets),
-                             amount = n_finished - current)
-                current <<- n_finished
+                             amount = amount)
               }
             },
             {
               finished <- TRUE
               if (status == "error") {
                 # get errorred progress
-                err_table <- tryCatch({
-                  self$with_activated({
-                    targets::tar_meta(fields = "error", complete_only = TRUE)
-                  })
+                err <- tryCatch({
+                  shiny::isolate(task$result())
                 }, error = function(e) {
-                  details <- self$progress(method = "details")
-                  err_names <- details$name[details$progress == "errored"]
-                  data.frame(
-                    name = c(err_names, "unknown")[[1]],
-                    error = "unknown"
-                  )
+                  e
                 })
+
+                details <- self$progress(method = "details")
+                err_name <- c(details$name[details$progress == "errored"], "Unknown")[[1]]
 
                 tryCatch(
                   {
                     logger(
-                      "Pipeline `{self$pipeline_name}` finished with status `{status}` while building target `{err_table$name}`, reason: {err_table$error}",
+                      "Pipeline `{self$pipeline_name}` finished with status `{status}` while building `{err_name}` target. {err$message}",
                       level = "error",
                       use_glue = TRUE
                     )
