@@ -15,6 +15,9 @@ A
 instance if `as_promise` or `async` is true; otherwise a list of values
 for input `names`
 
+`shiny` extended task; see
+[`ExtendedTask`](https://rdrr.io/pkg/shiny/man/ExtendedTask.html)
+
 An environment of shared variables
 
 See `type`
@@ -95,6 +98,10 @@ for querying job details
 
   available reports and their configurations
 
+- `task`:
+
+  shiny task object, see method `'run_ask_task'`
+
 ## Methods
 
 ### Public methods
@@ -112,6 +119,8 @@ for querying job details
 - [`PipelineTools$read()`](#method-PipelineTools-read)
 
 - [`PipelineTools$run()`](#method-PipelineTools-run)
+
+- [`PipelineTools$run_as_task()`](#method-PipelineTools-run_as_task)
 
 - [`PipelineTools$eval()`](#method-PipelineTools-eval)
 
@@ -341,6 +350,56 @@ run the pipeline
   [`pipeline_run`](http://dipterix.org/ravepipeline/reference/rave-pipeline.md)
   if `as_promise` is true, otherwise these arguments will be passed to
   `pipeline_run_bare`
+
+------------------------------------------------------------------------
+
+### Method `run_as_task()`
+
+Run pipeline as `shiny` extended task, requires package shiny
+
+#### Usage
+
+    PipelineTools$run_as_task(
+      names = NULL,
+      with_progress = TRUE,
+      check_internals = 0.5,
+      ...
+    )
+
+#### Arguments
+
+- `names`:
+
+  target names to build, see method `'run'`
+
+- `with_progress`:
+
+  whether to show progress; default is true
+
+- `check_internals, `:
+
+  progress update frequency in seconds; default is 0.5 seconds
+
+- `...`:
+
+  arguments passed to
+  [`rave_progress`](http://dipterix.org/ravepipeline/reference/rave_progress.md)
+
+#### Examples
+
+
+    # pipeline <- ... (initialize pipeline somewhere)
+
+    # runs within shiny
+    server <- function(input, output, session) {
+
+      pipeline$run_as_task()
+
+      shiny::observe({
+        shiny::showNotification(pipeline$task$status())
+      })
+
+    }
 
 ------------------------------------------------------------------------
 
@@ -903,6 +962,25 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
+## ------------------------------------------------
+## Method `PipelineTools$run_as_task`
+## ------------------------------------------------
+
+
+
+# pipeline <- ... (initialize pipeline somewhere)
+
+# runs within shiny
+server <- function(input, output, session) {
+
+  pipeline$run_as_task()
+
+  shiny::observe({
+    shiny::showNotification(pipeline$task$status())
+  })
+
+}
+
 ## ------------------------------------------------
 ## Method `PipelineTools$get_preferences`
 ## ------------------------------------------------

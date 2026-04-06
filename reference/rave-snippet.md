@@ -43,7 +43,7 @@ load_snippet(topic, local = TRUE)
 ``` r
 # This example script requires running in an interactive session
 
-if(interactive()){
+if(interactive()) {
 
 # ---- Example 1: Install built-in pipeline snippets ------------
 update_local_snippet(force = TRUE)
