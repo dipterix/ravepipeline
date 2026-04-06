@@ -11,6 +11,8 @@ The values of the targets
 A \code{\link{PipelineResult}} instance if \code{as_promise}
 or \code{async} is true; otherwise a list of values for input \code{names}
 
+\code{shiny} extended task; see \code{\link[shiny]{ExtendedTask}}
+
 An environment of shared variables
 
 See \code{type}
@@ -49,6 +51,25 @@ Class definition for 'RAVE' pipelines
 Class definition for 'RAVE' pipelines
 }
 \examples{
+
+## ------------------------------------------------
+## Method `PipelineTools$run_as_task`
+## ------------------------------------------------
+
+
+
+# pipeline <- ... (initialize pipeline somewhere)
+
+# runs within shiny
+server <- function(input, output, session) {
+
+  pipeline$run_as_task()
+
+  shiny::observe({
+    shiny::showNotification(pipeline$task$status())
+  })
+
+}
 
 ## ------------------------------------------------
 ## Method `PipelineTools$get_preferences`
@@ -105,6 +126,8 @@ signatures of data and commands}
 \item{\code{pipeline_name}}{the code name of the pipeline}
 
 \item{\code{available_reports}}{available reports and their configurations}
+
+\item{\code{task}}{shiny task object, see method \code{'run_ask_task'}}
 }
 \if{html}{\out{</div>}}
 }
@@ -118,6 +141,7 @@ signatures of data and commands}
 \item \href{#method-PipelineTools-get_settings}{\code{PipelineTools$get_settings()}}
 \item \href{#method-PipelineTools-read}{\code{PipelineTools$read()}}
 \item \href{#method-PipelineTools-run}{\code{PipelineTools$run()}}
+\item \href{#method-PipelineTools-run_as_task}{\code{PipelineTools$run_as_task()}}
 \item \href{#method-PipelineTools-eval}{\code{PipelineTools$eval()}}
 \item \href{#method-PipelineTools-shared_env}{\code{PipelineTools$shared_env()}}
 \item \href{#method-PipelineTools-python_module}{\code{PipelineTools$python_module()}}
@@ -317,6 +341,57 @@ these arguments will be passed to \code{pipeline_run_bare}}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipelineTools-run_as_task"></a>}}
+\if{latex}{\out{\hypertarget{method-PipelineTools-run_as_task}{}}}
+\subsection{Method \code{run_as_task()}}{
+Run pipeline as \code{shiny} extended task,
+requires package \pkg{shiny}
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$run_as_task(
+  names = NULL,
+  with_progress = TRUE,
+  check_internals = 0.5,
+  ...
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{names}}{target names to build, see method \code{'run'}}
+
+\item{\code{with_progress}}{whether to show progress; default is true}
+
+\item{\code{check_internals, }}{progress update frequency in seconds;
+default is 0.5 seconds}
+
+\item{\code{...}}{arguments passed to \code{\link{rave_progress}}}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{
+
+# pipeline <- ... (initialize pipeline somewhere)
+
+# runs within shiny
+server <- function(input, output, session) {
+
+  pipeline$run_as_task()
+
+  shiny::observe({
+    shiny::showNotification(pipeline$task$status())
+  })
+
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-eval"></a>}}

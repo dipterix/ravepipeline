@@ -10,3 +10,4 @@
 ^inst/for_test$
 ^adhoc$
 ^\.vscode$
+^\.lintr$

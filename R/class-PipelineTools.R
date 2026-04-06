@@ -14,7 +14,8 @@ PipelineTools <- R6::R6Class(
     .settings = NULL,
     .settings_external_inputs = list(),
     .description = NULL,
-    .preferences = NULL
+    .preferences = NULL,
+    .task = NULL
   ),
 
   public = list(
@@ -124,6 +125,35 @@ PipelineTools <- R6::R6Class(
       })
 
       private$.description <- descr
+
+      # initialize shiny extended task
+      if (package_installed("shiny")) {
+
+        task_impl <- function(names = NULL) {
+          job_id <- start_job(
+            fun = function(names, path) {
+              ravepipeline <- asNamespace('ravepipeline')
+              self <- ravepipeline$pipeline_from_path(path)
+              self$run(
+                names = names,
+                async = FALSE,
+                as_promise = FALSE,
+                scheduler = "none",
+                type = "vanilla",
+                return_values = FALSE
+              )
+            },
+            fun_args  = list(names = names, path = self$pipeline_path),
+            packages = "ravepipeline",
+            method = "callr",
+            ensure_init = TRUE,
+            name = sprintf("Running pipeline `%s`", self$pipeline_name)
+          )
+          promises::as.promise(job_id)
+        }
+
+        private$.task <- shiny::ExtendedTask$new(task_impl)
+      }
 
     },
 
@@ -312,6 +342,130 @@ PipelineTools <- R6::R6Class(
       }
       eval(expr)
 
+    },
+
+    #' @description Run pipeline as `shiny` extended task,
+    #' requires package \pkg{shiny}
+    #' @param names target names to build, see method \code{'run'}
+    #' @param with_progress whether to show progress; default is true
+    #' @param check_internals, progress update frequency in seconds;
+    #' default is 0.5 seconds
+    #' @param ... arguments passed to \code{\link{rave_progress}}
+    #' @returns `shiny` extended task; see \code{\link[shiny]{ExtendedTask}}
+    #' @examples
+    #'
+    #'
+    #' # pipeline <- ... (initialize pipeline somewhere)
+    #'
+    #' # runs within shiny
+    #' server <- function(input, output, session) {
+    #'
+    #'   pipeline$run_as_task()
+    #'
+    #'   shiny::observe({
+    #'     shiny::showNotification(pipeline$task$status())
+    #'   })
+    #'
+    #' }
+    run_as_task = function(names = NULL, with_progress = TRUE, check_internals = 0.5, ...) {
+
+      task <- private$.task
+
+      if (is.null(task)) {
+        stop("`pipeline$run_as_task()` must run with package `shiny` installed")
+      }
+      task$invoke(names = names)
+
+      if (with_progress) {
+
+        check_internals <- as.numeric(check_internals)
+        if (!isTRUE(check_internals > 0)) {
+          check_internals <- 0.5
+        }
+
+        if (!length(names)) {
+          n_targets <- nrow(self$target_table)
+        } else {
+          n_targets <- length(self$target_ancestors(names))
+        }
+        progress <- rave_progress(
+          title = sprintf("Running pipeline `%s`", self$pipeline_name),
+          max = n_targets,
+          shiny_auto_close = FALSE,
+          ...
+        )
+
+        current <- 0
+
+        task_check <- function() {
+          status <- shiny::isolate(task$status())
+          finished <- FALSE
+          switch(
+            status,
+            "initial" = {},
+            "running" = {
+              # not yet ready
+              details <- self$progress(method = "details")
+              if (length(details) > 0) {
+                sel <- details$progress == "dispatched"
+                n_finished <- nrow(details) - (sum(sel) / 2)
+
+                if (any(sel)) {
+                  targets <- paste0("`", details$name[sel], "`", collapse = ", ")
+                } else {
+                  targets <- "..."
+                }
+                progress$inc(detail = sprintf("Building target %s", targets),
+                             amount = n_finished - current)
+                current <<- n_finished
+              }
+            },
+            {
+              finished <- TRUE
+              if (status == "error") {
+                # get errorred progress
+                err_table <- tryCatch({
+                  self$with_activated({
+                    targets::tar_meta(fields = "error", complete_only = TRUE)
+                  })
+                }, error = function(e) {
+                  details <- self$progress(method = "details")
+                  err_names <- details$name[details$progress == "errored"]
+                  data.frame(
+                    name = c(err_names, "unknown")[[1]],
+                    error = "unknown"
+                  )
+                })
+
+                tryCatch(
+                  {
+                    logger(
+                      "Pipeline `{self$pipeline_name}` finished with status `{status}` while building target `{err_table$name}`, reason: {err_table$error}",
+                      level = "error",
+                      use_glue = TRUE
+                    )
+                  }, error = function(e) {
+                    logger("Pipeline finished with status `", status, "`", level = "error")
+                  }
+                )
+              } else {
+                logger("Pipeline finished with status `", status, "`", level = "success")
+              }
+            }
+          )
+
+          if (finished) {
+            if (!progress$is_closed()) {
+              progress$close()
+            }
+          } else {
+            later::later(task_check, delay = check_internals)
+          }
+        }
+        task_check()
+      }
+
+      invisible(task)
     },
 
     #' @description run the pipeline in order; unlike \code{$run()}, this method
@@ -920,6 +1074,11 @@ PipelineTools <- R6::R6Class(
         structure(list(config), names = name)
       })
       unlist(re, recursive = FALSE, use.names = TRUE)
+    },
+
+    #' @field task shiny task object, see method \code{'run_ask_task'}
+    task = function() {
+      private$.task
     }
 
   )
