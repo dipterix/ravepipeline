@@ -7,7 +7,7 @@ docs_package_help_topics <- function(package_name) {
   }
 
   # Check if package exists
-  if(system.file(package = package_name) == "") {
+  if (system.file(package = package_name) == "") {
     stop(sprintf("Package '%s' is not installed or not available", package_name))
   }
 
@@ -46,8 +46,8 @@ docs_help_page <- function(topic, package_name = "") {
   }
 
   if (package_name == "") {
-    if(grepl("[:]+", topic)) {
-      topic <- strsplit(topic, '[:]+', perl = TRUE)[[1]]
+    if (grepl("[:]+", topic)) {
+      topic <- strsplit(topic, "[:]+", perl = TRUE)[[1]]
       package_name <- topic[[1]]
       topic <- topic[[2]]
     } else {

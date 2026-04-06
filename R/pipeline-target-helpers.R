@@ -1,5 +1,5 @@
 get_target_deps <- function(target) {
-  if("deps" %in% names(target$command)) {
+  if ("deps" %in% names(target$command)) {
     return(target$command$deps)
   }
   return(target$deps)

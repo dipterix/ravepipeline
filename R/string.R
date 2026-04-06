@@ -1,28 +1,28 @@
-str2lang_alt <- function (s) {
+str2lang_alt <- function(s) {
   s <- sprintf("quote(%s)", trimws(s))
   eval(parse(text = s))
 }
 
-str2lang <- function (s) {
+str2lang <- function(s) {
   get0("str2lang", envir = baseenv(), ifnotfound = str2lang_alt)(s)
 }
 
 # These functions are available in R 4.0. However, to be backward compatible
-deparse1 <- function(expr, collapse = ' '){
+deparse1 <- function(expr, collapse = " ") {
   paste(deparse(expr), collapse = collapse)
 }
 
-rand_string <- function(length = 51){
+rand_string <- function(length = 51) {
   pid <- as.integer(Sys.getpid())
   now <- as.numeric(Sys.time() - as.POSIXlt(Sys.Date()), units = "secs")
   now <- sprintf("%.24f", now)
   now <- strsplit(now, "\\.")[[1]]
   now2 <- strsplit(now[[2]], "")[[1]]
   now <- as.integer(c(
-    paste(now2[c(1,5,9,13,17,21) + 3], collapse = ""),
-    paste(now2[c(1,5,9,13,17,21) + 2], collapse = ""),
-    paste(now2[c(1,5,9,13,17,21) + 1], collapse = ""),
-    paste(now2[c(1,5,9,13,17,21)], collapse = ""),
+    paste(now2[c(1, 5, 9, 13, 17, 21) + 3], collapse = ""),
+    paste(now2[c(1, 5, 9, 13, 17, 21) + 2], collapse = ""),
+    paste(now2[c(1, 5, 9, 13, 17, 21) + 1], collapse = ""),
+    paste(now2[c(1, 5, 9, 13, 17, 21)], collapse = ""),
     now[[1]]
   ))
   now <- rev(as.integer(now))
@@ -66,7 +66,7 @@ str_to_sentence <- function(x) {
   }, character(1))
 }
 
-cat2 <- function (..., level = "DEBUG", print_level = FALSE, file = "",
+cat2 <- function(..., level = "DEBUG", print_level = FALSE, file = "",
           sep = " ", fill = FALSE, labels = NULL, append = FALSE, end = "\n",
           pal = list(
             DEBUG = "#547783", INFO = "#0DCFDA",
@@ -83,10 +83,10 @@ cat2 <- function (..., level = "DEBUG", print_level = FALSE, file = "",
   if (is.null(.col)) {
     .col <- "#000000"
   }
-  if(is.function(bullet)) {
+  if (is.function(bullet)) {
     bullet <- bullet()
   } else if (length(bullet) == 1) {
-    if(bullet == "auto") {
+    if (bullet == "auto") {
       bullet <- bullet_list[[level]]
       if (is.null(bullet)) {
         bullet <- "arrow_right"
@@ -98,8 +98,7 @@ cat2 <- function (..., level = "DEBUG", print_level = FALSE, file = "",
   if (interactive()) {
     if (use_cli && length(bullet) == 1) {
       cli::cat_bullet(..., col = .col, bullet = bullet)
-    }
-    else {
+    } else {
       col <- cli::make_ansi_style(.col)
       if (print_level) {
         cat("[", level, "]: ", sep = "")
@@ -107,8 +106,7 @@ cat2 <- function (..., level = "DEBUG", print_level = FALSE, file = "",
       cat(col(..., sep = sep), end = end, file = file,
                 fill = fill, labels = labels, append = append)
     }
-  }
-  else {
+  } else {
     cat(..., end)
   }
   if (level == "FATAL") {
@@ -127,22 +125,22 @@ cat2 <- function (..., level = "DEBUG", print_level = FALSE, file = "",
   invisible()
 }
 
-catgl <- function(..., .envir = parent.frame(), level = 'DEBUG', .pal, .capture = FALSE){
+catgl <- function(..., .envir = parent.frame(), level = "DEBUG", .pal, .capture = FALSE) {
   level <- toupper(level)
-  opt_level <- raveio_getopt('verbose_level')
+  opt_level <- raveio_getopt("verbose_level")
   args <- list(...)
   msg <- tryCatch({
     structure(glue::glue(..., .envir = .envir), log_level = level)
-  }, error = function(...){
+  }, error = function(...) {
     s <- args
-    if(length(names(s))){
-      s <- s[names(s) %in% c('', 'sep', 'collapse')]
+    if (length(names(s))) {
+      s <- s[names(s) %in% c("", "sep", "collapse")]
     }
-    s[[length(s) + 1]] <- ''
+    s[[length(s) + 1]] <- ""
 
-    do.call('paste', s)
+    do.call("paste", s)
   })
-  if(
+  if (
     .capture || (
       sum(verbose_levels >= opt_level, na.rm = TRUE) <
       sum(verbose_levels >= level, na.rm = TRUE)
@@ -150,34 +148,34 @@ catgl <- function(..., .envir = parent.frame(), level = 'DEBUG', .pal, .capture 
   ) {
     # opt_level is too high, message is muffled. depending on level
     # return or stop
-    if(level == 'FATAL'){
+    if (level == "FATAL") {
       stop(msg)
     }
     return(invisible(msg))
   }
   call <- match.call()
-  call <- deparse1(call, collapse = '\n')
+  call <- deparse1(call, collapse = "\n")
 
-  # .envir = parent.frame(), level = 'DEBUG', .pal, .capture = FALSE
-  # if(package_installed('ravedash')){
-    ravedash_loglevel <- switch (
+  # .envir = parent.frame(), level = "DEBUG", .pal, .capture = FALSE
+  # if(package_installed("ravedash")) {
+    ravedash_loglevel <- switch(
       level,
       "DEFAULT" = "trace",
       "DEBUG" = "debug",
       "INFO" = "info",
       "WARNING" = "warning",
       "SUCCESS" = "success",
-      'ERROR' = 'error',
-      'FATAL' = 'fatal',
+      "ERROR" = "error",
+      "FATAL" = "fatal",
       { "trace" }
     )
     logger(msg, level = ravedash_loglevel)
     # call_pkg_fun("ravedash", "logger", msg, level = ravedash_loglevel)
-    if(level == 'FATAL') {
+    if (level == "FATAL") {
       stop(msg)
     }
   # } else {
-  #   if(missing(.pal)){
+  #   if (missing(.pal)) {
   #     cat2(msg, level = level)
   #   }else{
   #     cat2(msg, level = level, pal = .pal)
@@ -188,7 +186,7 @@ catgl <- function(..., .envir = parent.frame(), level = 'DEBUG', .pal, .capture 
 }
 
 
-deparse_svec <- function (
+deparse_svec <- function(
     nums,
     connect = "-",
     concatenate = TRUE,
@@ -202,15 +200,14 @@ deparse_svec <- function (
   }
   alag <- seq_len(max(1, max_lag))
   nums <- sort(unique(nums))
-  lg <- c(NA, nums)[seq_len(length(nums))]
+  lg <- c(NA, nums)[seq_along(nums)]
   ind <- nums - lg
   ind[1] <- 0
   ind2 <- c(ind[-1], -1)
   re <- apply(cbind(nums[!ind %in% alag], nums[!ind2 %in% alag]), 1, function(x) {
     if (x[1] == x[2]) {
       as.character(x[1])
-    }
-    else {
+    } else {
       paste(x, collapse = connect)
     }
   })
@@ -221,7 +218,7 @@ deparse_svec <- function (
 }
 
 
-parse_svec <- function (text, sep = ",", connect = "-:|", sort = FALSE, unique = TRUE) {
+parse_svec <- function(text, sep = ",", connect = "-:|", sort = FALSE, unique = TRUE) {
   connect <- unique(unlist(strsplit(connect, "")))
   connect[connect %in% c("|", ":", "~")] <- paste0("\\", connect[connect %in% c("|", ":", "~")])
   if ("-" %in% connect) {
@@ -259,8 +256,7 @@ parse_svec <- function (text, sep = ",", connect = "-:|", sort = FALSE, unique =
       if (length(ss) >= 2) {
         re <- c(re, (ss[1]:ss[2]))
       }
-    }
-    else {
+    } else {
       re <- c(re, as.numeric(ss))
     }
   }
@@ -278,7 +274,7 @@ parse_svec <- function (text, sep = ",", connect = "-:|", sort = FALSE, unique =
 # }
 
 
-safe_urlencode <- function (x) {
+safe_urlencode <- function(x) {
   re <- base64_urlencode(x)
   paste0("==", re)
 }
@@ -288,7 +284,7 @@ safe_urlencode <- function (x) {
 # }
 
 
-safe_urldecode <- function (x) {
+safe_urldecode <- function(x) {
   x <- gsub(x = as.character(x), pattern = "^==", replacement = "")
   base64_urldecode(x)
 }

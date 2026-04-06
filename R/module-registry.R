@@ -87,7 +87,7 @@ module_registry <- function(
 ) {
 
   # check authors
-  if(missing(authors)) {
+  if (missing(authors)) {
     stop("`module_registry`: Authors must be specified in repository: ", repo)
   }
   maintainer <- NULL
@@ -102,31 +102,31 @@ module_registry <- function(
 
     aut <- do.call(person, aut)
 
-    if(length(aut$email) != 1 || is.na(aut$email) ||
+    if (length(aut$email) != 1 || is.na(aut$email) ||
        !grepl("^[^@]+@[^@.]+\\.[^@]+$", aut$email)) {
       stop("`module_registry`: Each item in the author list must contains email - ",
            repo)
     }
-    if(!length(aut$role)) {
+    if (!length(aut$role)) {
       aut$role <- "aut"
     }
-    if("cre" %in% aut$role) {
-      if(!is.null(maintainer)) {
+    if ("cre" %in% aut$role) {
+      if (!is.null(maintainer)) {
         stop("`module_registry`: A RAVE module/pipeline must have only one maintainer - ", repo)
       }
       maintainer <<- aut
     }
     aut
   })
-  if(is.null(maintainer)) {
+  if (is.null(maintainer)) {
     stop("`module_registry`: A RAVE module/pipeline must have one maintainer. Please specify the role of each author. See ?person for details. Repository: ", repo)
   }
   valid_modules <- modules[!is.na(modules) & grepl("^[a-zA-Z0-9][a-zA-Z0-9_.-]*$", modules)]
   invalids <- modules[!is.na(modules) & !modules %in% valid_modules]
-  if(!length(valid_modules)) {
+  if (!length(valid_modules)) {
     stop("`module_registry`: no valid module ID found. Repository: ", repo)
   }
-  if(length(invalids)) {
+  if (length(invalids)) {
     stop("`module_registry`: invalid module ID found in repository [", repo,
          "] - ", paste(invalids, collapse = ", "))
   }
@@ -153,11 +153,11 @@ module_registry2 <- function(repo, description) {
   # repo <- "rave-ieeg/rave-pipelines"
   # description <-
 
-  if(missing(description) || !length(description)) {
+  if (missing(description) || !length(description)) {
     description <- sprintf("https://raw.githubusercontent.com/%s/main/RAVE-CONFIG", repo)
   }
 
-  if(is.character(description) && startsWith(description, "http")) {
+  if (is.character(description) && startsWith(description, "http")) {
     description <- url(description)
     on.exit({
       close(description)
@@ -184,7 +184,7 @@ module_registry2 <- function(repo, description) {
            email = email, role = role, comment = comment)
     }
   ))
-  if(!is.list(authors[[1]])) {
+  if (!is.list(authors[[1]])) {
     authors <- list(authors)
   }
 
@@ -193,7 +193,7 @@ module_registry2 <- function(repo, description) {
   urls <- urls[!urls %in% ""]
   urls <- sprintf("http%s", urls)
 
-  if(length(urls) > 1) {
+  if (length(urls) > 1) {
     idx <- c(which(grepl("github\\.com", urls, ignore.case = TRUE)), 1)
     urls <- urls[[idx[[1]]]]
   } else {
@@ -210,12 +210,12 @@ module_registry2 <- function(repo, description) {
 validate_modules_registries <- function(registries, verbose = TRUE) {
   modules <- NULL
   registries <- lapply(registries, function(item) {
-    if(verbose) {
+    if (verbose) {
       catgl("Loading registry: {item$repo}", level = "trace")
     }
     item <- module_registry(title = item$title, repo = item$repo, modules = item$modules, authors = item$authors, url = item$url)
     dups <- item$modules[item$modules %in% modules]
-    if(length(dups)) {
+    if (length(dups)) {
       stop("Duplicated module ID found: \n  ", paste(dups, collapse = ", "),
            ". \n\nIf you are the maintainer, please modify your module ID.",
            call. = FALSE)
@@ -223,7 +223,7 @@ validate_modules_registries <- function(registries, verbose = TRUE) {
     modules <<- item$modules
     item
   })
-  repo_name <- sapply(registries, '[[', 'repo')
+  repo_name <- sapply(registries, "[[", "repo")
   names(registries) <- repo_name
 
   registries
@@ -276,31 +276,31 @@ get_modules_registries <- function(update = NA) {
 get_module_description <- function(path) {
   # DIPSAUS DEBUG START
   # path <- "~/Dropbox (PennNeurosurgery)/rave-pipelines/modules/import_lfp_native/"
-  if(length(path) != 1) {
+  if (length(path) != 1) {
     stop("`get_module_description`: invalid `path`, length must be 1")
   }
   fs <- file.path(path, c("", "RAVE-CONFIG", "DESCRIPTION"))
   fs <- fs[!dir.exists(fs) & file.exists(fs)]
-  if(!length(fs)) {
+  if (!length(fs)) {
     stop("`get_module_description`: invalid `path`... cannot find file RAVE-CONFIG or DESCRIPTION")
   }
   path <- fs[[1]]
   dcf <- read.dcf(path)
-  if(nrow(dcf) == 0) {
+  if (nrow(dcf) == 0) {
     stop("`get_module_description`: invalid module description...")
   }
-  dcf <- as.list(dcf[1,])
+  dcf <- as.list(dcf[1, ])
 
-  if(length(dcf$`Authors@R`)) {
+  if (length(dcf$`Authors@R`)) {
     tryCatch({
       aut <- eval(parse(text = dcf$`Authors@R`))
       dcf$Author <- aut
       dcf$`Authors@R` <- NULL
-    }, error = function(e){})
+    }, error = function(e) {})
   }
   citation_path <- file.path(dirname(path), "CITATION")
   citations <- NULL
-  if(file.exists(citation_path)) {
+  if (file.exists(citation_path)) {
     citations <- utils::readCitationFile(citation_path, meta = dcf)
   }
   dcf$Citations <- citations
@@ -323,7 +323,7 @@ format.raveModuleDescription <- function(
     sprintf("Website: %s", x$URL),
     sprintf("Bug report: %s", x$BugReports)
   )
-  if(citation_style != "none" && length(x$Citations)) {
+  if (citation_style != "none" && length(x$Citations)) {
     re <- c(
       re,
       "Citation information:",
@@ -342,10 +342,10 @@ print.raveModuleDescription <- function(x, ...) {
 #' @export
 add_module_registry <- function(title, repo, modules, authors, url,
                                 dry_run = FALSE) {
-  if(missing(repo)) {
+  if (missing(repo)) {
     reg <- title
   } else {
-    if(missing(url)) {
+    if (missing(url)) {
       url <- sprintf("https://github.com/%s", repo)
     }
     reg <- list(
@@ -356,7 +356,7 @@ add_module_registry <- function(title, repo, modules, authors, url,
       url = url
     )
   }
-  if(!inherits(reg, "rave-module-registry")) {
+  if (!inherits(reg, "rave-module-registry")) {
     reg <- do.call(module_registry, reg)
   }
   # get current registries
@@ -368,8 +368,8 @@ add_module_registry <- function(title, repo, modules, authors, url,
   regs <- validate_modules_registries(regs)
 
 
-  if(!is_new) {
-    if(!identical(reg$maintainer$email, reg_old$maintainer$email)) {
+  if (!is_new) {
+    if (!identical(reg$maintainer$email, reg_old$maintainer$email)) {
       msg <- sprintf("You are trying to change the repository [%s] that is currently maintained by [%s]. We will hold your request until it is confirmed by the previous maintainer", reg$repo, reg_old$maintainer$email)
       warning(msg)
     }
@@ -399,7 +399,7 @@ add_module_registry <- function(title, repo, modules, authors, url,
     "%0D%0A"
   )
 
-  if(!dry_run && interactive()) {
+  if (!dry_run && interactive()) {
     utils::browseURL(sprintf(
       "mailto:%s?subject=%s&body=%s",
       rec, subj, body

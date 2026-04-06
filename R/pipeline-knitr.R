@@ -2,28 +2,28 @@
 
 RAVE_KNITR_SUPPORTED_LANG <- c("R", "python")
 
-check_knit_packages <- function(languages = c("R", "python")){
+check_knit_packages <- function(languages = c("R", "python")) {
 
-  if( interactive() ) {
-    pkgs <- c('knitr', 'rmarkdown')
-    if("python" %in% languages){
-      pkgs <- c(pkgs, 'rpymat')
+  if ( interactive() ) {
+    pkgs <- c("knitr", "rmarkdown")
+    if ("python" %in% languages) {
+      pkgs <- c(pkgs, "rpymat")
     }
   } else {
-    pkgs <- 'knitr'
+    pkgs <- "knitr"
   }
 
   # check knitr, rmarkdown, reticulate
   pkgs <- pkgs[!package_installed(pkgs)]
 
-  if(length(pkgs) && interactive()){
-    if(!interactive()){
+  if (length(pkgs) && interactive()) {
+    if (!interactive()) {
       stop("Package(s) ", paste(pkgs, collapse = ", "), " are required. Please run install.packages(c(", paste0('"', pkgs, '"', collapse = ", "), ")) to install them")
     }
 
     prompt <- sprintf("Package %s missing. Do you want to install them? ", paste(pkgs, collapse = ", "))
     ans <- utils::askYesNo(prompt)
-    if(isTRUE(ans)){
+    if (isTRUE(ans)) {
       # User has agreed so suppress and don't ask more questions
       old_opt <- options("ravepipelines.install.yes_to_all" = TRUE)
       on.exit({ options(old_opt) })
@@ -35,12 +35,12 @@ check_knit_packages <- function(languages = c("R", "python")){
 }
 
 resolve_pipeline_error <- function(name, condition, expr = NULL) {
-  if(interactive() || shiny_is_running()) {
+  if (interactive() || shiny_is_running()) {
     expr0 <- substitute(expr)
-    if( !identical(expr0, str2lang(".__target_expr__.")) ) {
+    if ( !identical(expr0, str2lang(".__target_expr__.")) ) {
       expr <- expr0
     }
-    if(!is.null(expr)) {
+    if (!is.null(expr)) {
       expr <- deparse1(expr, collapse = "\n")
       catgl("Pipeline code: \n{expr}", level = "ERROR")
     }
@@ -70,12 +70,12 @@ resolve_pipeline_error <- function(name, condition, expr = NULL) {
 }
 
 rave_knit_r <- function(export, code, deps = NULL, cue = "thorough", pattern = NULL,
-                        format = NULL, ..., target_names = NULL){
+                        format = NULL, ..., target_names = NULL) {
   # code <- options$code
   code <- paste(c("{", code, "}"), collapse = "\n")
   expr <- parse(text = code)[[1]]
 
-  if(is.null(deps) && !is.null(target_names)){
+  if (is.null(deps) && !is.null(target_names)) {
     # Fix the following issue before `targets`
     # package is willing to consider this edge-cases
     # https://github.com/ropensci/targets/issues/663
@@ -84,7 +84,7 @@ rave_knit_r <- function(export, code, deps = NULL, cue = "thorough", pattern = N
     deps <- deps[deps %in% target_names]
   }
 
-  if(is.character(pattern)){
+  if (is.character(pattern)) {
     pattern <- parse(text = pattern)
   }
 
@@ -111,8 +111,8 @@ rave_knit_r <- function(export, code, deps = NULL, cue = "thorough", pattern = N
   # )
 }
 
-rave_knit_python <- function(export, code, deps = NULL, cue = "thorough", pattern = NULL, local = TRUE, ..., target_names = NULL){
-  if(is.character(pattern)){
+rave_knit_python <- function(export, code, deps = NULL, cue = "thorough", pattern = NULL, local = TRUE, ..., target_names = NULL) {
+  if (is.character(pattern)) {
     pattern <- parse(text = pattern)
   }
 
@@ -125,7 +125,7 @@ rave_knit_python <- function(export, code, deps = NULL, cue = "thorough", patter
   # get shared path
   shared_scripts <- NULL
   common_script_path <- file.path(py_info$pipeline_path, "py", "knitr-common.py")
-  if(file.exists(common_script_path)) {
+  if (file.exists(common_script_path)) {
     shared_scripts <- readLines(common_script_path)
   }
 
@@ -158,9 +158,9 @@ def pipeline_target_{export}({paste(deps, collapse = ', ')}):
       command = quote({
 
         .py_error_handler <- function(e, use_py_last_error = TRUE) {
-          if( use_py_last_error ) {
+          if ( use_py_last_error ) {
             e2 <- asNamespace("reticulate")$py_last_error()
-            if(!is.null(e2)) {
+            if (!is.null(e2)) {
               e <- e2
             }
           }
@@ -176,7 +176,7 @@ def pipeline_target_{export}({paste(deps, collapse = ', ')}):
         re <- tryCatch(
           expr = {
             .env <- environment()
-            if(length(.(deps))) {
+            if (length(.(deps))) {
               args <- structure(
                 names = .(deps),
                 lapply(.(deps), get, envir = .env)
@@ -188,7 +188,7 @@ def pipeline_target_{export}({paste(deps, collapse = ', ')}):
             target_function <- module$rave_pipeline_adapters[.(export)]
             re <- do.call(target_function, args)
             cls <- class(re)
-            if(length(cls) && any(endsWith(cls, "rave_pipeline_adapters.RAVERuntimeException"))) {
+            if (length(cls) && any(endsWith(cls, "rave_pipeline_adapters.RAVERuntimeException"))) {
               error_message <- rpymat::py_to_r(re$`__str__`())
               .py_error_handler(simpleError(error_message), use_py_last_error = FALSE)
             }
@@ -215,16 +215,16 @@ def pipeline_target_{export}({paste(deps, collapse = ', ')}):
   )
 }
 
-rave_knitr_engine <- function(targets){
+rave_knitr_engine <- function(targets) {
 
   python_engine <- knitr::knit_engines$get("python")
-  if(inherits(python_engine, "knit_engine_rave_python")) {
+  if (inherits(python_engine, "knit_engine_rave_python")) {
     python_engine2 <- python_engine
     python_engine <- attr(python_engine2, "original_engine")
   } else {
     python_engine2 <- structure(
       function(options) {
-        if(isTRUE(options$use_rave)) {
+        if (isTRUE(options$use_rave)) {
           options$engine <- "python"
           options$language <- "python"
           knitr::knit_engines$get("rave")(options)
@@ -240,35 +240,35 @@ rave_knitr_engine <- function(targets){
 
   knitr::knit_engines$set("rave" = function(options) {
     # for R
-    if(startsWith(options$export, "unnamed-chunk")){
+    if (startsWith(options$export, "unnamed-chunk")) {
       stop("RAVE pipeline target chunk must be named. For example:\n",
            '{r target_name, engine="RAVE-target" ...')
     }
-    if(grepl("^[^A-Za-z0-9\\-_.]+$", options$export)){
+    if (grepl("^[^A-Za-z0-9\\-_.]+$", options$export)) {
       stop("Chunk label (target name) must be valid variable name that ONLY contains letters, digits, `_`, `-`, or `.`")
     }
     settings_names <- NULL
-    if(file.exists("settings.yaml")){
+    if (file.exists("settings.yaml")) {
       try({
         settings_names <- names(load_yaml("settings.yaml"))
       }, silent = TRUE)
     }
 
-    if(startsWith(options$export, ".")){
+    if (startsWith(options$export, ".")) {
       stop("Chunk export name cannot start with dot '.' (reserved). Violated export: `", options$export, "`. Please choose another variable name to export.")
     }
 
-    if(options$export %in% settings_names){
+    if (options$export %in% settings_names) {
       stop("Chunk with the same export target `", options$export, "` already exists in the `settings.yaml`. Please choose another variable name to export.")
     }
 
     existing_names <- sapply(targets, "[[", "export")
-    if(options$export %in% existing_names){
-      if(interactive()){
+    if (options$export %in% existing_names) {
+      if (interactive()) {
         old_options <- targets[[
           which(existing_names == options$export)[[1]]
         ]]
-        if(!identical(options$label, old_options$label)){
+        if (!identical(options$label, old_options$label)) {
           warning("Chunk with the same export target `", options$export, "` might have already existed. Cannot have two targets sharing the same export name. However, please ignore this warning if you are sure this is false positive.")
         }
       } else {
@@ -277,16 +277,16 @@ rave_knitr_engine <- function(targets){
     }
 
     lang <- options$language
-    if(length(lang) != 1 || lang == "r"){
+    if (length(lang) != 1 || lang == "r") {
       lang <- "R"
     }
 
-    if(! lang %in% RAVE_KNITR_SUPPORTED_LANG){
+    if (! lang %in% RAVE_KNITR_SUPPORTED_LANG) {
       stop("Chunk `", options$label, "` has invalid `language` options. Please choose from the following engines: \n  ", paste(RAVE_KNITR_SUPPORTED_LANG, collapse = ", "))
     }
 
     options$language <- lang
-    if(length(options$depends)){
+    if (length(options$depends)) {
       options$deps <- unlist(strsplit(options$depends, "[, ]+"))
     }
     # assign('options', options, envir = globalenv())
@@ -306,11 +306,11 @@ rave_knitr_engine <- function(targets){
         options$engine <- "r"
         res <- real_engine(options)
         nms2 <- ls(env, all.names = TRUE, sorted = FALSE)
-        if(!options$export %in% nms2){
+        if (!options$export %in% nms2) {
           stop("Cannot find variable to be exported in chunk ", options$label)
         }
         nms2 <- nms2[!nms2 %in% nms]
-        if(length(nms2)){
+        if (length(nms2)) {
           rm(list = nms2, envir = env, inherits = FALSE)
         }
       },
@@ -318,7 +318,7 @@ rave_knitr_engine <- function(targets){
         real_engine <- python_engine
         options$engine <- "python"
         py <- rpymat::import("__main__", convert = FALSE)
-        for(nm in options$deps) {
+        for (nm in options$deps) {
           py[[ nm ]] <- get(nm, envir = env)
         }
         res <- real_engine(options)
@@ -346,19 +346,19 @@ guess_py_indent <- function(code, default_count = 2L) {
   code <- code[grepl(sprintf("^(%s+)", white_space), x = code)]
 
   indents <- default_count
-  if(length(code)) {
+  if (length(code)) {
 
     indent_char <- substr(code[[1]], start = 1L, stop = 1L)
     indents <- vapply(strsplit(code, white_space), function(x) {
       indents <- which(x == "")
-      if(!1L %in% indents) { return(0L) }
+      if (!1L %in% indents) { return(0L) }
       indents <- deparse_svec(indents, concatenate = FALSE)
-      if(!length(indents)) { return(0L) }
+      if (!length(indents)) { return(0L) }
       indents <- parse_svec(indents[[1]])
       return(as.integer(indents[[length(indents)]]))
     }, 0L)
     indents <- unique(indents[indents > 0])
-    if(length(indents)) {
+    if (length(indents)) {
       indents <- min(indents)
     } else {
       indents <- default_count
@@ -372,11 +372,11 @@ guess_py_indent <- function(code, default_count = 2L) {
   )
 }
 
-rave_knitr_build <- function(targets, make_file){
+rave_knitr_build <- function(targets, make_file) {
   # generate targets
   targets <- as.list(targets)
   dependence_names <- unlist(lapply(targets, "[[", "export"))
-  if(file.exists("settings.yaml")){
+  if (file.exists("settings.yaml")) {
     settings <- as.list(load_yaml("settings.yaml"))
     dependence_names <- c(names(settings), dependence_names)
   }
@@ -385,7 +385,7 @@ rave_knitr_build <- function(targets, make_file){
   python_exports <- NULL
 
   exprs <- structure(
-    lapply(targets, function(options){
+    lapply(targets, function(options) {
       message("Building target ", options$export, " [", options$language, "]")
       switch(
         options$language,
@@ -405,7 +405,7 @@ rave_knitr_build <- function(targets, make_file){
     }), names = nms
   )
 
-  if(length(python_exports)) {
+  if (length(python_exports)) {
     py_info <- pipeline_py_info(".", must_work = TRUE)
     rave_path_py <- file.path(py_info$module_path, "rave_pipeline_adapters")
     dir_create2(rave_path_py)
@@ -433,7 +433,7 @@ from .serializers import rave_unserialize
     ), con = path_init_py)
 
     path_serializer_py <- file.path(rave_path_py, "serializers.py")
-    if(!file.exists(path_serializer_py)) {
+    if (!file.exists(path_serializer_py)) {
       writeLines(
         con = path_serializer_py,
         text = r"(
@@ -462,7 +462,7 @@ def rave_unserialize(x, path, name):
 
   }
 
-  if(file.exists("settings.yaml")){
+  if (file.exists("settings.yaml")) {
     settings <- as.list(load_yaml("settings.yaml"))
 
     # to please CRAN check
@@ -470,11 +470,11 @@ def rave_unserialize(x, path, name):
     nms <- names(settings)
 
     extras <- list()
-    for(nm in nms) {
+    for (nm in nms) {
 
       opts <- resolve_pipeline_settings_opt(settings[[nm]], strict = FALSE)
 
-      if(is.null(opts)) {
+      if (is.null(opts)) {
 
         # ordinary settings
         extras[[paste0("input_", nm)]] <- bquote(
@@ -548,15 +548,15 @@ def rave_unserialize(x, path, name):
     "library(ravepipeline)",
     'source("common.R", local = TRUE, chdir = TRUE)',
 
-    '._._env_._. <- environment()',
-    '._._env_._.$pipeline <- pipeline_from_path(".")',
-    'lapply(sort(list.files(',
-    '  "R/", ignore.case = TRUE,',
+    "._._env_._. <- environment()",
+    "._._env_._.$pipeline <- pipeline_from_path(\".\")",
+    "lapply(sort(list.files(",
+    "  \"R/\", ignore.case = TRUE,",
     '  pattern = "^shared-.*\\\\.R", ',
-    '  full.names = TRUE',
-    ')), function(f) {',
-    '  source(f, local = ._._env_._., chdir = TRUE)',
-    '})',
+    "  full.names = TRUE",
+    ")), function(f) {",
+    "  source(f, local = ._._env_._., chdir = TRUE)",
+    "})",
     # 'if(dir.exists("py/")) {',
     # '  try({',
     # '    library(rpymat)',
@@ -571,8 +571,8 @@ def rave_unserialize(x, path, name):
     # '      })',
     # '  })',
     # '}',
-    'targets::tar_option_set(envir = ._._env_._.)',
-    'rm(._._env_._.)',
+    "targets::tar_option_set(envir = ._._env_._.)",
+    "rm(._._env_._.)",
 
     deparse(call)
   ), con = make_file)
@@ -616,15 +616,15 @@ def rave_unserialize(x, path, name):
 #' }
 #'
 #' @export
-configure_knitr <- function(languages = c("R", "python")){
+configure_knitr <- function(languages = c("R", "python")) {
 
-  if(!all(languages %in% RAVE_KNITR_SUPPORTED_LANG)){
+  if (!all(languages %in% RAVE_KNITR_SUPPORTED_LANG)) {
     stop("Only the following languages are supported: ", paste(RAVE_KNITR_SUPPORTED_LANG, collapse = ", "), ".")
   }
-  if(file.exists("settings.yaml")){
+  if (file.exists("settings.yaml")) {
     settings <- as.list(load_yaml("settings.yaml"))
     env <- knitr::knit_global()
-    for(nm in names(settings)) {
+    for (nm in names(settings)) {
       env[[nm]] <- resolve_pipeline_settings_value(settings[[nm]], pipe_dir = ".")
     }
     # list2env(settings, envir = knitr::knit_global())
@@ -636,7 +636,7 @@ configure_knitr <- function(languages = c("R", "python")){
 
   rave_knitr_engine(targets)
 
-  function(make_file){
+  function(make_file) {
     rave_knitr_build(targets, make_file)
   }
 }
@@ -652,7 +652,7 @@ pipeline_setup_rmd <- function(
       default = rs_active_project(child_ok = TRUE, shiny_ok = TRUE)
     )) {
 
-  if( length(project_path) != 1 || is.na(project_path) || !is.character(project_path) || trimws(project_path) %in% c("", "/", "NA")) {
+  if ( length(project_path) != 1 || is.na(project_path) || !is.character(project_path) || trimws(project_path) %in% c("", "/", "NA")) {
     project_path <- normalizePath(".")
   }
 
@@ -678,7 +678,7 @@ pipeline_setup_rmd <- function(
 
 
   py_dir <- file.path(module_path, "py")
-  if(dir.exists(py_dir)) {
+  if (dir.exists(py_dir)) {
     py_info <- pipeline_py_info(pipe_dir = module_path, must_work = TRUE)
     cwd <- getwd()
 
@@ -693,7 +693,7 @@ pipeline_setup_rmd <- function(
 
     # load shared modules
     shared_path <- sprintf("%s.shared", py_info$module_name)
-    if(dir.exists(shared_path)) {
+    if (dir.exists(shared_path)) {
       py$shared <- rpymat::import(shared_path)
     }
   }
@@ -703,7 +703,8 @@ pipeline_setup_rmd <- function(
 
   pipe_dir <- file.path(project_path, "modules", module_id)
   lapply(names(settings), function(nm) {
-    settings[[nm]] <- resolve_pipeline_settings_value(value = settings[[nm]],pipe_dir = pipe_dir)
+    settings[[nm]] <- resolve_pipeline_settings_value(value = settings[[nm]],
+                                                      pipe_dir = pipe_dir)
   })
 
   env$.settings <- settings
@@ -722,7 +723,7 @@ pipeline_render <- function(
       default = rs_active_project(child_ok = TRUE, shiny_ok = TRUE)
     )) {
 
-  if( length(project_path) != 1 || is.na(project_path) || !is.character(project_path) || trimws(project_path) %in% c("", "/", "NA")) {
+  if ( length(project_path) != 1 || is.na(project_path) || !is.character(project_path) || trimws(project_path) %in% c("", "/", "NA")) {
     project_path <- normalizePath(".")
   }
 
@@ -736,7 +737,7 @@ pipeline_render <- function(
   on.exit({ options(old_opt) })
 
   # check to use rmarkdown or knitr
-  if(package_installed("rmarkdown")) {
+  if (package_installed("rmarkdown")) {
     rmarkdown <- asNamespace("rmarkdown")
     output_path <- rmarkdown$render(
       input = entry_path,

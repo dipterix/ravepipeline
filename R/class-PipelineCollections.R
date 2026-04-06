@@ -11,7 +11,7 @@ PipelineCollections <- R6::R6Class(
     .pipline_collections = NULL,
     .root_path = character(),
     .verbose = function(..., level = "DEFAULT", .envir = parent.frame()) {
-      if(self$verbose) {
+      if (self$verbose) {
         catgl(..., level = level, .envir = .envir)
       }
     }
@@ -25,14 +25,14 @@ PipelineCollections <- R6::R6Class(
     #' @param root_path where to store the pipelines and intermediate results
     #' @param overwrite whether to overwrite if \code{root_path} exists
     initialize = function(root_path = NULL, overwrite = FALSE) {
-      if(missing(root_path) || is.null(root_path)) {
+      if (missing(root_path) || is.null(root_path)) {
         root_path <- tempfile(tmpdir = cache_root(), pattern = "pipeline-collection-")
       }
-      if(length(root_path) != 1 || is.na(root_path) || !is.character(root_path) || !nzchar(root_path)) {
+      if (length(root_path) != 1 || is.na(root_path) || !is.character(root_path) || !nzchar(root_path)) {
         stop("PipelineCollections$build_pipelines: Working directory `root_path` is invalid")
       }
-      if(file.exists(root_path)) {
-        if( overwrite ) {
+      if (file.exists(root_path)) {
+        if ( overwrite ) {
           unlink(root_path, recursive = TRUE)
         } else {
           stop("Cannot create pipeline collection at `root_path` because the path has already existed and `overwrite` is disabled. Please remove `root_path` first at: ", normalizePath(root_path))
@@ -78,7 +78,7 @@ PipelineCollections <- R6::R6Class(
 
       cue <- match.arg(cue)
 
-      if(!inherits(x, "PipelineTools")) {
+      if (!inherits(x, "PipelineTools")) {
         x <- pipeline(pipeline_name = x, temporary = TRUE, paths = search_paths)
       }
 
@@ -90,15 +90,15 @@ PipelineCollections <- R6::R6Class(
       )
 
 
-      if(!is.null(pre_hook)) {
+      if (!is.null(pre_hook)) {
         stopifnot2(is.function(pre_hook), msg = "PipelineCollections$add_pipeline: `pre_hook` must be `NULL` or a function taking two function arguments (settings, shared_path).")
       }
-      if(!is.null(post_hook)) {
+      if (!is.null(post_hook)) {
         stopifnot2(is.function(post_hook), msg = "PipelineCollections$add_pipeline: `post_hook` must be `NULL` or a function taking two function arguments (pipeline & shared_path).")
       }
-      if(length(names)) {
+      if (length(names)) {
         sel <- !names %in% x$target_table$Names
-        if(any(sel)) {
+        if (any(sel)) {
           names <- names[sel]
           stop(sprintf("PipelineCollections$add_pipeline: Unable to add pipeline [%s] due to missing targets: [%s]", x$pipeline_name, paste(names, collapse = ", ")))
         }
@@ -109,35 +109,35 @@ PipelineCollections <- R6::R6Class(
       }
 
       item_id <- sprintf("%s_%s", x$pipeline_name, rand_string(6))
-      if(length(deps)) {
+      if (length(deps)) {
         missing_deps <- deps[!deps %in% self$pipeline_ids]
-        if(length(missing_deps)) {
+        if (length(missing_deps)) {
           stop("Cannot find pipeline ID: ", paste(missing_deps, collapse = ", "), ". Please specify `deps` using runtime ID instead of pipeline names.")
         }
       }
 
-      if(!standalone) {
+      if (!standalone) {
         # search for previous added pipelines to see if this one needs to wait
-        for(item in private$.pipline_collections$as_list()) {
-          if(identical(item$pipeline_name, x$pipeline_name)) {
+        for (item in private$.pipline_collections$as_list()) {
+          if (identical(item$pipeline_name, x$pipeline_name)) {
             deps <- c(deps, item$id)
           }
         }
       }
 
       # fork the pipeline now
-      if(!dir.exists(private$.root_path)) {
+      if (!dir.exists(private$.root_path)) {
         private$.root_path <- dir_create2(private$.root_path, check = TRUE)
       }
 
       # Analysis contains: code, data, settings
-      if(standalone) {
+      if (standalone) {
         pipeline_path <- file.path(self$collection_path, item_id)
       } else {
         pipeline_path <- file.path(self$collection_path, x$pipeline_name)
       }
 
-      if(dir.exists(pipeline_path)) {
+      if (dir.exists(pipeline_path)) {
         forked_pipeline <- pipeline(
           pipeline_name = basename(pipeline_path),
           paths = dirname(pipeline_path),
@@ -149,7 +149,7 @@ PipelineCollections <- R6::R6Class(
 
       # save globals
       pre_hook_pak <- NULL
-      if(is.function(pre_hook)) {
+      if (is.function(pre_hook)) {
         pre_hook_pak <- list(
           func = pre_hook,
           globals = globals::globalsOf(pre_hook, envir = hook_envir)
@@ -157,7 +157,7 @@ PipelineCollections <- R6::R6Class(
       }
 
       post_hook_pak <- NULL
-      if(is.function(post_hook)) {
+      if (is.function(post_hook)) {
         post_hook_pak <- list(
           func = post_hook,
           globals = globals::globalsOf(post_hook, envir = hook_envir)
@@ -212,14 +212,14 @@ PipelineCollections <- R6::R6Class(
       pipeline_rmd <- readLines(path_rmd)
 
       idx <- which(grepl("RAVE Scheduler Placeholder", pipeline_rmd))
-      if(length(idx) != 1) {
+      if (length(idx) != 1) {
         stop("Cannot find scheduler template placeholder. Please contact RAVE devs to report this bug.")
       }
 
-      injections <- lapply(seq_len(private$.pipline_collections$size()), function ( ii ) {
+      injections <- lapply(seq_len(private$.pipline_collections$size()), function( ii ) {
         item <- private$.pipline_collections$at( ii )
         paste(collapse = "\n", c(
-          '',
+          "",
           sprintf('```{rave run_pipeline_ID_%s, cue = "%s", export = "%s"}', item$id, item$cue, item$id),
 
           # Help RAVE build dependence
@@ -228,20 +228,20 @@ PipelineCollections <- R6::R6Class(
           'ravepipeline <- asNamespace("ravepipeline")',
           sprintf('pipeline_id <- "%s"', item$id),
           sprintf('pipeline_name <- "%s"', item$pipeline_name),
-          sprintf('standalone <- %s', item$standalone),
+          sprintf("standalone <- %s", item$standalone),
 
-          'results <- ravepipeline$run_collection_pipeline(',
-          '  collection_path = normalizePath(collection_root_path),',
-          '  pipeline_id = pipeline_id,',
-          '  pipeline_name = ifelse(standalone, pipeline_id, pipeline_name),',
-          '  error = error_action,',
-          '  dry_run = dry_run,',
-          '  scheduler = "none"',
-          ')',
-          '',
-          'assign(pipeline_id, results, envir = environment())',
-          '```',
-          ''
+          "results <- ravepipeline$run_collection_pipeline(",
+          "  collection_path = normalizePath(collection_root_path),",
+          "  pipeline_id = pipeline_id,",
+          "  pipeline_name = ifelse(standalone, pipeline_id, pipeline_name),",
+          "  error = error_action,",
+          "  dry_run = dry_run,",
+          "  scheduler = \"none\"",
+          ")",
+          "",
+          "assign(pipeline_id, results, envir = environment())",
+          "```",
+          ""
         ))
       })
 
@@ -275,7 +275,7 @@ PipelineCollections <- R6::R6Class(
       )
 
       # save configurations
-      collection_info <- lapply(seq_len(private$.pipline_collections$size()), function ( ii ) {
+      collection_info <- lapply(seq_len(private$.pipline_collections$size()), function( ii ) {
         item <- private$.pipline_collections$at( ii )
         re <- item[c("id", "pipeline_name", "target_names", "depend_on", "cue", "standalone")]
         re$has_pre_hook <- !is.null(item$pre_hook_pak)
@@ -297,7 +297,7 @@ PipelineCollections <- R6::R6Class(
         con = file.path(self$root_path, "build_info.json")
       )
 
-      if( visualize ) {
+      if ( visualize ) {
         scheduler$visualize(aspect_ratio = 3)
       }
       return(invisible(scheduler))
@@ -320,13 +320,13 @@ PipelineCollections <- R6::R6Class(
       .scheduler <- match.arg(.scheduler)
       .type <- match.arg(.type)
 
-      if(is.na(rebuild)) {
+      if (is.na(rebuild)) {
         tryCatch({
           self$get_scheduler()
         }, error = function(e) {
           self$build_pipelines(visualize = FALSE)
         })
-      } else if(rebuild) {
+      } else if (rebuild) {
         self$build_pipelines(visualize = FALSE)
       }
       scheduler <- self$get_scheduler()
@@ -341,7 +341,7 @@ PipelineCollections <- R6::R6Class(
     #' @description Get \code{scheduler} object
     get_scheduler = function() {
       path_scheduler <- file.path(self$root_path, "modules", "raveio_scheduler")
-      if(!dir.exists(path_scheduler)) {
+      if (!dir.exists(path_scheduler)) {
         stop("Scheduler does not exists. Please build the scheduler & pipelines first.")
       }
       scheduler <- pipeline(pipeline_name = "raveio_scheduler", paths = file.path(self$root_path, "modules"), temporary = TRUE)
@@ -395,18 +395,22 @@ run_collection_pipeline <- function(collection_path, pipeline_id, pipeline_name,
   shared_path <- file.path(collection_path, "shared", pipeline_id)
   shared_path <- dir_create2(shared_path)
 
-  if( dry_run ) { return(list(
-    id = pipeline_id,
-    standalone = !identical(pipeline_id, pipeline_name),
-    last_build = Sys.time(),
-    inputs = as.list(inputs, sorted = TRUE),
-    dry_run = dry_run
-  )) }
+  if (dry_run) {
+    return(
+      list(
+        id = pipeline_id,
+        standalone = !identical(pipeline_id, pipeline_name),
+        last_build = Sys.time(),
+        inputs = as.list(inputs, sorted = TRUE),
+        dry_run = dry_run
+      )
+    )
+  }
 
   run_pipeline <- function(...) {
     # Before running pipeline
     pre_hook <- config$pre_hook_pak
-    if(!is.null(pre_hook)) {
+    if (!is.null(pre_hook)) {
       pre_hook_env <- new.env(parent = globalenv())
       list2env(pre_hook$globals, envir = pre_hook_env)
       environment(pre_hook$func) <- pre_hook_env
@@ -434,7 +438,7 @@ run_collection_pipeline <- function(collection_path, pipeline_id, pipeline_name,
     post_hook <- config$post_hook_pak
 
     results <- NULL
-    if(!is.null(post_hook)) {
+    if (!is.null(post_hook)) {
       post_hook_env <- new.env(parent = globalenv())
       list2env(post_hook$globals, envir = post_hook_env)
       environment(post_hook$func) <- post_hook_env
@@ -447,13 +451,13 @@ run_collection_pipeline <- function(collection_path, pipeline_id, pipeline_name,
 
   post_hook_results <- NULL
   result_error <- FALSE
-  if( error == "error" ) {
+  if ( error == "error" ) {
     post_hook_results <- run_pipeline(...)
   } else {
     post_hook_results <- tryCatch({
       run_pipeline(...)
     }, error = function(e) {
-      if(error == "warning") {
+      if (error == "warning") {
         warning(e)
       }
       result_error <<- TRUE

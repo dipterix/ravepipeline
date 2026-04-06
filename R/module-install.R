@@ -13,12 +13,12 @@ install_modules <- function(modules, dependencies = FALSE) {
   # update registries
   regs <- get_modules_registries()
 
-  if(missing(modules) || !length(modules)) {
-    modules <- sapply(regs, '[[', 'repo')
-    message('Found the following registries:\n  ', paste(modules, collapse = ", "))
+  if (missing(modules) || !length(modules)) {
+    modules <- sapply(regs, "[[", "repo")
+    message("Found the following registries:\n  ", paste(modules, collapse = ", "))
   }
 
-  for(repo in modules) {
+  for (repo in modules) {
     tryCatch({
       pipeline_install_github(
         repo = repo,

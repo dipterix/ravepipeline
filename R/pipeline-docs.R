@@ -110,7 +110,7 @@ NULL
 generate_target <- function(
     expr, export, format, deps = NULL,
     cue = "thorough", pattern = NULL, quoted = TRUE) {
-  if(!quoted) {
+  if (!quoted) {
     expr <- substitute(expr)
   }
   bquote(

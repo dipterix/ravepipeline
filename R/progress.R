@@ -3,7 +3,7 @@
 # signal_process <- function(..., quiet = FALSE) {
 #   message <- paste(c(...), collapse = "")
 #   cond <- simpleCondition(message)
-#   if(quiet) {
+#   if (quiet) {
 #     class(cond) <- c("rave_progress_muffled", "rave_progress_condition", cond)
 #   } else {
 #     class(cond) <- c("rave_progress_condition", cond)
@@ -53,27 +53,27 @@
 #' @export
 rave_progress <- function(title, max = 1, ..., quiet = FALSE,
                        session = get_shiny_session(),
-                       shiny_auto_close = FALSE, log = NULL){
-  if(missing(title) || is.null(title)){ title <- '' }
-  if( length(title) > 1 ){ title <- paste(title, collapse = '')}
+                       shiny_auto_close = FALSE, log = NULL) {
+  if (missing(title) || is.null(title)) { title <- "" }
+  if ( length(title) > 1 ) { title <- paste(title, collapse = "")}
 
-  if( inherits(session, c('ShinySession', 'session_proxy', 'R6')) ){
+  if ( inherits(session, c("ShinySession", "session_proxy", "R6")) ) {
     within_shiny <- TRUE
-  } else{
+  } else {
     within_shiny <- FALSE
   }
 
   current <- 0
   closed <- FALSE
-  get_value <- function(){ current }
-  is_closed <- function(){ closed }
-  logger_impl <- function(..., .quiet = quiet, level = 'DEFAULT', bullet = 'play'){
-    if(!.quiet){
-      if(is.function(log)){
+  get_value <- function() { current }
+  is_closed <- function() { closed }
+  logger_impl <- function(..., .quiet = quiet, level = "DEFAULT", bullet = "play") {
+    if (!.quiet) {
+      if (is.function(log)) {
         log(...)
       } else {
         # cat2(..., "\r", level=level, bullet=bullet, end = "\r", append = TRUE)
-        if(!is.null(bullet)) {
+        if (!is.null(bullet)) {
           bullet <- cli::symbol[[bullet]]
         }
         w <- getOption("width", 20)
@@ -86,29 +86,29 @@ rave_progress <- function(title, max = 1, ..., quiet = FALSE,
 
 
 
-  if( quiet || !within_shiny ){
+  if ( quiet || !within_shiny ) {
     progress <- NULL
-    logger_impl(sprintf("[%s]: initializing...", title), level = 'DEFAULT', bullet = 'play')
+    logger_impl(sprintf("[%s]: initializing...", title), level = "DEFAULT", bullet = "play")
 
-    inc <- function(detail, message = NULL, amount = 1, ...){
-      stopifnot2(!closed, msg = 'progress is closed')
-      quiet <- c(list(...)[['quiet']], quiet)[[1]]
+    inc <- function(detail, message = NULL, amount = 1, ...) {
+      stopifnot2(!closed, msg = "progress is closed")
+      quiet <- c(list(...)[["quiet"]], quiet)[[1]]
       # if message is updated
-      if(!is.null(message) && length(message) == 1){ title <<- message }
+      if (!is.null(message) && length(message) == 1) { title <<- message }
       current <<- amount + current
       logger_impl(sprintf("[%s]: %s (%.0f%%)", title, detail, current / ceiling(max) * 100),
-             level = 'DEFAULT', bullet = 'arrow_right', .quiet = quiet)
+             level = "DEFAULT", bullet = "arrow_right", .quiet = quiet)
     }
 
-    close <- function(message = ''){
+    close <- function(message = "") {
       closed <<- TRUE
-      logger_impl(message, level = 'DEFAULT', bullet = 'stop')
+      logger_impl(message, level = "DEFAULT", bullet = "stop")
     }
-    reset <- function(detail = '', message = '', value = 0){
+    reset <- function(detail = "", message = "", value = 0) {
       title <<- message
       current <<- value
     }
-    if(shiny_auto_close){
+    if (shiny_auto_close) {
       parent_frame <- parent.frame()
       do.call(
         on.exit, list(substitute(close()), add = TRUE),
@@ -118,22 +118,22 @@ rave_progress <- function(title, max = 1, ..., quiet = FALSE,
 
   } else {
     progress <- call_pkg_fun("shiny", "Progress", .call_pkg_function = FALSE)$new(session = session, max = max, ...)
-    inc <- function(detail, message = NULL, amount = 1, ...){
-      if(!is.null(message) && length(message) == 1){ title <<- message }
+    inc <- function(detail, message = NULL, amount = 1, ...) {
+      if (!is.null(message) && length(message) == 1) { title <<- message }
       current <<- current + amount
       progress$inc(detail = detail, message = title, amount = amount)
-      if(is.function(log)){
+      if (is.function(log)) {
         logger_impl(sprintf("[%s]: %s (%.0f%%)", title, detail, current / ceiling(max) * 100),
-               level = 'DEFAULT', bullet = 'arrow_right', .quiet = quiet)
+               level = "DEFAULT", bullet = "arrow_right", .quiet = quiet)
       }
     }
-    close <- function(message = ''){
-      if(!closed){
+    close <- function(message = "") {
+      if (!closed) {
         progress$close()
         closed <<- TRUE
       }
     }
-    reset <- function(detail = '', message = '', value = 0){
+    reset <- function(detail = "", message = "", value = 0) {
       title <<- message
       current <<- value
       progress$set(value = value, message = title, detail = detail)
@@ -141,20 +141,20 @@ rave_progress <- function(title, max = 1, ..., quiet = FALSE,
     # get_value <- function() {
     #   try({
     #     re <- progress$getValue()
-    #     if(!length(re) || !is.numeric(re)){
+    #     if (!length(re) || !is.numeric(re)) {
     #       re <- current
     #     }
     #     re
     #   }, silent = TRUE)
     # }
-    if(shiny_auto_close){
+    if (shiny_auto_close) {
       parent_frame <- parent.frame()
       do.call(
         on.exit, list(substitute(close()), add = TRUE),
         envir = parent_frame
       )
     }
-    inc(detail = 'Initializing...', amount = 0)
+    inc(detail = "Initializing...", amount = 0)
 
   }
 
@@ -179,8 +179,8 @@ rave_progress <- function(title, max = 1, ..., quiet = FALSE,
 #   env$rave_progress_started <- FALSE
 #   env$rave_progress_value <- 0
 #
-#   if(is.null(session)) {
-#     format <- "{cli::pb_spin} { paste(rave_progress_message, collapse = '') } [{cli::pb_current}/{cli::pb_total}] { paste(rave_progress_detail, collapse = '') }"
+#   if (is.null(session)) {
+#     format <- "{cli::pb_spin} { paste(rave_progress_message, collapse = "") } [{cli::pb_current}/{cli::pb_total}] { paste(rave_progress_detail, collapse = "") }"
 #     format_done <- "{ paste(c('\r', rep(' ', getOption('width')), '\rDone.'), collapse = '') }"
 #
 #     # progress_title <- title
@@ -192,7 +192,7 @@ rave_progress <- function(title, max = 1, ..., quiet = FALSE,
 #     # progress_title <- ""
 #     print_details <- function(...) {
 #       details <- trimws(paste(env$rave_progress_detail, collapse = ""))
-#       if(nzchar(details)) {
+#       if (nzchar(details)) {
 #         try({
 #           cli::cli_progress_output(
 #             text = details,
@@ -219,7 +219,7 @@ rave_progress <- function(title, max = 1, ..., quiet = FALSE,
 #   )
 #
 #   progress_update <- function(inc) {
-#     if(is.null(session)) {
+#     if (is.null(session)) {
 #       cli::cli_progress_update(
 #         inc = inc,
 #         id = id,
@@ -239,32 +239,32 @@ rave_progress <- function(title, max = 1, ..., quiet = FALSE,
 #
 #   return(list(
 #     id = id,
-#     inc = function(detail, message = NULL, amount = 1, ...){
+#     inc = function(detail, message = NULL, amount = 1, ...) {
 #       env$rave_progress_value <- env$rave_progress_value + amount
-#       if(length(message)) {
+#       if (length(message)) {
 #         env$rave_progress_message <- trimws(paste(c(message, "\r"), collapse = ""))
 #       } else if(!env$rave_progress_started) {
 #         env$rave_progress_message <- title
 #       }
 #       env$rave_progress_detail <- trimws(paste(c(detail, "\r"), collapse = ""))
-#       if( env$rave_progress_value > 0 ) {
+#       if ( env$rave_progress_value > 0 ) {
 #         env$rave_progress_started <- TRUE
 #       }
 #       progress_update(inc = amount)
-#       if( env$rave_progress_value > 0 ) {
+#       if ( env$rave_progress_value > 0 ) {
 #         env$rave_progress_started <- TRUE
 #       }
 #       print_details()
 #     },
-#     close = function(message = 'Finished'){
-#       if( env$rave_progress_started ) {
+#     close = function(message = 'Finished') {
+#       if ( env$rave_progress_started ) {
 #         env$rave_progress_detail <- NULL
 #         cli::cli_progress_done(id = id, .envir = env)
 #       }
 #       env$rave_progress_started <- FALSE
 #       env$rave_progress_value <- max
 #     },
-#     reset = function(detail = NULL, message = '', value = 0){
+#     reset = function(detail = NULL, message = '', value = 0) {
 #       env$rave_progress_value <- value
 #       env$rave_progress_started <- TRUE
 #       env$rave_progress_message <- message

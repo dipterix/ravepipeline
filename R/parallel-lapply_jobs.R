@@ -1,8 +1,8 @@
 on_rave_daemon <- function(type = c("worker", "pipeline")) {
   type <- match.arg(type)
   envvar <- sprintf("RAVE_DAEMON_%s", toupper(type))
-  if(identical(Sys.getenv(envvar, ""), "true")) { return(TRUE) }
-  if(!identical(Sys.getenv("RAVE_WITH_PARALLEL"), "true")) { return(TRUE) }
+  if (identical(Sys.getenv(envvar, ""), "true")) { return(TRUE) }
+  if (!identical(Sys.getenv("RAVE_WITH_PARALLEL"), "true")) { return(TRUE) }
   return(FALSE)
 }
 
@@ -10,21 +10,21 @@ on_rave_daemon <- function(type = c("worker", "pipeline")) {
 #' @returns Greater than 0 if async workers are desired, or 0 if no
 #' async worker is allowed
 calculate_workers <- function(workers = 0, always = FALSE) {
-  if(on_rave_daemon()) { return(0L) }
+  if (on_rave_daemon()) { return(0L) }
   workers <- as.integer(workers)
-  if(identical(workers, 1L) && !always) { return(0L) }
+  if (identical(workers, 1L) && !always) { return(0L) }
 
   max_workers <- raveio_getopt(key = "max_worker", default = 1L)
   max_workers2 <- getOption("rave.parallel.workers", max_workers)
-  if(length(max_workers2) == 1 && !is.na(max_workers2) && is.numeric(max_workers2) &&
+  if (length(max_workers2) == 1 && !is.na(max_workers2) && is.numeric(max_workers2) &&
      max_workers2 < max_workers && max_workers2 > 0) {
     max_workers <- max_workers2
   }
-  if(!isTRUE(workers >= 1 && workers <= max_workers)) {
+  if (!isTRUE(workers >= 1 && workers <= max_workers)) {
     workers <- max_workers
   }
 
-  if(workers > 1 || always) {
+  if (workers > 1 || always) {
     return(workers)
   }
   return(0L)
@@ -132,12 +132,12 @@ initialize_rave_daemon <- function(type = c("worker", "pipeline")) {
 #'
 #' @export
 with_rave_parallel <- function(expr, .workers = 0) {
-  if(!identical(Sys.getenv("RAVE_WITH_PARALLEL"), "true")) {
+  if (!identical(Sys.getenv("RAVE_WITH_PARALLEL"), "true")) {
     workers <- as.integer(.workers)
     stopifnot(isTRUE(workers >= 0))
 
     Sys.setenv("RAVE_WITH_PARALLEL" = "true")
-    if(workers > 0) {
+    if (workers > 0) {
       options("rave.parallel.workers" = workers)
     }
 
@@ -157,10 +157,10 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
   if (length(x) == 0) return(vector("list", 0))
 
   workers <- 0L
-  if(isFALSE(on_rave_daemon("worker"))) {
+  if (isFALSE(on_rave_daemon("worker"))) {
     workers <- calculate_workers(.workers, .always)
-    if(workers > length(x)) { workers <- length(x) }
-    if(workers == 1 && !.always) {
+    if (workers > length(x)) { workers <- length(x) }
+    if (workers == 1 && !.always) {
       workers <- 0L
     }
   }
@@ -191,7 +191,7 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
   }, add = TRUE, after = TRUE)
 
 
-  if(has_callback) {
+  if (has_callback) {
     callback_impl <- function(x) {
       store$finished <- store$finished + step_size
       amount <- max(floor(store$finished) - store$last_percentage, 0)
@@ -205,10 +205,10 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
 
       msg <- paste(msg, collapse = "")
       msg <- strsplit(msg, "|", fixed = TRUE)[[1]]
-      if(length(msg) > 1) {
+      if (length(msg) > 1) {
         message <- msg[[1]]
         detail <- paste(msg[-1], collapse = "|")
-      } else if(length(msg) == 1){
+      } else if (length(msg) == 1) {
         message <- NULL
         detail <- msg[[1]]
       } else {
@@ -225,7 +225,7 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
 
   progress$inc("Initializing work...", message = default_progress_title)
 
-  if( on_worker ) {
+  if ( on_worker ) {
 
     # Simulate when the process is running
     runtime_env <- new.env(parent = parent.env(globalenv()))
@@ -238,7 +238,7 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
       re
     }, ...)
 
-    if(store$last_percentage < 1000) {
+    if (store$last_percentage < 1000) {
       progress$inc("Collecting work...", amount = 1000 - store$last_percentage)
     }
   } else {
@@ -266,7 +266,7 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
       sprintf("lapply_jobs-%s.rds", packet_digest)
     )
 
-    while(file.exists(cache_path)) {
+    while (file.exists(cache_path)) {
       packet_digest <- digest(list(packet_digest, Sys.time()))
       cache_path <- file.path(
         R_user_dir("ravepipeline", "cache"),
@@ -320,12 +320,12 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
 
 
     wait_for_job <- function() {
-      if(length(job_ids) < workers) { return(TRUE) }
+      if (length(job_ids) < workers) { return(TRUE) }
       nms <- names(job_ids)
-      for(nm in nms) {
+      for (nm in nms) {
         job_id <- job_ids[[nm]]
         status <- check_job(job_id)
-        if(status$status < 0 || status$status >= 3) {
+        if (status$status < 0 || status$status >= 3) {
           res <- resolve_job(job_id, auto_remove = TRUE, must_init = FALSE)
           job_ids$`@remove`(nm)
           job_results[[nm]] <- res
@@ -340,11 +340,11 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
 
     lapply(seq_along(x), function(ii) {
 
-      while(!wait_for_job()) {
+      while (!wait_for_job()) {
         elapsed <- as.numeric(Sys.time() - start_time, units = "secs")
-        if(elapsed < 5) {
+        if (elapsed < 5) {
           Sys.sleep(0.01)
-        } else if( elapsed < 60 ) {
+        } else if ( elapsed < 60 ) {
           Sys.sleep(0.1)
         } else {
           Sys.sleep(0.5)
@@ -365,7 +365,7 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
       return()
     })
 
-    while(length(job_ids) > 0) {
+    while (length(job_ids) > 0) {
       rest_size <- length(job_ids)
       store$finished <- store$finished + step_size
       amount <- max(floor(store$finished) - store$last_percentage, 0)
@@ -390,7 +390,7 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
       names = names(x)
     )
 
-    if(store$last_percentage < 1000) {
+    if (store$last_percentage < 1000) {
       progress$inc("Collecting work...", amount = 1000 - store$last_percentage)
     }
 

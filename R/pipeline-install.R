@@ -1,6 +1,6 @@
 
 pipeline_install_directory <- function(
-    directory, dest, upgrade = FALSE, force = FALSE, ...){
+    directory, dest, upgrade = FALSE, force = FALSE, ...) {
 
   directory <- normalizePath(directory, mustWork = TRUE)
 
@@ -8,14 +8,14 @@ pipeline_install_directory <- function(
   config_path <- file.path(directory, c("RAVE-CONFIG", "DESCRIPTION"))
   config_path <- config_path[file.exists(config_path)]
 
-  if(!length(config_path)){
+  if (!length(config_path)) {
     stop("A RAVE pipeline must contains a RAVE-CONFIG or DESCRIPTION file")
   }
   config_path <- config_path[[1]]
 
   desc <- pipeline_description(config_path)
 
-  if(!length(desc$Type)){
+  if (!length(desc$Type)) {
     stop("Cannot find `type` in the configuration file. ")
   }
   type <- desc$Type[[1]]
@@ -25,7 +25,7 @@ pipeline_install_directory <- function(
     unlink(tmp_dir, recursive = TRUE)
   }, add = TRUE)
   file.copy(config_path, file.path(tmp_dir, "DESCRIPTION"), overwrite = TRUE, recursive = FALSE)
-  if(upgrade || force) {
+  if (upgrade || force) {
     install_deps(root = tmp_dir, upgrade = upgrade, force = force, ...)
   } else {
     tryCatch({
@@ -36,27 +36,27 @@ pipeline_install_directory <- function(
   }
 
 
-  if( length(desc$InteractiveModules) ) {
+  if ( length(desc$InteractiveModules) ) {
     modules <- strsplit(desc$InteractiveModules, "[,\n]+")[[1]]
 
     module_yaml <- file.path(directory, "modules.yaml")
     module_settings <- list()
-    if(file.exists(module_yaml)){
+    if (file.exists(module_yaml)) {
       settings <- load_yaml(module_yaml)
       module_settings <- as.list(settings$modules)
     }
 
-    modules <- lapply(modules, function(module){
+    modules <- lapply(modules, function(module) {
       path <- file.path(directory, module)
-      if(!dir.exists(path)){
+      if (!dir.exists(path)) {
         warning(glue("Unable to find module { module }."))
         return()
       }
       module_id <- basename(path)
       module_info <- as.list(module_settings[[module_id]])
-      if(!length(module_info$label)){
+      if (!length(module_info$label)) {
         module_label <- gsub("[-_]+", " ", module_id)
-        if(nchar(module_label)){
+        if (nchar(module_label)) {
           substr(module_label, 1, 1) <- toupper(substr(module_label, 1, 1))
         }
         module_info$label <- module_label
@@ -75,15 +75,15 @@ pipeline_install_directory <- function(
 
     settings <- fastmap2()
     module_yaml <- file.path(template_path, "modules.yaml")
-    if(file.exists(module_yaml)) {
+    if (file.exists(module_yaml)) {
       load_yaml(module_yaml, map = settings)
     }
     module_settings <- list()
 
-    for(module in modules){
+    for (module in modules) {
 
       module_target <- file.path(module_path, module$module_id)
-      if(dir.exists(module_target)){
+      if (dir.exists(module_target)) {
         unlink(module_target, recursive = TRUE)
       }
       file.copy(module$module_path, module_path, overwrite = TRUE, recursive = TRUE, copy.date = TRUE)
@@ -99,11 +99,11 @@ pipeline_install_directory <- function(
     save_yaml(settings, module_yaml)
   }
 
-  if( identical(desc$Type, "rave-pipeline-collection") ){
+  if ( identical(desc$Type, "rave-pipeline-collection") ) {
     # install sub-versions if possible
-    if(length(desc$SubPipelines)){
+    if (length(desc$SubPipelines)) {
       sub_pipes <- strsplit(desc$SubPipelines, "[,\n]+")[[1]]
-      for(pname in sub_pipes){
+      for (pname in sub_pipes) {
         pdir <- file.path(directory, pname)
 
         catgl("Adding pipeline {pname}", level = "DEFAULT")
@@ -113,8 +113,8 @@ pipeline_install_directory <- function(
   } else {
     catgl("Adding pipeline {desc$Package}", level = "DEFAULT")
     pipeline_root <- file.path(dest, desc$Package, desc$Version)
-    if(dir.exists(pipeline_root)){
-      # if(!force){
+    if (dir.exists(pipeline_root)) {
+      # if(!force) {
       #   stop("Pipeline ", desc$Package, " - version ", desc$Version,
       #        ' already exists. Please use `force=TRUE` to force install')
       # }
@@ -176,11 +176,11 @@ pipeline_install_local <- function(
   src <- normalizePath(src, mustWork = TRUE)
   stopifnot2(dir.exists(src), msg = "`pipeline_install_local`: `src` must be a valid directory")
   to <- match.arg(to)
-  switch (
+  switch(
     to,
     "custom" = {
       dest <- pipeline_root()
-      if(length(dest) > 1){
+      if (length(dest) > 1) {
         dest <- dest[dest != "."]
       }
       dest <- normalizePath(dest[[1]])
@@ -196,11 +196,11 @@ pipeline_install_local <- function(
     }
   )
 
-  if(isTRUE(set_default)) {
+  if (isTRUE(set_default)) {
     fs <- list.files(src, recursive = FALSE, full.names = TRUE, all.files = TRUE)
     template_path <- ravepipeline_data_dir("rave-pipelines")
 
-    if(dir.exists(template_path)) {
+    if (dir.exists(template_path)) {
       try({
         unlink(template_path, recursive = TRUE)
       })
@@ -248,7 +248,7 @@ pipeline_install_github <- function(
     message("Unable to download the tarball. You might have been using the wrong Github API token/privilege or incorrect repository name.")
     e
   })
-  if(inherits(res, "error")) {
+  if (inherits(res, "error")) {
     message("Falling back to normal downloading method (branch information is ignored).")
     url <- sprintf("https://github.com/%s/%s/archive/refs/heads/main.zip",
                    remote$username, remote$repo)
@@ -267,29 +267,29 @@ pipeline_install_github <- function(
 
   src <- exdir
   conf_path <- file.path(src, c("RAVE-CONFIG", "DESCRIPTION"))
-  if(!any(file.exists(conf_path))){
+  if (!any(file.exists(conf_path))) {
     srcs <- list.dirs(src, full.names = TRUE, recursive = FALSE)
-    for(src in srcs){
+    for (src in srcs) {
       conf_path <- file.path(src, c("RAVE-CONFIG", "DESCRIPTION"))
-      if(any(file.exists(conf_path))){
+      if (any(file.exists(conf_path))) {
         break
       }
     }
   }
   conf_path <- conf_path[file.exists(conf_path)]
-  if(length(conf_path)) {
+  if (length(conf_path)) {
     conf_path <- conf_path[[1]]
     repo0 <- gsub("@.*$", "", repo)
     reg <- module_registry2(repo0, conf_path)
     # get current registry
     all_regs <- get_modules_registries(update = FALSE)
-    for(item in all_regs) {
-      if(!identical(
+    for (item in all_regs) {
+      if (!identical(
         reg$maintainer$email,
         item$maintainer$email
       )) {
         dups <- item$modules[item$modules %in% reg$modules]
-        if(length(dups)) {
+        if (length(dups)) {
           stop(sprintf("Cannot install modules from repository [%s]. The following module IDs have been registered by other repositories:\n  %s", repo, paste(dups, collapse = ", ")))
         }
       }
@@ -298,14 +298,14 @@ pipeline_install_github <- function(
     # conf <- as.list(as.data.frame(read.dcf(conf_path)))
   }
 
-  if(is.na(set_default) && identical(repo, "rave-ieeg/rave-pipelines")) {
+  if (is.na(set_default) && identical(repo, "rave-ieeg/rave-pipelines")) {
     set_default <- TRUE
   }
   # if(identical(repo, "rave-ieeg/rave-pipelines")) {
   #   fs <- list.files(src, recursive = FALSE, full.names = TRUE, all.files = TRUE)
   #   template_path <- ravepipeline_data_dir("rave-pipelines")
   #
-  #   if(dir.exists(template_path)) {
+  #   if (dir.exists(template_path)) {
   #     try({
   #       unlink(template_path, recursive = TRUE)
   #     })
@@ -328,27 +328,27 @@ pipeline_install_github <- function(
 #' @export
 pipeline_root <- local({
   root <- NULL
-  function(root_path, temporary = FALSE){
+  function(root_path, temporary = FALSE) {
     re <- root
-    if(!missing(root_path)){
-      if(any(is.na(root_path))){ stop("pipeline root cannot be NA") }
-      if('.' %in% root_path){
-        root_path <- root_path[root_path != '.']
+    if (!missing(root_path)) {
+      if (any(is.na(root_path))) { stop("pipeline root cannot be NA") }
+      if ("." %in% root_path) {
+        root_path <- root_path[root_path != "."]
         re <- c(".", normalizePath(root_path, mustWork = FALSE))
-        if(!temporary) {
+        if (!temporary) {
           root <<- re
         }
       } else {
         re <- normalizePath(root_path, mustWork = FALSE)
-        if(!temporary) {
+        if (!temporary) {
           root <<- re
         }
       }
-      if(!any(dir.exists(re))){
+      if (!any(dir.exists(re))) {
         warning("The following pipeline root directories do not exist: \n  |> ", paste(re, collapse = "\n  |> "))
       }
     } else {
-      if(is.null(re)){
+      if (is.null(re)) {
         re <- c(".", ravepipeline_data_dir("pipelines"))
         root <<- re
       }
@@ -359,7 +359,7 @@ pipeline_root <- local({
 
 #' @rdname rave-pipeline
 #' @export
-pipeline_list <- function(root_path = pipeline_root()){
+pipeline_list <- function(root_path = pipeline_root()) {
   names <-
     unlist(lapply(
       root_path,
@@ -369,7 +369,7 @@ pipeline_list <- function(root_path = pipeline_root()){
     ))
   names <- names[!grepl("^[.~_]", names)]
   names <- names[!names %in% c("R", "src", "inst", "man", "doc")]
-  names <- names[vapply(names, function(nm){
+  names <- names[vapply(names, function(nm) {
     try({
       pipeline_find(nm, root_path = root_path)
       return(TRUE)
@@ -381,34 +381,34 @@ pipeline_list <- function(root_path = pipeline_root()){
 
 #' @rdname rave-pipeline
 #' @export
-pipeline_find <- function(name, root_path = pipeline_root()){
+pipeline_find <- function(name, root_path = pipeline_root()) {
 
   paths <- file.path(root_path, name)
   paths <- paths[dir.exists(paths)]
 
-  for(path in paths){
+  for (path in paths) {
     path <- tryCatch({
       vpath <- file.path(path, "versions.yaml")
-      if(file.exists(vpath)){
+      if (file.exists(vpath)) {
         # read version file
         v <- load_yaml(file.path(path, "versions.yaml"))
         spath <- file.path(path, v$Version)
         # copy the pipeline out immediate
         path <- file.path(temporary_session_root(), "pipelines", name)
-        if(!file.exists(file.path(path, "common.R"))) {
+        if (!file.exists(file.path(path, "common.R"))) {
           dir_create2(path)
           fs <- list.files(spath, all.files = FALSE, recursive = FALSE, include.dirs = TRUE, full.names = TRUE)
-          for(f in fs) {
+          for (f in fs) {
             file.copy(fs, path, overwrite = TRUE, recursive = TRUE)
           }
         }
       }
       path <- activate_pipeline(path)
       return(path)
-    }, error = function(e){
+    }, error = function(e) {
       NULL
     })
-    if(!is.null(path)){
+    if (!is.null(path)) {
       return(path)
     }
   }
@@ -417,7 +417,7 @@ pipeline_find <- function(name, root_path = pipeline_root()){
 
 #' @rdname rave-pipeline
 #' @export
-pipeline_attach <- function(name, root_path = pipeline_root()){
+pipeline_attach <- function(name, root_path = pipeline_root()) {
   path <- pipeline_find(name, root_path)
   Sys.setenv("RAVE_PIPELINE" = path)
 }

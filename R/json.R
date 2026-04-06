@@ -1,11 +1,10 @@
 # This file is licensed under MIT by Zhengjia Wang
 
-save_json <- function (x, con = stdout(), ..., digits = ceiling(-log10(.Machine$double.eps)),
+save_json <- function(x, con = stdout(), ..., digits = ceiling(-log10(.Machine$double.eps)),
                        pretty = TRUE, serialize = TRUE) {
   if (serialize) {
     s <- jsonlite::serializeJSON(x, digits = digits, pretty = pretty)
-  }
-  else {
+  } else {
     s <- jsonlite::toJSON(x, digits = digits, pretty = pretty,
                           ...)
   }
@@ -13,7 +12,7 @@ save_json <- function (x, con = stdout(), ..., digits = ceiling(-log10(.Machine$
   invisible()
 }
 
-load_json <- function (con, ...) {
+load_json <- function(con, ...) {
   s <- readLines(con)
   args <- list(...)
   s <- trimws(paste(s, collapse = ""))

@@ -1,7 +1,7 @@
-load_target <- function(src, local = TRUE){
+load_target <- function(src, local = TRUE) {
   s <- source(src, local = local, echo = FALSE, verbose = FALSE, chdir = TRUE)
   target <- s$value
-  if(!is.list(target)){
+  if (!is.list(target)) {
     stop("Script ", src, " must need to end with a list.")
   }
   target
@@ -11,8 +11,8 @@ load_target <- function(src, local = TRUE){
 
 #' @rdname rave-pipeline
 #' @export
-load_targets <- function(..., env = NULL){
-  if(!is.environment(env)) {
+load_targets <- function(..., env = NULL) {
+  if (!is.environment(env)) {
     env <- TRUE
   }
   targets <- lapply(c(...), load_target, local = env)
@@ -24,7 +24,7 @@ load_targets <- function(..., env = NULL){
 # Must not be called directory
 activate_pipeline <- function(pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
                               debug = FALSE) {
-  if(!dir.exists(pipe_dir)){
+  if (!dir.exists(pipe_dir)) {
     stop("`pipe_dir` must be the directory of pipeline files.")
   }
 
@@ -32,11 +32,11 @@ activate_pipeline <- function(pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
   common_script <- file.path(pipe_dir, "common.R")
   entry_point_path <- file.path(pipe_dir, "make-main.R")
 
-  if(!file.exists(common_script)){
+  if (!file.exists(common_script)) {
     stop("Cannot find `common.R` in the pipeline.")
   }
 
-  if(!file.exists(entry_point_path)){
+  if (!file.exists(entry_point_path)) {
     stop("Cannot find entry point (`make-main.R`) in the pipeline.")
   }
 
@@ -47,7 +47,7 @@ activate_pipeline <- function(pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
   wd0 <- getwd()
   wd <- normalizePath(wd0)
 
-  if( debug && !interactive() ) {
+  if ( debug && !interactive() ) {
     stop("Debugging a pipeline must be in an interactive session.")
   }
 
@@ -55,7 +55,7 @@ activate_pipeline <- function(pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
   # Handle reset work directory to comply with CRAN policy
 
 
-  if( debug ) {
+  if ( debug ) {
     # Shouldn't set working directory back since this is explicitly requested
     # However, warning should be raised and method to set back is provided
     # Also `interactive()` has just been checked.
@@ -84,7 +84,7 @@ activate_pipeline <- function(pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
 
 #' @rdname rave-pipeline
 #' @export
-pipeline_target_names <- function(pipe_dir = Sys.getenv("RAVE_PIPELINE", ".")){
+pipeline_target_names <- function(pipe_dir = Sys.getenv("RAVE_PIPELINE", ".")) {
   pipe_dir <- activate_pipeline(pipe_dir)
 
   # find targets that are not in the main
@@ -102,7 +102,7 @@ pipeline_debug <- function(
     env = parent.frame(),
     pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
     skip_names
-){
+) {
   pipe_dir <- activate_pipeline(pipe_dir)
 
   # find targets that are not in the main
@@ -111,8 +111,8 @@ pipeline_debug <- function(
   main_targets <- load_target(script)
   all_targets <- load_target("make-main.R")
 
-  if(quick){
-    if(missing(skip_names)){
+  if (quick) {
+    if (missing(skip_names)) {
       main_target_names <- unlist(lapply(main_targets, get_target_name))
       target_names <- unlist(lapply(all_targets, get_target_name))
       skip_names <- unname(target_names[!target_names %in% main_target_names])
@@ -121,7 +121,7 @@ pipeline_debug <- function(
     skip_names <- NULL
   }
 
-  if(quick){
+  if (quick) {
     # build with targets
     do.call(targets::tar_make, list(
       callr_function = NULL,
@@ -137,8 +137,8 @@ pipeline_debug <- function(
 
   started <- Sys.time()
 
-  for(ii in seq_along(all_targets)){
-    if(length(nms) < ii || nms[[ii]] == ""){
+  for (ii in seq_along(all_targets)) {
+    if (length(nms) < ii || nms[[ii]] == "") {
       nm <- "(No name)"
     } else {
       nm <- strsplit(nms[[ii]], "_", fixed = TRUE)[[1]]
@@ -148,13 +148,13 @@ pipeline_debug <- function(
 
     ...t <- all_targets[[ii]]
     name <- get_target_name(...t)
-    if(name %in% skip_names){
+    if (name %in% skip_names) {
       v <- targets::tar_read_raw(name)
       assign(name, v, envir = env)
     } else {
 
       r <- w - nchar(nm, type = "width") - 14
-      if( r <= 2 ){ r <- 2 }
+      if ( r <= 2 ) { r <- 2 }
       nm <- paste(c(
         sprintf(" (%.2f s) ", time_delta(started, Sys.time())),
         rep("-", r), " ", nm, "\n"), collapse = "")
@@ -169,7 +169,7 @@ pipeline_debug <- function(
         str <- deparse1(v)
         str <- gsub(x = str, pattern = "[\t\n]", replacement = "  ")
         r <- w - nchar(name, type = "width") - 25
-        if(r < 0){
+        if (r < 0) {
           r <- max(w - 5, 1)
           s <- "`{name}` <- \n    "
         } else {
@@ -213,7 +213,7 @@ pipeline_dep_targets <- function(
   )
 
   walk <- function(name) {
-    if(!is.null(dep_env[[name]])) {
+    if (!is.null(dep_env[[name]])) {
       dep_env[[name]] <- dep_env[[name]] + 1L
       return()
     }
@@ -226,7 +226,7 @@ pipeline_dep_targets <- function(
   lapply(names, walk)
   re <- ls(dep_env, all.names = TRUE)
 
-  if(length(skip_names)) {
+  if (length(skip_names)) {
     dep_env <- new.env(parent = emptyenv(), hash = TRUE)
     lapply(skip_names, walk)
     skipped_names <- ls(dep_env, all.names = TRUE)
@@ -263,7 +263,7 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
 
   nms <- names(all_targets)
   tnames <- unname(unlist(lapply(all_targets, get_target_name)))
-  if(is.null(names)) {
+  if (is.null(names)) {
     names <- tnames
   }
   names <- names[names %in% tnames]
@@ -271,7 +271,7 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
   # Load shared functions into env
   env$pipeline <- pipeline_from_path(pipe_dir)
   skip_load_shared_env <- isTRUE(get0(".is_rave_pipeline_shared_env", envir = env, ifnotfound = FALSE))
-  if(!skip_load_shared_env) {
+  if (!skip_load_shared_env) {
     shared_libs <- list.files(file.path(pipe_dir, "R"), pattern = "^shared-.*\\.R",
                               full.names = TRUE, ignore.case = TRUE)
     shared_libs <- sort(shared_libs)
@@ -289,11 +289,11 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
   # }
 
   input_names <- NULL
-  if(file.exists(settings_path)) {
+  if (file.exists(settings_path)) {
     catgl(sprintf("Loading inputs from [%s]", basename(settings_path)), .envir = emptyenv(), level = "DEFAULT")
     input_settings <- read_yaml(settings_path)
     input_settings <- input_settings[names(input_settings) %in% tnames]
-    if(length(input_settings)) {
+    if (length(input_settings)) {
       input_names <- names(input_settings)
       lapply(input_names, function(nm) {
         env[[nm]] <- resolve_pipeline_settings_value( input_settings[[nm]], pipe_dir = pipe_dir )
@@ -302,11 +302,11 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
   }
   # print(ls(env))
 
-  if( shortcut ) {
+  if ( shortcut ) {
     matured_targets <- ls(env, all.names = TRUE, sorted = FALSE)
-    if(!isTRUE(env$.is_rave_pipeline_shared_env)) {
+    if (!isTRUE(env$.is_rave_pipeline_shared_env)) {
       penv <- parent.env(env)
-      if(is.environment(penv) && isTRUE(penv$.is_rave_pipeline_shared_env)) {
+      if (is.environment(penv) && isTRUE(penv$.is_rave_pipeline_shared_env)) {
         matured_targets <- c(matured_targets, ls(penv, all.names = TRUE, sorted = FALSE))
       }
     }
@@ -327,7 +327,7 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
     # determine the name
     ii <- which(tnames == name)
     tar_obj <- all_targets[[ii]]
-    if(length(nms) < ii || nms[[ii]] == ""){
+    if (length(nms) < ii || nms[[ii]] == "") {
       nm <- sprintf("[%s]", name)
     } else {
       nm <- strsplit(nms[[ii]], "_")[[1]]
@@ -337,9 +337,9 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
     }
     readable_name <- nm
 
-    if( shortcut && name %in% missing_names ) {
+    if ( shortcut && name %in% missing_names ) {
       v <- pipeline_read(var_names = name, ifnotfound = missing_key, meta = meta)
-      if(!identical(v, missing_key)) {
+      if (!identical(v, missing_key)) {
         env[[name]] <- v
         matured_targets <<- c(matured_targets, name)
         catgl(sprintf("Loaded - %s", readable_name), .envir = emptyenv(), level = "DEFAULT")
@@ -349,11 +349,11 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
 
     deps <- get_target_deps(tar_obj)
     deps <- deps[!deps %in% matured_targets]
-    if( length(deps) ) {
+    if ( length(deps) ) {
       lapply(deps, eval_target)
     }
 
-    if( name %in% matured_targets ) { return() }
+    if ( name %in% matured_targets ) { return() }
 
     started <- Sys.time()
     catgl(sprintf("Starting - %s ...", readable_name), .envir = emptyenv(), level = "DEFAULT")
@@ -380,7 +380,7 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
 
   lapply(names, eval_target)
   #
-  #   if(length(missing_names)) {
+  #   if (length(missing_names)) {
   #     list2env(
   #       pipeline_read(var_names = missing_names),
   #       envir = env
@@ -394,7 +394,7 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
   #   lapply(names, function(name) {
   #
   #     ii <- which(tnames == name)
-  #     if(length(nms) < ii || nms[[ii]] == ""){
+  #     if (length(nms) < ii || nms[[ii]] == "") {
   #       nm <- sprintf("[%s]", name)
   #     } else {
   #       nm <- strsplit(nms[[ii]], "_")[[1]]
@@ -430,7 +430,7 @@ pipeline_eval <- function(names, env = new.env(parent = parent.frame()),
 pipeline_run_interactive <- function(
     names, skip_names, env = parent.frame(),
     pipe_dir = Sys.getenv("RAVE_PIPELINE", ".")
-){
+) {
   pipe_dir <- activate_pipeline(pipe_dir)
 
   # find targets that are not in the main
@@ -441,11 +441,11 @@ pipeline_run_interactive <- function(
 
   main_target_names <- unlist(lapply(main_targets, get_target_name))
   target_names <- unlist(lapply(all_targets, get_target_name))
-  if(missing(skip_names)){
+  if (missing(skip_names)) {
     skip_names <- unname(target_names[!target_names %in% main_target_names])
   }
 
-  if(length(skip_names)){
+  if (length(skip_names)) {
     # build with targets
     do.call(targets::tar_make, list(
       callr_function = NULL,
@@ -462,12 +462,12 @@ pipeline_run_interactive <- function(
 
   nms <- names(all_targets)
 
-  for(nm in names){
+  for (nm in names) {
     ii <- which(target_names == nm)
-    if(length(ii)){
+    if (length(ii)) {
 
       desc <- nms[[ii]]
-      if(desc == "") {
+      if (desc == "") {
         desc <- "(No name)"
       } else {
         desc <- strsplit(nms[[ii]], "_", perl = TRUE)[[1]]
@@ -478,7 +478,7 @@ pipeline_run_interactive <- function(
       ...t <- all_targets[[ii]]
       name <- get_target_name(...t)
       r <- w - nchar(nm, type = "width") - 14
-      if( r <= 2 ){ r <- 2 }
+      if ( r <= 2 ) { r <- 2 }
       nm <- paste(c(
         sprintf(" (%.2f s) ", time_delta(started, Sys.time())),
         rep("-", r), " ", nm, "\n"), collapse = "")
@@ -494,7 +494,7 @@ pipeline_run_interactive <- function(
           str <- deparse1(v)
           str <- gsub(x = str, pattern = "\t|\n", replacement = "  ")
           r <- w - nchar(name, type = "width") - 25
-          if(r < 0){
+          if (r < 0) {
             r <- max(w - 5, 1)
             s <- "`{name}` <- \n    "
           } else {
@@ -503,7 +503,7 @@ pipeline_run_interactive <- function(
           str <- substr(str, start = 1, stop = r)
           delta <- time_delta(counter, Sys.time())
           catgl(sprintf("[+%6.2f s] ", delta), s, str, "\n")
-        }, error = function(e){
+        }, error = function(e) {
           e$call <- expr
           stop(e)
         })
@@ -520,9 +520,9 @@ pipeline_visualize <- function(
     pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
     glimpse = FALSE, targets_only = TRUE,
     shortcut = FALSE, zoom_speed = 0.1, ...
-){
+) {
   pipe_dir <- activate_pipeline(pipe_dir)
-  if(glimpse) {
+  if (glimpse) {
     targets::tar_glimpse(targets_only = targets_only, shortcut = shortcut,
                          zoom_speed = zoom_speed, ...)
   } else {
@@ -547,9 +547,9 @@ pipeline_dependency_graph <- function(pipeline_path, targets_only = TRUE, shortc
       pipeline_path <- ravepipeline$activate_pipeline(pipeline_path)
 
       target_names <- ravepipeline$pipeline_target_names(pipeline_path)
-      target_descr <- sapply(strsplit(names(target_names), "_"), function(x){
+      target_descr <- sapply(strsplit(names(target_names), "_"), function(x) {
         x <- x[x != ""]
-        if(!length(x)) { return(NA) }
+        if (!length(x)) { return(NA) }
         substr(x[[1]], start = 1, stop = 1) <- toupper(
           substr(x[[1]], start = 1, stop = 1)
         )
@@ -568,7 +568,7 @@ pipeline_dependency_graph <- function(pipeline_path, targets_only = TRUE, shortc
       store <- targets$tar_config_get("store")
       names <- targets$pipeline_get_names(target)
       # check if targets version is at least 1.11.1
-      if(isTRUE(utils::compareVersion(as.character(utils::packageVersion("targets")), "1.11.1") >= 0)) {
+      if (isTRUE(utils::compareVersion(as.character(utils::packageVersion("targets")), "1.11.1") >= 0)) {
         targets$tar_config_set(reporter_make = "terse", reporter_outdated = "terse")
       } else {
         targets$tar_config_unset(c("reporter_make", "reporter_outdated"))
@@ -576,7 +576,7 @@ pipeline_dependency_graph <- function(pipeline_path, targets_only = TRUE, shortc
       reporter <- targets$tar_config_get("reporter_outdated")
 
 
-      if( glimpse ) {
+      if ( glimpse ) {
         network <- targets$glimpse_init(
           pipeline = target, meta = targets$meta_init(path_store = store),
           progress = targets$progress_init(path_store = store), targets_only = targets_only,
@@ -654,11 +654,11 @@ pipeline_progress <- function(
     pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
     method = c("summary", "details", "custom"),
     func = targets::tar_progress_summary
-){
+) {
   method <- match.arg(method)
   activate_pipeline(pipe_dir)
 
-  switch (
+  switch(
     method,
     "summary" = targets::tar_progress_summary(),
     "details" = targets::tar_progress(),
@@ -676,38 +676,38 @@ pipeline_fork <- function(
     policy = "default",
     activate = FALSE,
     ...
-){
+) {
 
-  if(!dir.exists(src)){
+  if (!dir.exists(src)) {
     stop("pipeline_fork: `src` must be a pipeline directory")
   }
-  if(!file.exists(file.path(src, "common.R"))){
+  if (!file.exists(file.path(src, "common.R"))) {
     stop("pipeline_fork: `src/common.R` is missing")
   }
-  if(!file.exists(file.path(src, "make-main.R"))){
+  if (!file.exists(file.path(src, "make-main.R"))) {
     stop("pipeline_fork: `src/make-main.R` is missing")
   }
 
   # search for fork-policy
   fork_policy_path <- file.path(src, "fork-policy")
   fork_policy_regexp <- c("^shared", "^main\\.html$")
-  if(file.exists(fork_policy_path)) {
+  if (file.exists(fork_policy_path)) {
     fork_policy <- readLines(fork_policy_path)
     idx <- which(startsWith(fork_policy, "["))
-    if(length(idx)) {
+    if (length(idx)) {
       sel <- which(tolower(trimws(fork_policy[idx])) == sprintf("[%s]", tolower(policy)))
-      if(length(sel)) {
+      if (length(sel)) {
         sel <- sel[[1]]
-        if(sel == length(idx)) {
+        if (sel == length(idx)) {
           start <- idx[[sel]] + 1
           end <- length(fork_policy)
-          if( start <= end ) {
+          if ( start <= end ) {
             fork_policy_regexp <- fork_policy[seq(start, end)]
           }
         } else {
           start <- idx[[sel]] + 1
           end <- idx[[sel + 1]] - 1
-          if( start <= end ) {
+          if ( start <= end ) {
             fork_policy_regexp <- fork_policy[seq(start, end)]
           }
         }
@@ -771,7 +771,7 @@ pipeline_fork <- function(
   })
   saveRDS(fork_info, file.path(dest, "_fork_info"))
 
-  if( activate ){
+  if ( activate ) {
     pipeline_build(dest)
     Sys.setenv("RAVE_PIPELINE" = dest)
   }
@@ -782,7 +782,7 @@ pipeline_fork <- function(
 #' @export
 pipeline_build <- function(
     pipe_dir = Sys.getenv("RAVE_PIPELINE", ".")
-){
+) {
   pipe_dir <- activate_pipeline(pipe_dir)
   configure_src <- file.path(pipe_dir, "configure.R")
 
@@ -799,15 +799,15 @@ pipeline_read <- function(
     pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
     branches = NULL,
     ifnotfound = NULL,
-    dependencies = c('none', 'ancestors_only', 'all'),
+    dependencies = c("none", "ancestors_only", "all"),
     simplify = TRUE,
     ...
 ) {
   dependencies <- match.arg(dependencies)
 
-  if( dependencies != "none") {
+  if ( dependencies != "none") {
     dep_names <- pipeline_dep_targets(names = var_names, pipe_dir = pipe_dir)
-    if( dependencies == "ancestors_only" ) {
+    if ( dependencies == "ancestors_only" ) {
       dep_names <- dep_names[!dep_names %in% var_names]
     }
     var_names <- dep_names
@@ -818,19 +818,19 @@ pipeline_read <- function(
 
   args <- list(...)
   meta <- args$meta
-  if(!is.data.frame(meta)) {
+  if (!is.data.frame(meta)) {
     meta <- targets::tar_meta(store = targets::tar_config_get("store"))
   }
 
-  re <- structure(lapply(var_names, function(vn){
+  re <- structure(lapply(var_names, function(vn) {
     tryCatch({
       targets::tar_read_raw(name = vn, branches = branches, meta = meta)
-    }, error = function(e){
+    }, error = function(e) {
       ifnotfound
     })
   }), names = var_names)
 
-  if(simplify && length(var_names) == 1){
+  if (simplify && length(var_names) == 1) {
     re <- re[[ 1 ]]
   }
   return(re)
@@ -847,11 +847,11 @@ pipeline_vartable <- function(
   pipe_dir <- activate_pipeline(pipe_dir)
   tbl <- NULL
   tryCatch({
-    if( targets::tar_exist_meta() ) {
+    if ( targets::tar_exist_meta() ) {
       tbl <- targets::tar_meta(..., targets_only = targets_only,
                                complete_only = complete_only)
     }
-  }, error = function(e){
+  }, error = function(e) {
   })
   tbl
 }
@@ -871,16 +871,16 @@ pipeline_hasname <- function(
 pipeline_watch <- function(
     pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
     targets_only = TRUE, ...
-){
+) {
   pipe_dir <- activate_pipeline(pipe_dir)
-  targets::tar_watch(..., targets_only = targets_only, display = 'graph')
+  targets::tar_watch(..., targets_only = targets_only, display = "graph")
 }
 
 #' @rdname rave-pipeline
 #' @export
 pipeline_create_template <- function(
     root_path, pipeline_name, overwrite = FALSE,
-    activate = TRUE, template_type = c("rmd", 'r', 'rmd-bare', 'rmd-scheduler', 'rmd-python')
+    activate = TRUE, template_type = c("rmd", "r", "rmd-bare", "rmd-scheduler", "rmd-python")
 ) {
   # DIPSAUS DEBUG START
   # root_path = tempfile()
@@ -893,8 +893,8 @@ pipeline_create_template <- function(
   stopifnot2(!pipeline_name %in% c("main", "imports", "initialize", "template"),
              msg = "Pipeline name cannot be `main`, `imports`, `template`, or `initialize`")
   pipe_path <- file.path(root_path, pipeline_name)
-  if(dir.exists(pipe_path)){
-    if(!overwrite){
+  if (dir.exists(pipe_path)) {
+    if (!overwrite) {
       stop("Pipeline ", pipeline_name, " already exists at\n  ", pipe_path)
     } else {
       unlink(pipe_path, recursive = TRUE)
@@ -911,22 +911,22 @@ pipeline_create_template <- function(
       sprintf("template-%s", template_type)
     }
   )
-  template_path <- system.file("rave-pipelines", template_foldername, package = 'ravepipeline', mustWork = TRUE)
+  template_path <- system.file("rave-pipelines", template_foldername, package = "ravepipeline", mustWork = TRUE)
   fs_src <- list.files(template_path, recursive = FALSE,
                        include.dirs = TRUE, no.. = TRUE,
                        full.names = FALSE)
 
   fs_src <- fs_src[!grepl("\\.Rproj$", fs_src, perl = TRUE)]
 
-  for(f in fs_src) {
+  for (f in fs_src) {
     f_src <- file.path(template_path, f)
-    if(dir.exists(f_src)) {
+    if (dir.exists(f_src)) {
       # file.copy(f_src, pipe_path, overwrite = overwrite,
       #           recursive = TRUE, copy.date = TRUE)
 
       # this is a directory, carefully copy all the files (also change the names)
       sub_fs <- list.files(f_src, all.files = FALSE, full.names = FALSE, recursive = TRUE, include.dirs = FALSE, no.. = TRUE)
-      for(sub_f in sub_fs) {
+      for (sub_f in sub_fs) {
         sub_f_src <- file.path(f_src, sub_f)
         # substitude folder names
         sub_f_dst <- gsub(pattern = "TEMPLATE", replacement = pipeline_name, x = file.path(f, sub_f), ignore.case = FALSE)
@@ -945,7 +945,7 @@ pipeline_create_template <- function(
   fs_src <- list.files(template_path, recursive = TRUE, include.dirs = FALSE)
   fs_dst <- gsub(x = fs_src, pattern = "TEMPLATE", replacement = pipeline_name, ignore.case = FALSE)
   fs <- file.path(pipe_path, fs_dst)
-  for(f in fs){
+  for (f in fs) {
     s <- readLines(f)
     s <- gsub(x = s, pattern = "TEMPLATE_PATH", replacement = pipe_path, ignore.case = FALSE)
     s <- gsub(x = s, pattern = "TEMPLATE", replacement = pipeline_name, ignore.case = FALSE)
@@ -963,7 +963,7 @@ pipeline_create_template <- function(
   # build the pipeline
   pipeline_build(pipe_path)
 
-  if(activate){
+  if (activate) {
     Sys.setenv("RAVE_PIPELINE" = pipe_path)
   }
   return(pipe_path)
@@ -973,8 +973,8 @@ pipeline_create_template <- function(
 #' @export
 pipeline_create_subject_pipeline <- function(
     subject, pipeline_name, overwrite = FALSE,
-    activate = TRUE, template_type = c("rmd", 'r', 'rmd-python')
-){
+    activate = TRUE, template_type = c("rmd", "r", "rmd-python")
+) {
 
   template_type <- match.arg(template_type)
   pipeline_name <- tolower(pipeline_name)
@@ -982,7 +982,7 @@ pipeline_create_subject_pipeline <- function(
              msg = "Pipeline name cannot be `main`, `imports`, `template`, or `initialize`")
   subject <- call_ravecore_fun(f_name = "as_rave_subject", subject, strict = FALSE)
   pipe_path <- file.path(subject$pipeline_path, pipeline_name)
-  if(!overwrite && dir.exists(pipe_path)){
+  if (!overwrite && dir.exists(pipe_path)) {
     stop("Pipeline ", pipeline_name, " already exists at\n  ", pipe_path)
   }
   # create a skeleton template
@@ -1001,7 +1001,7 @@ pipeline_create_subject_pipeline <- function(
   file.copy(file.path(template_path, fs_src), file.path(pipe_path, fs_dst), overwrite = overwrite, copy.date = TRUE)
 
   fs <- file.path(pipe_path, fs_dst)
-  for(f in fs){
+  for (f in fs) {
     s <- readLines(f)
     s <- gsub(x = s, pattern = "TEMPLATE_PATH", replacement = pipe_path, ignore.case = FALSE)
     s <- gsub(x = s, pattern = "TEMPLATE", replacement = pipeline_name, ignore.case = FALSE)
@@ -1010,17 +1010,17 @@ pipeline_create_subject_pipeline <- function(
     writeLines(s, f)
   }
   settings <- read_yaml(file.path(pipe_path, "settings.yaml"))
-  if(length(subject$epoch_names)){
+  if (length(subject$epoch_names)) {
     settings$epoch <- subject$epoch_names[[1]]
   } else {
     settings$epoch <- "default"
   }
 
-  if(length(subject$electrodes)){
+  if (length(subject$electrodes)) {
     settings$electrodes <- deparse_svec(subject$electrodes)
   }
 
-  if(length(subject$reference_names)){
+  if (length(subject$reference_names)) {
     settings$reference <- subject$reference_names[[1]]
   } else {
     settings$reference <- "default"
@@ -1031,7 +1031,7 @@ pipeline_create_subject_pipeline <- function(
   # build the pipeline
   pipeline_build(pipe_path)
 
-  if(activate){
+  if (activate) {
     Sys.setenv("RAVE_PIPELINE" = pipe_path)
   }
   return(pipe_path)
@@ -1039,7 +1039,7 @@ pipeline_create_subject_pipeline <- function(
 
 #' @rdname rave-pipeline
 #' @export
-pipeline_description <- function (file) {
+pipeline_description <- function(file) {
   # file <- file.path(pipeline, 'DESCRIPTION')
   dcf <- read.dcf(file = file)
   if (nrow(dcf) < 1L) {
@@ -1130,16 +1130,16 @@ pipeline_settings_set <- function(
     ...,
     pipeline_path = Sys.getenv("RAVE_PIPELINE", "."),
     pipeline_settings_path = file.path(pipeline_path, "settings.yaml")
-){
-  if(!file.exists(pipeline_settings_path)){
+) {
+  if (!file.exists(pipeline_settings_path)) {
     stop("Cannot find settings file:\n  ", pipeline_settings_path)
   }
   settings <- load_yaml(pipeline_settings_path)
   args <- list(...)
-  if( !length(args) ) { return(settings) }
+  if ( !length(args) ) { return(settings) }
 
   argnames <- names(args)
-  if(!length(argnames) || "" %in% argnames) {
+  if (!length(argnames) || "" %in% argnames) {
     stop("`pipeline_set`: all input lists must have names")
   }
 
@@ -1148,7 +1148,7 @@ pipeline_settings_set <- function(
 
     opts <- resolve_pipeline_settings_opt(settings[[nm]], strict = FALSE)
 
-    if(!is.null(opts)) {
+    if (!is.null(opts)) {
       # external settings
       # save external data
       pipeline_save_extdata(
@@ -1178,7 +1178,7 @@ pipeline_settings_set <- function(
 
 resolve_pipeline_settings_opt <- function(value, strict = TRUE) {
 
-  if(isTRUE(is.character(value)) && length(value) == 1 && !is.na(value) &&
+  if (isTRUE(is.character(value)) && length(value) == 1 && !is.na(value) &&
      grepl("^\\$\\{EXTDATA\\-SETTINGS\\|(.*)\\}$", value)) {
 
     # this value should be stored as external data
@@ -1186,10 +1186,10 @@ resolve_pipeline_settings_opt <- function(value, strict = TRUE) {
     value <- strsplit(value, "\\|")[[1]]
     data_name <- value[[1]]
 
-    if(nchar(data_name) && grepl("[a-zA-Z0-9]{1,}[a-zA-Z0-9_\\.-]{0,}", data_name)) {
+    if (nchar(data_name) && grepl("[a-zA-Z0-9]{1,}[a-zA-Z0-9_\\.-]{0,}", data_name)) {
 
       data_format <- "rds"
-      if(length(value >= 2) && tolower(value[[2]]) %in% c("json", "yaml", "csv", "fst", "rds")) {
+      if (length(value >= 2) && tolower(value[[2]]) %in% c("json", "yaml", "csv", "fst", "rds")) {
         data_format <- tolower(value[[2]])
       }
       return(list(
@@ -1197,13 +1197,13 @@ resolve_pipeline_settings_opt <- function(value, strict = TRUE) {
         format = data_format
       ))
     } else {
-      if( strict ) {
+      if ( strict ) {
         stop("Cannot resolve the pipeline external settings: invalid data name: ", data_name)
       }
       return(NULL)
     }
   } else {
-    if( strict ) {
+    if ( strict ) {
       stop("Cannot resolve the pipeline external settings: invalid settings: ", value)
     }
     return(NULL)
@@ -1213,7 +1213,7 @@ resolve_pipeline_settings_opt <- function(value, strict = TRUE) {
 resolve_pipeline_settings_value <- function(value, pipe_dir = Sys.getenv("RAVE_PIPELINE", ".")) {
 
   opts <- resolve_pipeline_settings_opt(value, strict = FALSE)
-  if(is.null(opts) || !is.list(opts)) {
+  if (is.null(opts) || !is.list(opts)) {
     return( value )
   }
 
@@ -1223,9 +1223,9 @@ resolve_pipeline_settings_value <- function(value, pipe_dir = Sys.getenv("RAVE_P
 
   value <- do.call(pipeline_load_extdata, opts)
 
-  if(!is.null(value)) {
+  if (!is.null(value)) {
     cls <- class(value)
-    if( !"raveio-pipeline-extdata" %in% cls ) {
+    if ( !"raveio-pipeline-extdata" %in% cls ) {
       class(value) <- c("raveio-pipeline-extdata", cls)
     }
     attr(value, "raveio-pipeline-extdata-opts") <- opts[c("name", "format")]
@@ -1239,37 +1239,37 @@ pipeline_settings_get <- function(
     key, default = NULL, constraint = NULL,
     pipeline_path = Sys.getenv("RAVE_PIPELINE", "."),
     pipeline_settings_path = file.path(pipeline_path, "settings.yaml")) {
-  if(!file.exists(pipeline_settings_path)){
+  if (!file.exists(pipeline_settings_path)) {
     stop("Cannot find settings file:\n  ", pipeline_settings_path)
   }
 
   settings <- load_yaml(pipeline_settings_path)
 
-  if(missing(key)) {
+  if (missing(key)) {
     nms <- names(settings)
   } else {
     nms <- key
   }
 
 
-  if(missing(key)){
+  if (missing(key)) {
     lapply(names(settings), function(nm) {
-      if(nm != "") {
+      if (nm != "") {
         settings[[nm]] <- resolve_pipeline_settings_value( settings[[nm]], pipe_dir = pipeline_path )
       }
     })
     return( settings )
   }
-  if(!settings$`@has`(key)){
+  if (!settings$`@has`(key)) {
     re <- default
   } else {
     re <- resolve_pipeline_settings_value( settings[[key]], pipe_dir = pipeline_path )
-    if(inherits(re, "key_missing")) {
+    if (inherits(re, "key_missing")) {
       re <- default
     }
   }
 
-  if(length(constraint)){
+  if (length(constraint)) {
     re <- re %OF% constraint
   }
   re
@@ -1286,15 +1286,15 @@ pipeline_load_extdata <- function(
 ) {
   path <- file.path(pipe_dir, "data")
   format <- match.arg(format)
-  if(format == "auto") {
+  if (format == "auto") {
     fs <- list.files(path, recursive = FALSE)
     name2 <- sprintf("%s.%s", name, c("json", "yaml", "csv", "fst", "rds"))
     fs <- fs[fs %in% name2]
   } else {
     fs <- sprintf("%s.%s", name, format)
   }
-  if(!length(fs)) {
-    if( error_if_missing ) {
+  if (!length(fs)) {
+    if ( error_if_missing ) {
       stop("Pipeline: data [", name, "] is missing")
     } else {
       return(default_if_missing)
@@ -1303,8 +1303,8 @@ pipeline_load_extdata <- function(
   fs <- fs[[1]]
   file <- file.path(path, fs)
 
-  if(!file.exists(file)) {
-    if( error_if_missing ) {
+  if (!file.exists(file)) {
+    if ( error_if_missing ) {
       stop("Pipeline: data [", name, "] is missing")
     } else {
       return(default_if_missing)
@@ -1325,7 +1325,7 @@ pipeline_load_extdata <- function(
       { stop("Unsupported file format") }
     )
   }, error = function(e) {
-    if( error_if_missing ) {
+    if ( error_if_missing ) {
       stop("Pipeline: cannot load data [", name, "] with given format [", ext, "]. The file format is inconsistent or file is corrupted.")
     } else {
       return(default_if_missing)
@@ -1348,10 +1348,10 @@ pipeline_save_extdata <- function(
   path <- dir_create2(path)
   paths <- file.path(path,  sprintf("%s.%s", name, c("json", "yaml", "csv", "fst", "rds")))
 
-  if(any(file.exists(paths))) {
-    if( overwrite ) {
+  if (any(file.exists(paths))) {
+    if ( overwrite ) {
       paths <- paths[file.exists(paths)]
-      for(f in paths) {
+      for (f in paths) {
         unlink(f)
       }
     } else {
@@ -1425,7 +1425,7 @@ pipeline_shared <- function(pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
   }
 
   # try to get environment from targets
-  if(is.function(callr_function)) {
+  if (is.function(callr_function)) {
     env <- callr_function(
       impl,
       args = list(pipe_dir = pipe_dir),
@@ -1447,9 +1447,9 @@ pipeline_py_info <- function(pipe_dir = Sys.getenv("RAVE_PIPELINE", "."), must_w
   pipe_dir <- normalizePath(pipe_dir, mustWork = TRUE)
   env_yaml <- file.path(pipe_dir, "py", c("rave-py-submodule.yaml", "rave-py-submodule.yml"))
   env_yaml <- env_yaml[file.exists(env_yaml)]
-  if(!length(env_yaml)) {
+  if (!length(env_yaml)) {
     msg <- sprintf("Unable to find python sub-module for the pipeline: no `rave-py-submodule.yaml` found. (pipeline: %s)", pipe_dir)
-    if(is.na(must_work)) {
+    if (is.na(must_work)) {
       warning(msg)
     } else if (must_work) {
       stop(msg)
@@ -1465,12 +1465,12 @@ pipeline_py_info <- function(pipe_dir = Sys.getenv("RAVE_PIPELINE", "."), must_w
     stop("Unable to load python sub-module for the pipeline: cannot parse `rave-py-submodule.yaml`")
   })
 
-  if(!length(py_pkg_name)) {
+  if (!length(py_pkg_name)) {
     stop("Unable to find name for python sub-module from `rave-py-submodule.yaml`")
   }
 
   module_path <- file.path(pipe_dir, "py", py_pkg_name)
-  if(!dir.exists(module_path)) {
+  if (!dir.exists(module_path)) {
     stop("Unable to load python sub-module: module [",
          py_pkg_name, "] is not found under the `py` folder!")
   }
@@ -1496,7 +1496,7 @@ pipeline_py_module <- function(
   pydir <- file.path(pipe_dir, "py")
   setwd(pydir)
   on.exit({
-    if(length(cwd) == 1) {
+    if (length(cwd) == 1) {
       setwd(cwd)
     }
   }, add = TRUE, after = TRUE)
@@ -1518,14 +1518,14 @@ pipeline_set_preferences <- function(
     .pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
     .preference_instance = NULL) {
   prefs <- c(list(...), .list)
-  if(!length(prefs)) { return(invisible()) }
+  if (!length(prefs)) { return(invisible()) }
   # preferences must be `global/module_id`.`type (graphics, ...)`.`key`.dtype
   nms <- names(prefs)
-  if(length(nms) != length(prefs) || any(nms == "")) {
+  if (length(nms) != length(prefs) || any(nms == "")) {
     stop("All preferences must be named")
   }
 
-  if(missing(.preference_instance) || is.null(.preference_instance)) {
+  if (missing(.preference_instance) || is.null(.preference_instance)) {
     pipe_dir <- activate_pipeline(.pipe_dir)
     pipeline_name <- attr(pipe_dir, "target_name")
     instance <- global_preferences(.prefix_whitelist = c("global", pipeline_name))
@@ -1545,20 +1545,20 @@ pipeline_get_preferences <- function(
     keys, simplify = TRUE, ifnotfound = NULL, validator = NULL, ...,
     .preference_instance = NULL) {
 
-  if(missing(.preference_instance) || is.null(.preference_instance)) {
+  if (missing(.preference_instance) || is.null(.preference_instance)) {
     instance <- global_preferences()
   } else {
     instance <- .preference_instance
   }
 
 
-  if(is.function(validator)) {
+  if (is.function(validator)) {
     args <- list(...)
     force(ifnotfound)
     re <- structure(
       names = keys,
       lapply(keys, function(key) {
-        if(instance$has(key)) {
+        if (instance$has(key)) {
           value <- instance$get(key, missing_default = ifnotfound)
           tryCatch({
             do.call(validator, c(list(value), args))
@@ -1574,7 +1574,7 @@ pipeline_get_preferences <- function(
   } else {
     re <- instance$mget(keys, missing_default = ifnotfound)
   }
-  if(simplify && length(keys) == 1) {
+  if (simplify && length(keys) == 1) {
     re <- re[[1]]
   }
   return(re)
@@ -1583,7 +1583,7 @@ pipeline_get_preferences <- function(
 #' @rdname rave-pipeline
 #' @export
 pipeline_has_preferences <- function(keys, ..., .preference_instance = NULL) {
-  if(missing(.preference_instance) || is.null(.preference_instance)) {
+  if (missing(.preference_instance) || is.null(.preference_instance)) {
     instance <- global_preferences()
   } else {
     instance <- .preference_instance

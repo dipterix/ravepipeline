@@ -18,7 +18,7 @@ mirai_serialization_config <- function(config = list()) {
   )
 
   class <- config$class
-  if(!"RAVESerializable" %in% config$class) {
+  if (!"RAVESerializable" %in% config$class) {
     config$class <- c(config$class, "RAVESerializable")
 
     config$sfunc <- as.list(config$sfunc)
@@ -39,7 +39,7 @@ mirai_serialization_config <- function(config = list()) {
 on_rave_daemon <- function(type = c("worker", "pipeline")) {
   type <- match.arg(type)
   envvar <- sprintf("RAVE_DAEMON_%s", toupper(type))
-  if(identical(Sys.getenv(envvar, ""), "true")) { return(TRUE) }
+  if (identical(Sys.getenv(envvar, ""), "true")) { return(TRUE) }
   return(FALSE)
 }
 
@@ -91,11 +91,11 @@ initialize_rave_daemon <- function(type = c("worker", "pipeline"), .globals = li
 }
 
 stop_mirai_with_trace <- function(error) {
-  if(!mirai::is_mirai_error(error)) {
+  if (!mirai::is_mirai_error(error)) {
     stop(error)
   }
   traces <- error$stack.trace
-  if(length(traces)) {
+  if (length(traces)) {
     traces <- utils::capture.output({
       traceback(traces)
     })
@@ -175,12 +175,12 @@ with_mirai_parallel <- function(
     expr, workers = 0, globals = list(),
     serialization_config = list(), always = FALSE) {
 
-  if( !package_installed("mirai") || on_rave_daemon("worker") ) {
+  if ( !package_installed("mirai") || on_rave_daemon("worker") ) {
     re <- force(expr)
   } else {
     max_workers <- raveio_getopt(key = "max_worker", default = 1L)
     workers <- as.integer(workers)
-    if(!isTRUE(workers >= 1 && workers <= max_workers)) {
+    if (!isTRUE(workers >= 1 && workers <= max_workers)) {
       workers <- max_workers
     }
 
@@ -188,7 +188,7 @@ with_mirai_parallel <- function(
     mirai::daemons(0, .compute = "rave_parallel_worker")
     Sys.unsetenv("RAVE_PARALLEL_WORKER_URL")
 
-    if(workers > 1 || always) {
+    if (workers > 1 || always) {
       on.exit({
         mirai::daemons(0, .compute = "rave_parallel_worker")
         Sys.unsetenv("RAVE_PARALLEL_WORKER_URL")
@@ -225,8 +225,8 @@ with_mirai_parallel <- function(
 lapply_jobs <- function(x, fun, ..., .globals = list(), callback = NULL) {
 
   use_mirai <- FALSE
-  if( package_installed("mirai") && !on_rave_daemon("worker") ) {
-    if( mirai::daemons_set(.compute = "rave_parallel_worker") ) {
+  if ( package_installed("mirai") && !on_rave_daemon("worker") ) {
+    if ( mirai::daemons_set(.compute = "rave_parallel_worker") ) {
       use_mirai <- TRUE
     }
   }
@@ -257,7 +257,7 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), callback = NULL) {
   }, add = TRUE, after = TRUE)
 
 
-  if(has_callback) {
+  if (has_callback) {
     callback_impl <- function(x) {
       store$finished <- store$finished + step_size
       amount <- max(floor(store$finished) - store$last_percentage, 0)
@@ -271,7 +271,7 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), callback = NULL) {
 
       msg <- paste(msg, collapse = "")
       msg <- strsplit(msg, "|", fixed = TRUE)[[1]]
-      if(length(msg) > 1) {
+      if (length(msg) > 1) {
         message <- msg[[1]]
         detail <- paste(msg[-1], collapse = "|")
       } else {
@@ -288,7 +288,7 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), callback = NULL) {
 
   progress$inc("Initializing work...", message = default_progress_title)
 
-  if( !package_installed("mirai") || on_rave_daemon("worker") ||
+  if ( !package_installed("mirai") || on_rave_daemon("worker") ||
       !mirai::daemons_set(.compute = "rave_parallel_worker") ) {
 
     # Simulate when the process is running
@@ -302,7 +302,7 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), callback = NULL) {
       re
     }, ...)
 
-    if(store$last_percentage < 1000) {
+    if (store$last_percentage < 1000) {
       progress$inc("Collecting work...", amount = 1000 - store$last_percentage)
     }
   } else {
@@ -324,10 +324,10 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), callback = NULL) {
     store$last_percentage <- 2
 
     results <- lapply(seq_len(n_total), function(ii) {
-      if(store$errored) { return() }
+      if (store$errored) { return() }
       m <- mirai::call_mirai(map[[ii]])
 
-      if(
+      if (
         mirai::is_mirai_error(m$data) ||
         mirai::is_mirai_interrupt(m$data) ||
         mirai::is_error_value(m$data)
@@ -339,7 +339,7 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), callback = NULL) {
       return()
     })
 
-    if(store$last_percentage < 1000) {
+    if (store$last_percentage < 1000) {
       progress$inc("Collecting work...", amount = 1000 - store$last_percentage)
     }
 

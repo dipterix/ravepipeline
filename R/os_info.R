@@ -1,12 +1,12 @@
 # This file is licensed under MIT by Zhengjia Wang
 
-time_delta <- function (t1, t2, units = "secs") {
+time_delta <- function(t1, t2, units = "secs") {
   as.numeric(t2 - t1, units = units)
 }
 
-to_ram_size <- function (s, kb_to_b = 1000) {
+to_ram_size <- function(s, kb_to_b = 1000) {
   base <- floor(log(max(abs(s), 1), kb_to_b))
-  s <- s/(kb_to_b^(base))
+  s <- s / (kb_to_b^(base))
   if (is.na(base)) {
     base <- 0
   }
@@ -16,7 +16,7 @@ to_ram_size <- function (s, kb_to_b = 1000) {
   s
 }
 
-get_ram_windows <- function () {
+get_ram_windows <- function() {
   cmd <- Sys.which("wmic")
   if (cmd == "") {
     windir <- Sys.getenv("windir")
@@ -48,7 +48,7 @@ get_ram_windows <- function () {
   })
 }
 
-get_ram_osx <- function () {
+get_ram_osx <- function() {
   cmd <- Sys.which("sysctl")
   if (cmd == "") {
     cmd <- "/usr/sbin/sysctl"
@@ -65,7 +65,7 @@ get_ram_osx <- function () {
   structure(as.numeric(ram), class = c("ravepipeline_bytes", "dipsaus_bytes"), unit = "B")
 }
 
-get_ram_linux <- function () {
+get_ram_linux <- function() {
   if (!file.exists("/proc/meminfo")) {
     return(NA)
   }
@@ -76,7 +76,7 @@ get_ram_linux <- function () {
   }
   match <- regexec("([0-9]+)([ kKmMgGtT]+)([bB])", text = s[[1]])[[1]]
 
-  if(length(match) < 3) { return(NA) }
+  if (length(match) < 3) { return(NA) }
 
   s <- substring(s[[1]], match, match + attr(match, "match.length") - 1)
   # s <- stringr::str_match(s[[1]], "([0-9]+)([ kKmMgGtT]+)([bB])")
@@ -86,7 +86,7 @@ get_ram_linux <- function () {
   structure(as.numeric(ram), class = c("ravepipeline_bytes", "dipsaus_bytes"), unit = "B")
 }
 
-get_ram <- function () {
+get_ram <- function() {
   os <- get_os()
   if (os == "windows") {
     return(get_ram_windows())
@@ -102,14 +102,14 @@ get_ram <- function () {
 
 
 #' @export
-print.ravepipeline_bytes <- function (x, digit = 1, ...) {
+print.ravepipeline_bytes <- function(x, digit = 1, ...) {
   re <- as.character(x, digit = digit, ...)
   cat(re)
   invisible(re)
 }
 
 
-get_os <- function () {
+get_os <- function() {
   os <- R.version$os
   if (grepl("^darwin", os, ignore.case = TRUE)) {
     return("darwin")
@@ -133,10 +133,10 @@ get_os <- function () {
 shiny_is_running <- function() {
   # I don't even want to even suggest shiny
 
-  if(!package_installed("shiny")) { return(FALSE) }
+  if (!package_installed("shiny")) { return(FALSE) }
 
   session <- call_pkg_fun("shiny", "getDefaultReactiveDomain", .if_missing = "none", .missing_default = NULL)
-  if(is.null(session)) {
+  if (is.null(session)) {
     return(FALSE)
   }
 
@@ -144,7 +144,7 @@ shiny_is_running <- function() {
 }
 
 get_shiny_session <- function() {
-  if(!package_installed("shiny")) { return(NULL) }
+  if (!package_installed("shiny")) { return(NULL) }
   return(call_pkg_fun("shiny", "getDefaultReactiveDomain", .if_missing = "none", .missing_default = NULL))
 }
 
@@ -152,7 +152,7 @@ get_shiny_session <- function() {
 session_uuid <- local({
   uuids <- list()
 
-  function (pid = Sys.getpid(), attributes = FALSE) {
+  function(pid = Sys.getpid(), attributes = FALSE) {
 
     pidstr <- as.character(pid)
     uuid <- uuids[[pidstr]]

@@ -15,7 +15,7 @@ get_job_path <- function(job_id, check = TRUE) {
     sprintf("jobID-%s.rds", job_id)
   )
   # path <- file.path(cache_root(), "ravepipeline-background-jobs", job_id)
-  if(check) {
+  if (check) {
     path <- dir_create2(path)
   }
   path
@@ -23,7 +23,7 @@ get_job_path <- function(job_id, check = TRUE) {
 
 clean_job_path <- function(job_id) {
   path <- get_job_path(job_id, check = FALSE)
-  if(file.exists(path)) {
+  if (file.exists(path)) {
     unlink(path, recursive = TRUE, force = TRUE)
   }
   # dir_path <- dirname(path)
@@ -42,15 +42,15 @@ save_job_status <- function(status, path) {
   saveRDS(status, tmp)
 
   ok <- FALSE
-  for(retry in seq_len(5)) {
+  for (retry in seq_len(5)) {
     suppressWarnings({ ok <- file.copy(tmp, path, overwrite = TRUE) })
-    if(ok) {
+    if (ok) {
       break
     }
     Sys.sleep(0.01)
   }
   unlink(tmp)
-  if(!ok) {
+  if (!ok) {
     status$atomic_save <- FALSE
     # This
     saveRDS(status, path)
@@ -173,7 +173,7 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
 
     tryCatch(
       {
-        if(!isTRUE(preparation_ok)) {
+        if (!isTRUE(preparation_ok)) {
           stop(preparation_ok)
         }
         # rave_unserialize_refhook <- ravepipeline$rave_unserialize_refhook
@@ -197,7 +197,7 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
         packages <- shared_objects$packages
         workdir <- shared_objects$workdir
 
-        for(pkg in packages) {
+        for (pkg in packages) {
           do.call("loadNamespace", list(package = pkg))
         }
 
@@ -208,11 +208,11 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
         save_job_status(job_status, status_path)
 
         cwd <- getwd()
-        if(length(workdir) == 1 && is.character(workdir) && !is.na(workdir)) {
+        if (length(workdir) == 1 && is.character(workdir) && !is.na(workdir)) {
           message("Working directory: ", workdir)
           setwd(workdir)
           on.exit({
-            if(length(cwd) == 1 && dir.exists(cwd)) {
+            if (length(cwd) == 1 && dir.exists(cwd)) {
               try({ setwd(cwd) }, silent = TRUE)
             }
           })
@@ -227,7 +227,7 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
         job_status$result_size <- file.size(result_path)
         save_job_status(job_status, status_path)
 
-        if(length(cwd) != 1 || !dir.exists(cwd)) {
+        if (length(cwd) != 1 || !dir.exists(cwd)) {
           cwd <- tempdir()
         }
 
@@ -262,8 +262,8 @@ get_job_status <- function(job_id) {
     error = simpleError(sprintf("Job [%s] has not been prepared yet.", job_id))
   )
 
-  if(file.exists(status_path)) {
-    for(retry in seq_len(5)) {
+  if (file.exists(status_path)) {
+    for (retry in seq_len(5)) {
 
       status_read <- tryCatch({
         readRDS(status_path)
@@ -271,7 +271,7 @@ get_job_status <- function(job_id) {
         NULL
       })
 
-      if(!is.null(status_read)) {
+      if (!is.null(status_read)) {
         status <- status_read
         break
       }
@@ -287,7 +287,7 @@ get_job_status <- function(job_id) {
 }
 
 start_job_rs <- function(fun, fun_args = list(), packages = NULL, workdir = NULL, name = NULL, digest_key = NULL, envvars = NULL) {
-  if(isTRUE(package_installed("rstudioapi"))) {
+  if (isTRUE(package_installed("rstudioapi"))) {
     rstudioapi <- asNamespace("rstudioapi")
 
     rs_runScriptJob <- rstudioapi$jobRunScript
@@ -298,7 +298,7 @@ start_job_rs <- function(fun, fun_args = list(), packages = NULL, workdir = NULL
       mode = "function",
       ifnotfound = NULL
     )
-    if(!is.function(rs_runScriptJob) ||
+    if (!is.function(rs_runScriptJob) ||
        !identical(attr(parent.env(environment(rs_runScriptJob)), "name"), "tools:rstudio")) {
       stop("Unable to run RStudio/Positron job. Please make sure the IDE is RStudio/Workbench/Positron")
     }
@@ -315,7 +315,7 @@ start_job_rs <- function(fun, fun_args = list(), packages = NULL, workdir = NULL
   job_root <- get_job_path(job_id, check = FALSE)
   script_path <- file.path(job_root, "script.R")
 
-  if(is.null(name)) {
+  if (is.null(name)) {
     name <- sprintf("RAVE-JobID: %s", job_id)
   }
   rs_runScriptJob(path = script_path, name = name, workingDir = workdir)
@@ -369,7 +369,7 @@ start_job_callr <- function(fun, fun_args = list(), packages = NULL,
 start_job_mirai <- function(fun, fun_args = list(), packages = NULL,
                             workdir = NULL, digest_key = NULL, envvars = NULL, ...) {
 
-  mirai <- asNamespace('mirai')
+  mirai <- asNamespace("mirai")
 
   job_id <- prepare_job(
     fun = fun,
@@ -468,24 +468,24 @@ start_job <- function(
 ) {
 
   method <- match.arg(method)
-  if(method == "rs_job") {
-    if(!rs_avail(child_ok = TRUE, shiny_ok = TRUE)) {
+  if (method == "rs_job") {
+    if (!rs_avail(child_ok = TRUE, shiny_ok = TRUE)) {
       # not in rstudio
       method <- "callr"
-    } else if(rs_avail(child_ok = FALSE, shiny_ok = TRUE)) {
+    } else if (rs_avail(child_ok = FALSE, shiny_ok = TRUE)) {
       # in rstudio main session or positron
-      if(!is.function(get0('.rs.api.runScriptJob', mode = "function", ifnotfound = NULL))) {
+      if (!is.function(get0(".rs.api.runScriptJob", mode = "function", ifnotfound = NULL))) {
         # positron, no job available
         method <- "callr"
       }
     }
     # else it's in rstudio job
   }
-  if(method == "mirai" && !package_installed("mirai")) {
+  if (method == "mirai" && !package_installed("mirai")) {
     method <- "callr"
   }
 
-  job_id <- switch (
+  job_id <- switch(
     method,
     "rs_job" = {
       start_job_rs(
@@ -520,8 +520,8 @@ start_job <- function(
     }
   )
 
-  if( ensure_init ) {
-    while({
+  if ( ensure_init ) {
+    while ({
       info <- as.list(check_job(job_id))
       isTRUE(info$status == 0)
     }) {
@@ -536,7 +536,7 @@ start_job <- function(
 #' @rdname rave-pipeline-jobs
 #' @export
 check_job <- function(job_id) {
-  if(inherits(job_id, "ravepipeline_job_status")) {
+  if (inherits(job_id, "ravepipeline_job_status")) {
     job_id <- job_id$ID
   }
   # job_id <- start_job(fun)
@@ -550,46 +550,46 @@ resolve_job <- function(
     job_id, timeout = Inf, auto_remove = TRUE, must_init = TRUE,
     unresolved = c("warning", "error", "silent")) {
   unresolved <- match.arg(unresolved)
-  if(inherits(job_id, "ravepipeline_job_status")) {
+  if (inherits(job_id, "ravepipeline_job_status")) {
     status <- job_id
     job_id <- status$ID
   } else {
     status <- check_job(job_id)
   }
 
-  if(timeout < 0) {
+  if (timeout < 0) {
     # Resolve or fail?
     timeout <- 0
   }
   start_time <- Sys.time()
   now <- start_time
-  while(now <= (start_time + timeout)) {
-    if(status$status < 0) {
+  while (now <= (start_time + timeout)) {
+    if (status$status < 0) {
       # -1: error
       # -2: missing
       error <- status$error
-      if(auto_remove) {
+      if (auto_remove) {
         remove_job(job_id)
       }
       stop(error)
     } else if (status$status == 0) {
       # 0: ready
-      if( must_init ) {
+      if ( must_init ) {
         stop("Job has not been started")
       }
     } else if (status$status == 3) {
       # 3: done
       job_root <- get_job_path(job_id = job_id, check = FALSE)
       result_path <- file.path(job_root, "results.rds")
-      if(!file.exists(result_path)) {
+      if (!file.exists(result_path)) {
         stop(sprintf("Job [%s] is done but no result file is available...", job_id))
       }
       results <- readRDS(result_path, refhook = rave_unserialize_refhook)
-      if(auto_remove) {
+      if (auto_remove) {
         remove_job(job_id)
       }
 
-      if(getOption("rave.job.profiling", FALSE)) {
+      if (getOption("rave.job.profiling", FALSE)) {
         try(silent = TRUE, {
           message(sprintf(
             "Init=%.1f+load1=%.1f+load2=%.1f->overhead=%.1f, comp=%.1f, total=%.1f, globals=%.0f, res=%.0f",
@@ -610,9 +610,9 @@ resolve_job <- function(
     elapsed <- as.numeric(now - status$start_time, units = "secs")
     time_left <- timeout - elapsed
 
-    if(elapsed < 5) {
+    if (elapsed < 5) {
       wait_time <- min(time_left, 0.001)
-    } else if(elapsed < 60) {
+    } else if (elapsed < 60) {
       wait_time <- min(time_left, 0.01)
     } else {
       wait_time <- min(time_left, 0.1)
@@ -623,7 +623,7 @@ resolve_job <- function(
     now <- Sys.time()
   }
 
-  switch (
+  switch(
     unresolved,
     "warning" = {
       warning(sprintf("Job [%s] is still running", job_id))
@@ -641,12 +641,12 @@ resolve_job <- function(
 #' @rdname rave-pipeline-jobs
 #' @export
 remove_job <- function(job_id) {
-  if(inherits(job_id, "ravepipeline_job_status")) {
+  if (inherits(job_id, "ravepipeline_job_status")) {
     job_id <- job_id$ID
   }
   clean_job_path(job_id)
   callr_process <- attr(job_id, "callr_process")
-  if(!is.null(callr_process)) {
+  if (!is.null(callr_process)) {
     tryCatch(
       {
         callr_process$kill_tree()
@@ -668,7 +668,7 @@ print.ravepipeline_jobid <- function(x, ...) {
 
 #' @export
 print.ravepipeline_job_status <- function(x, ...) {
-  status_str <- switch (
+  status_str <- switch(
     sprintf("%d", x$status),
     "0" = "initialized",
     "1" = "started",
@@ -691,7 +691,7 @@ as.promise.ravepipeline_jobid <- function(x) {
 
   job <- check_job(x)
 
-  if( isTRUE(job$status %in% c(-1, 3)) ) {
+  if ( isTRUE(job$status %in% c(-1, 3)) ) {
     # resolved, either errored or finished
     promise <- promises::promise(function(resolve, reject) {
       tryCatch(
@@ -709,7 +709,7 @@ as.promise.ravepipeline_jobid <- function(x) {
       poll_interval <- 0.1
       check <- function() {
         job <- check_job(x)
-        if( isTRUE(job$status %in% c(-1, 3)) ) {
+        if ( isTRUE(job$status %in% c(-1, 3)) ) {
           tryCatch(
             {
               resolve(resolve_job(x))

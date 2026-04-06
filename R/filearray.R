@@ -11,7 +11,7 @@ RAVEFileArray <- R6::R6Class(
     impl = NULL,
 
     finalize = function(...) {
-      if(self$temporary && self$valid && identical(private$impl$.mode, "readwrite")) {
+      if (self$temporary && self$valid && identical(private$impl$.mode, "readwrite")) {
         private$impl$delete()
       }
     }
@@ -65,7 +65,7 @@ RAVEFileArray <- R6::R6Class(
 
     #' @field valid whether the array is valid and ready to read
     valid = function() {
-      if(!inherits(private$impl, "FileArray")) { return(FALSE) }
+      if (!inherits(private$impl, "FileArray")) { return(FALSE) }
       private$impl$valid()
     },
 

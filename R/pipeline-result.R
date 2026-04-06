@@ -12,12 +12,12 @@ PipelineResult <- R6::R6Class(
     .vartable = NULL,
     .invalidated = FALSE,
     .current_progress = NULL,
-    finalize = function(...){
+    finalize = function(...) {
       self$invalidate()
     },
-    close_progressor = function(){
+    close_progressor = function() {
       try({
-        if(length(self$progressor) && !self$progressor$is_closed()){
+        if (length(self$progressor) && !self$progressor$is_closed()) {
           self$progressor$close()
           # self$progressor <- NULL
         }
@@ -49,20 +49,20 @@ PipelineResult <- R6::R6Class(
     check_interval = 0.1,
 
     #' @description check if result is valid, raises errors when invalidated
-    validate = function(){
-      if(private$.invalidated){
+    validate = function() {
+      if (private$.invalidated) {
         stop("This result has been invalidated")
       }
       invisible()
     },
 
     #' @description invalidate the pipeline result
-    invalidate = function(){
+    invalidate = function() {
       private$.invalidated <- TRUE
       private$.state <- "invalidated"
-      if(inherits(private$.process, 'process')){
+      if (inherits(private$.process, "process")) {
         try({
-          if(isTRUE(private$.process$is_alive())){
+          if (isTRUE(private$.process$is_alive())) {
             private$.process$kill()
           }
           private$.process <- NULL
@@ -72,13 +72,13 @@ PipelineResult <- R6::R6Class(
     },
 
     #' @description get pipeline progress
-    get_progress = function(){
+    get_progress = function() {
       self$validate()
       tbl <- pipeline_progress(pipe_dir = private$.path, method = "details")
 
       self$variables
 
-      tbl <- merge(private$.vartable[,c('name', 'description')], tbl, by = 'name', all.x = TRUE, sort = FALSE)
+      tbl <- merge(private$.vartable[, c("name", "description")], tbl, by = "name", all.x = TRUE, sort = FALSE)
       tbl$progress[is.na(tbl$progress)] <- "initialize"
 
       tbl_bk <- tbl
@@ -88,11 +88,11 @@ PipelineResult <- R6::R6Class(
 
       # tbl$progress[tbl$progress == "skipped"] <- "built"
 
-      previous <- private$.vartable$progress %in% 'started'
-      # finished <- !tbl$progress %in% 'initialize'
+      previous <- private$.vartable$progress %in% "started"
+      # finished <- !tbl$progress %in% "initialize"
       started <- tbl$progress %in% "started"
       sel <- started & !previous
-      if(any(sel)){
+      if (any(sel)) {
         sel <- which(sel)
         sel <- sel[[length(sel)]]
 
@@ -113,7 +113,7 @@ PipelineResult <- R6::R6Class(
     #' @description constructor (internal)
     #' @param path pipeline path
     #' @param verbose whether to print warnings
-    initialize = function(path = character(0L), verbose = FALSE){
+    initialize = function(path = character(0L), verbose = FALSE) {
       private$.path <- path
       private$.current_progress <- 0
       private$.state <- "initialize"
@@ -130,7 +130,7 @@ PipelineResult <- R6::R6Class(
     #' and will raise errors if cannot be found
     run = function(expr, env = parent.frame(), quoted = FALSE,
                    async = FALSE, process = NULL) {
-      if(!quoted){
+      if (!quoted) {
         expr <- substitute(expr)
       }
       # running, ready, errored
@@ -138,40 +138,40 @@ PipelineResult <- R6::R6Class(
       private$.vartable <- NULL
       # self$names <- names
 
-      if(async){
-        private$.process_type <- 'remote'
+      if (async) {
+        private$.process_type <- "remote"
 
         self$promise <- promises::promise(
-          function(resolve, reject){
+          function(resolve, reject) {
             process <- tryCatch({
               process <- eval(expr, env)
-              if(inherits(process, "r_process")) {
+              if (inherits(process, "r_process")) {
                 private$.process <- process
               } else {
                 stop("`PipelineResult`: `expr` must return a callr::r_process instance")
               }
               process
-            }, error = function(e){
+            }, error = function(e) {
               private$.state <- "errored"
               private$close_progressor()
               reject(e)
               NULL
             })
 
-            if(is.null(process)) { return() }
+            if (is.null(process)) { return() }
 
             run_async_callback <- function() {
               tryCatch({
-                if(is.function(self$async_callback)) {
+                if (is.function(self$async_callback)) {
                   self$async_callback()
                 }
               }, error = warning)
             }
 
-            callback <- function(){
+            callback <- function() {
 
               continue <- tryCatch({
-                if(private$.invalidated){
+                if (private$.invalidated) {
                   private$.state <- "canceled"
                   self$invalidate()
                   e <- simpleCondition("Pipeline canceled")
@@ -182,7 +182,7 @@ PipelineResult <- R6::R6Class(
 
                 progress <- self$get_progress()
 
-                if(!private$.process$is_alive()){
+                if (!private$.process$is_alive()) {
                   private$.state <- "finished"
                   private$close_progressor()
                   private$.process$get_result()
@@ -191,10 +191,10 @@ PipelineResult <- R6::R6Class(
                 }
 
                 # show progress
-                if(length(self$progressor)){
+                if (length(self$progressor)) {
                   old_val <- self$progressor$get_value()
                   increment <- progress$index - old_val
-                  if(increment > 0){
+                  if (increment > 0) {
                     self$progressor$inc(
                       detail = progress$description,
                       amount = increment
@@ -205,7 +205,7 @@ PipelineResult <- R6::R6Class(
                 # nrow(private$.vartable)
 
                 TRUE
-              }, error = function(e){
+              }, error = function(e) {
                 private$.state <- "errored"
                 private$close_progressor()
                 e
@@ -213,7 +213,7 @@ PipelineResult <- R6::R6Class(
 
               run_async_callback()
 
-              if(isTRUE(continue)){
+              if (isTRUE(continue)) {
                 later::later(callback, delay = self$check_interval)
               } else {
                 reject(callback)
@@ -227,9 +227,9 @@ PipelineResult <- R6::R6Class(
         )
 
       } else {
-        private$.process_type <- 'native'
+        private$.process_type <- "native"
         self$promise <- promises::promise(
-          function(resolve, reject){
+          function(resolve, reject) {
             tryCatch({
               eval(expr, env)
               private$.state <- "finished"
@@ -252,31 +252,31 @@ PipelineResult <- R6::R6Class(
     #' @param timeout maximum waiting time in seconds
     #' @returns \code{TRUE} if the target is finished, or \code{FALSE} if
     #' timeout is reached
-    await = function(names = NULL, timeout = Inf){
-      if(!self$valid){ return(FALSE) }
+    await = function(names = NULL, timeout = Inf) {
+      if (!self$valid) { return(FALSE) }
       promise_impl <- attr(self$promise, "promise_impl")
       now <- Sys.time()
-      if(length(names)){
+      if (length(names)) {
         missing_names <- names[!names %in% self$variables]
-        if(length(missing_names)){
+        if (length(missing_names)) {
           stop("Unable to watch the following names: ", paste(missing_names, collapse = ", "))
         }
       } else {
         names <- self$variables
       }
       sel <- which(private$.vartable$name %in% names)
-      while(
+      while (
         !promise_impl$status() %in% c("fulfilled", "rejected") &&
         !later::loop_empty()
-      ){
+      ) {
         later::run_now(0.1)
 
-        if(private$.current_progress >= max(sel) &&
+        if (private$.current_progress >= max(sel) &&
            !any(private$.vartable$progress %in% c("initialize", "started"))) {
           return(TRUE)
         }
 
-        if(timeout <= as.numeric(Sys.time() - now, units = 'secs')){
+        if (timeout <= as.numeric(Sys.time() - now, units = "secs")) {
           return(FALSE)
         }
       }
@@ -285,13 +285,13 @@ PipelineResult <- R6::R6Class(
 
 
     #' @description print method
-    print = function(){
+    print = function() {
       cat("<Pipeline result container> ")
-      if(private$.invalidated){
+      if (private$.invalidated) {
         cat("(Invalidated)\n")
       } else {
         cat("\nprocess:", private$.process_type)
-        if(private$.state == 'running'){
+        if (private$.state == "running") {
           cat(sprintf(
             "\nstatus: %s (%d of %d)\n",
             private$.state,
@@ -312,9 +312,9 @@ PipelineResult <- R6::R6Class(
     #' @description get results
     #' @param names the target names to read
     #' @param ... passed to \code{\link{pipeline_read}}
-    get_values = function(names = NULL, ...){
+    get_values = function(names = NULL, ...) {
       self$validate()
-      if(!length(names)){
+      if (!length(names)) {
         names <- self$variables
       }
       pipeline_read(var_names = names, pipe_dir = private$.path, ...)
@@ -323,25 +323,25 @@ PipelineResult <- R6::R6Class(
   active = list(
 
     #' @field variables target variables of the pipeline
-    variables = function(){
-      if(!is.data.frame(private$.vartable)){
+    variables = function() {
+      if (!is.data.frame(private$.vartable)) {
         self$validate()
         variables <- pipeline_target_names(pipe_dir = private$.path)
         tarnames_readable <- names(variables)
         nvars <- length(variables)
         nactual <- length(tarnames_readable)
-        if(nactual < nvars){
-          tarnames_readable <- c(tarnames_readable, rep('', nvars - nactual))
+        if (nactual < nvars) {
+          tarnames_readable <- c(tarnames_readable, rep("", nvars - nactual))
         }
-        descr <- sapply(seq_len(nvars), function(ii){
+        descr <- sapply(seq_len(nvars), function(ii) {
           nm <- tarnames_readable[[ii]]
-          if(nm == ""){
-            return(sprintf('Calculating `%s`', variables[[ii]]))
+          if (nm == "") {
+            return(sprintf("Calculating `%s`", variables[[ii]]))
           } else {
             msg <- unlist(strsplit(nm, "[_-]+"))
             msg <- msg[msg != ""]
             msg <- paste(msg, collapse = " ")
-            if(nchar(msg)){
+            if (nchar(msg)) {
               msg <- sub("^[a-z]", toupper(substr(msg, 1, 1)), msg)
             }
             return(msg)
@@ -354,9 +354,9 @@ PipelineResult <- R6::R6Class(
           stringsAsFactors = FALSE
         )
         # tbl$included <- TRUE
-        if(length(self$names)){
+        if (length(self$names)) {
           sel <- tbl$name %in% self$names
-          if(any(sel)){
+          if (any(sel)) {
             # tbl$included <- sel
             tbl <- tbl[tbl$name %in% self$names, ]
           }
@@ -367,14 +367,14 @@ PipelineResult <- R6::R6Class(
     },
 
     #' @field variable_descriptions readable descriptions of the target variables
-    variable_descriptions = function(){
+    variable_descriptions = function() {
       self$variables
       private$.vartable$description
     },
 
     #' @field valid logical true or false whether the result instance hasn't
     #' been invalidated
-    valid = function(){
+    valid = function() {
       !private$.invalidated
     },
 
@@ -382,13 +382,13 @@ PipelineResult <- R6::R6Class(
     #' \code{'running'}, \code{'finished'}, \code{'canceled'},
     #' and \code{'errored'}. Note that \code{'finished'} only means the pipeline
     #' process has been finished.
-    status = function(){
+    status = function() {
       private$.state
     },
 
     #' @field process (read-only) process object if the pipeline is running in
     #' \code{'async'} mode, or \code{NULL}; see \code{\link[callr]{r_bg}}.
-    process = function(){
+    process = function() {
       private$.process
     }
 
@@ -396,6 +396,6 @@ PipelineResult <- R6::R6Class(
 )
 
 #' @export
-as.promise.PipelineResult <- function(x){
+as.promise.PipelineResult <- function(x) {
   x$promise
 }

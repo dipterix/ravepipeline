@@ -1,22 +1,22 @@
-get_active_module_ids <- function(session = shiny::getDefaultReactiveDomain()){
+get_active_module_ids <- function(session = shiny::getDefaultReactiveDomain()) {
 
-  '
+  "
   Migrated from ravedash: RAVE stores a copy of module information at
   `session$userData$ravedash$rave_event`. When users switch from one module
   to another, this `rave_event$active_module`, and `module_id` is contained
   Also a `rave_id` will be included. When running from different rave session
   ID, the logger is supposed to reset time
-  '
+  "
 
-  if(is.environment(session)){
+  if (is.environment(session)) {
     # rave_events <- session$cache$get("rave_reactives", missing = NULL)
     rave_event <- session$userData$ravedash$rave_event
-    if(shiny::is.reactivevalues(rave_event)){
+    if (shiny::is.reactivevalues(rave_event)) {
       info <- shiny::isolate({
         rave_event$active_module
       })
       # make sure module_id is inside!!!
-      if(!'id' %in% names(info)){ return(NULL) }
+      if (!"id" %in% names(info)) { return(NULL) }
 
       rave_id <- session$userData$ravedash$rave_id
       info$rave_id <- rave_id
@@ -84,7 +84,7 @@ get_active_module_ids <- function(session = shiny::getDefaultReactiveDomain()){
 #'
 NULL
 
-append_logs <- function (
+append_logs <- function(
     file, append = TRUE, max_bytes = Inf,
     max_files = ifelse(is.finite(max_bytes), 10, 1))
 {
@@ -92,29 +92,29 @@ append_logs <- function (
   force(append)
   force(max_bytes)
   max_files <- as.integer(max_files)
-  if(!isTRUE(max_files >= 1L)){
+  if (!isTRUE(max_files >= 1L)) {
     max_files <- 1L
   }
 
-  if(file == nullfile()){
-    partition_path <- function(ii){
+  if (file == nullfile()) {
+    partition_path <- function(ii) {
       file
     }
 
-    ensure_file <- function(){}
+    ensure_file <- function() {}
   } else {
-    if(!endsWith(tolower(file), ".log")) {
+    if (!endsWith(tolower(file), ".log")) {
       file <- paste0(file, ".log")
     }
-    partition_path <- function(ii){
-      if(ii == 0){
+    partition_path <- function(ii) {
+      if (ii == 0) {
         return(file)
       }
       sub(pattern = "\\.log$", x = file, replacement = sprintf(".%d.log", ii), ignore.case = TRUE)
     }
-    ensure_file <- function(){
-      if(!file.exists(file)){
-        if(dir.exists(dirname(file))){
+    ensure_file <- function() {
+      if (!file.exists(file)) {
+        if (dir.exists(dirname(file))) {
           file.create(file)
         }
       }
@@ -124,35 +124,35 @@ append_logs <- function (
   ensure_file()
 
 
-  if(is.finite(max_bytes) && file != nullfile()) {
+  if (is.finite(max_bytes) && file != nullfile()) {
     structure(function(lines) {
       n_bytes <- ifelse(file.exists(file), file.info(file)$size, 0)
-      if( n_bytes >= max_bytes ){
+      if ( n_bytes >= max_bytes ) {
         # file size is too large, purge or create new
         for (ii in max_files:1) {
           partition <- partition_path(ii)
-          if(ii == max_files){
+          if (ii == max_files) {
             unlink(partition, recursive = FALSE, force = TRUE)
           }
           previous_partition <- partition_path(ii - 1L)
-          if(file.exists(previous_partition)){
+          if (file.exists(previous_partition)) {
             file.rename(previous_partition, partition)
           }
         }
         ensure_file()
       }
 
-      if(file.exists(file)){
+      if (file.exists(file)) {
         cat(cli::ansi_strip(lines), sep = "\n", file = file, append = append)
       }
 
     }, generator = deparse(match.call()))
 
-  } else if(file == nullfile()){
+  } else if (file == nullfile()) {
     structure(function(lines) { }, generator = deparse(match.call()))
   } else {
     structure(function(lines) {
-      if(file.exists(file)){
+      if (file.exists(file)) {
         cat(cli::ansi_strip(lines), sep = "\n", file = file, append = append)
       }
     }, generator = deparse(match.call()))
@@ -160,7 +160,7 @@ append_logs <- function (
 }
 
 
-abbr_module_id <- function(module_id, ...){
+abbr_module_id <- function(module_id, ...) {
   paste(sapply(unlist(strsplit(module_id, "_")), abbreviate, minlength = 2), collapse = "_")
 }
 
@@ -168,8 +168,8 @@ abbr_module_id <- function(module_id, ...){
   crayon_ns <- NULL
   logger_data <- NULL
 
-  ensure_logger_data <- function(){
-    if(!inherits(logger_data, "fastmap2")){
+  ensure_logger_data <- function() {
+    if (!inherits(logger_data, "fastmap2")) {
       logger_data <<- list_to_fastmap2(list(
         last_time = NULL,
         registered_namespaces = NULL,
@@ -181,28 +181,28 @@ abbr_module_id <- function(module_id, ...){
   }
 
 
-  use_crayon <- function(){
-    if(is.na(logger_data$use_crayon_)){
+  use_crayon <- function() {
+    if (is.na(logger_data$use_crayon_)) {
       logger_data$use_crayon_ <- as.logical(package_installed("crayon"))
     }
-    if(!logger_data$use_crayon_) { return(FALSE) }
+    if (!logger_data$use_crayon_) { return(FALSE) }
 
-    if(is.null(crayon_ns)){
+    if (is.null(crayon_ns)) {
       crayon_ns <<- asNamespace("crayon")
     }
     crayon_ns$has_color()
   }
 
-  bold <- function(...){
-    if(use_crayon()){
+  bold <- function(...) {
+    if (use_crayon()) {
       crayon_ns$bold(...)
     } else {
       paste(...)
     }
   }
 
-  colorize <- function(msg, level){
-    if(use_crayon()){
+  colorize <- function(msg, level) {
+    if (use_crayon()) {
       # logger::colorize_by_log_level(msg, level)
       color <- switch(
         attr(level, "level"),
@@ -223,24 +223,24 @@ abbr_module_id <- function(module_id, ...){
   }
 
   format_color <- function(msg, fmt, color = "silver") {
-    if(!missing(fmt)){
+    if (!missing(fmt)) {
       msg <- format(msg, fmt)
     }
-    if(use_crayon()){
+    if (use_crayon()) {
       msg <- crayon_ns[[color]](msg)
     }
     msg
   }
 
-  get_delta <- function(delta){
-    if(length(delta) != 1){return(NULL)}
-    if(delta < 0.3){
+  get_delta <- function(delta) {
+    if (length(delta) != 1) {return(NULL)}
+    if (delta < 0.3) {
       delta_color <- "silver"
-    } else if(delta < 0.5){
+    } else if (delta < 0.5) {
       delta_color <- "cyan"
-    } else if (delta < 1){
+    } else if (delta < 1) {
       delta_color <- "green"
-    } else if (delta < 5){
+    } else if (delta < 5) {
       delta_color <- "yellow"
     } else {
       delta_color <- "red"
@@ -248,15 +248,15 @@ abbr_module_id <- function(module_id, ...){
     format_color(msg = sprintf("(+%.2fs)", delta), color = delta_color)
   }
 
-  rave_logger_layout_generator <- function(time_format = "%Y-%m-%d %H:%M:%S", session_len = 50, abbrev = FALSE){
+  rave_logger_layout_generator <- function(time_format = "%Y-%m-%d %H:%M:%S", session_len = 50, abbrev = FALSE) {
     ensure_logger_data()
     force(time_format)
     force(session_len)
     force(abbrev)
-    function (level, msg, namespace = NA_character_,
-              .logcall = sys.call(),
-              .topcall = sys.call(-1),
-              .topenv = parent.frame()) {
+    function(level, msg, namespace = NA_character_,
+            .logcall = sys.call(),
+            .topcall = sys.call(-1),
+            .topenv = parent.frame()) {
 
       var <- logger::get_logger_meta_variables(
         log_level = level,
@@ -268,8 +268,8 @@ abbr_module_id <- function(module_id, ...){
 
       now <- var$time
       delta <- NULL
-      if(logger_data$show_time_diff){
-        if(is.null(logger_data$last_time)){
+      if (logger_data$show_time_diff) {
+        if (is.null(logger_data$last_time)) {
           delta <- 0
         } else {
           delta <- time_delta(logger_data$last_time, now)
@@ -277,17 +277,17 @@ abbr_module_id <- function(module_id, ...){
         logger_data$last_time <- now
       }
 
-      if(logger_data$session_id != ""){
+      if (logger_data$session_id != "") {
         session_id <- logger_data$session_id
         nc <- nchar(session_id)
-        if(nc > session_len){
+        if (nc > session_len) {
           session_id <- substr(session_id, start = nc + 1 - session_len, stop = nc)
         }
         var$pid <- sprintf("%s:%s", var$pid, session_id)
       }
       ns <- trimws(var$ns)
-      if(!is.na(ns) && !ns %in% c("", "global", "ravedash", "default", "base", "NA") ){
-        if(abbrev) {
+      if (!is.na(ns) && !ns %in% c("", "global", "ravedash", "default", "base", "NA") ) {
+        if (abbrev) {
           ns <- abbr_module_id(ns)
         }
         ns_delta <- c(format_color(sprintf("[%s:%s]", var$pid, ns)), get_delta(delta))
@@ -306,10 +306,10 @@ abbr_module_id <- function(module_id, ...){
   }
 
 
-  get_levelr <- function(level){
-    switch (
+  get_levelr <- function(level) {
+    switch(
       level,
-      'info' = logger::INFO,
+      "info" = logger::INFO,
       "warning" = logger::WARN,
       "success" = logger::SUCCESS,
       "error" = logger::ERROR,
@@ -322,17 +322,17 @@ abbr_module_id <- function(module_id, ...){
   }
 
   logger <- function(..., level = c("info", "success", "warning", "error", "fatal", "debug", "trace"),
-                     calc_delta = 'auto', .envir = parent.frame(), .sep = "",
-                     use_glue = FALSE, reset_timer = FALSE){
+                     calc_delta = "auto", .envir = parent.frame(), .sep = "",
+                     use_glue = FALSE, reset_timer = FALSE) {
     level <- match.arg(level)
 
     ensure_logger_data()
 
     module <- get_active_module_ids()
-    if(is.list(module)){
+    if (is.list(module)) {
       namespace <- module$id
       rave_id <- paste(module$rave_id, collapse = "")
-      if(is.na(rave_id)){
+      if (is.na(rave_id)) {
         rave_id <- ""
       }
     } else {
@@ -340,7 +340,7 @@ abbr_module_id <- function(module_id, ...){
       rave_id <- ""
     }
 
-    if(reset_timer || !identical(rave_id, logger_data$session_id)){
+    if (reset_timer || !identical(rave_id, logger_data$session_id)) {
       logger_data$last_time <- NULL
       logger_data$session_id <- rave_id
     }
@@ -349,25 +349,25 @@ abbr_module_id <- function(module_id, ...){
     # get file appender
     has_file_appender <- tryCatch({
       call <- logger::log_appender(namespace = namespace, index = 2)
-      identical(as.character(call[[1]]), 'append_logs')
-    }, error = function(e){ FALSE })
+      identical(as.character(call[[1]]), "append_logs")
+    }, error = function(e) { FALSE })
 
-    if(!has_file_appender){
+    if (!has_file_appender) {
       root_path <- getOption("rave.logger.root_path",
-                             Sys.getenv('RAVE_LOGGER_PATH', unset = ""))
-      if(!is.na(root_path) && root_path != "" && root_path != nullfile() && root_path != "NA"){
-        if(root_path == "." || dir.exists(root_path)){
+                             Sys.getenv("RAVE_LOGGER_PATH", unset = ""))
+      if (!is.na(root_path) && root_path != "" && root_path != nullfile() && root_path != "NA") {
+        if (root_path == "." || dir.exists(root_path)) {
           path <- file.path(root_path, sprintf("%s.log", namespace))
 
           max_files <- as.integer(getOption(
             "rave.logger.max_files",
-            Sys.getenv('RAVE_LOGGER_FILE_LIMIT', unset = 3)
+            Sys.getenv("RAVE_LOGGER_FILE_LIMIT", unset = 3)
           ))
 
           max_bytes <-
             as.integer(getOption(
               "rave.logger.max_bytes",
-              Sys.getenv('RAVE_LOGGER_BYTE_LIMIT', unset = 52428800)
+              Sys.getenv("RAVE_LOGGER_BYTE_LIMIT", unset = 52428800)
             ))
 
           eval(bquote({
@@ -389,14 +389,14 @@ abbr_module_id <- function(module_id, ...){
 
 
 
-    if(identical(calc_delta, "auto") && level %in% c("debug", "trace")){
+    if (identical(calc_delta, "auto") && level %in% c("debug", "trace")) {
       calc_delta <- TRUE
     }
     logger_data$show_time_diff <- isTRUE(as.logical(calc_delta))
 
-    loglevel <- switch (
+    loglevel <- switch(
       level,
-      'info' = logger::INFO,
+      "info" = logger::INFO,
       "success" = logger::SUCCESS,
       "warning" = logger::WARN,
       "error" = logger::ERROR,
@@ -408,7 +408,7 @@ abbr_module_id <- function(module_id, ...){
     )
 
     registered <- namespace %in% logger_data$registered_namespaces
-    if(!registered){
+    if (!registered) {
       logger_data$registered_namespaces <- c(logger_data$registered_namespaces, namespace)
       logger::log_formatter(logger::formatter_paste, namespace = namespace, index = 1)
       logger::log_formatter(logger::formatter_paste, namespace = namespace, index = 2)
@@ -423,18 +423,18 @@ abbr_module_id <- function(module_id, ...){
       logger::log_appender(appender = logger::appender_file(nullfile()), namespace = namespace, index = 2)
     }
 
-    if(use_glue) {
+    if (use_glue) {
       msg <- glue::glue(..., .envir = .envir, .sep = .sep)
     } else {
       msg <- paste(..., collapse = .sep, sep = .sep)
     }
 
-    if(loglevel < logger::ERROR ||
+    if (loglevel < logger::ERROR ||
        (
          loglevel == logger::ERROR &&
          raveio_getopt("traceback_on_error", default = FALSE)
-       )){
-      if(system.file(package = "rlang") == '') {
+       )) {
+      if (system.file(package = "rlang") == "") {
         msg <- utils::capture.output({
           traceback()
         })
@@ -452,23 +452,23 @@ abbr_module_id <- function(module_id, ...){
   }
 
 
-  set_root_path <- function(root_path, max_bytes, max_files){
-    if(missing(root_path)){
+  set_root_path <- function(root_path, max_bytes, max_files) {
+    if (missing(root_path)) {
       root_path <- getOption("rave.logger.root_path",
-                             Sys.getenv('RAVE_LOGGER_PATH', unset = ""))
+                             Sys.getenv("RAVE_LOGGER_PATH", unset = ""))
     }
 
     options("rave.logger.root_path" = NA)
     Sys.unsetenv("RAVE_LOGGER_PATH")
     valid_root <- FALSE
 
-    if(isTRUE(length(root_path) == 1 && root_path != nullfile())){
-      if(!(
+    if (isTRUE(length(root_path) == 1 && root_path != nullfile())) {
+      if (!(
         is.na(root_path) ||
         trimws(root_path) == "" ||
         root_path == "NA" ||
         root_path == nullfile()
-      )){
+      )) {
         dir.create(root_path, recursive = TRUE, showWarnings = FALSE)
         root_path <- normalizePath(root_path, mustWork = TRUE)
         valid_root <- TRUE
@@ -477,30 +477,30 @@ abbr_module_id <- function(module_id, ...){
       }
     }
 
-    if(missing(max_bytes)){
+    if (missing(max_bytes)) {
       max_bytes <-
         as.integer(getOption(
           "rave.logger.max_bytes",
-          Sys.getenv('RAVE_LOGGER_BYTE_LIMIT', unset = 52428800)
+          Sys.getenv("RAVE_LOGGER_BYTE_LIMIT", unset = 52428800)
         ))
     } else {
       max_bytes <- as.integer(max_bytes)
       stopifnot(max_bytes >= 10240)
-      if(valid_root){
+      if (valid_root) {
         options("rave.logger.max_bytes" = max_bytes)
         Sys.setenv("RAVE_LOGGER_BYTE_LIMIT" = max_bytes)
       }
 
     }
-    if(missing(max_files)){
+    if (missing(max_files)) {
       max_files <- as.integer(getOption(
         "rave.logger.max_files",
-        Sys.getenv('RAVE_LOGGER_FILE_LIMIT', unset = 3)
+        Sys.getenv("RAVE_LOGGER_FILE_LIMIT", unset = 3)
       ))
     } else {
       max_files <- as.integer(max_files)
       stopifnot(max_files >= 1)
-      if(valid_root){
+      if (valid_root) {
         options("rave.logger.max_files" = max_files)
         Sys.setenv("RAVE_LOGGER_FILE_LIMIT" = max_files)
       }
@@ -508,8 +508,8 @@ abbr_module_id <- function(module_id, ...){
 
     filelevel <- get_levelr(Sys.getenv("RAVE_LOGGER_FILELEVEL", unset = "debug"))
 
-    for(namespace in logger_data$registered_namespaces){
-      if(valid_root) {
+    for (namespace in logger_data$registered_namespaces) {
+      if (valid_root) {
         path <- file.path(root_path, sprintf("%s.log", namespace))
       } else {
         path <- nullfile()
@@ -543,11 +543,11 @@ abbr_module_id <- function(module_id, ...){
 #' @rdname logger
 #' @export
 logger <- function(..., level = c("info", "success", "warning", "error", "fatal", "debug", "trace"),
-                   calc_delta = 'auto', .envir = parent.frame(), .sep = "",
+                   calc_delta = "auto", .envir = parent.frame(), .sep = "",
                    use_glue = FALSE, reset_timer = FALSE) {
   force(.envir)
   level <- match.arg(level)
-  if(level == 'fatal'){
+  if (level == "fatal") {
     .logger_functions$logger(..., level = level, calc_delta = calc_delta,
                              .envir = .envir, .sep = .sep, use_glue = use_glue,
                              reset_timer = reset_timer)
@@ -557,7 +557,7 @@ logger <- function(..., level = c("info", "success", "warning", "error", "fatal"
       .logger_functions$logger(..., level = level, calc_delta = calc_delta,
                                .envir = .envir, .sep = .sep, use_glue = use_glue,
                                reset_timer = reset_timer)
-    }, error = function(e){
+    }, error = function(e) {
       cat("Cannot log the following call: \n")
       print(call)
       cat("\nReason: ", e$message, "\n")
@@ -575,14 +575,14 @@ set_logger_path <- .logger_functions$set_root_path
 #' @export
 logger_threshold <- function(
     level = c("info", "success", "warning", "error", "fatal", "debug", "trace"),
-    module_id, type = c("console", "file", "both")){
+    module_id, type = c("console", "file", "both")) {
 
   level <- match.arg(level)
   type <- match.arg(type)
 
-  if(missing(module_id) || !length(module_id)){
+  if (missing(module_id) || !length(module_id)) {
     module <- get_active_module_ids()
-    if(is.list(module)){
+    if (is.list(module)) {
       namespace <- module$id
     } else {
       namespace <- "base"
@@ -591,9 +591,9 @@ logger_threshold <- function(
     namespace <- module_id
   }
 
-  loglevel <- switch (
+  loglevel <- switch(
     level,
-    'info' = logger::INFO,
+    "info" = logger::INFO,
     "success" = logger::SUCCESS,
     "warning" = logger::WARN,
     "error" = logger::ERROR,
@@ -604,11 +604,11 @@ logger_threshold <- function(
     }
   )
 
-  if(type == "both") {
+  if (type == "both") {
     logger::log_threshold(level = loglevel, namespace = namespace, index = 1)
     logger::log_threshold(level = loglevel, namespace = namespace, index = 2)
     Sys.setenv("RAVE_LOGGER_FILELEVEL" = level)
-  } else if( type == 'file' ){
+  } else if ( type == "file" ) {
     logger::log_threshold(level = loglevel, namespace = namespace, index = 2)
     Sys.setenv("RAVE_LOGGER_FILELEVEL" = level)
   } else {
@@ -624,18 +624,18 @@ logger_threshold <- function(
 
 #' @rdname logger
 #' @export
-logger_error_condition <- function(cond, level = "error"){
+logger_error_condition <- function(cond, level = "error") {
   UseMethod("logger_error_condition")
 }
 
 #' @export
-logger_error_condition.default <- function(cond, level = "error"){
+logger_error_condition.default <- function(cond, level = "error") {
   tback <- tryCatch({
     paste(utils::capture.output(traceback(cond)), collapse = "\n")
-  }, error = function(e){
+  }, error = function(e) {
     "(cannot obtain traceback info)"
   })
-  if(is.null(cond$call)){
+  if (is.null(cond$call)) {
     logger("Error: ", cond$message, "\nTraceback:\n", tback, level = level)
   } else {
     logger("Error in ", deparse1(cond$call), ": ", cond$message, "\nTraceback:\n", tback, level = level)
@@ -653,14 +653,14 @@ logger_error_condition.character <- function(cond, level = "error") {
 logger_error_condition.rlang_error <- function(cond, level = "error") {
   tback <- tryCatch({
     paste(format(cond$trace, simplify = "branch"), collapse = "\n")
-  }, error = function(e){
+  }, error = function(e) {
     tryCatch({
       paste(utils::capture.output(traceback(cond)), collapse = "\n")
     }, error = function(e) {
       "(cannot obtain traceback info)"
     })
   })
-  if(is.null(cond$call)){
+  if (is.null(cond$call)) {
     logger("Error: ", cond$message, "\nTraceback:\n", tback, level = level)
   } else {
     logger("Error in ", deparse1(cond$call), ": ", cond$message, "\nTraceback:\n", tback, level = level)
@@ -670,7 +670,7 @@ logger_error_condition.rlang_error <- function(cond, level = "error") {
 
 #' @export
 logger_error_condition.callr_error <- function(cond, level = "error") {
-  if(inherits(cond$parent, "error")) {
+  if (inherits(cond$parent, "error")) {
     re <- logger_error_condition(cond$parent)
   } else {
     re <- NextMethod(object = cond)
@@ -689,10 +689,10 @@ logger_error_condition.tar_condition_targets <- function(cond, level = "error") 
   try({
     m <- regexec(pattern = "<!--[^>]*-->", text = raw_message, perl = TRUE)[[1]]
     ml <- attr(m, "match.length")
-    if(length(m) > 0 && m[[1]] >= 0 && ml[[1]] >= 0) {
+    if (length(m) > 0 && m[[1]] >= 0 && ml[[1]] >= 0) {
       m <- substr(raw_message, start = m[[1]], stop = m[[1]] + ml[[1]] - 1)
       m <- substr(m, start = 5, stop = nchar(m) - 3)
-      if(nzchar(m)) {
+      if (nzchar(m)) {
         logger(m, level = level, use_glue = FALSE)
       }
     }
@@ -709,17 +709,17 @@ logger_error_condition.rave_error <- function(cond, level = "error") {
   try({
     m <- regexec(pattern = "<!--[^>]*-->", text = raw_message, perl = TRUE)[[1]]
     ml <- attr(m, "match.length")
-    if(length(m) > 0 && m[[1]] >= 0 && ml[[1]] >= 0) {
+    if (length(m) > 0 && m[[1]] >= 0 && ml[[1]] >= 0) {
       m <- substr(raw_message, start = m[[1]], stop = m[[1]] + ml[[1]] - 1)
       m <- substr(m, start = 5, stop = nchar(m) - 3)
-      if(nzchar(m)) {
+      if (nzchar(m)) {
         logger(m, level = level, use_glue = FALSE)
       }
     }
   }, silent = TRUE)
   # try({
   #   info <- cond$rave_error
-  #   if(is.list(info) && length(info$message)) {
+  #   if (is.list(info) && length(info$message)) {
   #     logger(paste(info$message, collapse = ""), level = level, use_glue = FALSE)
   #   }
   # }, silent = TRUE)

@@ -12,13 +12,13 @@ tfmtreg_filearray <- function() {
       require_package("filearray")
       target_expr <- substitute(target_expr)
       data <- readRDS(path)
-      if(!is.list(data) || !isTRUE(
+      if (!is.list(data) || !isTRUE(
         data$type %in% c("asis", "array", "filearray")
       )) {
         stop("Cannot restore filearray/array from the saved target file.")
       }
 
-      if(data$type == "asis") {
+      if (data$type == "asis") {
         return(data$data)
       }
       abspath <- c(
@@ -30,14 +30,14 @@ tfmtreg_filearray <- function() {
       abspath <- abspath[dir.exists(abspath)]
 
       object <- tryCatch({
-        if(length(abspath)) {
+        if (length(abspath)) {
           abspath <- abspath[[1]]
           object <- filearray::filearray_load(
             filebase = abspath,
             mode = ifelse(identical(data$data$mode, "readwrite"),
                           "readwrite", "readonly")
           )
-          if(data$type == "array" && !isTRUE(object$get_header("lazy_load"))) {
+          if (data$type == "array" && !isTRUE(object$get_header("lazy_load"))) {
             object <- object[drop = isTRUE(data$data$auto_drop)]
           }
         } else {
@@ -67,7 +67,7 @@ tfmtreg_filearray <- function() {
         target_user_path(paste0(target_export, ".FILEARRAY.DATA")),
         mustWork = FALSE
       )
-      if(!length(object)) {
+      if (!length(object)) {
         data <- list(
           type = "asis",
           data = object
@@ -80,13 +80,13 @@ tfmtreg_filearray <- function() {
         #   # the cache is handled by RAVE, do not copy
         # }
         filebase_orig <- normalizePath(object$.filebase, mustWork = FALSE)
-        if(filebase_orig != filebase) {
+        if (filebase_orig != filebase) {
           filebase_dir <- dirname(filebase)
-          if(!dir.exists(filebase_dir)) {
+          if (!dir.exists(filebase_dir)) {
             dir.create(filebase_dir, recursive = TRUE,
                        showWarnings = FALSE)
           }
-          if(file.exists(filebase)) {
+          if (file.exists(filebase)) {
             unlink(filebase, recursive = TRUE)
           }
           file.copy(from = filebase_orig, to = filebase_dir,
@@ -110,19 +110,19 @@ tfmtreg_filearray <- function() {
         return()
       }
 
-      if(!is.array(object) && !is.matrix(object) &&
+      if (!is.array(object) && !is.matrix(object) &&
          !is.vector(object)) {
         stop("To save/load as `filearray`, the object must be zero length, a vector/matrix/array, or a `filearray`")
       }
 
       mode <- storage.mode(object)
-      if(!mode %in% c(
+      if (!mode %in% c(
         "integer", "double", "complex", "logical", "raw")) {
         stop("To save/load as `filearray`, the object must be numeric/complex/logical/raw")
       }
 
 
-      if(is.array(object) || is.matrix(object)) {
+      if (is.array(object) || is.matrix(object)) {
         dm <- dim(object)
         auto_drop <- FALSE
       } else {
@@ -131,20 +131,20 @@ tfmtreg_filearray <- function() {
       }
       headers <- attr(object, "filearray_headers")
       headers2 <- NULL
-      if(is.list(headers)) {
+      if (is.list(headers)) {
         nms <- names(headers)
-        if(length(nms)) {
+        if (length(nms)) {
           headers2 <- headers[!nms %in% c(
             "", "filebase", "mode", "dimension", "type",
             "initialize", "symlink_ok")]
         }
       }
       signature <- headers2$signature
-      if(!length(signature)) {
+      if (!length(signature)) {
         signature <- digest::digest(object)
         headers2$signature <- signature
       }
-      if(!is.function(headers2$on_missing)) {
+      if (!is.function(headers2$on_missing)) {
         headers2$on_missing <- function(arr) {
           arr[] <- object
           dimnames(arr) <- dimnames(object)
@@ -183,7 +183,7 @@ tfmtreg_filearray <- function() {
       return(object)
     },
     unmarshal = function(object, target_export = NULL) {
-      if(is.character(object)) {
+      if (is.character(object)) {
         ns <- require_package("filearray", return_namespace = TRUE)
 
         filemode <- match.arg(attr(object, "filemode"), c("readonly", "readwrite"))

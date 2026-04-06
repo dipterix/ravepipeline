@@ -29,8 +29,8 @@ RAVESerializable <- R6::R6Class(
     #' @description How two object can be compared to each other
     #' @param other another object to compare with self
     `@compare` = function(other) {
-      if(!R6::is.R6(other)) { return(FALSE) }
-      if(!identical(class(self), class(other))) { return(FALSE) }
+      if (!R6::is.R6(other)) { return(FALSE) }
+      if (!identical(class(self), class(other))) { return(FALSE) }
       tryCatch(
         {
           identical(self$`@marshal`(), other$`@marshal`())
@@ -124,11 +124,11 @@ rave_serialize_impl.default <- function(object) {
 #' @rdname rave-serialize-refhook
 #' @export
 rave_serialize_impl.RAVESerializable <- function(object) {
-  if(R6::is.R6(object)) {
+  if (R6::is.R6(object)) {
     # object$`@serialize_refhook`()
     x <- object$`@marshal`()
 
-    if(!is.list(x) || length(x$namespace) != 1 || length(x$r6_generator) != 1) {
+    if (!is.list(x) || length(x$namespace) != 1 || length(x$r6_generator) != 1) {
       stop("`RAVESerializable` object must be marshal'd to a list containing a namespace, an R6 generator, and a data list")
     }
 
@@ -141,7 +141,7 @@ rave_serialize_impl.RAVESerializable <- function(object) {
 #' @rdname rave-serialize-refhook
 #' @export
 `rave_serialize_impl.rave-brain` <- function(object) {
-  if(!R6::is.R6(object)) {
+  if (!R6::is.R6(object)) {
     return(NextMethod())
   }
   # "rave-brain" "R6"
@@ -149,7 +149,7 @@ rave_serialize_impl.RAVESerializable <- function(object) {
   # check construction
   params <- object$meta$constructor_params
 
-  if(all(c("project_name", "subject_code") %in% names(params)) &&
+  if (all(c("project_name", "subject_code") %in% names(params)) &&
      length(params$project_name) == 1 &&
      length(params$subject_code) == 1) {
     params$use_141 <- isTRUE(as.logical(params$use_141))
@@ -175,9 +175,9 @@ rave_serialize_impl.RAVESerializable <- function(object) {
       sgroup$group$group_data$lh_primary_vertex_color$file_name,
       sgroup$group$group_data$rh_primary_vertex_color$file_name
     )
-    if(length(vertex_color_types)) {
+    if (length(vertex_color_types)) {
       vertex_color_types <- gsub("[lr]h\\.", "", tolower(vertex_color_types[[1]]), ignore.case = TRUE)
-      if(!vertex_color_types %in% c("sulc", "curv", "thickness", "volume")) {
+      if (!vertex_color_types %in% c("sulc", "curv", "thickness", "volume")) {
         vertex_color_types <- "sulc"
       }
     } else {
@@ -216,7 +216,7 @@ rave_serialize_impl.RAVESerializable <- function(object) {
 #' @rdname rave-serialize-refhook
 #' @export
 rave_unserialize_refhook <- function(x) {
-  if(!is.raw(x)) {
+  if (!is.raw(x)) {
     x <- charToRaw(x)
   }
   li <- unserialize(x)
@@ -246,7 +246,7 @@ rave_unserialize_impl.rave_serialized <- function(x) {
 rave_unserialize_impl.rave_serialized_r6 <- function(x) {
   ns <- asNamespace(x$namespace)
   cls <- ns[[x$r6_generator]]
-  if(!R6::is.R6Class(cls)) {
+  if (!R6::is.R6Class(cls)) {
     stop("Unable to unserialize object from class definition: ", x$namespace, "::", x$r6_generator)
   }
   return(cls$public_methods$`@unmarshal`(object = x))
@@ -261,7 +261,7 @@ rave_unserialize_impl.rave_serialized_r6 <- function(x) {
   params <- x
 
   project_name <- params$project_name
-  if(length(project_name) != 1 || is.na(project_name)) {
+  if (length(project_name) != 1 || is.na(project_name)) {
     brain <- threeBrain$threeBrain(
       path = params$base_path,
       subject_code = params$subject_code,
@@ -274,12 +274,12 @@ rave_unserialize_impl.rave_serialized_r6 <- function(x) {
                                usetemplateifmissing = isTRUE(params$usetemplateifmissing),
                                include_electrodes = FALSE)
   }
-  if(is.null(brain)) {
+  if (is.null(brain)) {
     warning("Unable to restore the brain object. Returning `NULL`.")
     return(NULL)
   }
 
-  if(is.list(params$surface_types)) {
+  if (is.list(params$surface_types)) {
     lapply(params$surface_types, function(slist) {
       brain$add_surface(slist$name, vertex_color_types = slist$vertex_color_types)
       lapply(slist$annotations, function(annot_types) {
@@ -290,14 +290,14 @@ rave_unserialize_impl.rave_serialized_r6 <- function(x) {
     })
   }
 
-  if(is.list(params$atlas_types)) {
+  if (is.list(params$atlas_types)) {
     lapply(params$atlas_types, function(atlas_list) {
       brain$add_atlas(
         atlas_list$name,
         color_format = atlas_list$color_format,
         trans_space_from = atlas_list$trans_space_from
       )
-      if(length(atlas_list$path) == 1 && file.exists(atlas_list$path) && !atlas_list$name %in% brain$atlas_types) {
+      if (length(atlas_list$path) == 1 && file.exists(atlas_list$path) && !atlas_list$name %in% brain$atlas_types) {
         VolumeGeom2 <- call_pkg_fun("threeBrain", "VolumeGeom2", .call_pkg_function = FALSE)
         BrainAtlas <- call_pkg_fun("threeBrain", "BrainAtlas", .call_pkg_function = FALSE)
         atlas_geom <- VolumeGeom2$new(
@@ -319,16 +319,16 @@ rave_unserialize_impl.rave_serialized_r6 <- function(x) {
     })
   }
 
-  if(isTRUE(params$has_prototypes)) {
+  if (isTRUE(params$has_prototypes)) {
     priority <- "prototype"
   } else {
     priority <- "sphere"
   }
 
-  if(length(params$electrode_table)) {
+  if (length(params$electrode_table)) {
     brain$set_electrodes(params$electrode_table, priority = priority)
   }
-  if(length(params$electrode_values)) {
+  if (length(params$electrode_values)) {
     brain$set_electrode_values(params$electrode_values)
   }
   brain

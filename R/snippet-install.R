@@ -12,7 +12,7 @@
 #'
 #' # This example script requires running in an interactive session
 #'
-#' if(interactive()){
+#' if(interactive()) {
 #'
 #' # ---- Example 1: Install built-in pipeline snippets ------------
 #' update_local_snippet(force = TRUE)
@@ -72,7 +72,7 @@ NULL
 update_local_snippet <- function(force = TRUE) {
   root_path <- ravepipeline_cache_dir()
   snippet_path <- file.path(root_path, "rave-gists-main")
-  if(!force && dir.exists(snippet_path)) {
+  if (!force && dir.exists(snippet_path)) {
     return(invisible())
   }
 
@@ -92,7 +92,7 @@ update_local_snippet <- function(force = TRUE) {
 install_snippet <- function(path) {
   root_path <- ravepipeline_cache_dir()
   snippet_path <- file.path(root_path, "rave-gists-main")
-  if( endsWith(tolower(path), ".zip") ) {
+  if ( endsWith(tolower(path), ".zip") ) {
     dir_create2(tempdir())
     tmp_directory <- tempfile()
     utils::unzip(path, exdir = tmp_directory)
@@ -101,14 +101,14 @@ install_snippet <- function(path) {
     })
     tmp_inner <- list.dirs(tmp_directory, full.names = FALSE, recursive = FALSE)
     tmp_inner <- tmp_inner[!startsWith(tmp_inner, ".")]
-    if(length(tmp_inner) > 0) {
+    if (length(tmp_inner) > 0) {
       path <- file.path(tmp_directory, tmp_inner[[1]])
     } else {
       path <- tmp_directory
     }
   }
   path <- normalizePath(path, mustWork = TRUE)
-  if( dir.exists(path) ) {
+  if ( dir.exists(path) ) {
     files <- list.files(
       path,
       all.files = FALSE,
@@ -137,7 +137,7 @@ install_snippet <- function(path) {
 #' @export
 list_snippets <- function() {
   root <- ravepipeline_cache_dir("rave-gists-main")
-  if(!dir.exists(root)) { return(character(0L)) }
+  if (!dir.exists(root)) { return(character(0L)) }
 
   topics <- list.files(root, pattern = "\\.R", ignore.case = TRUE, include.dirs = FALSE, recursive = FALSE, no.. = TRUE, all.files = FALSE, full.names = FALSE)
   topics <- gsub("\\.R$", "", x = topics, ignore.case = TRUE)
@@ -151,21 +151,21 @@ load_snippet <- function(topic, local = TRUE) {
 
   fname <- sprintf("%s.R", topic)
   save_snippet <- FALSE
-  if(!isFALSE(local)) {
-    if(isTRUE(local)) {
+  if (!isFALSE(local)) {
+    if (isTRUE(local)) {
       update_local_snippet(force = FALSE)
       path <- ravepipeline_cache_dir("rave-gists-main", fname)
     } else {
       path <- file.path(local, fname)
     }
-    if(!startsWith(path, "https://") && !file.exists(path)) {
+    if (!startsWith(path, "https://") && !file.exists(path)) {
       warning("Cannot find local snippet [", topic, "]. Please make sure RAVE is up-to-date. Trying to download snippets from RAVE repository.")
       local <- FALSE
       save_snippet <- TRUE
     }
   }
 
-  if(isFALSE(local)) {
+  if (isFALSE(local)) {
     path <- sprintf("https://raw.githubusercontent.com/rave-ieeg/rave-gists/main/%s", fname)
   }
 
@@ -182,14 +182,14 @@ load_snippet <- function(topic, local = TRUE) {
   # get inputs
   params <- trimws(gsub("^#'", "", docs))
   params <- params[grepl("^@param [^\\ ]+ ", params)]
-  params <- unlist(lapply(strsplit(params, " "), function(x){ x[[2]] }))
+  params <- unlist(lapply(strsplit(params, " "), function(x) { x[[2]] }))
 
   params <- unique(c(params, "..."))
 
   args <- NULL
   missing_arg <- alist(params = )
-  for(nm in params) {
-    if(nm != "") {
+  for (nm in params) {
+    if (nm != "") {
       names(missing_arg) <- nm
       args <- c(args, missing_arg)
     }
@@ -210,7 +210,7 @@ load_snippet <- function(topic, local = TRUE) {
 
   class(f) <- c("rave_snippet", class(f))
 
-  if( save_snippet ) {
+  if ( save_snippet ) {
     snippet_path <- dir_create2(ravepipeline_cache_dir("rave-gists-main"))
     writeLines(s, con = file.path(snippet_path, basename(fname)))
   }
@@ -232,6 +232,6 @@ print.rave_snippet <- function(x, ...) {
   usage <- sprintf("  @usage: snippet(%s)",
                    paste(attr(x, "args"), collapse = ", "))
 
-  cat(paste(c(topic , path, docs, "", usage, ""), collapse = "\n"))
+  cat(paste(c(topic, path, docs, "", usage, ""), collapse = "\n"))
   return(invisible(x))
 }

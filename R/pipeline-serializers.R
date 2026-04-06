@@ -2,17 +2,17 @@
 
 target_user_path <- function(target_export = "", check = FALSE) {
   user_dir <- file.path(targets::tar_config_get("store"), "user")
-  if(check && !dir.exists(user_dir)) {
+  if (check && !dir.exists(user_dir)) {
     dir.create(user_dir, showWarnings = FALSE, recursive = TRUE)
   }
   file.path(user_dir, target_export)
 }
 
 target_format <- function(name) {
-  if(length(name) != 1) { return(targets::tar_option_get("format")) }
+  if (length(name) != 1) { return(targets::tar_option_get("format")) }
   flist <- get(".target_formats")
   re <- flist[[name]]
-  if(length(re)) {
+  if (length(re)) {
     return(re)
   }
   return(targets::tar_option_get("format"))
@@ -22,13 +22,13 @@ target_format_dynamic <- function(
     name, target_export = NULL,
     target_expr = NULL, target_depends = NULL) {
 
-  if(length(name) != 1 || is.na(name) || identical(tolower(name), "rds")) {
+  if (length(name) != 1 || is.na(name) || identical(tolower(name), "rds")) {
     # pipeline-serializers-default.R
     return(target_format_default())
   }
 
   backup_format <- target_format(name)
-  if(is.character(backup_format)) { return(backup_format) }
+  if (is.character(backup_format)) { return(backup_format) }
 
   read <- new_function2(
     args = alist(path = ), quote_type = "quote", env = baseenv(),
@@ -40,7 +40,7 @@ target_format_dynamic <- function(
     })
   )
   write <- new_function2(
-    args = alist(object =, path = ), quote_type = "quote", env = baseenv(),
+    args = alist(object = , path = ), quote_type = "quote", env = baseenv(),
     body = bquote({
       ser <- asNamespace("ravepipeline")$target_format(.(name))
       ser$write(object = object, path = path,
@@ -52,7 +52,7 @@ target_format_dynamic <- function(
     args = alist(object = ), quote_type = "quote", env = baseenv(),
     body = bquote({
       ser <- asNamespace("ravepipeline")$target_format(.(name))
-      if(is.function(ser$marshal)) {
+      if (is.function(ser$marshal)) {
         ser$marshal(object, target_export = .(target_export), target_depends = .(target_depends))
       } else {
         object
@@ -64,7 +64,7 @@ target_format_dynamic <- function(
     args = alist(object = ), quote_type = "quote", env = baseenv(),
     body = bquote({
       ser <- asNamespace("ravepipeline")$target_format(.(name))
-      if(is.function(ser$unmarshal)) {
+      if (is.function(ser$unmarshal)) {
         ser$unmarshal(object, target_export = .(target_export))
       } else {
         object
@@ -96,7 +96,7 @@ target_format_register <- function(name, read, write, marshal = NULL, unmarshal 
 target_format_unregister <- function(name) {
   stopifnot(length(name) == 1 && nzchar(name))
   flist <- get(".target_formats")
-  if( exists(x = name, envir = flist) ) {
+  if ( exists(x = name, envir = flist) ) {
     rm(list = name, envir = flist, inherits = FALSE)
   }
   return(invisible(NULL))
@@ -107,7 +107,7 @@ target_format_unregister <- function(name) {
 target_format_register_onload <- function(verbose = TRUE) {
 
   on_exception <- function(e) {
-    if(verbose) {
+    if (verbose) {
       warning(e)
     }
   }

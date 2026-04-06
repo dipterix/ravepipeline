@@ -2,10 +2,10 @@
 
 backup_file <- function(path, remove = FALSE, quiet = FALSE) {
 
-  if(length(path) != 1 || is.na(path)) {
+  if (length(path) != 1 || is.na(path)) {
     return(invisible(FALSE))
   }
-  if(!file.exists(path)){ return(invisible(FALSE)) }
+  if (!file.exists(path)) { return(invisible(FALSE)) }
 
   path <- normalizePath(path, mustWork = TRUE, winslash = "/")
 
@@ -17,7 +17,7 @@ backup_file <- function(path, remove = FALSE, quiet = FALSE) {
   bname <- basename(path)
   dname <- dirname(path)
 
-  if(ext == '') {
+  if (ext == "") {
     bname <- gsub("[/]+$", "", bname)
   } else {
     bname <- substr(bname, start = 1L, stop = nchar(bname) - nchar(ext) - 1)
@@ -37,10 +37,10 @@ backup_file <- function(path, remove = FALSE, quiet = FALSE) {
   }
   path2 <- file.path(dname, bname2)
 
-  if( remove ) {
+  if ( remove ) {
     file_move(from = path, to = path2)
   } else {
-    if(is_dir) {
+    if (is_dir) {
       dir_create2(path2)
       file.copy(
         from = list.files(
@@ -82,12 +82,12 @@ dir_create2 <- function(x, showWarnings = FALSE, recursive = TRUE, check = TRUE,
     dir.create(x, showWarnings = showWarnings, recursive = recursive, ...)
   }
   if (check && !dir.exists(x)) {
-    stop('Cannot create directory at ', shQuote(x))
+    stop("Cannot create directory at ", shQuote(x))
   }
   invisible(normalizePath(x))
 }
 
-file_create2 <- function (x, showWarnings = FALSE, recursive = TRUE) {
+file_create2 <- function(x, showWarnings = FALSE, recursive = TRUE) {
   if (!file.exists(x)) {
     dir <- dirname(x)
     if (recursive && !dir.exists(dir)) {
@@ -100,7 +100,7 @@ file_create2 <- function (x, showWarnings = FALSE, recursive = TRUE) {
 
 normalize_path <- function(path, must_work = NA) {
   path <- unlist(lapply(path, function(p) {
-    if(!file.exists(p)) {
+    if (!file.exists(p)) {
       dname <- dirname(p)
       dname <- normalizePath(dname, winslash = "/", mustWork = must_work)
       p <- file.path(dname, basename(p), fsep = "/")
@@ -113,20 +113,20 @@ normalize_path <- function(path, must_work = NA) {
   gsub("[/|\\\\]+", "/", path)
 }
 
-fileexts <- function(file){
+fileexts <- function(file) {
   x <- basename(file)
-  sapply(strsplit(file, ".", fixed = TRUE), function(x){
+  sapply(strsplit(file, ".", fixed = TRUE), function(x) {
     l <- length(x)
-    ifelse(l > 1, x[[l]], '')
+    ifelse(l > 1, x[[l]], "")
   })
 }
 
 
 file_move <- function(from, to) {
-  if(package_installed("fs")) {
+  if (package_installed("fs")) {
     fs <- asNamespace("fs")
     impl <- fs$file_move
-    if(is.function(impl)) {
+    if (is.function(impl)) {
       impl(path = from, new_path = to)
       return(invisible(to))
     }
@@ -135,7 +135,7 @@ file_move <- function(from, to) {
   return(invisible(to))
 }
 
-remove_empty_dir <- function (path, all.files = TRUE, recursive = FALSE, verbose = FALSE) {
+remove_empty_dir <- function(path, all.files = TRUE, recursive = FALSE, verbose = FALSE) {
   if (!dir.exists(path)) {
     return()
   }
@@ -161,7 +161,7 @@ remove_empty_dir <- function (path, all.files = TRUE, recursive = FALSE, verbose
 }
 
 
-R_user_dir <- function (package, which = c("data", "config", "cache")) {
+R_user_dir <- function(package, which = c("data", "config", "cache")) {
   stopifnot(is.character(package), length(package) == 1L)
   which <- match.arg(which)
   home <- normalizePath("~")
@@ -200,12 +200,12 @@ ravepipeline_cache_dir <- function(...) {
 }
 
 
-temporary_session_root <- function(){
-  d <- raveio_getopt('tensor_temp_path')
-  if(!dir.exists(d)){
+temporary_session_root <- function() {
+  d <- raveio_getopt("tensor_temp_path")
+  if (!dir.exists(d)) {
     d <- tempdir(check = TRUE)
   }
-  d <- file.path(d, get('.session_string'))
+  d <- file.path(d, get(".session_string"))
   dir_create2(d)
   normalizePath(d)
 }
@@ -213,13 +213,13 @@ temporary_session_root <- function(){
 
 
 
-cache_root <- function(check = FALSE){
-  re <- raveio_getopt(key = 'tensor_temp_path', default = NULL)
-  if(!length(re)){
-    re <- '~/rave_data/cache_dir/'
-    raveio_setopt(key = 'tensor_temp_path', value = re)
+cache_root <- function(check = FALSE) {
+  re <- raveio_getopt(key = "tensor_temp_path", default = NULL)
+  if (!length(re)) {
+    re <- "~/rave_data/cache_dir/"
+    raveio_setopt(key = "tensor_temp_path", value = re)
   }
-  if(check){
+  if (check) {
     re <- dir_create2(re)
   }
   re

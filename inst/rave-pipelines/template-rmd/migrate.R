@@ -10,7 +10,7 @@
 #' @param backup whether to backup the existing pipeline; only used when
 #' \code{overwrite=TRUE}
 #' @returns Nothing
-migrate <- function(project_name, subject_code, ..., overwrite = FALSE, backup = TRUE){
+migrate <- function(project_name, subject_code, ..., overwrite = FALSE, backup = TRUE) {
 
   source("common.R", local = TRUE)
 

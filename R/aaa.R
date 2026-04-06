@@ -60,7 +60,7 @@ byte_size_lut <- list(
   "float" = 4, "double" = 8
 )
 
-r6_reserved_fields <- c('.__enclos_env__', 'clone', 'print', 'initialize', 'private')
+r6_reserved_fields <- c(".__enclos_env__", "clone", "print", "initialize", "private")
 
 # The following pipeline files will be copied
 #' @rdname ravepipeline-constants
@@ -92,19 +92,19 @@ PIPELINE_FORK_PATTERN <- "(^data|^R|^py|^preferences|\\.R$|\\.py$|\\.yaml$|\\.tx
 #'
 #' @export
 ravepipeline_finalize_installation <- function(
-    upgrade = c('ask', 'always', 'never', 'config-only', 'data-only'),
-    async = FALSE, ...){
+    upgrade = c("ask", "always", "never", "config-only", "data-only"),
+    async = FALSE, ...) {
 
   upgrade <- match.arg(upgrade)
 
   template_path <- ravepipeline_data_dir("rave-pipelines")
-  if(dir.exists(template_path)) {
-    if(upgrade %in% c("never")) { return() }
-    if(upgrade == "ask") {
+  if (dir.exists(template_path)) {
+    if (upgrade %in% c("never")) { return() }
+    if (upgrade == "ask") {
       ans <- utils::askYesNo("Existing version of `rave-pipelines` is detected, upgrade? ")
-      if(!isTRUE(ans)) { return() }
+      if (!isTRUE(ans)) { return() }
     }
-  } else if (upgrade == "ask"){
+  } else if (upgrade == "ask") {
     ans <- utils::askYesNo("Installing bultin `rave-pipelines`, proceed? ")
   }
 
@@ -120,26 +120,26 @@ ravepipeline_finalize_installation <- function(
   #   update_sample_data <- TRUE
   # }
 
-  if(upgrade %in% c('always')) {
+  if (upgrade %in% c("always")) {
     upgrade <- TRUE
   } else {
     upgrade <- FALSE
   }
 
-  repo_name <- 'rave-ieeg/rave-pipelines'
-  if( getOption("ravemanager.nightly", FALSE) ) {
-    repo_name <- 'rave-ieeg/rave-pipelines'
+  repo_name <- "rave-ieeg/rave-pipelines"
+  if ( getOption("ravemanager.nightly", FALSE) ) {
+    repo_name <- "rave-ieeg/rave-pipelines"
   }
 
   # Backup ravedash sessions since they might be too old now
   cache_path <- cache_root()
 
-  if(file.exists(cache_path)) {
+  if (file.exists(cache_path)) {
     fs <- list.dirs(cache_path, full.names = FALSE, recursive = FALSE)
     fs <- fs[grepl("^session-[0-9]{6}-[0-9]{6}-[a-zA-Z]+-[A-Z0-9]{4}$", fs)]
 
-    if(length(fs)) {
-      for(path in file.path(cache_path, fs)) {
+    if (length(fs)) {
+      for (path in file.path(cache_path, fs)) {
         backup_file(path, remove = TRUE, quiet = TRUE)
       }
     }

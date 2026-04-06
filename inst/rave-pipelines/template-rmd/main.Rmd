@@ -79,7 +79,7 @@ Initialize the electrode instances and register the epoch, reference information
 requested_electrodes <- dipsaus::parse_svec(electrodes)
 requested_electrodes <- requested_electrodes[
   requested_electrodes %in% subject$electrodes]
-electrode_instances <- lapply(requested_electrodes, function(ei){
+electrode_instances <- lapply(requested_electrodes, function(ei) {
   e <- ravecore::new_electrode(subject, number = ei, signal_type = "LFP")
   
   # set epoch
@@ -100,13 +100,13 @@ names(electrode_instances) <- requested_electrodes
 Start to load power. Here also create cache to the `RAVE` cache directory.
 
 ```{rave load_and_cache_power, language = "R", export = "power"}
-power_list <- lapply(electrode_instances, function(e){
+power_list <- lapply(electrode_instances, function(e) {
   e$load_data("power")
 })
 target <- normalizePath(file.path("shared", "cache", "power"),
                         mustWork = FALSE)
   
-if(dir.exists(target)){
+if (dir.exists(target)) {
   unlink(target, recursive = TRUE, force = TRUE)
 } else {
   dir.create(dirname(target), showWarnings = FALSE, recursive = TRUE)
@@ -115,7 +115,7 @@ power <- filearray::filearray_bind(
   .list = power_list, symlink = TRUE, 
   filebase = target)
 
-if(length(power_list)){
+if (length(power_list)) {
   dnames <- dimnames(power_list[[1]])
   dnames[[4]] <- as.integer(names(electrode_instances))
   dimnames(power) <- dnames
@@ -134,16 +134,16 @@ target <- file.path(electrode_instances[[1]]$cache_root, "..")
 dir.create(target, showWarnings = FALSE, recursive = TRUE)
 target <- normalizePath(target, mustWork = TRUE)
 target <- file.path(target, "_baseline")
-if(dir.exists(target)){
+if (dir.exists(target)) {
   output <- filearray::filearray_load(target, "readwrite")
-  if(!all(dim(output) == dim(power))){
+  if (!all(dim(output) == dim(power))) {
     output$delete()
   }
-  if(!identical(dimnames(output), dimnames(power))){
+  if (!identical(dimnames(output), dimnames(power))) {
     dimnames(output) <- dimnames(power)
   }
 }
-if(!dir.exists(target)){
+if (!dir.exists(target)) {
   output <- filearray::filearray_create(
     filebase = target,
     dimension = dim(power),
@@ -157,7 +157,7 @@ dnames <- dimnames(power)
 baseline_indexpoints <- which(
   dnames$Time >= bl_range[[1]] & dnames$Time <= bl_range[[2]])
 
-filearray::fmap(power, function(input){
+filearray::fmap(power, function(input) {
   x <- input[[1]]
   dim(x) <- dim
   bl <- dipsaus::baseline_array(
@@ -179,10 +179,10 @@ baseline_data <- output
 dim <- dim(baseline_data)
 dim[length(dim)] <- 1
 plen <- prod(dim)
-collase_by_trial <- filearray::fmap2(baseline_data, function(input){
+collase_by_trial <- filearray::fmap2(baseline_data, function(input) {
   x <- input[[1]]
   dim(x) <- dim
-  dipsaus::collapse(x, keep = c(2,1), average = TRUE)
+  dipsaus::collapse(x, keep = c(2, 1), average = TRUE)
 }, .input_size = plen, .simplify = TRUE)
 
 collapsed <- list(

@@ -1,6 +1,6 @@
 # This file is licensed under MIT by Zhengjia Wang
 
-locker_key <- function (name, set_default = FALSE, unset = FALSE) {
+locker_key <- function(name, set_default = FALSE, unset = FALSE) {
   if (length(name) != 1) {
     return()
   }
@@ -17,8 +17,8 @@ locker_key <- function (name, set_default = FALSE, unset = FALSE) {
   lkey
 }
 
-validate_lock <- function (lock_path) {
-  if(!file.exists(lock_path)) { return(FALSE) }
+validate_lock <- function(lock_path) {
+  if (!file.exists(lock_path)) { return(FALSE) }
   suppressWarnings({
     try({
       lkey <- readLines(lock_path)
@@ -31,7 +31,7 @@ validate_lock <- function (lock_path) {
   return(FALSE)
 }
 
-validate_key <- function (lock_path, key) {
+validate_key <- function(lock_path, key) {
   suppressWarnings({
     try({
       lkey <- readLines(lock_path)
@@ -43,7 +43,7 @@ validate_key <- function (lock_path, key) {
   return(FALSE)
 }
 
-simple_lock <- function (name, timeout = 10, exclusive = TRUE) {
+simple_lock <- function(name, timeout = 10, exclusive = TRUE) {
 
   # message("Locking... ", name)
   debug <- function(...) {
@@ -155,7 +155,7 @@ simple_lock <- function (name, timeout = 10, exclusive = TRUE) {
 }
 
 
-simple_unlock <- function (name, timeout = 10, exclusive = TRUE) {
+simple_unlock <- function(name, timeout = 10, exclusive = TRUE) {
 
   # message("Unlocking... ", name)
   debug <- function(...) {

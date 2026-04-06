@@ -6,19 +6,19 @@ tfmtreg_rave_brain <- function() {
                     target_expr = NULL,
                     target_depends = NULL) {
       indata <- readRDS(path)
-      if(!is.list(indata) || !isTRUE(indata$class %in% c("rave-brain", "multi-rave-brain")) ||
+      if (!is.list(indata) || !isTRUE(indata$class %in% c("rave-brain", "multi-rave-brain")) ||
          length(indata$params) == 0) {
         return(NULL)
       }
 
       # 3D brain is defined in raveio
-      ravepipeline <- asNamespace('ravepipeline')
+      ravepipeline <- asNamespace("ravepipeline")
 
       restore_brain <- function(params) {
-        if(inherits(params, "rave-brain")) {
+        if (inherits(params, "rave-brain")) {
           return(params)
         }
-        if(!length(params)) { return(NULL) }
+        if (!length(params)) { return(NULL) }
         tryCatch({
 
           RAVESubject <- ravepipeline$call_ravecore_fun(f_name = "RAVESubject", .call_pkg_function = FALSE)
@@ -45,14 +45,14 @@ tfmtreg_rave_brain <- function() {
               include_electrodes = FALSE
             )
           })
-          if(!inherits(brain, c("rave-brain", "multi-rave-brain"))) {
+          if (!inherits(brain, c("rave-brain", "multi-rave-brain"))) {
             warning(sprintf("Cannot import 3D model - [%s]", subject$subject_id))
             return(NULL)
           }
-          if(is.data.frame(params$electrode_table)) {
+          if (is.data.frame(params$electrode_table)) {
             brain$set_electrodes(params$electrode_table)
 
-            if(is.data.frame(params$electrode_values)) {
+            if (is.data.frame(params$electrode_values)) {
               brain$set_electrode_values(params$electrode_values)
             }
           }
@@ -65,7 +65,7 @@ tfmtreg_rave_brain <- function() {
           return(NULL)
         })
       }
-      if(indata$class == "rave-brain") {
+      if (indata$class == "rave-brain") {
         return(restore_brain(indata$params))
       } else {
         # restore template
@@ -75,7 +75,7 @@ tfmtreg_rave_brain <- function() {
         # load subjects' brain
         blist <- lapply(individual_params, restore_brain)
         blist <- blist[!vapply(blist, is.null, FUN.VALUE = logical(1))]
-        if(!is.list(blist)) {
+        if (!is.list(blist)) {
           blist <- as.list(blist)
         }
 
@@ -91,16 +91,16 @@ tfmtreg_rave_brain <- function() {
         })
 
         etable <- template_params$electrode_table
-        if(length(brain$template_object)) {
-          if(is.data.frame(etable) && nrow(etable)) {
-            if(length(etable$Subject)) {
+        if (length(brain$template_object)) {
+          if (is.data.frame(etable) && nrow(etable)) {
+            if (length(etable$Subject)) {
               etable$Subject[etable$Subject == template_params$subject_code] <- brain$template_object$subject_code
             }
             brain$template_object$set_electrodes(etable)
 
             vtable <- template_params$electrode_values
-            if(is.data.frame(vtable) && nrow(vtable)) {
-              if(length(vtable$Subject)) {
+            if (is.data.frame(vtable) && nrow(vtable)) {
+              if (length(vtable$Subject)) {
                 vtable$Subject[vtable$Subject == template_params$subject_code] <- brain$template_object$subject_code
               }
               brain$template_object$set_electrode_values(vtable)
@@ -114,17 +114,17 @@ tfmtreg_rave_brain <- function() {
     },
     write = function(object, path, target_export = NULL) {
 
-      if(!inherits(object, c("rave-brain", "multi-rave-brain"))) {
+      if (!inherits(object, c("rave-brain", "multi-rave-brain"))) {
         warning("To save/load as `rave-brain`, the object class must be either `rave-brain` or `multi-rave-brain`")
         saveRDS(object = NULL, file = path, version = 3L)
       }
       get_constructor <- function(brain) {
-        if(!inherits(brain, c("rave-brain", "multi-rave-brain"))) {
+        if (!inherits(brain, c("rave-brain", "multi-rave-brain"))) {
           return(NULL)
         }
         # check construction
         params <- brain$meta$constructor_params
-        if(all(c("project_name", "subject_code") %in% names(params)) &&
+        if (all(c("project_name", "subject_code") %in% names(params)) &&
            length(params$project_name) == 1 &&
            length(params$subject_code) == 1) {
           params$use_141 <- isTRUE(as.logical(params$use_141))
@@ -140,7 +140,7 @@ tfmtreg_rave_brain <- function() {
       }
 
       cls <- NULL
-      if(inherits(object, "rave-brain")) {
+      if (inherits(object, "rave-brain")) {
         cls <- "rave-brain"
         params <- get_constructor(object)
       } else {

@@ -84,9 +84,9 @@ PipelineTools <- R6::R6Class(
 
       settings <- load_yaml(pipeline_settings_path)
       lapply(names(settings), function(nm) {
-        if(nm == "") { return() }
+        if (nm == "") { return() }
         opts <- resolve_pipeline_settings_opt(settings[[nm]], strict = FALSE)
-        if(is.null(opts) || !is.list(opts)) { return() }
+        if (is.null(opts) || !is.list(opts)) { return() }
 
         opts$raw_input <- settings[[nm]]
         private$.settings_external_inputs[[nm]] <- opts
@@ -134,8 +134,8 @@ PipelineTools <- R6::R6Class(
       args <- c(list(...), as.list(.list))
       argnames <- names(args)
 
-      if(length(args)) {
-        if(!length(argnames) || "" %in% argnames) {
+      if (length(args)) {
+        if (!length(argnames) || "" %in% argnames) {
           stop("`pipeline_set`: all input lists must have names")
         }
 
@@ -154,7 +154,7 @@ PipelineTools <- R6::R6Class(
             pipe_dir = private$.pipeline_path
           )
           cls <- class(new_val)
-          if( !"raveio-pipeline-extdata" %in% cls ) {
+          if ( !"raveio-pipeline-extdata" %in% cls ) {
             cls <- c("raveio-pipeline-extdata", cls)
           }
           private$.settings[[nm]] <- structure(
@@ -176,7 +176,7 @@ PipelineTools <- R6::R6Class(
         )
 
         settings_copy <- as.list(private$.settings)
-        if(length(external_inputs)) {
+        if (length(external_inputs)) {
           settings_copy[external_inputs] <- lapply(private$.settings_external_inputs, "[[", "raw_input")
         }
         save_yaml(
@@ -198,15 +198,15 @@ PipelineTools <- R6::R6Class(
     #' will be returned.
     #' @returns The value of the inputs, or a list if \code{key} is missing
     get_settings = function(key, default = NULL, constraint) {
-      if(missing(key)){
+      if (missing(key)) {
         return(as.list(private$.settings))
       }
-      if(!private$.settings$`@has`(key)){
+      if (!private$.settings$`@has`(key)) {
         re <- default
       } else {
         re <- private$.settings[[key]]
       }
-      if(!missing(constraint)){
+      if (!missing(constraint)) {
         re <- re %OF% constraint
       }
       re
@@ -229,21 +229,21 @@ PipelineTools <- R6::R6Class(
       tar_runtime <- targets$tar_runtime
       current_store <- tar_runtime$store
       needs_reset <- FALSE
-      if( identical(tar_runtime$store, "shared") ) {
+      if ( identical(tar_runtime$store, "shared") ) {
         needs_reset <- TRUE
-        tar_runtime$store <- '___'
+        tar_runtime$store <- "___"
         on.exit({
-          if(!identical(tar_runtime$store, current_store)) {
+          if (!identical(tar_runtime$store, current_store)) {
             tar_runtime$store <- current_store
           }
         }, add = TRUE, after = FALSE)
       }
 
-      if(missing(var_names)) {
+      if (missing(var_names)) {
         var_names <- pipeline_target_names(pipe_dir = private$.pipeline_path)
       } else {
         var_names_quoted <- substitute(var_names)
-        if(typeof(var_names_quoted) == "language" &&
+        if (typeof(var_names_quoted) == "language" &&
            identical(var_names_quoted[[1]], quote(`-`))) {
           all_names <- pipeline_target_names(pipe_dir = private$.pipeline_path)
           var_names <- all_names[!all_names %in% eval(var_names_quoted[[2]], envir = parent.frame())]
@@ -252,7 +252,7 @@ PipelineTools <- R6::R6Class(
 
       re <- pipeline_read(var_names = var_names, pipe_dir = private$.pipeline_path,
                           ifnotfound = ifnotfound, ..., simplify = simplify)
-      if( needs_reset ) {
+      if ( needs_reset ) {
         tar_runtime$store <- current_store
       }
 
@@ -278,15 +278,15 @@ PipelineTools <- R6::R6Class(
                    callr_function = NULL, return_values = TRUE,
                    debug = FALSE,
                    ...) {
-      if(!as_promise && async) {
+      if (!as_promise && async) {
         stop("If you run the pipeline asynchronous, then the result must be a `promise` object")
       }
-      if(missing(scheduler) && missing(type)) {
+      if (missing(scheduler) && missing(type)) {
         py_module_exists <- tryCatch({
           self$python_module("exist")
         }, error = function(e) { FALSE })
 
-        if( isTRUE(py_module_exists) ) {
+        if ( isTRUE(py_module_exists) ) {
           scheduler <- "future"
           type <- "callr"
         } else {
@@ -306,7 +306,7 @@ PipelineTools <- R6::R6Class(
         type = .(type), envir = envir, callr_function = .(callr_function),
         names = .(names), return_values = .(return_values), debug = .(debug), ...))
 
-      if( as_promise ) {
+      if ( as_promise ) {
         expr[[1]] <- quote(pipeline_run)
         expr[["async"]] <- async
       }
@@ -330,7 +330,7 @@ PipelineTools <- R6::R6Class(
     #' @param ... passed to \code{\link{pipeline_eval}}
     eval = function(names, env = parent.frame(),
                     shortcut = FALSE, clean = TRUE, ...) {
-      if(clean) {
+      if (clean) {
         envir <- new.env(parent = env)
       } else {
         envir <- env
@@ -344,10 +344,10 @@ PipelineTools <- R6::R6Class(
       #   source(file = f, local = envir, chdir = TRUE)
       # })
       # list2env(self$get_settings(), envir = envir)
-      if(missing(names)) {
+      if (missing(names)) {
         names <- self$target_table$Names
       }
-      if(is.character(shortcut)) {
+      if (is.character(shortcut)) {
         # skip targets specified by `shortcut`
 
         # These targets need to update to get `names`
@@ -362,7 +362,7 @@ PipelineTools <- R6::R6Class(
         # Pipeline shared environment with data loaded
         existing_names <- ls(env, all.names = TRUE, sorted = FALSE)
         missing_names <- matured_targets[!matured_targets %in% existing_names]
-        if(length(missing_names)) {
+        if (length(missing_names)) {
           list2env(
             self$read(missing_names, simplify = FALSE),
             envir = envir
@@ -401,11 +401,11 @@ PipelineTools <- R6::R6Class(
                              must_work = TRUE) {
       type <- match.arg(type)
 
-      if(type == "exist") { must_work <- FALSE }
+      if (type == "exist") { must_work <- FALSE }
 
       re <- tryCatch({
 
-        if( type == "module" ) {
+        if ( type == "module" ) {
           return(pipeline_py_module(
             pipe_dir = self$pipeline_path,
             must_work = must_work,
@@ -421,17 +421,17 @@ PipelineTools <- R6::R6Class(
             return(isTRUE(is.list(minfo)))
           },
           {
-            if(!is.list(minfo)) { return(NULL) }
+            if (!is.list(minfo)) { return(NULL) }
             pypath <- file.path(self$pipeline_path, "py")
             cwd <- getwd()
 
             setwd(pypath)
             on.exit({
-              if(length(cwd) == 1) { setwd(cwd) }
+              if (length(cwd) == 1) { setwd(cwd) }
             }, add = TRUE, after = FALSE)
 
             shared_path <- sprintf("%s.shared", minfo$module_name)
-            if(dir.exists(shared_path)) {
+            if (dir.exists(shared_path)) {
               shared <- rpymat::import(shared_path,
                                        convert = FALSE, delay_load = FALSE)
             }
@@ -446,7 +446,7 @@ PipelineTools <- R6::R6Class(
 
       }, error = function(e) {
 
-        if(must_work) {
+        if (must_work) {
           stop(e)
         }
         NULL
@@ -498,7 +498,7 @@ PipelineTools <- R6::R6Class(
         return()
       })
       dep_graph <- as.list(dep_graph)
-      if(glimpse) {
+      if (glimpse) {
         return(dep_graph)
       }
 
@@ -511,7 +511,7 @@ PipelineTools <- R6::R6Class(
         print(widget)
       }, error = function(e) {
         re <- do.call(pipeline_visualize, args)
-        if(inherits(re, "htmlwidget")) {
+        if (inherits(re, "htmlwidget")) {
           print(re)
         }
       })
@@ -588,7 +588,7 @@ PipelineTools <- R6::R6Class(
 
       # register
       registry_path <- file.path(subject$pipeline_path, "pipeline-registry.csv")
-      if(file.exists(registry_path)) {
+      if (file.exists(registry_path)) {
         registry <- tryCatch({
           registry <- data.table::fread(registry_path, stringsAsFactors = FALSE, colClasses = c(
             project = "character",
@@ -600,10 +600,10 @@ PipelineTools <- R6::R6Class(
           ), na.strings = "n/a")
           nms <- names(registry)
           stopifnot(all(c("project", "subject", "pipeline_name", "timestamp", "label", "directory") %in% nms))
-          if(!"policy" %in% nms) {
+          if (!"policy" %in% nms) {
             registry$policy <- "default"
           }
-          if(!"version" %in% nms) {
+          if (!"version" %in% nms) {
             registry$version <- "0.0.0.9000"
           }
           registry
@@ -612,10 +612,10 @@ PipelineTools <- R6::R6Class(
         registry <- NULL
       }
 
-      if( sanitize ) {
+      if ( sanitize ) {
         # use subject's pipeline list
         new_registry <- subject$list_pipelines(pipeline_name = self$pipeline_name, cache = FALSE, check = TRUE, all = TRUE)
-        if(length(registry)) {
+        if (length(registry)) {
           registry <- rbind(
             new_registry,
             registry[registry$pipeline_name != self$pipeline_name, ],
@@ -646,13 +646,13 @@ PipelineTools <- R6::R6Class(
       registry$version[is.na(registry$version)] <- "0.0.0.9000"
 
       # also delete old pipelines
-      if( delete_old ) {
+      if ( delete_old ) {
         sel <- (
           registry$pipeline_name == self$pipeline_name &
             registry$label == label &
             registry$directory != name
         )
-        if( any(sel) ) {
+        if ( any(sel) ) {
           sub <- registry[sel, ]
           dirs <- file.path(
             subject$pipeline_path,
@@ -678,7 +678,7 @@ PipelineTools <- R6::R6Class(
     #' @param quoted whether \code{expr} is quoted; default is false
     #' @param env environment to run \code{expr}
     with_activated = function(expr, quoted = FALSE, env = parent.frame()) {
-      if(!quoted) {
+      if (!quoted) {
         expr <- substitute(expr)
       }
       activate_pipeline(pipe_dir = private$.pipeline_path)
@@ -813,7 +813,7 @@ PipelineTools <- R6::R6Class(
     #' otherwise \code{NULL}
     source_document = function() {
       md_path <- file.path(self$pipeline_path, "main.Rmd")
-      if(file.exists(readLines(md_path))) {
+      if (file.exists(readLines(md_path))) {
         return(readLines(md_path))
       } else {
         return(NULL)
@@ -835,8 +835,8 @@ PipelineTools <- R6::R6Class(
       clean = FALSE, ...) {
 
       report_attributes <- list()
-      if(!is.null(subject)) {
-        if(length(output_dir) != 1 || is.na(output_dir) || !nzchar(trimws(output_dir))) {
+      if (!is.null(subject)) {
+        if (length(output_dir) != 1 || is.na(output_dir) || !nzchar(trimws(output_dir))) {
           output_dir <- subject$report_path
         }
         report_attributes$project_name <- subject$project_name
@@ -856,7 +856,7 @@ PipelineTools <- R6::R6Class(
   active = list(
 
     #' @field description pipeline description
-    description = function(){
+    description = function() {
       private$.description
     },
 
@@ -881,9 +881,9 @@ PipelineTools <- R6::R6Class(
     #' @field target_table table of target names and their descriptions
     target_table = function() {
       re <- pipeline_target_names(pipe_dir = private$.pipeline_path)
-      des <- sapply(strsplit(names(re), "_"), function(x){
+      des <- sapply(strsplit(names(re), "_"), function(x) {
         x <- x[x != ""]
-        if(!length(x)) { return("<No description>") }
+        if (!length(x)) { return("<No description>") }
         substr(x[[1]], start = 1, stop = 1) <- toupper(
           substr(x[[1]], start = 1, stop = 1)
         )
@@ -1041,7 +1041,7 @@ pipeline <- function(pipeline_name,
 #' @rdname pipeline
 #' @export
 pipeline_from_path <- function(path, settings_file = "settings.yaml") {
-  if(!dir.exists(path)) { stop("pipeline_from_path: `path` is not a valid directory:\n  path=", path) }
+  if (!dir.exists(path)) { stop("pipeline_from_path: `path` is not a valid directory:\n  path=", path) }
   path <- normalize_path(path)
   root_path <- dirname(path)
 
@@ -1067,19 +1067,19 @@ pipeline_from_path <- function(path, settings_file = "settings.yaml") {
     inherits(item, "key_missing")
   }, FUN.VALUE = FALSE)
 
-  if(any(is_missing)) {
+  if (any(is_missing)) {
     # Read the missing inputs directly from current settings
     # as they will not affect the current targets, nor break the data integrity
     missing_names <- names(re)[is_missing]
     re[is_missing] <- structure(
       names = missing_names,
       lapply(missing_names, function(nm) {
-        if(is.na(nm) || nm == "") { return(ifnotfound) }
+        if (is.na(nm) || nm == "") { return(ifnotfound) }
         x$get_settings(key = nm, default = ifnotfound)
       })
     )
   }
-  if(length(simplify) && length(re) == 1) {
+  if (length(simplify) && length(re) == 1) {
     re <- re[[1]]
   }
   re
@@ -1091,7 +1091,7 @@ format.PipelineTools <- function(x, ...) {
   has_python <- x$python_module(type = "exist")
 
   citation_str <- NULL
-  if(length(x$description$Citations)) {
+  if (length(x$description$Citations)) {
     citation_str <- paste(format(x$description$Citations, bibtex = FALSE), collapse = "\n")
     citation_str <- c("", trimws(citation_str))
   }
@@ -1111,7 +1111,7 @@ format.PipelineTools <- function(x, ...) {
       "settings_path" = "[internal file]",
       "settings" = "[internal list]",
       {
-        if(nm %in% input_names) {
+        if (nm %in% input_names) {
           v <- input_settings[[nm]]
           s <- utils::capture.output({
             utils::str(
@@ -1127,7 +1127,7 @@ format.PipelineTools <- function(x, ...) {
             )
           })
           s <- paste(s, collapse = "")
-          if(is.list(v)) {
+          if (is.list(v)) {
             s <- sprintf("<%s>", s)
           }
           s

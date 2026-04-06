@@ -13,5 +13,5 @@ Sys.setenv("RAVE_TESTING" = "TRUE")
 test_check("ravepipeline")
 
 # Clean up
-ravepipeline <- asNamespace('ravepipeline')
+ravepipeline <- asNamespace("ravepipeline")
 unlink(ravepipeline$R_user_dir("ravepipeline", "cache"), recursive = TRUE, force = TRUE)

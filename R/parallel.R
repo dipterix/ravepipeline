@@ -8,7 +8,7 @@ fork_enabled <- function() {
   return(TRUE)
 }
 
-make_forked_clusters <- function (
+make_forked_clusters <- function(
     workers = future::availableCores(),
     on_failure = getOption("dipsaus.cluster.backup", "sequential"), clean = FALSE, ...) {
   if (clean) {
@@ -24,7 +24,7 @@ make_forked_clusters <- function (
             envir = parent_frame)
   }
 
-  if( fork_enabled() ) {
+  if ( fork_enabled() ) {
     suc <- tryCatch({
       future::plan(on_failure, .call = NULL, .cleanup = !clean,
                    .init = FALSE, workers = workers, ...)
@@ -47,12 +47,12 @@ make_forked_clusters <- function (
 
 
 with_future_parallel <- function(expr, env = parent.frame(), quoted = FALSE,
-                                 on_failure = 'multisession', max_workers = NA,
-                                 ...){
-  if(!quoted){
+                                 on_failure = "multisession", max_workers = NA,
+                                 ...) {
+  if (!quoted) {
     expr <- substitute(expr)
   }
-  if(!is.na(max_workers) && max_workers >= 1){
+  if (!is.na(max_workers) && max_workers >= 1) {
     max_workers <- min(as.integer(max_workers), raveio_getopt("max_worker", 1L))
   } else {
     max_workers <- raveio_getopt("max_worker", 1L)
@@ -63,7 +63,7 @@ with_future_parallel <- function(expr, env = parent.frame(), quoted = FALSE,
   old_opts <- options("raveio.auto.parallel" = FALSE,
                       "future.fork.enable" = fork_allowed)
   on.exit({
-    if( needs_reset ) {
+    if ( needs_reset ) {
       options(old_opts)
       future::plan("sequential")
     }

@@ -119,7 +119,7 @@ loader_server <- function(input, output, session, ...) {
       res$promise$then(
         # When data can be imported
         onFulfilled = function(e) {
-          
+
           # Set epoch and/or reference as default
           if (default_epoch || default_reference) {
             repo <- pipeline$read("repository")
@@ -133,7 +133,7 @@ loader_server <- function(input, output, session, ...) {
 
           # Let the module know the data has been changed
           ravedash::fire_rave_event("data_changed", Sys.time())
-          ravedash::logger("Data has been loaded loaded")
+          ravepipeline::logger("Data has been loaded loaded")
 
           # Close the alert
           dipsaus::close_alert2()

@@ -57,7 +57,7 @@
 #' format(img, type = "html_svg")
 #'
 #' @export
-base64_urlencode <- function (x) {
+base64_urlencode <- function(x) {
   if (!length(x)) {
     return(character())
   }
@@ -89,7 +89,7 @@ base64_encode <- function(x) {
 
 #' @rdname base64-utils
 #' @export
-base64_urldecode <- function (x) {
+base64_urldecode <- function(x) {
   x <- gsub("-", "+", x)
   x <- gsub("_", "/", x)
   vapply(x, function(s) {
@@ -114,7 +114,7 @@ base64_decode <- function(x) {
 #' @export
 base64_plot <- function(expr, width = 480, height = 480, ...,
                         quoted = FALSE, envir = parent.frame()) {
-  if(!quoted) {
+  if (!quoted) {
     expr <- substitute(expr)
   }
 
@@ -124,7 +124,7 @@ base64_plot <- function(expr, width = 480, height = 480, ...,
     units = "px", ...)
   dev_on <- TRUE
   on.exit({
-    if( dev_on ) {
+    if ( dev_on ) {
       grDevices::dev.off()
     }
     unlink(tmpfile)
@@ -148,7 +148,7 @@ base64_plot <- function(expr, width = 480, height = 480, ...,
 c.base64_png <- function(x, ...) {
   args <- list(...)
   lapply(args, function(s) {
-    if(inherits(s, "base64_png")) {
+    if (inherits(s, "base64_png")) {
       stop("Cannot concaternate base64 image strings")
     }
     NULL
@@ -160,7 +160,7 @@ c.base64_png <- function(x, ...) {
 format.base64_png <- function(x, ..., type = c("asis", "content", "summary", "html_svg", "html_img"),
                               width = NA, height = NA, opacity = 1, svg_x = 0, svg_y = 0) {
   type <- match.arg(type)
-  switch (
+  switch(
     type,
     "asis" = {
       x <- unclass(x)
@@ -184,10 +184,10 @@ format.base64_png <- function(x, ..., type = c("asis", "content", "summary", "ht
     "html_svg" = {
       stopifnot(package_installed("htmltools"))
       units <- attr(x, "units") %||% "px"
-      if(is.na(width)) {
+      if (is.na(width)) {
         width <- attr(x, "width")
       }
-      if(is.na(height)) {
+      if (is.na(height)) {
         height <- attr(x, "height")
       }
       tgs <- call_pkg_fun("htmltools", "tags", .call_pkg_function = FALSE)

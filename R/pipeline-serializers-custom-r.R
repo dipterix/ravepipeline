@@ -7,7 +7,7 @@ tfmtreg_user_defined_r <- function() {
 
       ravepipeline <- asNamespace("ravepipeline")
       config <- ravepipeline$load_yaml(file = path)
-      if(isTRUE(config$null_value)) {
+      if (isTRUE(config$null_value)) {
         return(NULL)
       }
 
@@ -15,12 +15,12 @@ tfmtreg_user_defined_r <- function() {
         {
           # load <module>/R/serialize.R
           spath <- "./R/serialize.R"
-          if(!file.exists(spath)) {
+          if (!file.exists(spath)) {
             stop(sprintf("Unable to locate R/serialize.R within the module for unserializing user-defined target [%s].", target_export))
           }
           env <- new.env(parent = baseenv())
           source(spath, local = env, echo = FALSE, chdir = FALSE)
-          if(!is.function(env$rave_unserialize)) {
+          if (!is.function(env$rave_unserialize)) {
             stop(sprintf("Unable to find function `rave_unserialize` in R/serialize.R for unserializing user-defined target [%s].", target_export))
           }
           path2 <- ravepipeline$target_user_path(target_export = target_export, check = TRUE)
@@ -42,18 +42,18 @@ tfmtreg_user_defined_r <- function() {
         {
           # load <module>/R/serialize.R
           spath <- "./R/serialize.R"
-          if(!file.exists(spath)) {
+          if (!file.exists(spath)) {
             stop(sprintf("Unable to locate R/serialize.R within the module for serializing user-defined target [%s].", target_export))
           }
           env <- new.env(parent = baseenv())
           source(spath, local = env, echo = FALSE, chdir = FALSE)
-          if(!is.function(env$rave_serialize)) {
+          if (!is.function(env$rave_serialize)) {
             stop(sprintf("Unable to find function `rave_serialize` in R/serialize.R for serializing user-defined target [%s].", target_export))
           }
           path2 <- ravepipeline$target_user_path(target_export = target_export, check = TRUE)
           path3 <- env$rave_serialize(object, normalizePath(path2, mustWork = FALSE),
                                       target_export)
-          if(length(path3) == 1 && !is.na(path3) && is.character(path3) &&
+          if (length(path3) == 1 && !is.na(path3) && is.character(path3) &&
              file.exists(path3)) {
             path2 <- path3
           }
@@ -61,13 +61,13 @@ tfmtreg_user_defined_r <- function() {
 
           # generate signature
           null_value <- FALSE
-          if(dir.exists(path2)) {
+          if (dir.exists(path2)) {
             fs <- list.files(path2, all.files = FALSE, recursive = TRUE, full.names = TRUE, include.dirs = FALSE, no.. = TRUE)
             data_signature <- lapply(sort(fs), function(f) {
               digest::digest(file = f)
             })
             data_signature <- digest::digest(object = data_signature)
-          } else if( file.exists(path2) ){
+          } else if ( file.exists(path2) ) {
             data_signature <- digest::digest(file = path2)
           } else {
             null_value <- TRUE

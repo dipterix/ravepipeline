@@ -10,13 +10,13 @@ tfmtreg_user_defined_python <- function() {
       body = quote({
         ravepipeline <- asNamespace("ravepipeline")
         config <- ravepipeline$load_yaml(file = path)
-        if(isTRUE(config$null_value)) {
+        if (isTRUE(config$null_value)) {
           return(NULL)
         }
 
         py_error_handler <- function(e) {
           e2 <- asNamespace("reticulate")$py_last_error()
-          if(!is.null(e2)) {
+          if (!is.null(e2)) {
             e <- e2
           }
           stop(sprintf(
@@ -29,7 +29,7 @@ tfmtreg_user_defined_python <- function() {
           {
             py_module <- ravepipeline$pipeline_py_module(convert = FALSE, must_work = TRUE)
             unserialize_func <- py_module$rave_pipeline_adapters$rave_unserialize
-            if(!inherits(unserialize_func, "python.builtin.function")) {
+            if (!inherits(unserialize_func, "python.builtin.function")) {
               stop(sprintf("Unable to find unserialization function for user-defined python objects: %s", paste(target_export, collapse = ",")))
             }
             message("Unserializing [", target_export, "] using Python module [", py_module$`__name__`, "]")

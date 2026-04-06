@@ -25,17 +25,17 @@
 #'
 #'
 #' @export
-load_yaml <- function(file, ..., map = NULL){
+load_yaml <- function(file, ..., map = NULL) {
   re <- yaml::read_yaml(file = file, ...)
-  if(!inherits(map, 'fastmap2')){
-    if(inherits(map, 'fastmap')) {
+  if (!inherits(map, "fastmap2")) {
+    if (inherits(map, "fastmap")) {
       class(map) <- c("fastmap2", class(map))
     } else {
       map <- fastmap2()
     }
   }
-  for(nm in names(re)){
-    if(nm != ''){
+  for (nm in names(re)) {
+    if (nm != "") {
       map[[nm]] <- re[[nm]]
     }
   }
@@ -58,7 +58,7 @@ save_yaml <- function(x, file, ..., sorted = FALSE) {
   } else if (sorted) {
     x <- as.list(x, sorted = sorted, ...)
     nms <- names(x)
-    if(length(nms) && is.unsorted(nms)) {
+    if (length(nms) && is.unsorted(nms)) {
       x <- x[order(nms)]
     }
   } else {

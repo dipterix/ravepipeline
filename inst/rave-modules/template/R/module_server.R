@@ -29,7 +29,7 @@ module_server <- function(input, output, session, ...) {
       # Invalidate previous results (stop as they are no longer needed)
       if (!is.null(local_data$results)) {
         local_data$results$invalidate()
-        ravedash::logger("Invalidating previous run", level = "trace")
+        ravepipeline::logger("Invalidating previous run", level = "trace")
       }
 
 
@@ -74,12 +74,12 @@ module_server <- function(input, output, session, ...) {
 
 
       local_data$results <- results
-      ravedash::logger("Scheduled: ", pipeline$pipeline_name,
+      ravepipeline::logger("Scheduled: ", pipeline$pipeline_name,
                        level = "debug", reset_timer = TRUE)
 
       results$promise$then(
         onFulfilled = function(...) {
-          ravedash::logger("Fulfilled: ", pipeline$pipeline_name,
+          ravepipeline::logger("Fulfilled: ", pipeline$pipeline_name,
                            level = "debug")
           shidashi::clear_notifications(class = "pipeline-error")
           local_reactives$update_outputs <- Sys.time()
@@ -88,8 +88,8 @@ module_server <- function(input, output, session, ...) {
         onRejected = function(e, ...) {
           msg <- paste(e$message, collapse = "\n")
           if (inherits(e, "error")) {
-            ravedash::logger(msg, level = "error")
-            ravedash::logger(traceback(e), level = "error", .sep = "\n")
+            ravepipeline::logger(msg, level = "error")
+            ravepipeline::logger(traceback(e), level = "error", .sep = "\n")
             shidashi::show_notification(
               message = msg,
               title = "Error while running pipeline", type = "danger",
@@ -117,13 +117,13 @@ module_server <- function(input, output, session, ...) {
       }
       new_repository <- pipeline$read("repository")
       if (!inherits(new_repository, "rave_prepare_power")) {
-        ravedash::logger(
+        ravepipeline::logger(
           "Repository read from the pipeline, but it is not an instance of `rave_prepare_power`. Abort initialization", # nolint: line_length_linter.
           level = "warning"
         )
         return()
       }
-      ravedash::logger(
+      ravepipeline::logger(
         "Repository read from the pipeline; initializing the module UI",
         level = "debug"
       )
@@ -135,7 +135,7 @@ module_server <- function(input, output, session, ...) {
           !attr(loaded_flag, "force") &&
             identical(old_repository$signature, new_repository$signature)
         ) {
-          ravedash::logger(
+          ravepipeline::logger(
             "The repository data remain unchanged ({new_repository$subject$subject_id}), skip initialization", # nolint: line_length_linter.
             level = "debug",
             use_glue = TRUE

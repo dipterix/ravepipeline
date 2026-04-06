@@ -3,7 +3,7 @@ guess_libpath <- function() {
   lib_path <- getOption("ravemanager.libpath", default = NULL)
 
   try(silent = TRUE, expr = {
-    if(length(lib_path) == 1 && !is.na(lib_path) && is.character(lib_path) && dir.exists(lib_path)) {
+    if (length(lib_path) == 1 && !is.na(lib_path) && is.character(lib_path) && dir.exists(lib_path)) {
       return(normalizePath(lib_path))
     }
   })
@@ -12,13 +12,13 @@ guess_libpath <- function() {
 
   ostype <- get_os()
 
-  if(ostype == 'windows') {
+  if (ostype == "windows") {
     lib_path <- strsplit(lib_path, ";")[[1]]
   } else {
     lib_path <- strsplit(lib_path, ":")[[1]]
   }
 
-  if(length(lib_path)) {
+  if (length(lib_path)) {
     return(lib_path[[1]])
   }
 
@@ -28,11 +28,11 @@ guess_libpath <- function() {
 install_deps <- function(root, upgrade = FALSE, force = FALSE, lib = guess_libpath(), ...) {
   # if( !isTRUE(getOption("ravepipelines.install.yes_to_all", FALSE)) ) {
   #   # Installing packages should be under interactive session and should ask users
-  #   if(!interactive()) {
+  #   if (!interactive()) {
   #     stop("`install_deps`: must run under interactive session")
   #   }
   #   ans <- utils::askYesNo("Installing dependencies... This might install additional packages. Proceed? ")
-  #   if(!isTRUE(ans)) {
+  #   if (!isTRUE(ans)) {
   #     stop("Abort.")
   #   }
   #   # suppress future question
@@ -47,11 +47,11 @@ install_deps <- function(root, upgrade = FALSE, force = FALSE, lib = guess_libpa
 install_cran <- function(pkgs, upgrade = FALSE, lib = guess_libpath(), ...) {
   # if( !isTRUE(getOption("ravepipelines.install.yes_to_all", FALSE)) ) {
   #   # Installing packages should be under interactive session and should ask users
-  #   if(!interactive()) {
+  #   if (!interactive()) {
   #     stop("`install_deps`: must run under interactive session")
   #   }
   #   ans <- utils::askYesNo("Installing dependencies... This might install additional packages. Proceed? ")
-  #   if(!isTRUE(ans)) {
+  #   if (!isTRUE(ans)) {
   #     stop("Abort.")
   #   }
   #   # suppress future question
