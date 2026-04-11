@@ -17,7 +17,8 @@ start_job(
   name = NULL,
   ensure_init = TRUE,
   digest_key = NULL,
-  envvars = NULL
+  envvars = NULL,
+  log_path = NULL
 )
 
 check_job(job_id)
@@ -27,7 +28,8 @@ resolve_job(
   timeout = Inf,
   auto_remove = TRUE,
   must_init = TRUE,
-  unresolved = c("warning", "error", "silent")
+  unresolved = c("warning", "error", "silent"),
+  log_maxline = getOption("ravepipeline.log_maxline", 1000L)
 )
 
 remove_job(job_id)
@@ -56,6 +58,12 @@ used internally}
 \item{envvars}{additional environment variables to set; must be a named
 list of environment variables}
 
+\item{log_path}{path to a log file for capturing both standard output
+and messages (stderr) from the job; default is \code{NULL} (no logging).
+Relative paths are resolved against \code{workdir}. The file is created
+at job preparation time; if creation fails or the path is a directory,
+logging is silently skipped.}
+
 \item{job_id}{job identification number}
 
 \item{timeout}{timeout in seconds before the resolve ends; jobs that
@@ -72,6 +80,11 @@ default is true}
 \item{unresolved}{what to do if the job is still running after timing-out;
 default is \code{'warning'} and return \code{NULL}, other choices are
 \code{'error'} or \code{'silent'}}
+
+\item{log_maxline}{maximum number of log lines to read from the tail of
+the log file when resolving a job; default is
+\code{getOption("ravepipeline.log_maxline", 1000)}. The log lines are
+attached to the result as attribute \code{"rave_logs"} if non-empty.}
 }
 \value{
 For \code{start_job}, a string of job identification number;

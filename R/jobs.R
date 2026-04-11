@@ -59,10 +59,30 @@ save_job_status <- function(status, path) {
 }
 
 prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
-                        digest_key = NULL, envvars = NULL) {
+                        digest_key = NULL, envvars = NULL, log_path = NULL) {
 
   job_id <- new_job_id(digest_key = digest_key)
   job_root <- get_job_path(job_id = job_id, check = TRUE)
+
+  # Validate and resolve log_path
+  if (length(log_path) == 1 && is.character(log_path) && !is.na(log_path) && nzchar(log_path)) {
+    base_dir <- if (length(workdir) == 1 && is.character(workdir) && !is.na(workdir) && dir.exists(workdir)) {
+      workdir
+    } else {
+      getwd()
+    }
+    log_path <- normalizePath(file.path(base_dir, log_path), mustWork = FALSE)
+    if (dir.exists(log_path)) {
+      log_path <- NULL
+    } else {
+      file_create2(log_path)
+      if (!file.exists(log_path) || dir.exists(log_path)) {
+        log_path <- NULL
+      }
+    }
+  } else {
+    log_path <- NULL
+  }
 
   packages <- unique(c(packages, "ravepipeline"))
   shared_objects <- list(
@@ -74,7 +94,8 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
       body = utils::removeSource(body(fun))
     ),
     args = as.list(fun_args),
-    packages = packages
+    packages = packages,
+    log_path = log_path
   )
 
   # Write initial state
@@ -196,6 +217,8 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
         args <- shared_objects$args
         packages <- shared_objects$packages
         workdir <- shared_objects$workdir
+        log_path <- shared_objects$log_path
+        job_status$log_path <- log_path
 
         for (pkg in packages) {
           do.call("loadNamespace", list(package = pkg))
@@ -216,6 +239,35 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
               try({ setwd(cwd) }, silent = TRUE)
             }
           })
+        }
+
+        if (
+          length(log_path) == 1 &&
+            is.character(log_path) &&
+            !is.na(log_path) &&
+            file.exists(log_path) &&
+            !dir.exists(log_path)
+        ) {
+          log_con <- tryCatch(
+            {
+              file(log_path, open = "wt")
+            },
+            error = function(e) {
+              NULL
+            }
+          )
+          if (!is.null(log_con)) {
+            sink(log_con, type = "output")
+            sink(log_con, type = "message")
+            on.exit(
+              {
+                try(sink(type = "message"), silent = TRUE)
+                try(sink(type = "output"), silent = TRUE)
+                try(close(log_con), silent = TRUE)
+              },
+              add = TRUE
+            )
+          }
         }
 
         result <- do.call(fun, args)
@@ -250,6 +302,9 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
 
   stopifnot(file.exists(state_path))
 
+  if (!is.null(log_path)) {
+    attr(job_id, "log_path") <- log_path
+  }
   return(job_id)
 }
 
@@ -286,7 +341,7 @@ get_job_status <- function(job_id) {
   structure(status, class = "ravepipeline_job_status")
 }
 
-start_job_rs <- function(fun, fun_args = list(), packages = NULL, workdir = NULL, name = NULL, digest_key = NULL, envvars = NULL) {
+start_job_rs <- function(fun, fun_args = list(), packages = NULL, workdir = NULL, name = NULL, digest_key = NULL, envvars = NULL, log_path = NULL) {
   if (isTRUE(package_installed("rstudioapi"))) {
     rstudioapi <- asNamespace("rstudioapi")
 
@@ -310,7 +365,8 @@ start_job_rs <- function(fun, fun_args = list(), packages = NULL, workdir = NULL
     packages = packages,
     workdir = workdir,
     digest_key = digest_key,
-    envvars = envvars
+    envvars = envvars,
+    log_path = log_path
   )
   job_root <- get_job_path(job_id, check = FALSE)
   script_path <- file.path(job_root, "script.R")
@@ -331,7 +387,8 @@ start_job_rs <- function(fun, fun_args = list(), packages = NULL, workdir = NULL
 }
 
 start_job_callr <- function(fun, fun_args = list(), packages = NULL,
-                            workdir = NULL, digest_key = NULL, envvars = NULL, ...) {
+                            workdir = NULL, digest_key = NULL, envvars = NULL,
+                            log_path = NULL, ...) {
 
   job_id <- prepare_job(
     fun = fun,
@@ -339,7 +396,8 @@ start_job_callr <- function(fun, fun_args = list(), packages = NULL,
     packages = packages,
     workdir = workdir,
     digest_key = digest_key,
-    envvars = envvars
+    envvars = envvars,
+    log_path = log_path
   )
   job_root <- get_job_path(job_id, check = FALSE)
   script_path <- file.path(job_root, "script.R")
@@ -360,14 +418,16 @@ start_job_callr <- function(fun, fun_args = list(), packages = NULL,
     # Do not supervise when during the checks as the opened supervisor
     # will trigger alerts
     supervise = !identical(Sys.getenv("RAVE_TESTING"), "TRUE"),
-    error = "error"
+    error = "error",
+    stdout = "|"
   )
 
   return(structure(job_id, path = job_root, callr_process = process))
 }
 
 start_job_mirai <- function(fun, fun_args = list(), packages = NULL,
-                            workdir = NULL, digest_key = NULL, envvars = NULL, ...) {
+                            workdir = NULL, digest_key = NULL, envvars = NULL,
+                            log_path = NULL, ...) {
 
   mirai <- asNamespace("mirai")
 
@@ -377,7 +437,8 @@ start_job_mirai <- function(fun, fun_args = list(), packages = NULL,
     packages = packages,
     workdir = workdir,
     digest_key = digest_key,
-    envvars = envvars
+    envvars = envvars,
+    log_path = log_path
   )
   job_root <- get_job_path(job_id, check = FALSE)
   script_path <- file.path(job_root, "script.R")
@@ -419,6 +480,15 @@ start_job_mirai <- function(fun, fun_args = list(), packages = NULL,
 #' used internally
 #' @param envvars additional environment variables to set; must be a named
 #' list of environment variables
+#' @param log_path path to a log file for capturing both standard output
+#' and messages (stderr) from the job; default is \code{NULL} (no logging).
+#' Relative paths are resolved against \code{workdir}. The file is created
+#' at job preparation time; if creation fails or the path is a directory,
+#' logging is silently skipped.
+#' @param log_maxline maximum number of log lines to read from the tail of
+#' the log file when resolving a job; default is
+#' \code{getOption("ravepipeline.log_maxline", 1000)}. The log lines are
+#' attached to the result as attribute \code{"rave_logs"} if non-empty.
 #' @param must_init whether the resolve should error out if the job is not
 #' initialized: typically meaning the either the resolving occurs too soon
 #' (only when \code{ensure_init=FALSE}) or the job files are corrupted;
@@ -464,7 +534,8 @@ start_job <- function(
     name = NULL,
     ensure_init = TRUE,
     digest_key = NULL,
-    envvars = NULL
+    envvars = NULL,
+    log_path = NULL
 ) {
 
   method <- match.arg(method)
@@ -495,7 +566,8 @@ start_job <- function(
         workdir = workdir,
         name = name,
         digest_key = digest_key,
-        envvars = envvars
+        envvars = envvars,
+        log_path = log_path
       )
     },
     "mirai" = {
@@ -505,7 +577,8 @@ start_job <- function(
         packages = packages,
         workdir = workdir,
         digest_key = digest_key,
-        envvars = envvars
+        envvars = envvars,
+        log_path = log_path
       )
     },
     {
@@ -515,7 +588,8 @@ start_job <- function(
         packages = packages,
         workdir = workdir,
         digest_key = digest_key,
-        envvars = envvars
+        envvars = envvars,
+        log_path = log_path
       )
     }
   )
@@ -548,7 +622,8 @@ check_job <- function(job_id) {
 #' @export
 resolve_job <- function(
     job_id, timeout = Inf, auto_remove = TRUE, must_init = TRUE,
-    unresolved = c("warning", "error", "silent")) {
+    unresolved = c("warning", "error", "silent"),
+    log_maxline = getOption("ravepipeline.log_maxline", 1000L)) {
   unresolved <- match.arg(unresolved)
   if (inherits(job_id, "ravepipeline_job_status")) {
     status <- job_id
@@ -585,6 +660,28 @@ resolve_job <- function(
         stop(sprintf("Job [%s] is done but no result file is available...", job_id))
       }
       results <- readRDS(result_path, refhook = rave_unserialize_refhook)
+
+      # Read log file before removing job files
+      log_path <- status$log_path
+      if (length(log_path) == 1 && is.character(log_path) && !is.na(log_path) &&
+          file.exists(log_path) && !dir.exists(log_path)) {
+        log_lines <- tryCatch({
+          ll <- readLines(log_path, warn = FALSE)
+          n <- length(ll)
+          if (n > 0) {
+            if (is.numeric(log_maxline) && length(log_maxline) == 1 &&
+                !is.na(log_maxline) && log_maxline > 0 && n > log_maxline) {
+              ll <- ll[seq.int(n - log_maxline + 1L, n)]
+            }
+            ll
+          }
+        }, error = function(e) { NULL })
+        if (length(log_lines) > 0) {
+          class(log_lines) <- "rave_logs"
+          attr(results, "rave_logs") <- log_lines
+        }
+      }
+
       if (auto_remove) {
         remove_job(job_id)
       }
@@ -679,6 +776,24 @@ print.ravepipeline_job_status <- function(x, ...) {
     "unknown"
   )
   cat(sprintf("RAVE job status:\n  ID: %s\n  Status: %d (%s)\n", x$ID, x$status, status_str))
+}
+
+#' @export
+print.rave_logs <- function(x, n = 5L, ...) {
+  total <- length(x)
+  if (total == 0) {
+    cat("(empty log)\n")
+    return(invisible(x))
+  }
+  if (total > n) {
+    cat(sprintf("... (Omitted %d lines) ...\n", total - n))
+    lines <- x[seq.int(total - n + 1L, total)]
+  } else {
+    lines <- x
+  }
+  cat(lines, sep = "\n")
+  cat("\n")
+  invisible(x)
 }
 
 #' @export
