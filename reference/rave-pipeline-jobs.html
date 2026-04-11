@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.11</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,7 +48,8 @@
 <span>  name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ensure_init <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  digest_key <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  envvars <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  envvars <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  log_path <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">check_job</span><span class="op">(</span><span class="va">job_id</span><span class="op">)</span></span>
@@ -58,7 +59,8 @@
 <span>  timeout <span class="op">=</span> <span class="cn">Inf</span>,</span>
 <span>  auto_remove <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  must_init <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  unresolved <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"warning"</span>, <span class="st">"error"</span>, <span class="st">"silent"</span><span class="op">)</span></span>
+<span>  unresolved <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"warning"</span>, <span class="st">"error"</span>, <span class="st">"silent"</span><span class="op">)</span>,</span>
+<span>  log_maxline <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"ravepipeline.log_maxline"</span>, <span class="fl">1000L</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">remove_job</span><span class="op">(</span><span class="va">job_id</span><span class="op">)</span></span></code></pre></div>
@@ -109,6 +111,14 @@ used internally</p></dd>
 list of environment variables</p></dd>
 
 
+<dt id="arg-log-path">log_path<a class="anchor" aria-label="anchor" href="#arg-log-path"></a></dt>
+<dd><p>path to a log file for capturing both standard output
+and messages (stderr) from the job; default is <code>NULL</code> (no logging).
+Relative paths are resolved against <code>workdir</code>. The file is created
+at job preparation time; if creation fails or the path is a directory,
+logging is silently skipped.</p></dd>
+
+
 <dt id="arg-job-id">job_id<a class="anchor" aria-label="anchor" href="#arg-job-id"></a></dt>
 <dd><p>job identification number</p></dd>
 
@@ -134,6 +144,13 @@ default is true</p></dd>
 <dd><p>what to do if the job is still running after timing-out;
 default is <code>'warning'</code> and return <code>NULL</code>, other choices are
 <code>'error'</code> or <code>'silent'</code></p></dd>
+
+
+<dt id="arg-log-maxline">log_maxline<a class="anchor" aria-label="anchor" href="#arg-log-maxline"></a></dt>
+<dd><p>maximum number of log lines to read from the tail of
+the log file when resolving a job; default is
+<code>getOption("ravepipeline.log_maxline", 1000)</code>. The log lines are
+attached to the result as attribute <code>"rave_logs"</code> if non-empty.</p></dd>
 
 </dl></div>
     <div class="section level2">

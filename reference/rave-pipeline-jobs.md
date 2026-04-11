@@ -14,7 +14,8 @@ start_job(
   name = NULL,
   ensure_init = TRUE,
   digest_key = NULL,
-  envvars = NULL
+  envvars = NULL,
+  log_path = NULL
 )
 
 check_job(job_id)
@@ -24,7 +25,8 @@ resolve_job(
   timeout = Inf,
   auto_remove = TRUE,
   must_init = TRUE,
-  unresolved = c("warning", "error", "silent")
+  unresolved = c("warning", "error", "silent"),
+  log_maxline = getOption("ravepipeline.log_maxline", 1000L)
 )
 
 remove_job(job_id)
@@ -71,6 +73,14 @@ remove_job(job_id)
   additional environment variables to set; must be a named list of
   environment variables
 
+- log_path:
+
+  path to a log file for capturing both standard output and messages
+  (stderr) from the job; default is `NULL` (no logging). Relative paths
+  are resolved against `workdir`. The file is created at job preparation
+  time; if creation fails or the path is a directory, logging is
+  silently skipped.
+
 - job_id:
 
   job identification number
@@ -95,6 +105,13 @@ remove_job(job_id)
   what to do if the job is still running after timing-out; default is
   `'warning'` and return `NULL`, other choices are `'error'` or
   `'silent'`
+
+- log_maxline:
+
+  maximum number of log lines to read from the tail of the log file when
+  resolving a job; default is
+  `getOption("ravepipeline.log_maxline", 1000)`. The log lines are
+  attached to the result as attribute `"rave_logs"` if non-empty.
 
 ## Value
 
