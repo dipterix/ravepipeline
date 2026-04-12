@@ -623,7 +623,7 @@ check_job <- function(job_id) {
 resolve_job <- function(
     job_id, timeout = Inf, auto_remove = TRUE, must_init = TRUE,
     unresolved = c("warning", "error", "silent"),
-    log_maxline = getOption("ravepipeline.log_maxline", 1000L)) {
+    log_maxline = getOption("ravepipeline.log_maxline", 0L)) {
   unresolved <- match.arg(unresolved)
   if (inherits(job_id, "ravepipeline_job_status")) {
     status <- job_id
@@ -663,7 +663,9 @@ resolve_job <- function(
 
       # Read log file before removing job files
       log_path <- status$log_path
-      if (length(log_path) == 1 && is.character(log_path) && !is.na(log_path) &&
+      if (is.numeric(log_maxline) && length(log_maxline) == 1 &&
+          !is.na(log_maxline) && log_maxline > 0 &&
+          length(log_path) == 1 && is.character(log_path) && !is.na(log_path) &&
           file.exists(log_path) && !dir.exists(log_path)) {
         log_lines <- tryCatch({
           ll <- readLines(log_path, warn = FALSE)
@@ -676,7 +678,7 @@ resolve_job <- function(
             ll
           }
         }, error = function(e) { NULL })
-        if (length(log_lines) > 0) {
+        if (length(log_lines) > 0 && !is.null(results)) {
           class(log_lines) <- "rave_logs"
           attr(results, "rave_logs") <- log_lines
         }
