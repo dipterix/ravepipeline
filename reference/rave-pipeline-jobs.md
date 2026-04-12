@@ -26,7 +26,7 @@ resolve_job(
   auto_remove = TRUE,
   must_init = TRUE,
   unresolved = c("warning", "error", "silent"),
-  log_maxline = getOption("ravepipeline.log_maxline", 1000L)
+  log_maxline = getOption("ravepipeline.log_maxline", 0L)
 )
 
 remove_job(job_id)
