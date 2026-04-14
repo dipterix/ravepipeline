@@ -61,12 +61,31 @@ save_job_status <- function(status, path) {
 prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
                         digest_key = NULL, envvars = NULL, log_path = NULL) {
 
+  if (
+    length(workdir) == 1 &&
+      is.character(workdir) &&
+      !is.na(workdir) &&
+      !dir.exists(workdir)
+  ) {
+    stop("Job working directory does not exist: ", workdir)
+  }
+
   job_id <- new_job_id(digest_key = digest_key)
   job_root <- get_job_path(job_id = job_id, check = TRUE)
 
   # Validate and resolve log_path
-  if (length(log_path) == 1 && is.character(log_path) && !is.na(log_path) && nzchar(log_path)) {
-    base_dir <- if (length(workdir) == 1 && is.character(workdir) && !is.na(workdir) && dir.exists(workdir)) {
+  if (
+    length(log_path) == 1 &&
+      is.character(log_path) &&
+      !is.na(log_path) &&
+      nzchar(log_path)
+  ) {
+    base_dir <- if (
+      length(workdir) == 1 &&
+        is.character(workdir) &&
+        !is.na(workdir) &&
+        dir.exists(workdir)
+    ) {
       workdir
     } else {
       getwd()
@@ -256,18 +275,16 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
               NULL
             }
           )
-          if (!is.null(log_con)) {
-            sink(log_con, type = "output")
-            sink(log_con, type = "message")
-            on.exit(
-              {
-                try(sink(type = "message"), silent = TRUE)
-                try(sink(type = "output"), silent = TRUE)
-                try(close(log_con), silent = TRUE)
-              },
-              add = TRUE
-            )
-          }
+          sink(log_con, type = "output", append = TRUE)
+          sink(log_con, type = "message", append = TRUE)
+          on.exit(
+            {
+              try(sink(type = "message"), silent = TRUE)
+              try(sink(type = "output"), silent = TRUE)
+              try(close(log_con), silent = TRUE)
+            },
+            add = TRUE
+          )
         }
 
         result <- do.call(fun, args)
@@ -413,13 +430,12 @@ start_job_callr <- function(fun, fun_args = list(), packages = NULL,
       script_path = script_path
     ),
     package = FALSE,
-    poll_connection = TRUE,
+    poll_connection = FALSE,
 
     # Do not supervise when during the checks as the opened supervisor
     # will trigger alerts
     supervise = !identical(Sys.getenv("RAVE_TESTING"), "TRUE"),
-    error = "error",
-    stdout = "|"
+    error = "error"
   )
 
   return(structure(job_id, path = job_root, callr_process = process))
