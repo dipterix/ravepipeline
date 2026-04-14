@@ -207,6 +207,9 @@ pipeline_install_local <- function(
     }
     dir_create2(template_path)
     file.copy(from = fs, to = template_path, recursive = TRUE, copy.mode = FALSE, copy.date = TRUE, overwrite = TRUE)
+
+    # save a timestamp
+    writeLines(format(Sys.time(), "%Y-%m-%d %H:%M:%S"), file.path(template_path, "last_updated.txt"))
   }
 
   pipeline_install_directory(directory = src, dest = dest, upgrade = upgrade, force = force, ...)
