@@ -914,6 +914,7 @@ generate pipeline
       output_dir = NULL,
       output_format = "auto",
       clean = FALSE,
+      callback = NULL,
       ...
     )
 
@@ -938,6 +939,15 @@ generate pipeline
 - `clean`:
 
   whether to clean the output; default is false
+
+- `callback`:
+
+  callback function (if not `NULL`) to run once the report is created;
+  typically used for actions such as zipping the report directory,
+  sending out report via emails. The function must only take one
+  argument, which is the directory where the report resides. The
+  callback function will be evaluated in a separate session so please
+  make sure the function itself is self-contained.
 
 - `...`:
 
