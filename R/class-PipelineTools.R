@@ -1001,12 +1001,18 @@ PipelineTools <- R6::R6Class(
     #' @param output_dir parent folder where output will be stored
     #' @param output_format output format
     #' @param clean whether to clean the output; default is false
+    #' @param callback callback function (if not \code{NULL}) to run once
+    #' the report is created; typically used for actions such as zipping the
+    #' report directory, sending out report via emails. The function must only
+    #' take one argument, which is the directory where the report resides.
+    #' The callback function will be evaluated in a separate session so please
+    #' make sure the function itself is self-contained.
     #' @param ... passed to \code{'rmarkdown'} render function
     #' @returns A job identification number, see \code{\link{resolve_job}} for
     #' querying job details
     generate_report = function(
       name, subject = NULL, output_dir = NULL, output_format = "auto",
-      clean = FALSE, ...) {
+      clean = FALSE, callback = NULL, ...) {
 
       report_attributes <- list()
       if (!is.null(subject)) {
@@ -1020,10 +1026,15 @@ PipelineTools <- R6::R6Class(
 
 
       pipeline_report_generate(
-        name = name, output_dir = output_dir,
-        output_format = output_format, clean = clean,
-        ..., attributes = report_attributes,
-        pipe_dir = private$.pipeline_path)
+        name = name,
+        output_dir = output_dir,
+        output_format = output_format,
+        clean = clean,
+        ...,
+        attributes = report_attributes,
+        pipe_dir = private$.pipeline_path,
+        callback = callback
+      )
     }
 
   ),

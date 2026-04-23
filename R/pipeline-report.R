@@ -93,9 +93,19 @@ pipeline_report_generate <- function(
     self_contained = TRUE, toc = TRUE, toc_depth = 3L,
     toc_float = TRUE,
     output_dir = NULL, work_dir = output_dir, attributes = list(),
+    callback = NULL,
     pipe_dir = Sys.getenv("RAVE_PIPELINE", ".")) {
 
   code_folding <- match.arg(code_folding)
+
+  if (!is.null(callback)) {
+    if (!is.function(callback)) {
+      stop("`callback` must be a function, got: ", typeof(callback))
+    }
+    if (length(formals(callback)) != 1L) {
+      stop("`callback` must accept exactly 1 argument (output_dir), but it has ", length(formals(callback)), " formal argument(s).")
+    }
+  }
 
   require_package("rmarkdown")
 
@@ -220,7 +230,7 @@ pipeline_report_generate <- function(
   }
 
   job_id <- start_job(
-    fun = function(call_args, source_path, output_dir, attributes, extra_dependencies = NULL) {
+    fun = function(call_args, source_path, output_dir, attributes, extra_dependencies = NULL, callback = NULL) {
 
       Sys.setenv("RAVE_REPORT_ACTIVE" = "true")
       on.exit({ Sys.unsetenv("RAVE_REPORT_ACTIVE") }, add = TRUE, after = FALSE)
@@ -280,20 +290,40 @@ pipeline_report_generate <- function(
         path <- file.path(output_dir, "report.html")
       }
 
-      Sys.unsetenv("RAVE_REPORT_ACTIVE")
-
-      structure(
+      result <- structure(
         path,
         params = attributes,
         class = c("fs_path", "character")
       )
+
+      if (is.function(callback)) {
+        callback_errored <- FALSE
+        callback_result <- tryCatch(
+          callback(output_dir),
+          error = function(e) {
+            callback_errored <<- TRUE
+            e
+          }
+        )
+        attr(result, "callback_result") <- callback_result
+        if (callback_errored) {
+          attr(result, "callback_errored") <- TRUE
+        }
+        
+      }
+
+      Sys.unsetenv("RAVE_REPORT_ACTIVE")
+
+      return(result)
+      
     },
     fun_args = list(
       call_args = call_args,
       source_path = work_dir,
       output_dir = output_dir,
       attributes = attributes,
-      extra_dependencies = extra_dependencies
+      extra_dependencies = extra_dependencies,
+      callback = callback
     ),
     packages = "rmarkdown",
     workdir = workdir,
