@@ -97,6 +97,12 @@ ravepipeline_finalize_installation <- function(
 
   upgrade <- match.arg(upgrade)
 
+  # Update pandoc
+  tryCatch({
+    register_pandoc()
+  }, error = function(e) {
+  })
+
   template_path <- ravepipeline_data_dir("rave-pipelines")
   if (dir.exists(template_path)) {
     if (upgrade %in% c("never")) { return() }

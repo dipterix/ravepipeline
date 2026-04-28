@@ -169,3 +169,194 @@ new_function2 <- function(
   f
 
 }
+
+
+brew_program <- function(program) {
+
+  os <- get_os()
+  brew_bin <- switch (
+    os,
+    "darwin" = {
+      res <- suppressWarnings({
+        sanitized_path <- gsub("\\", "\\\\", Sys.getenv("PATH"), fixed = TRUE)
+        sanitized_path <- gsub("\"", "\\\"", sanitized_path, fixed = TRUE)
+        system(paste0("PATH=\"", sanitized_path, "\" /usr/bin/which ", "brew"), intern = TRUE)
+      })
+      if (length(res) == 0) {
+        # brew is not in PATH
+        # guess common places
+        if (identical(R.version$arch, "aarch64")) {
+          res <- "/opt/homebrew/bin/brew"
+        } else {
+          res <- "/usr/local/bin/brew"
+        }
+      }
+      res
+    },
+    {
+      res <- Sys.which("brew")
+      if (!nzchar(res)) {
+        if (file.exists()) {
+          res <- "~/.linuxbrew/bin/brew"
+        } else {
+          res <- "/home/linuxbrew/.linuxbrew/bin/brew"
+        }
+      }
+      res
+    }
+  )
+
+  if (length(brew_bin) == 1 && !is.na(brew_bin) && nzchar(brew_bin) && file.exists(brew_bin)) {
+    prefix <- suppressWarnings({
+      system(sprintf("%s --prefix", shQuote(brew_bin)), intern = TRUE)
+    })
+    if (length(prefix) == 1) {
+      path <- file.path(prefix, "bin", program, fsep = "/")
+      if (file.exists(path)) {
+        return(path)
+      }
+    }
+  }
+  return("")
+}
+
+find_program <- function(program) {
+  os <- get_os()
+
+  path <- switch(
+    os,
+    "darwin" = {
+      res <- suppressWarnings({
+        sanitized_path <- gsub("\\", "\\\\", Sys.getenv("PATH"), fixed = TRUE)
+        sanitized_path <- gsub("\"", "\\\"", sanitized_path, fixed = TRUE)
+        system(paste0("PATH=\"", sanitized_path, "\" /usr/bin/which ", program), intern = TRUE)
+      })
+      if (length(res) == 0) {
+        # Check brew
+        res <- brew_program(program)
+      }
+      res
+    },
+    "linux" = {
+      res <- Sys.which(program)
+      if (length(res) != 1 || !nzchar(res)) {
+        res <- suppressWarnings({
+          sanitized_path <- gsub("\\", "\\\\", Sys.getenv("PATH"), fixed = TRUE)
+          sanitized_path <- gsub("\"", "\\\"", sanitized_path, fixed = TRUE)
+          system(paste0("PATH=\"", sanitized_path, "\" /usr/bin/which ", program), intern = TRUE)
+        })
+        if (length(res) == 0) {
+          # Check brew
+          res <- brew_program(program)
+        }
+        res
+      }
+    },
+    {
+      Sys.which(program)
+    }
+  )
+
+  if (length(path) == 0 || is.na(path) || !nzchar(path) || !file.exists(path)) {
+    return("")
+  } else {
+    return(path)
+  }
+}
+
+with_pandoc_safe_environment <- function(code) {
+  if (package_installed("rmarkdown")) {
+    rmarkdown <- asNamespace("rmarkdown")
+    if (is.function(rmarkdown$with_pandoc_safe_environment)) {
+      try(
+        silent = TRUE,
+        {
+          return(rmarkdown$with_pandoc_safe_environment(code))
+        }
+      )
+    }
+  }
+  lc_all <- Sys.getenv("LC_ALL", unset = NA)
+  if (!is.na(lc_all)) {
+    Sys.unsetenv("LC_ALL")
+    on.exit(Sys.setenv(LC_ALL = lc_all), add = TRUE)
+  }
+  lc_ctype <- Sys.getenv("LC_CTYPE", unset = NA)
+  if (!is.na(lc_ctype)) {
+    Sys.unsetenv("LC_CTYPE")
+    on.exit(Sys.setenv(LC_CTYPE = lc_ctype), add = TRUE)
+  }
+  if (Sys.info()["sysname"] == "Linux" && is.na(Sys.getenv("HOME", unset = NA))) {
+    stop("The 'HOME' environment variable must be set before running Pandoc.")
+  }
+  if (Sys.info()["sysname"] == "Linux" && is.na(Sys.getenv("LANG", unset = NA))) {
+    Sys.setenv(LANG = detect_generic_lang())
+    on.exit(Sys.unsetenv("LANG"), add = TRUE)
+  }
+  if (Sys.info()["sysname"] == "Linux" && identical(Sys.getenv("LANG"), "en_US")) {
+    Sys.setenv(LANG = "en_US.UTF-8")
+    on.exit(Sys.setenv(LANG = "en_US"), add = TRUE)
+  }
+  force(code)
+}
+
+get_pandoc_version <- function(pandoc_dir) {
+  path <- file.path(pandoc_dir, "pandoc")
+  if (identical(get_os(), "windows")) {
+    path <- paste0(path, ".exe")
+  }
+  if (!utils::file_test("-x", path)) {
+    return(numeric_version("0"))
+  }
+  info <- with_pandoc_safe_environment(system(paste(shQuote(path), "--version"), intern = TRUE))
+  version <- strsplit(info, "\n", useBytes = TRUE)[[1]][1]
+  version <- strsplit(version, " ")[[1]][2]
+  components <- strsplit(version, "-")[[1]]
+  version <- components[1]
+  nightly <- match("nightly", components)
+  if (!is.na(nightly)) {
+    version <- paste(c(version, grep("^[0-9]+$", components[-(1:nightly)],
+                                     value = TRUE)), collapse = ".")
+  }
+  numeric_version(version)
+}
+
+register_pandoc <- function() {
+
+  pandoc_dir <- raveio_getopt("pandoc_dir", default = "")
+
+  sources <- c(Sys.getenv("RSTUDIO_PANDOC"), pandoc_dir, dirname(find_program("pandoc")), "~/opt/pandoc")
+  sources <- path.expand(sources)
+  versions <- lapply(sources, function(src) {
+    if (dir.exists(src)) {
+      try(silent = TRUE, {
+        return(get_pandoc_version(src))
+      })
+    }
+    numeric_version("0")
+  })
+
+  found_src <- NULL
+  found_ver <- numeric_version("0")
+  for (i in seq_along(sources)) {
+    ver <- versions[[i]]
+    if (ver > found_ver) {
+      found_ver <- ver
+      found_src <- sources[[i]]
+    }
+  }
+
+  if (length(found_src) == 1) {
+    # found pandoc
+    Sys.setenv("RSTUDIO_PANDOC" = found_src)
+    raveio_setopt("pandoc_dir", found_src)
+
+    # Also update rmarkdown registry
+    if (package_installed("rmarkdown")) {
+      rmarkdown <- asNamespace("rmarkdown")
+      rmarkdown$find_pandoc(cache = FALSE, dir = found_src)
+    }
+  }
+
+  found_src
+}

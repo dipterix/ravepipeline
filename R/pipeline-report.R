@@ -223,11 +223,9 @@ pipeline_report_generate <- function(
   )
 
   envvars <- list()
-  rmarkdown <- asNamespace("rmarkdown")
-  pandoc <- rmarkdown$pandoc_exec()
-  if (length(pandoc) && !is.na(pandoc[[1]]) && file.exists(pandoc[[1]])) {
-    envvars$RSTUDIO_PANDOC <- dirname(pandoc[[1]])
-  }
+  try(silent = TRUE, {
+    envvars$RSTUDIO_PANDOC <- register_pandoc()
+  })
 
   job_id <- start_job(
     fun = function(call_args, source_path, output_dir, attributes, extra_dependencies = NULL, callback = NULL) {
@@ -241,6 +239,9 @@ pipeline_report_generate <- function(
       cat("=====================================\n")
 
       rmarkdown <- asNamespace("rmarkdown")
+      ravepipeline <- asNamespace("ravepipeline")
+
+      ravepipeline$register_pandoc()
 
       if (length(call_args$output_format) == 1 && is.character(call_args$output_format)) {
         tryCatch(
@@ -309,13 +310,13 @@ pipeline_report_generate <- function(
         if (callback_errored) {
           attr(result, "callback_errored") <- TRUE
         }
-        
+
       }
 
       Sys.unsetenv("RAVE_REPORT_ACTIVE")
 
       return(result)
-      
+
     },
     fun_args = list(
       call_args = call_args,

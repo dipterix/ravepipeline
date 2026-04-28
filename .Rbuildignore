@@ -11,3 +11,5 @@
 ^adhoc$
 ^\.vscode$
 ^\.lintr$
+^\.positai$
+^\.claude$
