@@ -307,6 +307,22 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
 
         runtime_env <- new.env(parent = globalenv())
         list2env(serialize_packet$globals, envir = runtime_env)
+
+        # Need to fix the function environments in case they are cross referenced
+        lapply(ls(runtime_env, all.names = TRUE), function(nm) {
+          fun <- runtime_env[[nm]]
+          if (is.function(fun)) {
+            old_env <- environment(fun)
+            if (!isNamespace(old_env)) {
+              try(silent = TRUE, {
+                environment(fun) <- new.env(parent = runtime_env)
+                runtime_env[[nm]] <- fun
+              })
+            }
+          }
+          return()
+        })
+
         environment(fun) <- new.env(parent = runtime_env)
 
         do.call(fun, c(list(.x), serialize_packet$args))
