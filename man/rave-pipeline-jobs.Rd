@@ -83,7 +83,7 @@ default is \code{'warning'} and return \code{NULL}, other choices are
 
 \item{log_maxline}{maximum number of log lines to read from the tail of
 the log file when resolving a job; default is
-\code{getOption("ravepipeline.log_maxline", 1000)}. The log lines are
+\code{getOption("ravepipeline.log_maxline", 0L)}. The log lines are
 attached to the result as attribute \code{"rave_logs"} if non-empty.}
 }
 \value{

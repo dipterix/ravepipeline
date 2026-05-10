@@ -236,18 +236,6 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
         args <- shared_objects$args
         packages <- shared_objects$packages
         workdir <- shared_objects$workdir
-        log_path <- shared_objects$log_path
-        job_status$log_path <- log_path
-
-        for (pkg in packages) {
-          do.call("loadNamespace", list(package = pkg))
-        }
-
-
-        job_status$start_time <- Sys.time()
-        job_status$current_time <- Sys.time()
-        job_status$status <- 2
-        save_job_status(job_status, status_path)
 
         cwd <- getwd()
         if (length(workdir) == 1 && is.character(workdir) && !is.na(workdir)) {
@@ -260,36 +248,65 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
           })
         }
 
+        log_path <- shared_objects$log_path
         if (
-          length(log_path) == 1 &&
-            is.character(log_path) &&
-            !is.na(log_path) &&
-            file.exists(log_path) &&
-            !dir.exists(log_path)
+          length(log_path) != 1 ||
+          !is.character(log_path) ||
+          is.na(log_path) ||
+          !file.exists(log_path) ||
+          dir.exists(log_path)
         ) {
-          log_con <- tryCatch(
-            {
-              file(log_path, open = "wt")
-            },
-            error = function(e) {
-              NULL
-            }
-          )
+          # invalid log_path: use default log path
+          log_path <- file.path(job_root, "console_outputs.txt")
+          file.create(log_path, showWarnings = FALSE)
+        }
+        sink_needs_reset <- FALSE
+        log_con <- tryCatch(
+          {
+            file(log_path, open = "wt")
+          },
+          error = function(e) {
+            NULL
+          }
+        )
+        if (inherits(log_con, "connection")) {
           sink(log_con, type = "output", append = TRUE)
           sink(log_con, type = "message", append = TRUE)
+          sink_needs_reset <- TRUE
           on.exit(
             {
-              try(sink(type = "message"), silent = TRUE)
-              try(sink(type = "output"), silent = TRUE)
-              try(close(log_con), silent = TRUE)
+              if (sink_needs_reset) {
+                try(sink(type = "message"), silent = TRUE)
+                try(sink(type = "output"), silent = TRUE)
+                try(close(log_con), silent = TRUE)
+              }
             },
             add = TRUE
           )
         }
 
+        job_status$log_path <- log_path
+
+        for (pkg in packages) {
+          do.call("loadNamespace", list(package = pkg))
+        }
+
+        job_status$start_time <- Sys.time()
+        job_status$current_time <- Sys.time()
+        job_status$status <- 2
+        save_job_status(job_status, status_path)
+
         result <- do.call(fun, args)
         result_path <- file.path(job_root, "results.rds")
         saveRDS(result, file = result_path, refhook = rave_serialize_refhook)
+
+        # Close the log connection before saving the final status to avoid file lock issues on some platforms
+        if (sink_needs_reset) {
+          try(sink(type = "message"), silent = TRUE)
+          try(sink(type = "output"), silent = TRUE)
+          try(close(log_con), silent = TRUE)
+          sink_needs_reset <- FALSE
+        }
 
         job_status$current_time <- Sys.time()
         job_status$status <- 3
@@ -503,7 +520,7 @@ start_job_mirai <- function(fun, fun_args = list(), packages = NULL,
 #' logging is silently skipped.
 #' @param log_maxline maximum number of log lines to read from the tail of
 #' the log file when resolving a job; default is
-#' \code{getOption("ravepipeline.log_maxline", 1000)}. The log lines are
+#' \code{getOption("ravepipeline.log_maxline", 0L)}. The log lines are
 #' attached to the result as attribute \code{"rave_logs"} if non-empty.
 #' @param must_init whether the resolve should error out if the job is not
 #' initialized: typically meaning the either the resolving occurs too soon
@@ -644,9 +661,15 @@ resolve_job <- function(
   if (inherits(job_id, "ravepipeline_job_status")) {
     status <- job_id
     job_id <- status$ID
+    try(silent = TRUE, {
+      status <- check_job(job_id)
+    })
   } else {
     status <- check_job(job_id)
   }
+
+  short_id <- substr(status$ID, 1, 6)
+  attributes(short_id) <- NULL
 
   if (timeout < 0) {
     # Resolve or fail?
@@ -654,6 +677,84 @@ resolve_job <- function(
   }
   start_time <- Sys.time()
   now <- start_time
+  os_type <- get_os()
+
+  env <- new.env(parent = emptyenv())
+  env$log_path <- NULL
+  env$log_connection <- NULL
+  env$log_content <- NULL
+
+  on.exit({
+    if (inherits(env$log_connection, "connection")) {
+      try({
+        close(env$log_connection)
+      }, silent = TRUE)
+    }
+  }, add = TRUE)
+
+  update_log <- function() {
+    # Read log file before removing job files
+    if (is.null(env$log_path)) {
+      # Need to initialize
+
+      path <- status$log_path
+
+      if (is.null(path)) {
+        # defer
+        return()
+      }
+
+      if (length(path) != 1 || !is.character(path) || is.na(path) ||
+          dir.exists(path)) {
+        env$log_path <- NA_character_
+        return()
+      }
+
+      if (!file.exists(path)) {
+        # defer
+        return()
+      }
+
+      env$log_path <- path
+    }
+    # No need to update log
+    if (is.na(env$log_path)) { return() }
+
+    # Somehow the log was deleted
+    if (!file.exists(env$log_path)) { return() }
+
+    if (!inherits(env$log_connection, "connection")) {
+      env$log_connection <- file(env$log_path, open = "r")
+    }
+
+    if (!isOpen(env$log_connection)) { return() }
+
+    # read logs
+    lines <- readLines(env$log_connection, warn = FALSE)
+    if (!length(lines)) { return() }
+
+    lines <- strsplit(paste(lines, collapse = "\n"), "\n")[[1]]
+
+    logger_lines <- sprintf("[JobID: %s] %s", short_id, lines)
+    lapply(logger_lines, function(x) {
+      logger(x, level = "trace", calc_delta = FALSE)
+    })
+
+    # Check if log needs to be kept
+    if (!is.numeric(log_maxline) || length(log_maxline) != 1 ||
+        !isTRUE(log_maxline > 0)) {
+      return()
+    }
+
+    new_content <- c(env$log_content, lines)
+    new_n <- length(new_content)
+    if (new_n > log_maxline) {
+      new_content <- new_content[-seq_len(new_n - log_maxline)]
+    }
+    env$log_content <- new_content
+    return()
+  }
+
   while (now <= (start_time + timeout)) {
     if (status$status < 0) {
       # -1: error
@@ -678,26 +779,10 @@ resolve_job <- function(
       results <- readRDS(result_path, refhook = rave_unserialize_refhook)
 
       # Read log file before removing job files
-      log_path <- status$log_path
-      if (is.numeric(log_maxline) && length(log_maxline) == 1 &&
-          !is.na(log_maxline) && log_maxline > 0 &&
-          length(log_path) == 1 && is.character(log_path) && !is.na(log_path) &&
-          file.exists(log_path) && !dir.exists(log_path)) {
-        log_lines <- tryCatch({
-          ll <- readLines(log_path, warn = FALSE)
-          n <- length(ll)
-          if (n > 0) {
-            if (is.numeric(log_maxline) && length(log_maxline) == 1 &&
-                !is.na(log_maxline) && log_maxline > 0 && n > log_maxline) {
-              ll <- ll[seq.int(n - log_maxline + 1L, n)]
-            }
-            ll
-          }
-        }, error = function(e) { NULL })
-        if (length(log_lines) > 0 && !is.null(results)) {
-          class(log_lines) <- "rave_logs"
-          attr(results, "rave_logs") <- log_lines
-        }
+      try({ update_log() }, silent = TRUE)
+
+      if (length(env$log_content) > 0 && !is.null(results)) {
+        attr(results, "rave_logs") <- structure(env$log_content, class = "rave_logs")
       }
 
       if (auto_remove) {
@@ -735,7 +820,16 @@ resolve_job <- function(
 
     Sys.sleep(max(wait_time, 0))
     status <- check_job(job_id)
+
     now <- Sys.time()
+
+    if (os_type != "windows") {
+      # On Windows, the log file may be locked by the job process,
+      # so we can only read logs at the end
+      try({
+        update_log()
+      }, silent = TRUE)
+    }
   }
 
   switch(
