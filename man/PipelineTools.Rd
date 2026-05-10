@@ -3,57 +3,13 @@
 \name{PipelineTools}
 \alias{PipelineTools}
 \title{Class definition for 'RAVE' pipelines}
-\value{
-The value of the inputs, or a list if \code{key} is missing
-
-The values of the targets
-
-A \code{\link{PipelineResult}} instance if \code{as_promise}
-or \code{async} is true; otherwise a list of values for input \code{names}
-
-\code{shiny} extended task; see \code{\link[shiny]{ExtendedTask}}
-
-An environment of shared variables
-
-See \code{type}
-
-A table of the progress
-
-a list where the names are target names and values are the
-corresponding dependence
-
-ancestor target names (including \code{names})
-
-A new pipeline object based on the path given
-
-A new pipeline object based on the path given
-
-the saved file path
-
-the data if file is found or a default value
-
-A list of key-value pairs
-
-A list of the preferences. If \code{simplify} is true and length
-if keys is 1, then returns the value of that preference
-
-logical whether the keys exist
-
-characters if the source document (\code{main.Rmd}) is found,
-otherwise \code{NULL}
-
-A job identification number, see \code{\link{resolve_job}} for
-querying job details
-}
 \description{
-Class definition for 'RAVE' pipelines
-
 Class definition for 'RAVE' pipelines
 }
 \examples{
 
 ## ------------------------------------------------
-## Method `PipelineTools$run_as_task`
+## Method `PipelineTools$run_as_task()`
 ## ------------------------------------------------
 
 
@@ -72,7 +28,7 @@ server <- function(input, output, session) {
 }
 
 ## ------------------------------------------------
-## Method `PipelineTools$get_preferences`
+## Method `PipelineTools$get_preferences()`
 ## ------------------------------------------------
 
 
@@ -103,214 +59,223 @@ if(interactive() && length(pipeline_list()) > 0) {
 \code{\link{pipeline}}
 }
 \section{Super class}{
-\code{\link[ravepipeline:RAVESerializable]{ravepipeline::RAVESerializable}} -> \code{PipelineTools}
+\code{\link[ravepipeline:RAVESerializable]{RAVESerializable}} -> \code{PipelineTools}
 }
 \section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{description}}{pipeline description}
+  \if{html}{\out{<div class="r6-active-bindings">}}
+  \describe{
+    \item{\code{description}}{pipeline description}
 
-\item{\code{settings_path}}{absolute path to the settings file}
+    \item{\code{settings_path}}{absolute path to the settings file}
 
-\item{\code{extdata_path}}{absolute path to the user-defined pipeline data folder}
+    \item{\code{extdata_path}}{absolute path to the user-defined pipeline data folder}
 
-\item{\code{preference_path}}{directory to the pipeline preference folder}
+    \item{\code{preference_path}}{directory to the pipeline preference folder}
 
-\item{\code{target_table}}{table of target names and their descriptions}
+    \item{\code{target_table}}{table of target names and their descriptions}
 
-\item{\code{result_table}}{summary of the results, including
+    \item{\code{result_table}}{summary of the results, including
 signatures of data and commands}
 
-\item{\code{pipeline_path}}{the absolute path of the pipeline}
+    \item{\code{pipeline_path}}{the absolute path of the pipeline}
 
-\item{\code{pipeline_name}}{the code name of the pipeline}
+    \item{\code{pipeline_name}}{the code name of the pipeline}
 
-\item{\code{available_reports}}{available reports and their configurations}
+    \item{\code{available_reports}}{available reports and their configurations}
 
-\item{\code{task}}{shiny task object, see method \code{'run_ask_task'}}
-}
-\if{html}{\out{</div>}}
+    \item{\code{task}}{shiny task object, see method \code{'run_ask_task'}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-PipelineTools-@marshal}{\code{PipelineTools$@marshal()}}
-\item \href{#method-PipelineTools-@unmarshal}{\code{PipelineTools$@unmarshal()}}
-\item \href{#method-PipelineTools-new}{\code{PipelineTools$new()}}
-\item \href{#method-PipelineTools-set_settings}{\code{PipelineTools$set_settings()}}
-\item \href{#method-PipelineTools-get_settings}{\code{PipelineTools$get_settings()}}
-\item \href{#method-PipelineTools-read}{\code{PipelineTools$read()}}
-\item \href{#method-PipelineTools-run}{\code{PipelineTools$run()}}
-\item \href{#method-PipelineTools-run_as_task}{\code{PipelineTools$run_as_task()}}
-\item \href{#method-PipelineTools-eval}{\code{PipelineTools$eval()}}
-\item \href{#method-PipelineTools-shared_env}{\code{PipelineTools$shared_env()}}
-\item \href{#method-PipelineTools-python_module}{\code{PipelineTools$python_module()}}
-\item \href{#method-PipelineTools-progress}{\code{PipelineTools$progress()}}
-\item \href{#method-PipelineTools-attach}{\code{PipelineTools$attach()}}
-\item \href{#method-PipelineTools-visualize}{\code{PipelineTools$visualize()}}
-\item \href{#method-PipelineTools-target_ancestors}{\code{PipelineTools$target_ancestors()}}
-\item \href{#method-PipelineTools-fork}{\code{PipelineTools$fork()}}
-\item \href{#method-PipelineTools-fork_to_subject}{\code{PipelineTools$fork_to_subject()}}
-\item \href{#method-PipelineTools-with_activated}{\code{PipelineTools$with_activated()}}
-\item \href{#method-PipelineTools-clean}{\code{PipelineTools$clean()}}
-\item \href{#method-PipelineTools-save_data}{\code{PipelineTools$save_data()}}
-\item \href{#method-PipelineTools-load_data}{\code{PipelineTools$load_data()}}
-\item \href{#method-PipelineTools-set_preferences}{\code{PipelineTools$set_preferences()}}
-\item \href{#method-PipelineTools-get_preferences}{\code{PipelineTools$get_preferences()}}
-\item \href{#method-PipelineTools-has_preferences}{\code{PipelineTools$has_preferences()}}
-\item \href{#method-PipelineTools-source_document}{\code{PipelineTools$source_document()}}
-\item \href{#method-PipelineTools-generate_report}{\code{PipelineTools$generate_report()}}
-\item \href{#method-PipelineTools-clone}{\code{PipelineTools$clone()}}
+  \itemize{
+    \item \href{#method-PipelineTools-@marshal}{\code{PipelineTools$@marshal()}}
+    \item \href{#method-PipelineTools-@unmarshal}{\code{PipelineTools$@unmarshal()}}
+    \item \href{#method-PipelineTools-initialize}{\code{PipelineTools$new()}}
+    \item \href{#method-PipelineTools-set_settings}{\code{PipelineTools$set_settings()}}
+    \item \href{#method-PipelineTools-get_settings}{\code{PipelineTools$get_settings()}}
+    \item \href{#method-PipelineTools-read}{\code{PipelineTools$read()}}
+    \item \href{#method-PipelineTools-run}{\code{PipelineTools$run()}}
+    \item \href{#method-PipelineTools-run_as_task}{\code{PipelineTools$run_as_task()}}
+    \item \href{#method-PipelineTools-eval}{\code{PipelineTools$eval()}}
+    \item \href{#method-PipelineTools-shared_env}{\code{PipelineTools$shared_env()}}
+    \item \href{#method-PipelineTools-python_module}{\code{PipelineTools$python_module()}}
+    \item \href{#method-PipelineTools-progress}{\code{PipelineTools$progress()}}
+    \item \href{#method-PipelineTools-attach}{\code{PipelineTools$attach()}}
+    \item \href{#method-PipelineTools-visualize}{\code{PipelineTools$visualize()}}
+    \item \href{#method-PipelineTools-target_ancestors}{\code{PipelineTools$target_ancestors()}}
+    \item \href{#method-PipelineTools-fork}{\code{PipelineTools$fork()}}
+    \item \href{#method-PipelineTools-fork_to_subject}{\code{PipelineTools$fork_to_subject()}}
+    \item \href{#method-PipelineTools-with_activated}{\code{PipelineTools$with_activated()}}
+    \item \href{#method-PipelineTools-clean}{\code{PipelineTools$clean()}}
+    \item \href{#method-PipelineTools-save_data}{\code{PipelineTools$save_data()}}
+    \item \href{#method-PipelineTools-load_data}{\code{PipelineTools$load_data()}}
+    \item \href{#method-PipelineTools-set_preferences}{\code{PipelineTools$set_preferences()}}
+    \item \href{#method-PipelineTools-get_preferences}{\code{PipelineTools$get_preferences()}}
+    \item \href{#method-PipelineTools-has_preferences}{\code{PipelineTools$has_preferences()}}
+    \item \href{#method-PipelineTools-source_document}{\code{PipelineTools$source_document()}}
+    \item \href{#method-PipelineTools-generate_report}{\code{PipelineTools$generate_report()}}
+    \item \href{#method-PipelineTools-clone}{\code{PipelineTools$clone()}}
+  }
 }
-}
-\if{html}{\out{
-<details open><summary>Inherited methods</summary>
+\if{html}{\out{<details open><summary>Inherited methods</summary>
 <ul>
-<li><span class="pkg-link" data-pkg="ravepipeline" data-topic="RAVESerializable" data-id="@compare"><a href='../../ravepipeline/html/RAVESerializable.html#method-RAVESerializable-@compare'><code>ravepipeline::RAVESerializable$@compare()</code></a></span></li>
+  <li><span class="pkg-link" data-pkg="ravepipeline" data-topic="RAVESerializable" data-id="@compare"><a href='../../ravepipeline/html/RAVESerializable.html#method-RAVESerializable-@compare'><code>RAVESerializable$@compare()</code></a></span></li>
 </ul>
-</details>
-}}
+</details>}}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-@marshal"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-@marshal}{}}}
-\subsection{Method \code{@marshal()}}{
-Create an atomic list that can be serialized
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$@marshal(...)}\if{html}{\out{</div>}}
+\subsection{\code{PipelineTools$@marshal()}}{
+  Create an atomic list that can be serialized
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$@marshal(...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{...}}{ignored}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{...}}{ignored}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-@unmarshal"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-@unmarshal}{}}}
-\subsection{Method \code{@unmarshal()}}{
-Restore an object from an atomic list
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$@unmarshal(object, ...)}\if{html}{\out{</div>}}
+\subsection{\code{PipelineTools$@unmarshal()}}{
+  Restore an object from an atomic list
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$@unmarshal(object, ...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{object}}{a list from \code{'@marshal'}}
+      \item{\code{...}}{ignored}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{object}}{a list from \code{'@marshal'}}
-
-\item{\code{...}}{ignored}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-PipelineTools-new"></a>}}
-\if{latex}{\out{\hypertarget{method-PipelineTools-new}{}}}
-\subsection{Method \code{new()}}{
-construction function
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$new(
+\if{html}{\out{<a id="method-PipelineTools-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-PipelineTools-initialize}{}}}
+\subsection{\code{PipelineTools$new()}}{
+  construction function
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$new(
   pipeline_name,
   settings_file = "settings.yaml",
   paths = pipeline_root(),
   temporary = FALSE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{pipeline_name}}{name of the pipeline, usually in the pipeline
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{pipeline_name}}{name of the pipeline, usually in the pipeline
 \code{'DESCRIPTION'} file, or pipeline folder name}
-
-\item{\code{settings_file}}{the file name of the settings file, where the
+      \item{\code{settings_file}}{the file name of the settings file, where the
 user inputs are stored}
-
-\item{\code{paths}}{the paths to find the pipeline, usually the parent folder
+      \item{\code{paths}}{the paths to find the pipeline, usually the parent folder
 of the pipeline; default is \code{pipeline_root()}}
-
-\item{\code{temporary}}{whether not to save \code{paths} to current pipeline
+      \item{\code{temporary}}{whether not to save \code{paths} to current pipeline
 root registry. Set this to \code{TRUE} when importing pipelines
 from subject pipeline folders}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-set_settings"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-set_settings}{}}}
-\subsection{Method \code{set_settings()}}{
-set inputs
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$set_settings(..., .list = NULL)}\if{html}{\out{</div>}}
+\subsection{\code{PipelineTools$set_settings()}}{
+  set inputs
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$set_settings(..., .list = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{..., .list}}{named list of inputs; all inputs should be named,
+otherwise errors will be raised}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{..., .list}}{named list of inputs; all inputs should be named,
-otherwise errors will be raised}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-get_settings"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-get_settings}{}}}
-\subsection{Method \code{get_settings()}}{
-get current inputs
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$get_settings(key, default = NULL, constraint)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{key}}{the input name; default is missing, i.e., to get all the
+\subsection{\code{PipelineTools$get_settings()}}{
+  get current inputs
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$get_settings(key, default = NULL, constraint)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{key}}{the input name; default is missing, i.e., to get all the
 settings}
-
-\item{\code{default}}{default value if not found}
-
-\item{\code{constraint}}{the constraint of the results; if input value is not
+      \item{\code{default}}{default value if not found}
+      \item{\code{constraint}}{the constraint of the results; if input value is not
 from \code{constraint}, then only the first element of \code{constraint}
 will be returned.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The value of the inputs, or a list if \code{key} is missing
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-read"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-read}{}}}
-\subsection{Method \code{read()}}{
-read intermediate variables
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$read(var_names, ifnotfound = NULL, ..., simplify = TRUE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{var_names}}{the target names, can be obtained via
+\subsection{\code{PipelineTools$read()}}{
+  read intermediate variables
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$read(var_names, ifnotfound = NULL, ..., simplify = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{var_names}}{the target names, can be obtained via
 \code{x$target_table} member; default is missing, i.e., to read
 all the intermediate variables}
+      \item{\code{ifnotfound}}{variable default value if not found}
+      \item{\code{simplify, ...}}{other parameters passing to \code{\link{pipeline_read}}}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The values of the targets
+  }
+}
 
-\item{\code{ifnotfound}}{variable default value if not found}
-
-\item{\code{simplify, ...}}{other parameters passing to \code{\link{pipeline_read}}}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-run"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-run}{}}}
-\subsection{Method \code{run()}}{
-run the pipeline
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$run(
+\subsection{\code{PipelineTools$run()}}{
+  run the pipeline
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$run(
   names = NULL,
   async = FALSE,
   as_promise = async,
@@ -321,61 +286,62 @@ run the pipeline
   return_values = TRUE,
   debug = FALSE,
   ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{names}}{pipeline variable names to calculate; default is to
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{names}}{pipeline variable names to calculate; default is to
 calculate all the targets}
-
-\item{\code{async}}{whether to run asynchronous in another process}
-
-\item{\code{as_promise}}{whether to return a \code{\link{PipelineResult}}
+      \item{\code{async}}{whether to run asynchronous in another process}
+      \item{\code{as_promise}}{whether to return a \code{\link{PipelineResult}}
 instance}
-
-\item{\code{scheduler, type, envir, callr_function, return_values, debug, ...}}{passed
+      \item{\code{scheduler, type, envir, callr_function, return_values, debug, ...}}{passed
 to \code{\link{pipeline_run}} if \code{as_promise} is true, otherwise
 these arguments will be passed to \code{pipeline_run_bare}}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A \code{\link{PipelineResult}} instance if \code{as_promise}
+or \code{async} is true; otherwise a list of values for input \code{names}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-run_as_task"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-run_as_task}{}}}
-\subsection{Method \code{run_as_task()}}{
-Run pipeline as \code{shiny} extended task,
+\subsection{\code{PipelineTools$run_as_task()}}{
+  Run pipeline as \code{shiny} extended task,
 requires package \pkg{shiny}
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$run_as_task(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$run_as_task(
   names = NULL,
   with_progress = TRUE,
   check_internals = 0.5,
   ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{names}}{target names to build, see method \code{'run'}}
-
-\item{\code{with_progress}}{whether to show progress; default is true}
-
-\item{\code{check_internals, }}{progress update frequency in seconds;
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{names}}{target names to build, see method \code{'run'}}
+      \item{\code{with_progress}}{whether to show progress; default is true}
+      \item{\code{check_internals, }}{progress update frequency in seconds;
 default is 0.5 seconds}
-
-\item{\code{...}}{arguments passed to \code{\link{rave_progress}}}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Examples}{
-\if{html}{\out{<div class="r example copy">}}
-\preformatted{
-
-# pipeline <- ... (initialize pipeline somewhere)
+      \item{\code{...}}{arguments passed to \code{\link{rave_progress}}}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \code{shiny} extended task; see \code{\link[shiny]{ExtendedTask}}
+  }
+  \subsection{Examples}{
+    \if{html}{\out{<div class="r example copy">}}
+    \preformatted{# pipeline <- ... (initialize pipeline somewhere)
 
 # runs within shiny
 server <- function(input, output, session) {
@@ -388,417 +354,450 @@ server <- function(input, output, session) {
 
 }
 }
-\if{html}{\out{</div>}}
-
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-eval"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-eval}{}}}
-\subsection{Method \code{eval()}}{
-run the pipeline in order; unlike \code{$run()}, this method
+\subsection{\code{PipelineTools$eval()}}{
+  run the pipeline in order; unlike \code{$run()}, this method
 does not use the \code{targets} infrastructure, hence the pipeline
 results will not be stored, and the order of \code{names} will be
 respected.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$eval(
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$eval(
   names,
   env = parent.frame(),
   shortcut = FALSE,
   clean = TRUE,
   ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{names}}{pipeline variable names to calculate; must be specified}
-
-\item{\code{env}}{environment to evaluate and store the results}
-
-\item{\code{shortcut}}{logical or characters; default is \code{FALSE}, meaning
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{names}}{pipeline variable names to calculate; must be specified}
+      \item{\code{env}}{environment to evaluate and store the results}
+      \item{\code{shortcut}}{logical or characters; default is \code{FALSE}, meaning
 \code{names} and all the dependencies (if missing from \code{env})
 will be evaluated; set to \code{TRUE} if only \code{names} are to be
 evaluated. When \code{shortcut} is a character vector, it should be
 a list of targets (including their ancestors) whose values can be assumed
 to be up-to-date, and the evaluation of those targets can be skipped.}
+      \item{\code{clean}}{whether to evaluate without polluting \code{env}}
+      \item{\code{...}}{passed to \code{\link{pipeline_eval}}}
+    }
+    \if{html}{\out{</div>}}
+  }
+}
 
-\item{\code{clean}}{whether to evaluate without polluting \code{env}}
-
-\item{\code{...}}{passed to \code{\link{pipeline_eval}}}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-shared_env"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-shared_env}{}}}
-\subsection{Method \code{shared_env()}}{
-run the pipeline shared library in scripts starting with
+\subsection{\code{PipelineTools$shared_env()}}{
+  run the pipeline shared library in scripts starting with
 path \code{R/shared}
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$shared_env(callr_function = callr::r)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{callr_function}}{either \code{callr::r} or \code{NULL}; when
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$shared_env(callr_function = callr::r)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{callr_function}}{either \code{callr::r} or \code{NULL}; when
 \code{callr::r}, the environment will be loaded in isolated R session
 and serialized back to the main session to avoid contaminating the
 main session environment; when \code{NULL}, the code will be sourced
 directly in current environment.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    An environment of shared variables
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-python_module"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-python_module}{}}}
-\subsection{Method \code{python_module()}}{
-get 'Python' module embedded in the pipeline
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$python_module(
+\subsection{\code{PipelineTools$python_module()}}{
+  get 'Python' module embedded in the pipeline
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$python_module(
   type = c("info", "module", "shared", "exist"),
   must_work = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{type}}{return type, choices are \code{'info'} (get basic information
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{type}}{return type, choices are \code{'info'} (get basic information
 such as module path, default), \code{'module'} (load module and return
 it), \code{'shared'} (load a shared sub-module from the module, which
 is shared also in report script), and \code{'exist'} (returns true
 or false on whether the module exists or not)}
-
-\item{\code{must_work}}{whether the module needs to be existed or not. If
+      \item{\code{must_work}}{whether the module needs to be existed or not. If
 \code{TRUE}, the raise errors when the module does not exist; default
 is \code{TRUE}, ignored when \code{type} is \code{'exist'}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    See \code{type}
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-progress"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-progress}{}}}
-\subsection{Method \code{progress()}}{
-get progress of the pipeline
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$progress(method = c("summary", "details"))}\if{html}{\out{</div>}}
+\subsection{\code{PipelineTools$progress()}}{
+  get progress of the pipeline
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$progress(method = c("summary", "details"))}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{method}}{either \code{'summary'} or \code{'details'}}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A table of the progress
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{method}}{either \code{'summary'} or \code{'details'}}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-attach"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-attach}{}}}
-\subsection{Method \code{attach()}}{
-attach pipeline tool to environment (internally used)
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$attach(env)}\if{html}{\out{</div>}}
+\subsection{\code{PipelineTools$attach()}}{
+  attach pipeline tool to environment (internally used)
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$attach(env)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{env}}{an environment}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{env}}{an environment}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-visualize"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-visualize}{}}}
-\subsection{Method \code{visualize()}}{
-visualize pipeline target dependency graph
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$visualize(
+\subsection{\code{PipelineTools$visualize()}}{
+  visualize pipeline target dependency graph
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$visualize(
   glimpse = FALSE,
   aspect_ratio = 2,
   node_size = 30,
   label_size = 40,
   ...
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{glimpse}}{whether to glimpse the graph network or render the state}
+      \item{\code{aspect_ratio}}{controls node spacing}
+      \item{\code{node_size, label_size}}{size of nodes and node labels}
+      \item{\code{...}}{passed to \code{\link{pipeline_visualize}}}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    a list where the names are target names and values are the
+corresponding dependence
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{glimpse}}{whether to glimpse the graph network or render the state}
-
-\item{\code{aspect_ratio}}{controls node spacing}
-
-\item{\code{node_size, label_size}}{size of nodes and node labels}
-
-\item{\code{...}}{passed to \code{\link{pipeline_visualize}}}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-target_ancestors"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-target_ancestors}{}}}
-\subsection{Method \code{target_ancestors()}}{
-a helper function to get target ancestors
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$target_ancestors(names, skip_names = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{names}}{targets whose ancestor targets need to be queried}
-
-\item{\code{skip_names}}{targets that are assumed to be up-to-date, hence
+\subsection{\code{PipelineTools$target_ancestors()}}{
+  a helper function to get target ancestors
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$target_ancestors(names, skip_names = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{names}}{targets whose ancestor targets need to be queried}
+      \item{\code{skip_names}}{targets that are assumed to be up-to-date, hence
 will be excluded, notice this exclusion is
 recursive, that means not only \code{skip_names} are excluded,
 but also their ancestors will be excluded from the result.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    ancestor target names (including \code{names})
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-fork"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-fork}{}}}
-\subsection{Method \code{fork()}}{
-fork (copy) the current pipeline to a new directory
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$fork(path, policy = "default")}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{path}}{path to the new pipeline, a folder will be created there}
-
-\item{\code{policy}}{fork policy defined by module author, see text file
+\subsection{\code{PipelineTools$fork()}}{
+  fork (copy) the current pipeline to a new directory
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$fork(path, policy = "default")}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{path}}{path to the new pipeline, a folder will be created there}
+      \item{\code{policy}}{fork policy defined by module author, see text file
 'fork-policy' under the pipeline directory; if missing, then default to
 avoid copying \code{main.html} and \code{shared} folder}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A new pipeline object based on the path given
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-fork_to_subject"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-fork_to_subject}{}}}
-\subsection{Method \code{fork_to_subject()}}{
-fork (copy) the current pipeline to a 'RAVE' subject
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$fork_to_subject(
+\subsection{\code{PipelineTools$fork_to_subject()}}{
+  fork (copy) the current pipeline to a 'RAVE' subject
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$fork_to_subject(
   subject,
   label = "NA",
   policy = "default",
   delete_old = FALSE,
   sanitize = TRUE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{subject}}{subject ID or instance in which pipeline will be saved}
-
-\item{\code{label}}{pipeline label describing the pipeline}
-
-\item{\code{policy}}{fork policy defined by module author, see text file
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{subject}}{subject ID or instance in which pipeline will be saved}
+      \item{\code{label}}{pipeline label describing the pipeline}
+      \item{\code{policy}}{fork policy defined by module author, see text file
 'fork-policy' under the pipeline directory; if missing, then default to
 avoid copying \code{main.html} and \code{shared} folder}
-
-\item{\code{delete_old}}{whether to delete old pipelines with the same label
+      \item{\code{delete_old}}{whether to delete old pipelines with the same label
 default is false}
-
-\item{\code{sanitize}}{whether to sanitize the registry at save. This will
+      \item{\code{sanitize}}{whether to sanitize the registry at save. This will
 remove missing folders and import manually copied pipelines to the
 registry (only for the pipelines with the same name)}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A new pipeline object based on the path given
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-with_activated"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-with_activated}{}}}
-\subsection{Method \code{with_activated()}}{
-run code with pipeline activated, some environment variables
+\subsection{\code{PipelineTools$with_activated()}}{
+  run code with pipeline activated, some environment variables
 and function behaviors might change under such condition (for example,
 \code{targets} package functions)
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$with_activated(expr, quoted = FALSE, env = parent.frame())}\if{html}{\out{</div>}}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$with_activated(expr, quoted = FALSE, env = parent.frame())}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{expr}}{expression to evaluate}
+      \item{\code{quoted}}{whether \code{expr} is quoted; default is false}
+      \item{\code{env}}{environment to run \code{expr}}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{expr}}{expression to evaluate}
-
-\item{\code{quoted}}{whether \code{expr} is quoted; default is false}
-
-\item{\code{env}}{environment to run \code{expr}}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-clean"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-clean}{}}}
-\subsection{Method \code{clean()}}{
-clean all or part of the data store
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$clean(
+\subsection{\code{PipelineTools$clean()}}{
+  clean all or part of the data store
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$clean(
   destroy = c("all", "cloud", "local", "meta", "process", "preferences", "progress",
     "objects", "scratch", "workspaces"),
   ask = FALSE
-)}\if{html}{\out{</div>}}
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{destroy, ask}}{see \code{\link[targets]{tar_destroy}}}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{destroy, ask}}{see \code{\link[targets]{tar_destroy}}}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-save_data"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-save_data}{}}}
-\subsection{Method \code{save_data()}}{
-save data to pipeline data folder
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$save_data(
+\subsection{\code{PipelineTools$save_data()}}{
+  save data to pipeline data folder
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$save_data(
   data,
   name,
   format = c("json", "yaml", "csv", "fst", "rds"),
   overwrite = FALSE,
   ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{data}}{R object}
-
-\item{\code{name}}{the name of the data to save, must start with letters}
-
-\item{\code{format}}{serialize format, choices are \code{'json'},
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{data}}{R object}
+      \item{\code{name}}{the name of the data to save, must start with letters}
+      \item{\code{format}}{serialize format, choices are \code{'json'},
 \code{'yaml'}, \code{'csv'}, \code{'fst'}, \code{'rds'}; default is
 \code{'json'}. To save arbitrary objects such as functions or
 environments, use \code{'rds'}}
+      \item{\code{overwrite}}{whether to overwrite existing files; default is no}
+      \item{\code{...}}{passed to saver functions}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    the saved file path
+  }
+}
 
-\item{\code{overwrite}}{whether to overwrite existing files; default is no}
-
-\item{\code{...}}{passed to saver functions}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-load_data"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-load_data}{}}}
-\subsection{Method \code{load_data()}}{
-load data from pipeline data folder
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$load_data(
+\subsection{\code{PipelineTools$load_data()}}{
+  load data from pipeline data folder
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$load_data(
   name,
   error_if_missing = TRUE,
   default_if_missing = NULL,
   format = c("auto", "json", "yaml", "csv", "fst", "rds"),
   ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{name}}{the name of the data}
-
-\item{\code{error_if_missing}}{whether to raise errors if the name is missing}
-
-\item{\code{default_if_missing}}{default values to return if the name is missing}
-
-\item{\code{format}}{the format of the data, default is automatically obtained
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{name}}{the name of the data}
+      \item{\code{error_if_missing}}{whether to raise errors if the name is missing}
+      \item{\code{default_if_missing}}{default values to return if the name is missing}
+      \item{\code{format}}{the format of the data, default is automatically obtained
 from the file extension}
+      \item{\code{...}}{passed to loader functions}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    the data if file is found or a default value
+  }
+}
 
-\item{\code{...}}{passed to loader functions}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-set_preferences"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-set_preferences}{}}}
-\subsection{Method \code{set_preferences()}}{
-set persistent preferences from the pipeline.
+\subsection{\code{PipelineTools$set_preferences()}}{
+  set persistent preferences from the pipeline.
 The preferences should not affect how pipeline is working, hence usually
 stores minor variables such as graphic options. Changing preferences
 will not invalidate pipeline cache.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$set_preferences(..., .list = NULL)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{..., .list}}{key-value pairs of initial preference values. The keys
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$set_preferences(..., .list = NULL)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{..., .list}}{key-value pairs of initial preference values. The keys
 must start with 'global' or the module ID, followed by dot and preference
 type and names. For example \code{'global.graphics.continuous_palette'}
 for setting palette colors for continuous heat-map; "global" means the
 settings should be applied to all 'RAVE' modules. The module-level
 preference, \code{'power_explorer.export.default_format'} sets the
 default format for power-explorer export dialogue.}
-
-\item{\code{name}}{preference name, must contain only letters, digits,
+      \item{\code{name}}{preference name, must contain only letters, digits,
 underscore, and hyphen, will be coerced to lower case (case-insensitive)}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A list of key-value pairs
+  }
 }
-\if{html}{\out{</div>}}
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-get_preferences"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-get_preferences}{}}}
-\subsection{Method \code{get_preferences()}}{
-get persistent preferences from the pipeline.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$get_preferences(
+\subsection{\code{PipelineTools$get_preferences()}}{
+  get persistent preferences from the pipeline.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$get_preferences(
   keys,
   simplify = TRUE,
   ifnotfound = NULL,
   validator = NULL,
   ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{keys}}{characters to get the preferences}
-
-\item{\code{simplify}}{whether to simplify the results when length of key is 1;
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{keys}}{characters to get the preferences}
+      \item{\code{simplify}}{whether to simplify the results when length of key is 1;
 default is true; set to false to always return a list of preferences}
-
-\item{\code{ifnotfound}}{default value when the key is missing}
-
-\item{\code{validator}}{\code{NULL} or function to validate the values; see
+      \item{\code{ifnotfound}}{default value when the key is missing}
+      \item{\code{validator}}{\code{NULL} or function to validate the values; see
 'Examples'}
-
-\item{\code{...}}{passed to \code{validator} if \code{validator} is a function}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Examples}{
-\if{html}{\out{<div class="r example copy">}}
-\preformatted{
-library(ravepipeline)
+      \item{\code{...}}{passed to \code{validator} if \code{validator} is a function}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A list of the preferences. If \code{simplify} is true and length
+if keys is 1, then returns the value of that preference
+  }
+  \subsection{Examples}{
+    \if{html}{\out{<div class="r example copy">}}
+    \preformatted{library(ravepipeline)
 if(interactive() && length(pipeline_list()) > 0) {
   pipeline <- pipeline("power_explorer")
 
@@ -819,49 +818,58 @@ if(interactive() && length(pipeline_list()) > 0) {
 
   pipeline$has_preferences("global.example.dummy_preference")
 }
-
 }
-\if{html}{\out{</div>}}
-
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-has_preferences"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-has_preferences}{}}}
-\subsection{Method \code{has_preferences()}}{
-whether pipeline has preference keys
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$has_preferences(keys, ...)}\if{html}{\out{</div>}}
+\subsection{\code{PipelineTools$has_preferences()}}{
+  whether pipeline has preference keys
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$has_preferences(keys, ...)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{keys}}{characters name of the preferences}
+      \item{\code{...}}{passed to internal methods}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    logical whether the keys exist
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{keys}}{characters name of the preferences}
-
-\item{\code{...}}{passed to internal methods}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-source_document"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-source_document}{}}}
-\subsection{Method \code{source_document()}}{
-obtain the source document
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$source_document()}\if{html}{\out{</div>}}
+\subsection{\code{PipelineTools$source_document()}}{
+  obtain the source document
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$source_document()}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    characters if the source document (\code{main.Rmd}) is found,
+otherwise \code{NULL}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-generate_report"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-generate_report}{}}}
-\subsection{Method \code{generate_report()}}{
-generate pipeline
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$generate_report(
+\subsection{\code{PipelineTools$generate_report()}}{
+  generate pipeline
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$generate_report(
   name,
   subject = NULL,
   output_dir = NULL,
@@ -869,50 +877,51 @@ generate pipeline
   clean = FALSE,
   callback = NULL,
   ...
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{name}}{report name, see field \code{'available_reports'}}
-
-\item{\code{subject}}{subject helps determine the \code{output_dir} and
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{name}}{report name, see field \code{'available_reports'}}
+      \item{\code{subject}}{subject helps determine the \code{output_dir} and
 working directories}
-
-\item{\code{output_dir}}{parent folder where output will be stored}
-
-\item{\code{output_format}}{output format}
-
-\item{\code{clean}}{whether to clean the output; default is false}
-
-\item{\code{callback}}{callback function (if not \code{NULL}) to run once
+      \item{\code{output_dir}}{parent folder where output will be stored}
+      \item{\code{output_format}}{output format}
+      \item{\code{clean}}{whether to clean the output; default is false}
+      \item{\code{callback}}{callback function (if not \code{NULL}) to run once
 the report is created; typically used for actions such as zipping the
 report directory, sending out report via emails. The function must only
 take one argument, which is the directory where the report resides.
 The callback function will be evaluated in a separate session so please
 make sure the function itself is self-contained.}
+      \item{\code{...}}{passed to \code{'rmarkdown'} render function}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A job identification number, see \code{\link{resolve_job}} for
+querying job details
+  }
+}
 
-\item{\code{...}}{passed to \code{'rmarkdown'} render function}
-}
-\if{html}{\out{</div>}}
-}
-}
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-PipelineTools-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-PipelineTools-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{PipelineTools$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{PipelineTools$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

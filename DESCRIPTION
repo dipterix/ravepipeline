@@ -30,7 +30,6 @@ Copyright: Trustees of University of Pennsylvania owns the copyright of
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 URL: https://dipterix.org/ravepipeline/, https://rave.wiki
 BugReports: https://github.com/dipterix/ravepipeline/issues
 Imports: 
@@ -74,3 +73,4 @@ Suggests:
     shiny,
     mirai
 Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0

@@ -17,10 +17,10 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{digest}{\code{\link[digest]{digest}}}
+  \item{digest}{\code{\link[digest:digest]{digest()}}}
 
-  \item{glue}{\code{\link[glue]{glue}}}
+  \item{glue}{\code{\link[glue:glue]{glue()}}}
 
-  \item{promises}{\code{\link[promises:pipes]{\%...!\%}}, \code{\link[promises:pipes]{\%...>\%}}, \code{\link[promises:pipes]{\%...T!\%}}, \code{\link[promises:pipes]{\%...T>\%}}, \code{\link[promises:is.promise]{as.promise}}}
+  \item{promises}{\code{\link[promises:\%...!\%]{\%...!\%}}, \code{\link[promises:\%...>\%]{\%...>\%}}, \code{\link[promises:\%...T!\%]{\%...T!\%}}, \code{\link[promises:\%...T>\%]{\%...T>\%}}, \code{\link[promises:as.promise]{as.promise()}}}
 }}
 
