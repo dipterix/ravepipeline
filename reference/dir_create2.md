@@ -29,6 +29,7 @@ Normalized path
 ## Examples
 
 ``` r
+
 path <- file.path(tempfile(), 'a', 'b', 'c')
 
 # The following are equivalent

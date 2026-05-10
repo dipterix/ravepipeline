@@ -5,11 +5,11 @@ to see their documentation.
 
 - digest:
 
-  [`digest`](https://eddelbuettel.github.io/digest/man/digest.html)
+  [`digest()`](https://eddelbuettel.github.io/digest/man/digest.html)
 
 - glue:
 
-  [`glue`](https://glue.tidyverse.org/reference/glue.html)
+  [`glue()`](https://glue.tidyverse.org/reference/glue.html)
 
 - promises:
 
@@ -17,4 +17,4 @@ to see their documentation.
   [`%...>%`](https://rstudio.github.io/promises/reference/pipes.html),
   [`%...T!%`](https://rstudio.github.io/promises/reference/pipes.html),
   [`%...T>%`](https://rstudio.github.io/promises/reference/pipes.html),
-  [`as.promise`](https://rstudio.github.io/promises/reference/is.promise.html)
+  [`as.promise()`](https://rstudio.github.io/promises/reference/is.promise.html)

@@ -22,6 +22,7 @@ Please check out our [full installation guide on how to install
 For full features, please install additional packages:
 
 ``` r
+
 # install.packages(c("remotes", "visNetwork", "rpymat"))
 
 # Install development version
@@ -46,6 +47,7 @@ of how to use it on our demo data set:
 <https://github.com/user-attachments/assets/75fe0f88-58ca-46ee-a831-f22abbaa5343>
 
 ``` r
+
 library(ravepipeline)
 
 # list all the pipelines

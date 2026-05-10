@@ -114,6 +114,7 @@ in behaviors:
 ## Examples
 
 ``` r
+
 # get one RAVE option
 ncore <- raveio_getopt("max_worker")
 print(ncore)
@@ -125,7 +126,7 @@ raveio_getopt()
 #> [1] "N27"
 #> 
 #> $session_string
-#> [1] "f5d4e0c8093bb5d"
+#> [1] "5f5a7ca377b50ec"
 #> 
 #> $py_virtualenv
 #> [1] ""
@@ -146,7 +147,7 @@ raveio_getopt()
 #> [1] "America/Chicago"
 #> 
 #> $max_mem
-#> 15.6149520874023
+#> 15.6149559020996
 #> $disable_fork_clusters
 #> [1] FALSE
 #> 

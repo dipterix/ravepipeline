@@ -36,6 +36,7 @@ nothing.
 ## Examples
 
 ``` r
+
 if (FALSE) { # \dontrun{
 
 # This function requires connection to the Github, and must run

@@ -41,6 +41,7 @@ A map object
 ## Examples
 
 ``` r
+
 tfile <- tempfile(fileext = ".yml")
 
 save_yaml(list(b = 2, a = 1), tfile, sorted = TRUE)

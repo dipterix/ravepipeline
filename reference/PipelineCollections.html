@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.16</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.17</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -39,8 +39,118 @@
 
 
     <div class="section level2">
-    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list containing</p><dl><dt><code>id</code></dt>
+    <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
+    <p></p><div class="r6-fields"><dl><dt><code>verbose</code></dt>
+<dd><p>whether to verbose the build</p></dd>
+
+
+</dl><p></p></div>
+    </div>
+    <div class="section level2">
+    <h2 id="active-bindings">Active bindings<a class="anchor" aria-label="anchor" href="#active-bindings"></a></h2>
+    <p></p><div class="r6-active-bindings"><dl><dt><code>root_path</code></dt>
+<dd><p>path to the directory that contains pipelines and
+scheduler</p></dd>
+
+
+    <dt><code>collection_path</code></dt>
+<dd><p>path to the pipeline collections</p></dd>
+
+
+    <dt><code>pipeline_ids</code></dt>
+<dd><p>pipeline ID codes</p></dd>
+
+
+</dl><p></p></div>
+    </div>
+    <div class="section level2">
+    <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
+
+<div class="section">
+<h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
+<p></p><ul><li><p><a href="#method-PipelineCollection-initialize"><code>PipelineCollection$new()</code></a></p></li>
+<li><p><a href="#method-PipelineCollection-add_pipeline"><code>PipelineCollection$add_pipeline()</code></a></p></li>
+<li><p><a href="#method-PipelineCollection-build_pipelines"><code>PipelineCollection$build_pipelines()</code></a></p></li>
+<li><p><a href="#method-PipelineCollection-run"><code>PipelineCollection$run()</code></a></p></li>
+<li><p><a href="#method-PipelineCollection-get_scheduler"><code>PipelineCollection$get_scheduler()</code></a></p></li>
+</ul></div><p></p><hr><a id="method-PipelineCollection-initialize"></a><div class="section">
+<h3 id="pipelinecollection-new-"><code>PipelineCollection$new()</code><a class="anchor" aria-label="anchor" href="#pipelinecollection-new-"></a></h3>
+<p>Constructor</p><div class="section">
+<h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineCollection</span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>root_path <span class="op">=</span> <span class="cn">NULL</span>, overwrite <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div><p></p><div class="section">
+<h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>root_path</code></dt>
+<dd><p>where to store the pipelines and intermediate results</p></dd>
+
+      <dt><code>overwrite</code></dt>
+<dd><p>whether to overwrite if <code>root_path</code> exists</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div>
+
+<p></p><hr><a id="method-PipelineCollection-add_pipeline"></a><div class="section">
+<h3 id="pipelinecollection-add-pipeline-"><code>PipelineCollection$add_pipeline()</code><a class="anchor" aria-label="anchor" href="#pipelinecollection-add-pipeline-"></a></h3>
+<p>Add pipeline into the collection</p><div class="section">
+<h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineCollection</span><span class="op">$</span><span class="fu">add_pipeline</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  names <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  deps <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  pre_hook <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  post_hook <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  cue <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"always"</span>, <span class="st">"thorough"</span>, <span class="st">"never"</span><span class="op">)</span>,</span>
+<span>  search_paths <span class="op">=</span> <span class="fu"><a href="../reference/rave-pipeline.html">pipeline_root</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  standalone <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  hook_envir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div><p></p><div class="section">
+<h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>x</code></dt>
+<dd><p>a pipeline name (can be found via <code><a href="rave-pipeline.html">pipeline_list</a></code>),
+or a <code><a href="PipelineTools.html">PipelineTools</a></code></p></dd>
+
+      <dt><code>names</code></dt>
+<dd><p>pipeline targets to execute</p></dd>
+
+      <dt><code>deps</code></dt>
+<dd><p>pipeline IDs to depend on; see 'Values' below</p></dd>
+
+      <dt><code>pre_hook</code></dt>
+<dd><p>function to run before the pipeline; the function needs
+two arguments: input map (can be edit in-place), and path to a directory
+that allows to store temporary files</p></dd>
+
+      <dt><code>post_hook</code></dt>
+<dd><p>function to run after the pipeline; the function needs
+two arguments: pipeline object, and path to a directory
+that allows to store intermediate results</p></dd>
+
+      <dt><code>cue</code></dt>
+<dd><p>whether to always run dependence</p></dd>
+
+      <dt><code>search_paths</code></dt>
+<dd><p>where to search for pipeline if <code>x</code> is a
+character; ignored when <code>x</code> is a pipeline object</p></dd>
+
+      <dt><code>standalone</code></dt>
+<dd><p>whether the pipeline should be standalone, set to
+<code>TRUE</code> if the same pipeline added multiple times should run
+independently; default is true</p></dd>
+
+      <dt><code>hook_envir</code></dt>
+<dd><p>where to look for global environments if <code>pre_hook</code>
+or <code>post_hook</code> contains global variables; default is the calling
+environment</p></dd>
+
+
+</dl><p></p></div>
+</div><p></p><div class="section">
+<h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
+<p>A list containing</p><dl><dt><code>id</code></dt>
 <dd><p>the pipeline ID that can be used by <code>deps</code></p></dd>
 
 <dt><code>pipeline</code></dt>
@@ -59,139 +169,17 @@
 <dd><p>copy of <code>standalone</code></p></dd>
 
 
-</dl></div>
-    <div class="section level2">
-    <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
-    <p></p><div class="r6-fields"><dl><dt><code>verbose</code></dt>
-<dd><p>whether to verbose the build</p></dd>
-
-
-</dl><p></p></div>
-    </div>
-    <div class="section level2">
-    <h2 id="active-bindings">Active bindings<a class="anchor" aria-label="anchor" href="#active-bindings"></a></h2>
-    <p></p><div class="r6-active-bindings"><dl><dt><code>root_path</code></dt>
-<dd><p>path to the directory that contains pipelines and
-scheduler</p></dd>
-
-
-<dt><code>collection_path</code></dt>
-<dd><p>path to the pipeline collections</p></dd>
-
-
-<dt><code>pipeline_ids</code></dt>
-<dd><p>pipeline ID codes</p></dd>
-
-
-</dl><p></p></div>
-    </div>
-    <div class="section level2">
-    <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
-
-<div class="section">
-<h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-PipelineCollection-new"><code>PipelineCollections$new()</code></a></p></li>
-<li><p><a href="#method-PipelineCollection-add_pipeline"><code>PipelineCollections$add_pipeline()</code></a></p></li>
-<li><p><a href="#method-PipelineCollection-build_pipelines"><code>PipelineCollections$build_pipelines()</code></a></p></li>
-<li><p><a href="#method-PipelineCollection-run"><code>PipelineCollections$run()</code></a></p></li>
-<li><p><a href="#method-PipelineCollection-get_scheduler"><code>PipelineCollections$get_scheduler()</code></a></p></li>
-</ul></div><p></p><hr><a id="method-PipelineCollection-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
-<p>Constructor</p><div class="section">
-<h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/PipelineCollections.html">PipelineCollections</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>root_path <span class="op">=</span> <span class="cn">NULL</span>, overwrite <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</dl><p></p>
 </div>
 
-<div class="section">
-<h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>root_path</code></dt>
-<dd><p>where to store the pipelines and intermediate results</p></dd>
-
-
-<dt><code>overwrite</code></dt>
-<dd><p>whether to overwrite if <code>root_path</code> exists</p></dd>
-
-
-</dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-PipelineCollection-add_pipeline"></a><div class="section">
-<h3 id="method-add-pipeline-">Method <code>add_pipeline()</code><a class="anchor" aria-label="anchor" href="#method-add-pipeline-"></a></h3>
-<p>Add pipeline into the collection</p><div class="section">
-<h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineCollections</span><span class="op">$</span><span class="fu">add_pipeline</span><span class="op">(</span></span>
-<span>  <span class="va">x</span>,</span>
-<span>  names <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  deps <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  pre_hook <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  post_hook <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  cue <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"always"</span>, <span class="st">"thorough"</span>, <span class="st">"never"</span><span class="op">)</span>,</span>
-<span>  search_paths <span class="op">=</span> <span class="fu"><a href="../reference/rave-pipeline.html">pipeline_root</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  standalone <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  hook_envir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
-<h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>x</code></dt>
-<dd><p>a pipeline name (can be found via <code><a href="rave-pipeline.html">pipeline_list</a></code>),
-or a <code><a href="PipelineTools.html">PipelineTools</a></code></p></dd>
-
-
-<dt><code>names</code></dt>
-<dd><p>pipeline targets to execute</p></dd>
-
-
-<dt><code>deps</code></dt>
-<dd><p>pipeline IDs to depend on; see 'Values' below</p></dd>
-
-
-<dt><code>pre_hook</code></dt>
-<dd><p>function to run before the pipeline; the function needs
-two arguments: input map (can be edit in-place), and path to a directory
-that allows to store temporary files</p></dd>
-
-
-<dt><code>post_hook</code></dt>
-<dd><p>function to run after the pipeline; the function needs
-two arguments: pipeline object, and path to a directory
-that allows to store intermediate results</p></dd>
-
-
-<dt><code>cue</code></dt>
-<dd><p>whether to always run dependence</p></dd>
-
-
-<dt><code>search_paths</code></dt>
-<dd><p>where to search for pipeline if <code>x</code> is a
-character; ignored when <code>x</code> is a pipeline object</p></dd>
-
-
-<dt><code>standalone</code></dt>
-<dd><p>whether the pipeline should be standalone, set to
-<code>TRUE</code> if the same pipeline added multiple times should run
-independently; default is true</p></dd>
-
-
-<dt><code>hook_envir</code></dt>
-<dd><p>where to look for global environments if <code>pre_hook</code>
-or <code>post_hook</code> contains global variables; default is the calling
-environment</p></dd>
-
-
-</dl><p></p></div>
-</div>
-
-</div><p></p><hr><a id="method-PipelineCollection-build_pipelines"></a><div class="section">
-<h3 id="method-build-pipelines-">Method <code>build_pipelines()</code><a class="anchor" aria-label="anchor" href="#method-build-pipelines-"></a></h3>
+<p></p><hr><a id="method-PipelineCollection-build_pipelines"></a><div class="section">
+<h3 id="pipelinecollection-build-pipelines-"><code>PipelineCollection$build_pipelines()</code><a class="anchor" aria-label="anchor" href="#pipelinecollection-build-pipelines-"></a></h3>
 <p>Build pipelines and visualize</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineCollections</span><span class="op">$</span><span class="fu">build_pipelines</span><span class="op">(</span>visualize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineCollection</span><span class="op">$</span><span class="fu">build_pipelines</span><span class="op">(</span>visualize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>visualize</code></dt>
 <dd><p>whether to visualize the pipeline; default is true</p></dd>
@@ -200,11 +188,13 @@ environment</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-PipelineCollection-run"></a><div class="section">
-<h3 id="method-run-">Method <code>run()</code><a class="anchor" aria-label="anchor" href="#method-run-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-PipelineCollection-run"></a><div class="section">
+<h3 id="pipelinecollection-run-"><code>PipelineCollection$run()</code><a class="anchor" aria-label="anchor" href="#pipelinecollection-run-"></a></h3>
 <p>Run the collection of pipelines</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineCollections</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span></span>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineCollection</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span></span>
 <span>  error <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"error"</span>, <span class="st">"warning"</span>, <span class="st">"ignore"</span><span class="op">)</span>,</span>
 <span>  .scheduler <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"future"</span>, <span class="st">"clustermq"</span><span class="op">)</span>,</span>
 <span>  .type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"callr"</span>, <span class="st">"smart"</span>, <span class="st">"vanilla"</span><span class="op">)</span>,</span>
@@ -213,21 +203,17 @@ environment</p></dd>
 <span>  rebuild <span class="op">=</span> <span class="cn">NA</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>error</code></dt>
 <dd><p>what to do when error occurs; default is <code>'error'</code>
 throwing errors; other choices are <code>'warning'</code> and <code>'ignore'</code></p></dd>
 
-
-<dt><code>.scheduler, .type, .as_promise, .async, ...</code></dt>
+      <dt><code>.scheduler, .type, .as_promise, .async, ...</code></dt>
 <dd><p>passed to
 <code><a href="rave-pipeline.html">pipeline_run</a></code></p></dd>
 
-
-<dt><code>rebuild</code></dt>
+      <dt><code>rebuild</code></dt>
 <dd><p>whether to re-build the pipeline; default is <code>NA</code> (
 if the pipeline has been built before, then do not rebuild)</p></dd>
 
@@ -235,15 +221,17 @@ if the pipeline has been built before, then do not rebuild)</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-PipelineCollection-get_scheduler"></a><div class="section">
-<h3 id="method-get-scheduler-">Method <code>get_scheduler()</code><a class="anchor" aria-label="anchor" href="#method-get-scheduler-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-PipelineCollection-get_scheduler"></a><div class="section">
+<h3 id="pipelinecollection-get-scheduler-"><code>PipelineCollection$get_scheduler()</code><a class="anchor" aria-label="anchor" href="#pipelinecollection-get-scheduler-"></a></h3>
 <p>Get <code>scheduler</code> object</p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineCollections</span><span class="op">$</span><span class="fu">get_scheduler</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineCollection</span><span class="op">$</span><span class="fu">get_scheduler</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
-
 </div>
+
 
     </div>
 

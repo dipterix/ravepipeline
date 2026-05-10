@@ -52,6 +52,7 @@ instance
 ## Examples
 
 ``` r
+
 library(ravepipeline)
 
 if(interactive()) {

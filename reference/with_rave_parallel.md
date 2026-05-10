@@ -97,6 +97,7 @@ them extremely efficient.
 
 ``` r
 
+
 # Run without `with_rave_parallel`
 res <- lapply_jobs(1:5, function(x, ...) {
   c(child = Sys.getpid(), ...)
@@ -104,8 +105,8 @@ res <- lapply_jobs(1:5, function(x, ...) {
 
 simplify2array(res)
 #>       [,1] [,2] [,3] [,4] [,5]
-#> child 6803 6803 6803 6803 6803
-#> main  6803 6803 6803 6803 6803
+#> child 7248 7248 7248 7248 7248
+#> main  7248 7248 7248 7248 7248
 
 # Comparison
 f <- function(n = 5, workers = 0) {

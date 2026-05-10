@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.16</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.17</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,20 +47,17 @@
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-RAVESerializable-new"><code>RAVESerializable$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-RAVESerializable-initialize"><code>RAVESerializable$new()</code></a></p></li>
 <li><p><a href="#method-RAVESerializable-@marshal"><code>RAVESerializable$@marshal()</code></a></p></li>
 <li><p><a href="#method-RAVESerializable-@unmarshal"><code>RAVESerializable$@unmarshal()</code></a></p></li>
 <li><p><a href="#method-RAVESerializable-@compare"><code>RAVESerializable$@compare()</code></a></p></li>
 <li><p><a href="#method-RAVESerializable-clone"><code>RAVESerializable$clone()</code></a></p></li>
-</ul></div><p></p><hr><a id="method-RAVESerializable-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p></p><hr><a id="method-RAVESerializable-initialize"></a><div class="section">
+<h3 id="raveserializable-new-"><code>RAVESerializable$new()</code><a class="anchor" aria-label="anchor" href="#raveserializable-new-"></a></h3>
 <p>Abstract constructor</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/RAVESerializable.html">RAVESerializable</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>...</code></dt>
 <dd><p>ignored</p></dd>
@@ -69,14 +66,14 @@
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-RAVESerializable-@marshal"></a><div class="section">
-<h3 id="method-marshal-">Method <code>@marshal()</code><a class="anchor" aria-label="anchor" href="#method-marshal-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-RAVESerializable-@marshal"></a><div class="section">
+<h3 id="raveserializable-marshal-"><code>RAVESerializable$@marshal()</code><a class="anchor" aria-label="anchor" href="#raveserializable-marshal-"></a></h3>
 <p>Create an atomic list that can be serialized</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code>RAVESerializable$@marshal(...)</code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>...</code></dt>
 <dd><p>ignored</p></dd>
@@ -85,34 +82,33 @@
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-RAVESerializable-@unmarshal"></a><div class="section">
-<h3 id="method-unmarshal-">Method <code>@unmarshal()</code><a class="anchor" aria-label="anchor" href="#method-unmarshal-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-RAVESerializable-@unmarshal"></a><div class="section">
+<h3 id="raveserializable-unmarshal-"><code>RAVESerializable$@unmarshal()</code><a class="anchor" aria-label="anchor" href="#raveserializable-unmarshal-"></a></h3>
 <p>Restore an object from an atomic list</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code>RAVESerializable$@unmarshal(object, ...)</code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>object</code></dt>
 <dd><p>a list from <code>'@marshal'</code></p></dd>
 
-
-<dt><code>...</code></dt>
+      <dt><code>...</code></dt>
 <dd><p>ignored</p></dd>
 
 
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-RAVESerializable-@compare"></a><div class="section">
-<h3 id="method-compare-">Method <code>@compare()</code><a class="anchor" aria-label="anchor" href="#method-compare-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-RAVESerializable-@compare"></a><div class="section">
+<h3 id="raveserializable-compare-"><code>RAVESerializable$@compare()</code><a class="anchor" aria-label="anchor" href="#raveserializable-compare-"></a></h3>
 <p>How two object can be compared to each other</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code>RAVESerializable$@compare(other)</code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>other</code></dt>
 <dd><p>another object to compare with self</p></dd>
@@ -121,14 +117,14 @@
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-RAVESerializable-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-RAVESerializable-clone"></a><div class="section">
+<h3 id="raveserializable-clone-"><code>RAVESerializable$clone()</code><a class="anchor" aria-label="anchor" href="#raveserializable-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RAVESerializable</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -138,6 +134,7 @@
 </div>
 
 </div>
+
 
     </div>
 

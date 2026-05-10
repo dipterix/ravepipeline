@@ -110,7 +110,7 @@ remove_job(job_id)
 
   maximum number of log lines to read from the tail of the log file when
   resolving a job; default is
-  `getOption("ravepipeline.log_maxline", 1000)`. The log lines are
+  `getOption("ravepipeline.log_maxline", 0L)`. The log lines are
   attached to the result as attribute `"rave_logs"` if non-empty.
 
 ## Value
@@ -121,6 +121,7 @@ returns the job status; `resolve_job` returns the function result.
 ## Examples
 
 ``` r
+
 if (FALSE) { # \dontrun{
 
 # Basic use

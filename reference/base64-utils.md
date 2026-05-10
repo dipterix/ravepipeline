@@ -58,6 +58,7 @@ original raw vectors.
 ## Examples
 
 ``` r
+
 # ---- For direct base64URI ------------------------------------
 
 

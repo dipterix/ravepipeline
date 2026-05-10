@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.16</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.17</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -149,7 +149,7 @@ default is <code>'warning'</code> and return <code>NULL</code>, other choices ar
 <dt id="arg-log-maxline">log_maxline<a class="anchor" aria-label="anchor" href="#arg-log-maxline"></a></dt>
 <dd><p>maximum number of log lines to read from the tail of
 the log file when resolving a job; default is
-<code>getOption("ravepipeline.log_maxline", 1000)</code>. The log lines are
+<code>getOption("ravepipeline.log_maxline", 0L)</code>. The log lines are
 attached to the result as attribute <code>"rave_logs"</code> if non-empty.</p></dd>
 
 </dl></div>

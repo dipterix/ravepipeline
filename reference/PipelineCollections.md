@@ -2,34 +2,6 @@
 
 Experimental, subject to change in the future.
 
-## Value
-
-A list containing
-
-- `id`:
-
-  the pipeline ID that can be used by `deps`
-
-- `pipeline`:
-
-  forked pipeline instance
-
-- `target_names`:
-
-  copy of `names`
-
-- `depend_on`:
-
-  copy of `deps`
-
-- `cue`:
-
-  copy of `cue`
-
-- `standalone`:
-
-  copy of `standalone`
-
 ## Public fields
 
 - `verbose`:
@@ -54,25 +26,25 @@ A list containing
 
 ### Public methods
 
-- [`PipelineCollections$new()`](#method-PipelineCollection-new)
+- [`PipelineCollection$new()`](#method-PipelineCollection-initialize)
 
-- [`PipelineCollections$add_pipeline()`](#method-PipelineCollection-add_pipeline)
+- [`PipelineCollection$add_pipeline()`](#method-PipelineCollection-add_pipeline)
 
-- [`PipelineCollections$build_pipelines()`](#method-PipelineCollection-build_pipelines)
+- [`PipelineCollection$build_pipelines()`](#method-PipelineCollection-build_pipelines)
 
-- [`PipelineCollections$run()`](#method-PipelineCollection-run)
+- [`PipelineCollection$run()`](#method-PipelineCollection-run)
 
-- [`PipelineCollections$get_scheduler()`](#method-PipelineCollection-get_scheduler)
+- [`PipelineCollection$get_scheduler()`](#method-PipelineCollection-get_scheduler)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipelineCollection$new()`
 
 Constructor
 
 #### Usage
 
-    PipelineCollections$new(root_path = NULL, overwrite = FALSE)
+    PipelineCollection$new(root_path = NULL, overwrite = FALSE)
 
 #### Arguments
 
@@ -86,13 +58,13 @@ Constructor
 
 ------------------------------------------------------------------------
 
-### Method `add_pipeline()`
+### `PipelineCollection$add_pipeline()`
 
 Add pipeline into the collection
 
 #### Usage
 
-    PipelineCollections$add_pipeline(
+    PipelineCollection$add_pipeline(
       x,
       names = NULL,
       deps = NULL,
@@ -153,15 +125,43 @@ Add pipeline into the collection
   where to look for global environments if `pre_hook` or `post_hook`
   contains global variables; default is the calling environment
 
+#### Returns
+
+A list containing
+
+- `id`:
+
+  the pipeline ID that can be used by `deps`
+
+- `pipeline`:
+
+  forked pipeline instance
+
+- `target_names`:
+
+  copy of `names`
+
+- `depend_on`:
+
+  copy of `deps`
+
+- `cue`:
+
+  copy of `cue`
+
+- `standalone`:
+
+  copy of `standalone`
+
 ------------------------------------------------------------------------
 
-### Method `build_pipelines()`
+### `PipelineCollection$build_pipelines()`
 
 Build pipelines and visualize
 
 #### Usage
 
-    PipelineCollections$build_pipelines(visualize = TRUE)
+    PipelineCollection$build_pipelines(visualize = TRUE)
 
 #### Arguments
 
@@ -171,13 +171,13 @@ Build pipelines and visualize
 
 ------------------------------------------------------------------------
 
-### Method `run()`
+### `PipelineCollection$run()`
 
 Run the collection of pipelines
 
 #### Usage
 
-    PipelineCollections$run(
+    PipelineCollection$run(
       error = c("error", "warning", "ignore"),
       .scheduler = c("none", "future", "clustermq"),
       .type = c("callr", "smart", "vanilla"),
@@ -206,10 +206,10 @@ Run the collection of pipelines
 
 ------------------------------------------------------------------------
 
-### Method `get_scheduler()`
+### `PipelineCollection$get_scheduler()`
 
 Get `scheduler` object
 
 #### Usage
 
-    PipelineCollections$get_scheduler()
+    PipelineCollection$get_scheduler()

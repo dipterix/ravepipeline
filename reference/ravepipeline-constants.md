@@ -10,7 +10,3 @@ for details.
 ``` r
 PIPELINE_FORK_PATTERN
 ```
-
-## Format
-
-An object of class `character` of length 1.

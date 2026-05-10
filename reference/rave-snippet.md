@@ -41,6 +41,7 @@ load_snippet(topic, local = TRUE)
 ## Examples
 
 ``` r
+
 # This example script requires running in an interactive session
 
 if(interactive()) {

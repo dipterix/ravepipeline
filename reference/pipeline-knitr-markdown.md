@@ -72,13 +72,14 @@ scripts
 ## Examples
 
 ``` r
+
 configure_knitr("R")
 #> function (make_file) 
 #> {
 #>     rave_knitr_build(targets, make_file)
 #> }
-#> <bytecode: 0x55f5a40294d0>
-#> <environment: 0x55f5a4029850>
+#> <bytecode: 0x55d963504120>
+#> <environment: 0x55d963503da0>
 
 if (FALSE) { # \dontrun{
 

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.16</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.17</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@
     </div>
     <div class="section level2">
     <h2 id="super-class">Super class<a class="anchor" aria-label="anchor" href="#super-class"></a></h2>
-    <p><code><a href="RAVESerializable.html">ravepipeline::RAVESerializable</a></code> -&gt; <code>RAVEFileArray</code></p>
+    <p><code><a href="RAVESerializable.html">RAVESerializable</a></code> -&gt; <code>RAVEFileArray</code></p>
     </div>
     <div class="section level2">
     <h2 id="public-fields">Public fields<a class="anchor" aria-label="anchor" href="#public-fields"></a></h2>
@@ -62,7 +62,7 @@ temporary flag is set to true and the array mode is <code>'readwrite'</code></p>
 <dd><p>whether the array is valid and ready to read</p></dd>
 
 
-<dt><code>@impl</code></dt>
+    <dt><code>@impl</code></dt>
 <dd><p>the underlying array object</p></dd>
 
 
@@ -73,20 +73,17 @@ temporary flag is set to true and the array mode is <code>'readwrite'</code></p>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-RAVEFileArray-@marshal"><code>RAVEFileArray$@marshal()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-RAVEFileArray-@marshal"><code>RAVEFileArray$@marshal()</code></a></p></li>
 <li><p><a href="#method-RAVEFileArray-@unmarshal"><code>RAVEFileArray$@unmarshal()</code></a></p></li>
-<li><p><a href="#method-RAVEFileArray-new"><code>RAVEFileArray$new()</code></a></p></li>
+<li><p><a href="#method-RAVEFileArray-initialize"><code>RAVEFileArray$new()</code></a></p></li>
 <li><p><a href="#method-RAVEFileArray-clone"><code>RAVEFileArray$clone()</code></a></p></li>
-</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="ravepipeline" data-topic="RAVESerializable" data-id="@compare"><a href="RAVESerializable.html#method-@compare"><code>ravepipeline::RAVESerializable$@compare()</code></a></span></li>
+</ul></div><p><details open><summary>Inherited methods</summary><ul><li><span class="pkg-link" data-pkg="ravepipeline" data-topic="RAVESerializable" data-id="@compare"><a href="RAVESerializable.html#method-@compare"><code>RAVESerializable$@compare()</code></a></span></li>
 </ul></details></p><hr><a id="method-RAVEFileArray-@marshal"></a><div class="section">
-<h3 id="method-marshal-">Method <code>@marshal()</code><a class="anchor" aria-label="anchor" href="#method-marshal-"></a></h3>
+<h3 id="ravefilearray-marshal-"><code>RAVEFileArray$@marshal()</code><a class="anchor" aria-label="anchor" href="#ravefilearray-marshal-"></a></h3>
 <p>Serialization helper, convert the object to a descriptive list</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code>RAVEFileArray$@marshal(...)</code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>...</code></dt>
 <dd><p>ignored</p></dd>
@@ -95,40 +92,38 @@ temporary flag is set to true and the array mode is <code>'readwrite'</code></p>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-RAVEFileArray-@unmarshal"></a><div class="section">
-<h3 id="method-unmarshal-">Method <code>@unmarshal()</code><a class="anchor" aria-label="anchor" href="#method-unmarshal-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-RAVEFileArray-@unmarshal"></a><div class="section">
+<h3 id="ravefilearray-unmarshal-"><code>RAVEFileArray$@unmarshal()</code><a class="anchor" aria-label="anchor" href="#ravefilearray-unmarshal-"></a></h3>
 <p>Serialization helper, convert the object from a descriptive list</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code>RAVEFileArray$@unmarshal(object, ...)</code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>object</code></dt>
 <dd><p>serialized list</p></dd>
 
-
-<dt><code>...</code></dt>
+      <dt><code>...</code></dt>
 <dd><p>ignored</p></dd>
 
 
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-RAVEFileArray-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-RAVEFileArray-initialize"></a><div class="section">
+<h3 id="ravefilearray-new-"><code>RAVEFileArray$new()</code><a class="anchor" aria-label="anchor" href="#ravefilearray-new-"></a></h3>
 <p>Constructor</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/RAVEFileArray.html">RAVEFileArray</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">x</span>, temporary <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>x</code></dt>
 <dd><p>file array or can be converted to <code><a href="https://dipterix.org/filearray/reference/filearray.html" class="external-link">as_filearray</a></code></p></dd>
 
-
-<dt><code>temporary</code></dt>
+      <dt><code>temporary</code></dt>
 <dd><p>whether this file array is to be deleted once the object
 is out-of-scope; default is false</p></dd>
 
@@ -136,14 +131,14 @@ is out-of-scope; default is false</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-RAVEFileArray-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-RAVEFileArray-clone"></a><div class="section">
+<h3 id="ravefilearray-clone-"><code>RAVEFileArray$clone()</code><a class="anchor" aria-label="anchor" href="#ravefilearray-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RAVEFileArray</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -153,6 +148,7 @@ is out-of-scope; default is false</p></dd>
 </div>
 
 </div>
+
 
     </div>
 

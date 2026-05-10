@@ -11,7 +11,7 @@ For package inheritance only; do not instantiate the class directly.
 
 ### Public methods
 
-- [`RAVESerializable$new()`](#method-RAVESerializable-new)
+- [`RAVESerializable$new()`](#method-RAVESerializable-initialize)
 
 - [`RAVESerializable$@marshal()`](#method-RAVESerializable-@marshal)
 
@@ -23,7 +23,7 @@ For package inheritance only; do not instantiate the class directly.
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `RAVESerializable$new()`
 
 Abstract constructor
 
@@ -39,7 +39,7 @@ Abstract constructor
 
 ------------------------------------------------------------------------
 
-### Method `@marshal()`
+### `RAVESerializable$@marshal()`
 
 Create an atomic list that can be serialized
 
@@ -55,7 +55,7 @@ Create an atomic list that can be serialized
 
 ------------------------------------------------------------------------
 
-### Method `@unmarshal()`
+### `RAVESerializable$@unmarshal()`
 
 Restore an object from an atomic list
 
@@ -75,7 +75,7 @@ Restore an object from an atomic list
 
 ------------------------------------------------------------------------
 
-### Method `@compare()`
+### `RAVESerializable$@compare()`
 
 How two object can be compared to each other
 
@@ -91,7 +91,7 @@ How two object can be compared to each other
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `RAVESerializable$clone()`
 
 The objects of this class are cloneable with this method.
 

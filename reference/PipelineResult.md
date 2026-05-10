@@ -2,12 +2,6 @@
 
 Class definition for 'RAVE' pipeline results
 
-Class definition for 'RAVE' pipeline results
-
-## Value
-
-`TRUE` if the target is finished, or `FALSE` if timeout is reached
-
 ## Public fields
 
 - `progressor`:
@@ -76,7 +70,7 @@ Class definition for 'RAVE' pipeline results
 
 - [`PipelineResult$get_progress()`](#method-PipelineResult-get_progress)
 
-- [`PipelineResult$new()`](#method-PipelineResult-new)
+- [`PipelineResult$new()`](#method-PipelineResult-initialize)
 
 - [`PipelineResult$run()`](#method-PipelineResult-run)
 
@@ -90,7 +84,7 @@ Class definition for 'RAVE' pipeline results
 
 ------------------------------------------------------------------------
 
-### Method `validate()`
+### `PipelineResult$validate()`
 
 check if result is valid, raises errors when invalidated
 
@@ -100,7 +94,7 @@ check if result is valid, raises errors when invalidated
 
 ------------------------------------------------------------------------
 
-### Method `invalidate()`
+### `PipelineResult$invalidate()`
 
 invalidate the pipeline result
 
@@ -110,7 +104,7 @@ invalidate the pipeline result
 
 ------------------------------------------------------------------------
 
-### Method `get_progress()`
+### `PipelineResult$get_progress()`
 
 get pipeline progress
 
@@ -120,7 +114,7 @@ get pipeline progress
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipelineResult$new()`
 
 constructor (internal)
 
@@ -140,7 +134,7 @@ constructor (internal)
 
 ------------------------------------------------------------------------
 
-### Method `run()`
+### `PipelineResult$run()`
 
 run pipeline (internal)
 
@@ -181,7 +175,7 @@ run pipeline (internal)
 
 ------------------------------------------------------------------------
 
-### Method `await()`
+### `PipelineResult$await()`
 
 wait until some targets get finished
 
@@ -200,9 +194,13 @@ wait until some targets get finished
 
   maximum waiting time in seconds
 
+#### Returns
+
+`TRUE` if the target is finished, or `FALSE` if timeout is reached
+
 ------------------------------------------------------------------------
 
-### Method [`print()`](https://rdrr.io/r/base/print.html)
+### `PipelineResult$print()`
 
 print method
 
@@ -212,7 +210,7 @@ print method
 
 ------------------------------------------------------------------------
 
-### Method `get_values()`
+### `PipelineResult$get_values()`
 
 get results
 
@@ -233,7 +231,7 @@ get results
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipelineResult$clone()`
 
 The objects of this class are cloneable with this method.
 

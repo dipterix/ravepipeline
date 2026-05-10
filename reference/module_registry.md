@@ -82,6 +82,7 @@ validate and send an email to the 'RAVE' development team.
 ## Examples
 
 ``` r
+
 library(ravepipeline)
 
 # create your own registry

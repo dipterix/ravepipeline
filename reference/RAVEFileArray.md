@@ -9,7 +9,7 @@ Wrapper for better serialization (check 'See also')
 
 ## Super class
 
-[`ravepipeline::RAVESerializable`](http://dipterix.org/ravepipeline/reference/RAVESerializable.md)
+[`RAVESerializable`](http://dipterix.org/ravepipeline/reference/RAVESerializable.md)
 -\> `RAVEFileArray`
 
 ## Public fields
@@ -38,17 +38,17 @@ Wrapper for better serialization (check 'See also')
 
 - [`RAVEFileArray$@unmarshal()`](#method-RAVEFileArray-@unmarshal)
 
-- [`RAVEFileArray$new()`](#method-RAVEFileArray-new)
+- [`RAVEFileArray$new()`](#method-RAVEFileArray-initialize)
 
 - [`RAVEFileArray$clone()`](#method-RAVEFileArray-clone)
 
 Inherited methods
 
-- [`ravepipeline::RAVESerializable$@compare()`](http://dipterix.org/ravepipeline/reference/RAVESerializable.html#method-@compare)
+- [`RAVESerializable$@compare()`](http://dipterix.org/ravepipeline/reference/RAVESerializable.html#method-@compare)
 
 ------------------------------------------------------------------------
 
-### Method `@marshal()`
+### `RAVEFileArray$@marshal()`
 
 Serialization helper, convert the object to a descriptive list
 
@@ -64,7 +64,7 @@ Serialization helper, convert the object to a descriptive list
 
 ------------------------------------------------------------------------
 
-### Method `@unmarshal()`
+### `RAVEFileArray$@unmarshal()`
 
 Serialization helper, convert the object from a descriptive list
 
@@ -84,7 +84,7 @@ Serialization helper, convert the object from a descriptive list
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `RAVEFileArray$new()`
 
 Constructor
 
@@ -106,7 +106,7 @@ Constructor
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `RAVEFileArray$clone()`
 
 The objects of this class are cloneable with this method.
 

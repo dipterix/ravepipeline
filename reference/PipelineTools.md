@@ -2,62 +2,13 @@
 
 Class definition for 'RAVE' pipelines
 
-Class definition for 'RAVE' pipelines
-
-## Value
-
-The value of the inputs, or a list if `key` is missing
-
-The values of the targets
-
-A
-[`PipelineResult`](http://dipterix.org/ravepipeline/reference/PipelineResult.md)
-instance if `as_promise` or `async` is true; otherwise a list of values
-for input `names`
-
-`shiny` extended task; see
-[`ExtendedTask`](https://rdrr.io/pkg/shiny/man/ExtendedTask.html)
-
-An environment of shared variables
-
-See `type`
-
-A table of the progress
-
-a list where the names are target names and values are the corresponding
-dependence
-
-ancestor target names (including `names`)
-
-A new pipeline object based on the path given
-
-A new pipeline object based on the path given
-
-the saved file path
-
-the data if file is found or a default value
-
-A list of key-value pairs
-
-A list of the preferences. If `simplify` is true and length if keys is
-1, then returns the value of that preference
-
-logical whether the keys exist
-
-characters if the source document (`main.Rmd`) is found, otherwise
-`NULL`
-
-A job identification number, see
-[`resolve_job`](http://dipterix.org/ravepipeline/reference/rave-pipeline-jobs.md)
-for querying job details
-
 ## See also
 
 [`pipeline`](http://dipterix.org/ravepipeline/reference/pipeline.md)
 
 ## Super class
 
-[`ravepipeline::RAVESerializable`](http://dipterix.org/ravepipeline/reference/RAVESerializable.md)
+[`RAVESerializable`](http://dipterix.org/ravepipeline/reference/RAVESerializable.md)
 -\> `PipelineTools`
 
 ## Active bindings
@@ -110,7 +61,7 @@ for querying job details
 
 - [`PipelineTools$@unmarshal()`](#method-PipelineTools-@unmarshal)
 
-- [`PipelineTools$new()`](#method-PipelineTools-new)
+- [`PipelineTools$new()`](#method-PipelineTools-initialize)
 
 - [`PipelineTools$set_settings()`](#method-PipelineTools-set_settings)
 
@@ -162,11 +113,11 @@ for querying job details
 
 Inherited methods
 
-- [`ravepipeline::RAVESerializable$@compare()`](http://dipterix.org/ravepipeline/reference/RAVESerializable.html#method-@compare)
+- [`RAVESerializable$@compare()`](http://dipterix.org/ravepipeline/reference/RAVESerializable.html#method-@compare)
 
 ------------------------------------------------------------------------
 
-### Method `@marshal()`
+### `PipelineTools$@marshal()`
 
 Create an atomic list that can be serialized
 
@@ -182,7 +133,7 @@ Create an atomic list that can be serialized
 
 ------------------------------------------------------------------------
 
-### Method `@unmarshal()`
+### `PipelineTools$@unmarshal()`
 
 Restore an object from an atomic list
 
@@ -202,7 +153,7 @@ Restore an object from an atomic list
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `PipelineTools$new()`
 
 construction function
 
@@ -239,7 +190,7 @@ construction function
 
 ------------------------------------------------------------------------
 
-### Method `set_settings()`
+### `PipelineTools$set_settings()`
 
 set inputs
 
@@ -256,7 +207,7 @@ set inputs
 
 ------------------------------------------------------------------------
 
-### Method `get_settings()`
+### `PipelineTools$get_settings()`
 
 get current inputs
 
@@ -280,9 +231,13 @@ get current inputs
   `constraint`, then only the first element of `constraint` will be
   returned.
 
+#### Returns
+
+The value of the inputs, or a list if `key` is missing
+
 ------------------------------------------------------------------------
 
-### Method `read()`
+### `PipelineTools$read()`
 
 read intermediate variables
 
@@ -306,9 +261,13 @@ read intermediate variables
   other parameters passing to
   [`pipeline_read`](http://dipterix.org/ravepipeline/reference/rave-pipeline.md)
 
+#### Returns
+
+The values of the targets
+
 ------------------------------------------------------------------------
 
-### Method `run()`
+### `PipelineTools$run()`
 
 run the pipeline
 
@@ -351,9 +310,16 @@ run the pipeline
   if `as_promise` is true, otherwise these arguments will be passed to
   `pipeline_run_bare`
 
+#### Returns
+
+A
+[`PipelineResult`](http://dipterix.org/ravepipeline/reference/PipelineResult.md)
+instance if `as_promise` or `async` is true; otherwise a list of values
+for input `names`
+
 ------------------------------------------------------------------------
 
-### Method `run_as_task()`
+### `PipelineTools$run_as_task()`
 
 Run pipeline as `shiny` extended task, requires package shiny
 
@@ -385,8 +351,12 @@ Run pipeline as `shiny` extended task, requires package shiny
   arguments passed to
   [`rave_progress`](http://dipterix.org/ravepipeline/reference/rave_progress.md)
 
-#### Examples
+#### Returns
 
+`shiny` extended task; see
+[`ExtendedTask`](https://rdrr.io/pkg/shiny/man/ExtendedTask.html)
+
+#### Examples
 
     # pipeline <- ... (initialize pipeline somewhere)
 
@@ -403,7 +373,7 @@ Run pipeline as `shiny` extended task, requires package shiny
 
 ------------------------------------------------------------------------
 
-### Method [`eval()`](https://rdrr.io/r/base/eval.html)
+### `PipelineTools$eval()`
 
 run the pipeline in order; unlike `$run()`, this method does not use the
 `targets` infrastructure, hence the pipeline results will not be stored,
@@ -449,7 +419,7 @@ and the order of `names` will be respected.
 
 ------------------------------------------------------------------------
 
-### Method `shared_env()`
+### `PipelineTools$shared_env()`
 
 run the pipeline shared library in scripts starting with path `R/shared`
 
@@ -468,9 +438,13 @@ run the pipeline shared library in scripts starting with path `R/shared`
   environment; when `NULL`, the code will be sourced directly in current
   environment.
 
+#### Returns
+
+An environment of shared variables
+
 ------------------------------------------------------------------------
 
-### Method `python_module()`
+### `PipelineTools$python_module()`
 
 get 'Python' module embedded in the pipeline
 
@@ -497,9 +471,13 @@ get 'Python' module embedded in the pipeline
   errors when the module does not exist; default is `TRUE`, ignored when
   `type` is `'exist'`.
 
+#### Returns
+
+See `type`
+
 ------------------------------------------------------------------------
 
-### Method `progress()`
+### `PipelineTools$progress()`
 
 get progress of the pipeline
 
@@ -513,9 +491,13 @@ get progress of the pipeline
 
   either `'summary'` or `'details'`
 
+#### Returns
+
+A table of the progress
+
 ------------------------------------------------------------------------
 
-### Method [`attach()`](https://rdrr.io/r/base/attach.html)
+### `PipelineTools$attach()`
 
 attach pipeline tool to environment (internally used)
 
@@ -531,7 +513,7 @@ attach pipeline tool to environment (internally used)
 
 ------------------------------------------------------------------------
 
-### Method `visualize()`
+### `PipelineTools$visualize()`
 
 visualize pipeline target dependency graph
 
@@ -564,9 +546,14 @@ visualize pipeline target dependency graph
   passed to
   [`pipeline_visualize`](http://dipterix.org/ravepipeline/reference/rave-pipeline.md)
 
+#### Returns
+
+a list where the names are target names and values are the corresponding
+dependence
+
 ------------------------------------------------------------------------
 
-### Method `target_ancestors()`
+### `PipelineTools$target_ancestors()`
 
 a helper function to get target ancestors
 
@@ -587,9 +574,13 @@ a helper function to get target ancestors
   are excluded, but also their ancestors will be excluded from the
   result.
 
+#### Returns
+
+ancestor target names (including `names`)
+
 ------------------------------------------------------------------------
 
-### Method `fork()`
+### `PipelineTools$fork()`
 
 fork (copy) the current pipeline to a new directory
 
@@ -609,9 +600,13 @@ fork (copy) the current pipeline to a new directory
   under the pipeline directory; if missing, then default to avoid
   copying `main.html` and `shared` folder
 
+#### Returns
+
+A new pipeline object based on the path given
+
 ------------------------------------------------------------------------
 
-### Method `fork_to_subject()`
+### `PipelineTools$fork_to_subject()`
 
 fork (copy) the current pipeline to a 'RAVE' subject
 
@@ -651,9 +646,13 @@ fork (copy) the current pipeline to a 'RAVE' subject
   folders and import manually copied pipelines to the registry (only for
   the pipelines with the same name)
 
+#### Returns
+
+A new pipeline object based on the path given
+
 ------------------------------------------------------------------------
 
-### Method `with_activated()`
+### `PipelineTools$with_activated()`
 
 run code with pipeline activated, some environment variables and
 function behaviors might change under such condition (for example,
@@ -679,7 +678,7 @@ function behaviors might change under such condition (for example,
 
 ------------------------------------------------------------------------
 
-### Method `clean()`
+### `PipelineTools$clean()`
 
 clean all or part of the data store
 
@@ -700,7 +699,7 @@ clean all or part of the data store
 
 ------------------------------------------------------------------------
 
-### Method `save_data()`
+### `PipelineTools$save_data()`
 
 save data to pipeline data folder
 
@@ -738,9 +737,13 @@ save data to pipeline data folder
 
   passed to saver functions
 
+#### Returns
+
+the saved file path
+
 ------------------------------------------------------------------------
 
-### Method `load_data()`
+### `PipelineTools$load_data()`
 
 load data from pipeline data folder
 
@@ -777,9 +780,13 @@ load data from pipeline data folder
 
   passed to loader functions
 
+#### Returns
+
+the data if file is found or a default value
+
 ------------------------------------------------------------------------
 
-### Method `set_preferences()`
+### `PipelineTools$set_preferences()`
 
 set persistent preferences from the pipeline. The preferences should not
 affect how pipeline is working, hence usually stores minor variables
@@ -807,9 +814,13 @@ pipeline cache.
   preference name, must contain only letters, digits, underscore, and
   hyphen, will be coerced to lower case (case-insensitive)
 
+#### Returns
+
+A list of key-value pairs
+
 ------------------------------------------------------------------------
 
-### Method `get_preferences()`
+### `PipelineTools$get_preferences()`
 
 get persistent preferences from the pipeline.
 
@@ -846,6 +857,11 @@ get persistent preferences from the pipeline.
 
   passed to `validator` if `validator` is a function
 
+#### Returns
+
+A list of the preferences. If `simplify` is true and length if keys is
+1, then returns the value of that preference
+
 #### Examples
 
     library(ravepipeline)
@@ -872,7 +888,7 @@ get persistent preferences from the pipeline.
 
 ------------------------------------------------------------------------
 
-### Method `has_preferences()`
+### `PipelineTools$has_preferences()`
 
 whether pipeline has preference keys
 
@@ -890,9 +906,13 @@ whether pipeline has preference keys
 
   passed to internal methods
 
+#### Returns
+
+logical whether the keys exist
+
 ------------------------------------------------------------------------
 
-### Method `source_document()`
+### `PipelineTools$source_document()`
 
 obtain the source document
 
@@ -900,9 +920,14 @@ obtain the source document
 
     PipelineTools$source_document()
 
+#### Returns
+
+characters if the source document (`main.Rmd`) is found, otherwise
+`NULL`
+
 ------------------------------------------------------------------------
 
-### Method `generate_report()`
+### `PipelineTools$generate_report()`
 
 generate pipeline
 
@@ -953,9 +978,15 @@ generate pipeline
 
   passed to `'rmarkdown'` render function
 
+#### Returns
+
+A job identification number, see
+[`resolve_job`](http://dipterix.org/ravepipeline/reference/rave-pipeline-jobs.md)
+for querying job details
+
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `PipelineTools$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -972,8 +1003,9 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
+
 ## ------------------------------------------------
-## Method `PipelineTools$run_as_task`
+## Method `PipelineTools$run_as_task()`
 ## ------------------------------------------------
 
 
@@ -992,7 +1024,7 @@ server <- function(input, output, session) {
 }
 
 ## ------------------------------------------------
-## Method `PipelineTools$get_preferences`
+## Method `PipelineTools$get_preferences()`
 ## ------------------------------------------------
 
 

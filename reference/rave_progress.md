@@ -57,6 +57,7 @@ A list of functions to control the progress bar
 
 ``` r
 
+
 # Naive example
 progress <- rave_progress(title = "progress", max = 10)
 #>                                                                                 ▶ [progress]: initializing...
