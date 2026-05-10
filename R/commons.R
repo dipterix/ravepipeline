@@ -290,7 +290,16 @@ with_pandoc_safe_environment <- function(code) {
     stop("The 'HOME' environment variable must be set before running Pandoc.")
   }
   if (Sys.info()["sysname"] == "Linux" && is.na(Sys.getenv("LANG", unset = NA))) {
-    Sys.setenv(LANG = detect_generic_lang())
+    locale_default <- "en_US.UTF-8"
+    locale_util <- Sys.which("locale")
+    if (nzchar(locale_util)) {
+      locales <- system(paste(locale_util, "-a"), intern = TRUE)
+      locales <- suppressWarnings(strsplit(locales, split = "\n", fixed = TRUE))
+      if ("C.UTF-8" %in% locales) {
+        locale_default <- "C.UTF-8"
+      }
+    }
+    Sys.setenv(LANG = locale_default)
     on.exit(Sys.unsetenv("LANG"), add = TRUE)
   }
   if (Sys.info()["sysname"] == "Linux" && identical(Sys.getenv("LANG"), "en_US")) {
