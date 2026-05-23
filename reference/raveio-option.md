@@ -126,7 +126,7 @@ raveio_getopt()
 #> [1] "N27"
 #> 
 #> $session_string
-#> [1] "2e89e52fb1ec988"
+#> [1] "e30313641390362"
 #> 
 #> $py_virtualenv
 #> [1] ""
