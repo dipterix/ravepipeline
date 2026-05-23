@@ -131,6 +131,10 @@ power_explorer$visualize(glimpse = TRUE, aspect_ratio = 10)
 - [`dir_create2()`](http://dipterix.org/ravepipeline/reference/dir_create2.md)
   : Force creating directory with checks
 
+- [`html_embed_read()`](http://dipterix.org/ravepipeline/reference/html-embed.md)
+  [`html_embed_write()`](http://dipterix.org/ravepipeline/reference/html-embed.md)
+  : Embed binary data or JSON strings into HTML files
+
 - [`install_modules()`](http://dipterix.org/ravepipeline/reference/install_modules.md)
   : Install 'RAVE' modules
 
