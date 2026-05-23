@@ -319,24 +319,34 @@ pipeline_report_generate <- function(
                 !inherits(v, "key_missing")
               }, FALSE)]
             } else {
-              var <- pipeline$read(embed_target)
+              var <- pipeline[embed_target, ifnotfound = NULL, simplify = TRUE]
             }
+
             if (is.null(var) || inherits(var, "key_missing")) {
-              message("Missing embedding target ", sQuote(embed_target), ": NULL or missing")
+              message("Missing embedding target ",
+                      sQuote(embed_target),
+                      ": NULL or missing")
               return(NULL)
             }
             res <- tryCatch(
               {
-                jsonlite::toJSON(
+                res <- jsonlite::toJSON(
                   var, dataframe = "rows", matrix = "rowmajor", null = "null",
                   na = "null", to_file = NULL, auto_unbox = TRUE
                 )
+                message("Found embedding target ",
+                        sQuote(embed_target),
+                        ", nchars=",
+                        nchar(res))
+                res
               },
               error = function(e) {
+                message("Unable to embed target ",
+                        sQuote(embed_target),
+                        ": Cannot serialize to JSON")
                 NULL
               }
             )
-            message("Found embedding target ", sQuote(embed_target), ", nchars=", nchar(res))
             return(res)
           })
         )
