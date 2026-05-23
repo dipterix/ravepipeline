@@ -315,10 +315,17 @@ pipeline_report_generate <- function(
           lapply(embed_settings$targets, function(embed_target) {
             if (embed_target == "settings") {
               var <- pipeline$get_settings()
+              var <- var[vapply(var, function(v) {
+                !inherits(v, "key_missing")
+              }, FALSE)]
             } else {
               var <- pipeline$read(embed_target)
             }
-            tryCatch(
+            if (is.null(var) || inherits(var, "key_missing")) {
+              message("Missing embedding target ", sQuote(embed_target), ": NULL or missing")
+              return(NULL)
+            }
+            res <- tryCatch(
               {
                 jsonlite::toJSON(
                   var, dataframe = "rows", matrix = "rowmajor", null = "null",
@@ -329,6 +336,8 @@ pipeline_report_generate <- function(
                 NULL
               }
             )
+            message("Found embedding target ", sQuote(embed_target), ", nchars=", nchar(res))
+            return(res)
           })
         )
 
