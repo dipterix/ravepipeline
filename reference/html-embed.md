@@ -131,7 +131,7 @@ html_embed_write(
 manifest <- html_embed_read(html_file)
 print(manifest)
 #> <HTML Embed Manifest>
-#> Path: /tmp/Rtmpew40bJ/file1b7f2f9e01f.html
+#> Path: /tmp/RtmpMB8hYk/file1be12c1fa8a1.html
 #> Data Names:
 #>   `data`
 #>   `meta`
