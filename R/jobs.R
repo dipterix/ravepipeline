@@ -514,10 +514,10 @@ start_job_mirai <- function(fun, fun_args = list(), packages = NULL,
 #' @param envvars additional environment variables to set; must be a named
 #' list of environment variables
 #' @param log_path path to a log file for capturing both standard output
-#' and messages (stderr) from the job; default is \code{NULL} (no logging).
-#' Relative paths are resolved against \code{workdir}. The file is created
-#' at job preparation time; if creation fails or the path is a directory,
-#' logging is silently skipped.
+#' and messages (\code{stderr}) from the job; default is \code{NULL} (no
+#' logging). Relative paths are resolved against \code{workdir}. The file is
+#' created at job preparation time; if creation fails or the path is a
+#' directory, logging is silently skipped.
 #' @param log_maxline maximum number of log lines to read from the tail of
 #' the log file when resolving a job; default is
 #' \code{getOption("ravepipeline.log_maxline", 0L)}. The log lines are

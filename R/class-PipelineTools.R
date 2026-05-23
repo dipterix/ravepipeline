@@ -140,7 +140,7 @@ PipelineTools <- R6::R6Class(
           }
           job_id <- start_job(
             fun = function(names, path) {
-              ravepipeline <- asNamespace('ravepipeline')
+              ravepipeline <- asNamespace("ravepipeline")
               self <- ravepipeline$pipeline_from_path(path)
               self$run(
                 names = names,

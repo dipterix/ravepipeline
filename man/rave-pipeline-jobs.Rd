@@ -59,10 +59,10 @@ used internally}
 list of environment variables}
 
 \item{log_path}{path to a log file for capturing both standard output
-and messages (stderr) from the job; default is \code{NULL} (no logging).
-Relative paths are resolved against \code{workdir}. The file is created
-at job preparation time; if creation fails or the path is a directory,
-logging is silently skipped.}
+and messages (\code{stderr}) from the job; default is \code{NULL} (no
+logging). Relative paths are resolved against \code{workdir}. The file is
+created at job preparation time; if creation fails or the path is a
+directory, logging is silently skipped.}
 
 \item{job_id}{job identification number}
 

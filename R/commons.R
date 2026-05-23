@@ -174,7 +174,7 @@ new_function2 <- function(
 brew_program <- function(program) {
 
   os <- get_os()
-  brew_bin <- switch (
+  brew_bin <- switch(
     os,
     "darwin" = {
       res <- suppressWarnings({

@@ -155,6 +155,13 @@ pipeline_report_generate <- function(
     file.copy(report_template_path_orig, report_template_path, overwrite = TRUE)
   }
 
+  # Check objects to embed
+  embed_targets <- unique(c("settings", report$embed_targets))
+  embed_settings <- list(
+    pipeline_path = pipeline$pipeline_path,
+    targets = embed_targets
+  )
+
   # output_format = rmarkdown::html_document(
   #   toc = TRUE, toc_depth = 3, toc_float = list(collapsed=TRUE),
   #   df_print = 'kable',
@@ -222,13 +229,18 @@ pipeline_report_generate <- function(
     ...
   )
 
-  envvars <- list()
+  envvars <- list(
+    TAR_WARN = "false"
+  )
   try(silent = TRUE, {
     envvars$RSTUDIO_PANDOC <- register_pandoc()
   })
 
   job_id <- start_job(
-    fun = function(call_args, source_path, output_dir, attributes, extra_dependencies = NULL, callback = NULL) {
+    fun = function(
+      call_args, source_path, output_dir, attributes, embed_settings,
+      extra_dependencies = NULL, callback = NULL
+    ) {
 
       Sys.setenv("RAVE_REPORT_ACTIVE" = "true")
       on.exit({ Sys.unsetenv("RAVE_REPORT_ACTIVE") }, add = TRUE, after = FALSE)
@@ -291,6 +303,48 @@ pipeline_report_generate <- function(
         path <- file.path(output_dir, "report.html")
       }
 
+      if (file.exists(path)) {
+        # Embed targets
+
+        # Load pipeline
+        pipeline <- ravepipeline$pipeline_from_path(embed_settings$pipeline_path)
+
+        # embed variables
+        embedding <- structure(
+          names = embed_settings$targets,
+          lapply(embed_settings$targets, function(embed_target) {
+            if (embed_target == "settings") {
+              var <- pipeline$get_settings()
+            } else {
+              var <- pipeline$read(embed_target)
+            }
+            tryCatch(
+              {
+                jsonlite::toJSON(
+                  var, dataframe = "rows", matrix = "rowmajor", null = "null",
+                  na = "null", to_file = NULL, auto_unbox = TRUE
+                )
+              },
+              error = function(e) {
+                NULL
+              }
+            )
+          })
+        )
+
+        embedding <- embedding[!vapply(embedding, is.null, logical(1L))]
+
+        if (length(embedding)) {
+          message("Embedding targets: ", paste(names(embedding), collapse = ", "))
+          ravepipeline$html_embed_write(
+            html_path = path,
+            missing_action = "ignore",
+            json_string = embedding
+          )
+        }
+
+      }
+
       result <- structure(
         path,
         params = attributes,
@@ -323,6 +377,7 @@ pipeline_report_generate <- function(
       source_path = work_dir,
       output_dir = output_dir,
       attributes = attributes,
+      embed_settings = embed_settings,
       extra_dependencies = extra_dependencies,
       callback = callback
     ),
