@@ -5,14 +5,21 @@ pipeline_get_export_wizard <- function(dst_pipeline_name, src_pipeline_path) {
   # dst_pipeline_name <- "power_explorer"
   # src_pipeline_path <- "~/Dropbox (Personal)/projects/rave-pipelines/modules/power_clust/"
 
+  parse_env <- new.env(parent = globalenv())
+  if (inherits(src_pipeline_path, "PipelineTools")) {
+    parse_env$pipeline <- src_pipeline_path
+    src_pipeline_path <- src_pipeline_path$pipeline_path
+  } else {
+    parse_env$pipeline <- pipeline_from_path(src_pipeline_path)
+  }
+
   export_wizard_path <- file.path(src_pipeline_path, "R", "import-export-wizard.R")
 
   if (!file.exists(export_wizard_path)) {
     return(NULL)
   }
 
-  parse_env <- new.env(parent = globalenv())
-  parse_env$pipeline <- pipeline_from_path(src_pipeline_path)
+
   source(export_wizard_path, local = parse_env, chdir = TRUE)
   export_wizard <- parse_env$.export_wizard
 
@@ -35,14 +42,20 @@ pipeline_get_import_wizard <- function(src_pipeline_name,
   # src_pipeline_name <- "power_explorer"
   # pipeline_path <- "~/Dropbox (Personal)/projects/rave-pipelines/modules/power_clust/"
 
+  parse_env <- new.env(parent = globalenv())
+  if (inherits(pipeline_path, "PipelineTools")) {
+    parse_env$pipeline <- pipeline_path
+    pipeline_path <- pipeline_path$pipeline_path
+  } else {
+    parse_env$pipeline <- pipeline_from_path(pipeline_path)
+  }
+
   import_wizard_path <- file.path(pipeline_path, "R", "import-export-wizard.R")
 
   if (!file.exists(import_wizard_path)) {
     return(NULL)
   }
 
-  parse_env <- new.env(parent = globalenv())
-  parse_env$pipeline <- pipeline_from_path(pipeline_path)
   source(import_wizard_path, local = parse_env, chdir = TRUE)
   import_wizard <- parse_env$.import_wizard
 
@@ -81,12 +94,12 @@ pipeline_get_import_wizard <- function(src_pipeline_name,
 #' }
 #' At least one wizard must exist; otherwise an error is raised.
 #'
-#' @param src_pipeline_name character; name of the source pipeline whose
-#'   settings are being translated.
-#' @param dst_pipeline_name character; name of the destination pipeline to
-#'   translate the settings into.
+#' @param src_pipeline character name or a `PipelineTools` instance of
+#'   the source pipeline whose settings are being translated.
+#' @param dst_pipeline character name or a `PipelineTools` instance of
+#'   the destination pipeline to translate the settings into.
 #' @param settings named list of settings to translate. If \code{NULL}
-#'   (default), the current settings of \code{src_pipeline_name} are read
+#'   (default), the current settings of \code{src_pipeline} are read
 #'   automatically.
 #' @param fun a function with signature \code{function(settings)} that performs
 #'   the settings translation and returns the modified settings list.
@@ -121,8 +134,8 @@ pipeline_get_import_wizard <- function(src_pipeline_name,
 #'
 #' # Translate settings from "pipelineA" to "pipelineB"
 #' new_settings <- pipeline_translate_settings(
-#'   src_pipeline_name = "pipelineA",
-#'   dst_pipeline_name = "pipelineB"
+#'   src_pipeline = "pipelineA",
+#'   dst_pipeline = "pipelineB"
 #' )
 #'
 #' # To achieve this, you would define export and/or import wizards in the
@@ -133,9 +146,11 @@ pipeline_get_import_wizard <- function(src_pipeline_name,
 #'
 #' pipeline_export_wizard(
 #'   pipeline_name = "pipelineB",
-#'   fun = function(settings_a) {
-#'     settings_b$frequency_range <- settings_a$freq_range
-#'     settings_b
+#'   fun = function(settings) {
+#'     # settings is the current settings list of pipelineA
+#'     settings$frequency_range <- settings$freq_range
+#'     settings$freq_range <- NULL
+#'     settings
 #'   }
 #' )
 #'
@@ -144,9 +159,11 @@ pipeline_get_import_wizard <- function(src_pipeline_name,
 #'
 #' pipeline_import_wizard(
 #'   pipeline_name = "pipelineA",
-#'   fun = function(settings_a) {
-#'     settings_b$frequency_range <- settings_a$freq_range
-#'     settings_b
+#'   fun = function(settings) {
+#'     # settings is the current settings list of pipelineA
+#'     settings$frequency_range <- settings$freq_range
+#'     settings$freq_range <- NULL
+#'     settings
 #'   }
 #' )
 #'
@@ -155,17 +172,24 @@ pipeline_get_import_wizard <- function(src_pipeline_name,
 #' @export
 #' @rdname pipeline_translate_settings
 pipeline_translate_settings <- function(
-    src_pipeline_name,
-    dst_pipeline_name,
+    src_pipeline,
+    dst_pipeline,
     settings = NULL) {
 
   translated <- FALSE
 
-  # src_pipeline_name <- "power_clust"
-  # dst_pipeline_name <- "power_explorer"
+  # src_pipeline <- "power_clust"
+  # dst_pipeline <- "power_explorer"
 
-  src_pipeline <- pipeline(src_pipeline_name)
+  if (!inherits(src_pipeline, "PipelineTools")) {
+    src_pipeline <- pipeline(src_pipeline)
+  }
+  src_pipeline_name <- src_pipeline$pipeline_name
 
+  if (!inherits(dst_pipeline, "PipelineTools")) {
+    dst_pipeline <- pipeline(dst_pipeline)
+  }
+  dst_pipeline_name <- dst_pipeline$pipeline_name
 
   if (is.null(settings)) {
     settings <- src_pipeline$get_settings()
@@ -177,7 +201,7 @@ pipeline_translate_settings <- function(
 
   # Get export wizard from source pipeline
   export_wizard <- pipeline_get_export_wizard(
-    src_pipeline_path = src_pipeline$pipeline_path,
+    src_pipeline_path = src_pipeline,
     dst_pipeline_name = dst_pipeline_name
   )
 
@@ -196,11 +220,10 @@ pipeline_translate_settings <- function(
   #   1. No export wizard ran: dst imports directly from src
   #   2. Export wizard already ran (src_pipeline_name == dst_pipeline_name):
   #      dst applies its own self-filter on the already-converted settings
-  dst_pipeline <- pipeline(dst_pipeline_name)
 
   import_wizard <- pipeline_get_import_wizard(
     src_pipeline_name = src_pipeline_name,
-    pipeline_path = dst_pipeline$pipeline_path
+    pipeline_path = dst_pipeline
   )
 
   if (is.function(import_wizard)) {
