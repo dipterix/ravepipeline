@@ -332,7 +332,7 @@ pipeline_report_generate <- function(
               {
                 res <- jsonlite::toJSON(
                   var, dataframe = "rows", matrix = "rowmajor", null = "null",
-                  na = "null", to_file = NULL, auto_unbox = TRUE
+                  na = "null", to_file = NULL, auto_unbox = TRUE, force = TRUE
                 )
                 message("Found embedding target ",
                         sQuote(embed_target),
@@ -352,6 +352,20 @@ pipeline_report_generate <- function(
         )
 
         embedding <- embedding[!vapply(embedding, is.null, logical(1L))]
+        embedding$.info <- jsonlite::toJSON(
+          list(
+            created_at = strftime(Sys.time(), "%y%m%dT%H%M%S"),
+            pipeline_name = pipeline$pipeline_name,
+            pipeline_details = pipeline$description
+          ),
+          dataframe = "rows",
+          matrix = "rowmajor",
+          null = "null",
+          na = "null",
+          to_file = NULL,
+          auto_unbox = TRUE,
+          force = TRUE
+        )
 
         if (length(embedding)) {
           message("Embedding targets: ", paste(names(embedding), collapse = ", "))
