@@ -8,11 +8,7 @@ those wizard functions.
 ## Usage
 
 ``` r
-pipeline_translate_settings(
-  src_pipeline_name,
-  dst_pipeline_name,
-  settings = NULL
-)
+pipeline_translate_settings(src_pipeline, dst_pipeline, settings = NULL)
 
 pipeline_export_wizard(fun, pipeline_name, env = parent.frame())
 
@@ -21,20 +17,20 @@ pipeline_import_wizard(fun, pipeline_name, env = parent.frame())
 
 ## Arguments
 
-- src_pipeline_name:
+- src_pipeline:
 
-  character; name of the source pipeline whose settings are being
-  translated.
+  character name or a `PipelineTools` instance of the source pipeline
+  whose settings are being translated.
 
-- dst_pipeline_name:
+- dst_pipeline:
 
-  character; name of the destination pipeline to translate the settings
-  into.
+  character name or a `PipelineTools` instance of the destination
+  pipeline to translate the settings into.
 
 - settings:
 
   named list of settings to translate. If `NULL` (default), the current
-  settings of `src_pipeline_name` are read automatically.
+  settings of `src_pipeline` are read automatically.
 
 - fun:
 
@@ -98,8 +94,8 @@ if (FALSE) { # \dontrun{
 
 # Translate settings from "pipelineA" to "pipelineB"
 new_settings <- pipeline_translate_settings(
-  src_pipeline_name = "pipelineA",
-  dst_pipeline_name = "pipelineB"
+  src_pipeline = "pipelineA",
+  dst_pipeline = "pipelineB"
 )
 
 # To achieve this, you would define export and/or import wizards in the
@@ -110,9 +106,11 @@ new_settings <- pipeline_translate_settings(
 
 pipeline_export_wizard(
   pipeline_name = "pipelineB",
-  fun = function(settings_a) {
-    settings_b$frequency_range <- settings_a$freq_range
-    settings_b
+  fun = function(settings) {
+    # settings is the current settings list of pipelineA
+    settings$frequency_range <- settings$freq_range
+    settings$freq_range <- NULL
+    settings
   }
 )
 
@@ -121,9 +119,11 @@ pipeline_export_wizard(
 
 pipeline_import_wizard(
   pipeline_name = "pipelineA",
-  fun = function(settings_a) {
-    settings_b$frequency_range <- settings_a$freq_range
-    settings_b
+  fun = function(settings) {
+    # settings is the current settings list of pipelineA
+    settings$frequency_range <- settings$freq_range
+    settings$freq_range <- NULL
+    settings
   }
 )
 
