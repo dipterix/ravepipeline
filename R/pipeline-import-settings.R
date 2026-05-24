@@ -194,6 +194,7 @@ pipeline_translate_settings <- function(
   if (is.null(settings)) {
     settings <- src_pipeline$get_settings()
   }
+  settings <- as.list(settings)
 
   if (identical(src_pipeline_name, dst_pipeline_name)) {
     return(settings)
