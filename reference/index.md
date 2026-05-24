@@ -74,6 +74,11 @@
   [`pipeline_settings_get()`](http://dipterix.org/ravepipeline/reference/pipeline_settings_get_set.md)
   : Get or change pipeline input parameter settings
 
+- [`pipeline_translate_settings()`](http://dipterix.org/ravepipeline/reference/pipeline_translate_settings.md)
+  [`pipeline_export_wizard()`](http://dipterix.org/ravepipeline/reference/pipeline_translate_settings.md)
+  [`pipeline_import_wizard()`](http://dipterix.org/ravepipeline/reference/pipeline_translate_settings.md)
+  : Translate pipeline settings between pipelines
+
 - [`start_job()`](http://dipterix.org/ravepipeline/reference/rave-pipeline-jobs.md)
   [`check_job()`](http://dipterix.org/ravepipeline/reference/rave-pipeline-jobs.md)
   [`resolve_job()`](http://dipterix.org/ravepipeline/reference/rave-pipeline-jobs.md)

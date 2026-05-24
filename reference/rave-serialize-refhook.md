@@ -72,7 +72,7 @@ r2 <- serialize(x2, NULL, refhook = rave_serialize_refhook)
 
 # Compare the serialization sizes
 c(length(r0), length(r1), length(r2))
-#> [1] 1920074 1028407     461
+#> [1] 1920074 1028406     460
 
 y0 <- unserialize(r0, refhook = rave_unserialize_refhook)
 y1 <- unserialize(r1, refhook = rave_unserialize_refhook)
