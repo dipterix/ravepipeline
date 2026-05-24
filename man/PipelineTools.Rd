@@ -95,6 +95,7 @@ signatures of data and commands}
     \item \href{#method-PipelineTools-initialize}{\code{PipelineTools$new()}}
     \item \href{#method-PipelineTools-set_settings}{\code{PipelineTools$set_settings()}}
     \item \href{#method-PipelineTools-get_settings}{\code{PipelineTools$get_settings()}}
+    \item \href{#method-PipelineTools-import_settings}{\code{PipelineTools$import_settings()}}
     \item \href{#method-PipelineTools-read}{\code{PipelineTools$read()}}
     \item \href{#method-PipelineTools-run}{\code{PipelineTools$run()}}
     \item \href{#method-PipelineTools-run_as_task}{\code{PipelineTools$run_as_task()}}
@@ -239,6 +240,47 @@ will be returned.}
   }
   \subsection{Returns}{
     The value of the inputs, or a list if \code{key} is missing
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipelineTools-import_settings"></a>}}
+\if{latex}{\out{\hypertarget{method-PipelineTools-import_settings}{}}}
+\subsection{\code{PipelineTools$import_settings()}}{
+  import input settings from file: this can be a
+\verb{'settings.yaml'} from an exported pipeline, or a report \verb{HTML}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$import_settings(
+  path,
+  format = c("auto", "yaml", "html"),
+  src_pipeline = NULL,
+  settings_names = NULL,
+  dry_run = TRUE
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{path}}{path to the file containing settings information}
+      \item{\code{format}}{format of the file; default is to derive from the file
+extension}
+      \item{\code{src_pipeline}}{pipeline or pipeline name from which the settings
+file was generated. For \verb{HTML} reports, this is automatically
+derived; default is current pipeline if the information cannot be
+obtained}
+      \item{\code{settings_names}}{names of the input settings to import; default
+is \code{NULL} to import all. This option helps avoid changing the
+underlying data, such as project and subject that has been loaded, and
+only adjust analysis parameters.}
+      \item{\code{dry_run}}{whether to set current pipeline immediately;
+default is \code{FALSE}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Imported settings as a list
   }
 }
 

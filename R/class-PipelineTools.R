@@ -250,6 +250,100 @@ PipelineTools <- R6::R6Class(
       re
     },
 
+    #' @description import input settings from file: this can be a
+    #' \verb{'settings.yaml'} from an exported pipeline, or a report \verb{HTML}
+    #' @param path path to the file containing settings information
+    #' @param format format of the file; default is to derive from the file
+    #' extension
+    #' @param src_pipeline pipeline or pipeline name from which the settings
+    #' file was generated. For \verb{HTML} reports, this is automatically
+    #' derived; default is current pipeline if the information cannot be
+    #' obtained
+    #' @param settings_names names of the input settings to import; default
+    #' is \code{NULL} to import all. This option helps avoid changing the
+    #' underlying data, such as project and subject that has been loaded, and
+    #' only adjust analysis parameters.
+    #' @param dry_run whether to set current pipeline immediately;
+    #' default is \code{FALSE}.
+    #' @returns Imported settings as a list
+    import_settings = function(
+        path, format = c("auto", "yaml", "html"), src_pipeline = NULL,
+        settings_names = NULL, dry_run = TRUE) {
+
+      if (!file.exists(path)) {
+        stop("The file does not exist.")
+      }
+
+      format <- match.arg(format)
+
+      if (format == "auto") {
+        if (grepl("\\.(htm|html)$", path, ignore.case = TRUE)) {
+          format <- "html"
+        } else {
+          format <- "yaml"
+        }
+      }
+
+      if (is.null(src_pipeline)) {
+        src_pipeline <- self
+      }
+
+      if (format == "yaml") {
+        settings <- load_yaml(path)
+        if (!length(settings)) {
+          return(invisible(list()))
+        }
+      } else {
+        report_meta <- html_embed_read(path,
+                                       c("settings", ".info"),
+                                       parse_json = FALSE,
+                                       update = TRUE)
+        if (!length(report_meta$content$settings)) {
+          return(invisible(list()))
+        }
+        settings <- jsonlite::fromJSON(
+          report_meta$content$settings,
+          simplifyVector = TRUE,
+          simplifyMatrix = TRUE,
+          simplifyDataFrame = TRUE
+        )
+        if (length(report_meta$content$.info)) {
+          info <- jsonlite::fromJSON(
+            report_meta$content$.info,
+            simplifyVector = TRUE,
+            simplifyDataFrame = FALSE,
+            simplifyMatrix = FALSE
+          )
+          src_pipeline <- info$pipeline_name
+        }
+
+      }
+
+      new_settings <- pipeline_translate_settings(
+        src_pipeline = src_pipeline,
+        dst_pipeline = self,
+        settings = settings
+      )
+      new_settings <- as.list(new_settings)
+
+      if (!is.null(settings_names)) {
+        settings_names <- settings_names[settings_names %in% names(new_settings)]
+        if (!length(settings_names)) {
+          return(invisible(list()))
+        }
+        new_settings <- new_settings[settings_names]
+      }
+
+      if (dry_run) {
+        return(new_settings)
+      }
+
+      self$set_settings(.list = new_settings)
+      return(invisible(new_settings))
+
+    },
+
+
     #' @description read intermediate variables
     #' @param var_names the target names, can be obtained via
     #' \code{x$target_table} member; default is missing, i.e., to read
