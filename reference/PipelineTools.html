@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.21</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.22</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,6 +101,7 @@ signatures of data and commands</p></dd>
 <li><p><a href="#method-PipelineTools-initialize"><code>PipelineTools$new()</code></a></p></li>
 <li><p><a href="#method-PipelineTools-set_settings"><code>PipelineTools$set_settings()</code></a></p></li>
 <li><p><a href="#method-PipelineTools-get_settings"><code>PipelineTools$get_settings()</code></a></p></li>
+<li><p><a href="#method-PipelineTools-import_settings"><code>PipelineTools$import_settings()</code></a></p></li>
 <li><p><a href="#method-PipelineTools-read"><code>PipelineTools$read()</code></a></p></li>
 <li><p><a href="#method-PipelineTools-run"><code>PipelineTools$run()</code></a></p></li>
 <li><p><a href="#method-PipelineTools-run_as_task"><code>PipelineTools$run_as_task()</code></a></p></li>
@@ -239,13 +240,59 @@ will be returned.</p></dd>
 
 </div>
 
+<p></p><hr><a id="method-PipelineTools-import_settings"></a><div class="section">
+<h3 id="pipelinetools-import-settings-"><code>PipelineTools$import_settings()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-import-settings-"></a></h3>
+<p>import input settings from file: this can be a
+<code>'settings.yaml'</code> from an exported pipeline, or a report <code>HTML</code></p><div class="section">
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">import_settings</span><span class="op">(</span></span>
+<span>  <span class="va">path</span>,</span>
+<span>  format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"auto"</span>, <span class="st">"yaml"</span>, <span class="st">"html"</span><span class="op">)</span>,</span>
+<span>  src_pipeline <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  settings_names <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  dry_run <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div><p></p><div class="section">
+<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>path</code></dt>
+<dd><p>path to the file containing settings information</p></dd>
+
+      <dt><code>format</code></dt>
+<dd><p>format of the file; default is to derive from the file
+extension</p></dd>
+
+      <dt><code>src_pipeline</code></dt>
+<dd><p>pipeline or pipeline name from which the settings
+file was generated. For <code>HTML</code> reports, this is automatically
+derived; default is current pipeline if the information cannot be
+obtained</p></dd>
+
+      <dt><code>settings_names</code></dt>
+<dd><p>names of the input settings to import; default
+is <code>NULL</code> to import all. This option helps avoid changing the
+underlying data, such as project and subject that has been loaded, and
+only adjust analysis parameters.</p></dd>
+
+      <dt><code>dry_run</code></dt>
+<dd><p>whether to set current pipeline immediately;
+default is <code>FALSE</code>.</p></dd>
+
+
+</dl><p></p></div>
+</div><p></p><div class="section">
+<h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
+<p>Imported settings as a list</p>
+</div>
+
+</div>
+
 <p></p><hr><a id="method-PipelineTools-read"></a><div class="section">
 <h3 id="pipelinetools-read-"><code>PipelineTools$read()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-read-"></a></h3>
 <p>read intermediate variables</p><div class="section">
-<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">read</span><span class="op">(</span><span class="va">var_names</span>, ifnotfound <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span>, simplify <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
+<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>var_names</code></dt>
 <dd><p>the target names, can be obtained via
 <code>x$target_table</code> member; default is missing, i.e., to read
@@ -260,7 +307,7 @@ all the intermediate variables</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
+<h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
 <p>The values of the targets</p>
 </div>
 
@@ -269,7 +316,7 @@ all the intermediate variables</p></dd>
 <p></p><hr><a id="method-PipelineTools-run"></a><div class="section">
 <h3 id="pipelinetools-run-"><code>PipelineTools$run()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-run-"></a></h3>
 <p>run the pipeline</p><div class="section">
-<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span></span>
 <span>  names <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  async <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -283,7 +330,7 @@ all the intermediate variables</p></dd>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
+<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>names</code></dt>
 <dd><p>pipeline variable names to calculate; default is to
 calculate all the targets</p></dd>
@@ -303,7 +350,7 @@ these arguments will be passed to <code>pipeline_run_bare</code></p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-2">Returns<a class="anchor" aria-label="anchor" href="#returns-2"></a></h4>
+<h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
 <p>A <code><a href="PipelineResult.html">PipelineResult</a></code> instance if <code>as_promise</code>
 or <code>async</code> is true; otherwise a list of values for input <code>names</code></p>
 </div>
@@ -314,7 +361,7 @@ or <code>async</code> is true; otherwise a list of values for input <code>names<
 <h3 id="pipelinetools-run-as-task-"><code>PipelineTools$run_as_task()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-run-as-task-"></a></h3>
 <p>Run pipeline as <code>shiny</code> extended task,
 requires package <span class="pkg">shiny</span></p><div class="section">
-<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">run_as_task</span><span class="op">(</span></span>
 <span>  names <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  with_progress <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -322,7 +369,7 @@ requires package <span class="pkg">shiny</span></p><div class="section">
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
+<h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>names</code></dt>
 <dd><p>target names to build, see method <code>'run'</code></p></dd>
 
@@ -339,7 +386,7 @@ default is 0.5 seconds</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-3">Returns<a class="anchor" aria-label="anchor" href="#returns-3"></a></h4>
+<h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
 <p><code>shiny</code> extended task; see <code><a href="https://rdrr.io/pkg/shiny/man/ExtendedTask.html" class="external-link">ExtendedTask</a></code></p>
 </div><p></p><div class="section">
 <h4 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a></h4>
@@ -365,7 +412,7 @@ default is 0.5 seconds</p></dd>
 does not use the <code>targets</code> infrastructure, hence the pipeline
 results will not be stored, and the order of <code>names</code> will be
 respected.</p><div class="section">
-<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">eval</span><span class="op">(</span></span>
 <span>  <span class="va">names</span>,</span>
 <span>  env <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -374,7 +421,7 @@ respected.</p><div class="section">
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
+<h4 id="arguments-9">Arguments<a class="anchor" aria-label="anchor" href="#arguments-9"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>names</code></dt>
 <dd><p>pipeline variable names to calculate; must be specified</p></dd>
 
@@ -405,10 +452,10 @@ to be up-to-date, and the evaluation of those targets can be skipped.</p></dd>
 <h3 id="pipelinetools-shared-env-"><code>PipelineTools$shared_env()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-shared-env-"></a></h3>
 <p>run the pipeline shared library in scripts starting with
 path <code>R/shared</code></p><div class="section">
-<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
+<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">shared_env</span><span class="op">(</span>callr_function <span class="op">=</span> <span class="fu">callr</span><span class="fu">::</span><span class="va"><a href="https://callr.r-lib.org/reference/r.html" class="external-link">r</a></span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-9">Arguments<a class="anchor" aria-label="anchor" href="#arguments-9"></a></h4>
+<h4 id="arguments-10">Arguments<a class="anchor" aria-label="anchor" href="#arguments-10"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>callr_function</code></dt>
 <dd><p>either <code><a href="https://callr.r-lib.org/reference/r.html" class="external-link">callr::r</a></code> or <code>NULL</code>; when
 <code><a href="https://callr.r-lib.org/reference/r.html" class="external-link">callr::r</a></code>, the environment will be loaded in isolated R session
@@ -419,7 +466,7 @@ directly in current environment.</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
+<h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
 <p>An environment of shared variables</p>
 </div>
 
@@ -428,13 +475,13 @@ directly in current environment.</p></dd>
 <p></p><hr><a id="method-PipelineTools-python_module"></a><div class="section">
 <h3 id="pipelinetools-python-module-"><code>PipelineTools$python_module()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-python-module-"></a></h3>
 <p>get 'Python' module embedded in the pipeline</p><div class="section">
-<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
+<h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">python_module</span><span class="op">(</span></span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"info"</span>, <span class="st">"module"</span>, <span class="st">"shared"</span>, <span class="st">"exist"</span><span class="op">)</span>,</span>
 <span>  must_work <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-10">Arguments<a class="anchor" aria-label="anchor" href="#arguments-10"></a></h4>
+<h4 id="arguments-11">Arguments<a class="anchor" aria-label="anchor" href="#arguments-11"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>type</code></dt>
 <dd><p>return type, choices are <code>'info'</code> (get basic information
 such as module path, default), <code>'module'</code> (load module and return
@@ -450,7 +497,7 @@ is <code>TRUE</code>, ignored when <code>type</code> is <code>'exist'</code>.</p
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
+<h4 id="returns-6">Returns<a class="anchor" aria-label="anchor" href="#returns-6"></a></h4>
 <p>See <code>type</code></p>
 </div>
 
@@ -459,17 +506,17 @@ is <code>TRUE</code>, ignored when <code>type</code> is <code>'exist'</code>.</p
 <p></p><hr><a id="method-PipelineTools-progress"></a><div class="section">
 <h3 id="pipelinetools-progress-"><code>PipelineTools$progress()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-progress-"></a></h3>
 <p>get progress of the pipeline</p><div class="section">
-<h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
+<h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">progress</span><span class="op">(</span>method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"summary"</span>, <span class="st">"details"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-11">Arguments<a class="anchor" aria-label="anchor" href="#arguments-11"></a></h4>
+<h4 id="arguments-12">Arguments<a class="anchor" aria-label="anchor" href="#arguments-12"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>method</code></dt>
 <dd><p>either <code>'summary'</code> or <code>'details'</code></p></dd>
 
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-6">Returns<a class="anchor" aria-label="anchor" href="#returns-6"></a></h4>
+<h4 id="returns-7">Returns<a class="anchor" aria-label="anchor" href="#returns-7"></a></h4>
 <p>A table of the progress</p>
 </div>
 
@@ -478,10 +525,10 @@ is <code>TRUE</code>, ignored when <code>type</code> is <code>'exist'</code>.</p
 <p></p><hr><a id="method-PipelineTools-attach"></a><div class="section">
 <h3 id="pipelinetools-attach-"><code>PipelineTools$attach()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-attach-"></a></h3>
 <p>attach pipeline tool to environment (internally used)</p><div class="section">
-<h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
+<h4 id="usage-13">Usage<a class="anchor" aria-label="anchor" href="#usage-13"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="kw">attach</span><span class="op">(</span><span class="va">env</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-12">Arguments<a class="anchor" aria-label="anchor" href="#arguments-12"></a></h4>
+<h4 id="arguments-13">Arguments<a class="anchor" aria-label="anchor" href="#arguments-13"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>env</code></dt>
 <dd><p>an environment</p></dd>
 
@@ -494,7 +541,7 @@ is <code>TRUE</code>, ignored when <code>type</code> is <code>'exist'</code>.</p
 <p></p><hr><a id="method-PipelineTools-visualize"></a><div class="section">
 <h3 id="pipelinetools-visualize-"><code>PipelineTools$visualize()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-visualize-"></a></h3>
 <p>visualize pipeline target dependency graph</p><div class="section">
-<h4 id="usage-13">Usage<a class="anchor" aria-label="anchor" href="#usage-13"></a></h4>
+<h4 id="usage-14">Usage<a class="anchor" aria-label="anchor" href="#usage-14"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">visualize</span><span class="op">(</span></span>
 <span>  glimpse <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  aspect_ratio <span class="op">=</span> <span class="fl">2</span>,</span>
@@ -503,7 +550,7 @@ is <code>TRUE</code>, ignored when <code>type</code> is <code>'exist'</code>.</p
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-13">Arguments<a class="anchor" aria-label="anchor" href="#arguments-13"></a></h4>
+<h4 id="arguments-14">Arguments<a class="anchor" aria-label="anchor" href="#arguments-14"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>glimpse</code></dt>
 <dd><p>whether to glimpse the graph network or render the state</p></dd>
 
@@ -519,7 +566,7 @@ is <code>TRUE</code>, ignored when <code>type</code> is <code>'exist'</code>.</p
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-7">Returns<a class="anchor" aria-label="anchor" href="#returns-7"></a></h4>
+<h4 id="returns-8">Returns<a class="anchor" aria-label="anchor" href="#returns-8"></a></h4>
 <p>a list where the names are target names and values are the
 corresponding dependence</p>
 </div>
@@ -529,10 +576,10 @@ corresponding dependence</p>
 <p></p><hr><a id="method-PipelineTools-target_ancestors"></a><div class="section">
 <h3 id="pipelinetools-target-ancestors-"><code>PipelineTools$target_ancestors()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-target-ancestors-"></a></h3>
 <p>a helper function to get target ancestors</p><div class="section">
-<h4 id="usage-14">Usage<a class="anchor" aria-label="anchor" href="#usage-14"></a></h4>
+<h4 id="usage-15">Usage<a class="anchor" aria-label="anchor" href="#usage-15"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">target_ancestors</span><span class="op">(</span><span class="va">names</span>, skip_names <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-14">Arguments<a class="anchor" aria-label="anchor" href="#arguments-14"></a></h4>
+<h4 id="arguments-15">Arguments<a class="anchor" aria-label="anchor" href="#arguments-15"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>names</code></dt>
 <dd><p>targets whose ancestor targets need to be queried</p></dd>
 
@@ -545,7 +592,7 @@ but also their ancestors will be excluded from the result.</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-8">Returns<a class="anchor" aria-label="anchor" href="#returns-8"></a></h4>
+<h4 id="returns-9">Returns<a class="anchor" aria-label="anchor" href="#returns-9"></a></h4>
 <p>ancestor target names (including <code>names</code>)</p>
 </div>
 
@@ -554,10 +601,10 @@ but also their ancestors will be excluded from the result.</p></dd>
 <p></p><hr><a id="method-PipelineTools-fork"></a><div class="section">
 <h3 id="pipelinetools-fork-"><code>PipelineTools$fork()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-fork-"></a></h3>
 <p>fork (copy) the current pipeline to a new directory</p><div class="section">
-<h4 id="usage-15">Usage<a class="anchor" aria-label="anchor" href="#usage-15"></a></h4>
+<h4 id="usage-16">Usage<a class="anchor" aria-label="anchor" href="#usage-16"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">fork</span><span class="op">(</span><span class="va">path</span>, policy <span class="op">=</span> <span class="st">"default"</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-15">Arguments<a class="anchor" aria-label="anchor" href="#arguments-15"></a></h4>
+<h4 id="arguments-16">Arguments<a class="anchor" aria-label="anchor" href="#arguments-16"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>path</code></dt>
 <dd><p>path to the new pipeline, a folder will be created there</p></dd>
 
@@ -569,7 +616,7 @@ avoid copying <code>main.html</code> and <code>shared</code> folder</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-9">Returns<a class="anchor" aria-label="anchor" href="#returns-9"></a></h4>
+<h4 id="returns-10">Returns<a class="anchor" aria-label="anchor" href="#returns-10"></a></h4>
 <p>A new pipeline object based on the path given</p>
 </div>
 
@@ -578,7 +625,7 @@ avoid copying <code>main.html</code> and <code>shared</code> folder</p></dd>
 <p></p><hr><a id="method-PipelineTools-fork_to_subject"></a><div class="section">
 <h3 id="pipelinetools-fork-to-subject-"><code>PipelineTools$fork_to_subject()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-fork-to-subject-"></a></h3>
 <p>fork (copy) the current pipeline to a 'RAVE' subject</p><div class="section">
-<h4 id="usage-16">Usage<a class="anchor" aria-label="anchor" href="#usage-16"></a></h4>
+<h4 id="usage-17">Usage<a class="anchor" aria-label="anchor" href="#usage-17"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">fork_to_subject</span><span class="op">(</span></span>
 <span>  <span class="va">subject</span>,</span>
 <span>  label <span class="op">=</span> <span class="st">"NA"</span>,</span>
@@ -587,7 +634,7 @@ avoid copying <code>main.html</code> and <code>shared</code> folder</p></dd>
 <span>  sanitize <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-16">Arguments<a class="anchor" aria-label="anchor" href="#arguments-16"></a></h4>
+<h4 id="arguments-17">Arguments<a class="anchor" aria-label="anchor" href="#arguments-17"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>subject</code></dt>
 <dd><p>subject ID or instance in which pipeline will be saved</p></dd>
 
@@ -611,7 +658,7 @@ registry (only for the pipelines with the same name)</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-10">Returns<a class="anchor" aria-label="anchor" href="#returns-10"></a></h4>
+<h4 id="returns-11">Returns<a class="anchor" aria-label="anchor" href="#returns-11"></a></h4>
 <p>A new pipeline object based on the path given</p>
 </div>
 
@@ -622,10 +669,10 @@ registry (only for the pipelines with the same name)</p></dd>
 <p>run code with pipeline activated, some environment variables
 and function behaviors might change under such condition (for example,
 <code>targets</code> package functions)</p><div class="section">
-<h4 id="usage-17">Usage<a class="anchor" aria-label="anchor" href="#usage-17"></a></h4>
+<h4 id="usage-18">Usage<a class="anchor" aria-label="anchor" href="#usage-18"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">with_activated</span><span class="op">(</span><span class="va">expr</span>, quoted <span class="op">=</span> <span class="cn">FALSE</span>, env <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sys.parent.html" class="external-link">parent.frame</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-17">Arguments<a class="anchor" aria-label="anchor" href="#arguments-17"></a></h4>
+<h4 id="arguments-18">Arguments<a class="anchor" aria-label="anchor" href="#arguments-18"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>expr</code></dt>
 <dd><p>expression to evaluate</p></dd>
 
@@ -644,14 +691,14 @@ and function behaviors might change under such condition (for example,
 <p></p><hr><a id="method-PipelineTools-clean"></a><div class="section">
 <h3 id="pipelinetools-clean-"><code>PipelineTools$clean()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-clean-"></a></h3>
 <p>clean all or part of the data store</p><div class="section">
-<h4 id="usage-18">Usage<a class="anchor" aria-label="anchor" href="#usage-18"></a></h4>
+<h4 id="usage-19">Usage<a class="anchor" aria-label="anchor" href="#usage-19"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">clean</span><span class="op">(</span></span>
 <span>  destroy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"cloud"</span>, <span class="st">"local"</span>, <span class="st">"meta"</span>, <span class="st">"process"</span>, <span class="st">"preferences"</span>, <span class="st">"progress"</span>,</span>
 <span>    <span class="st">"objects"</span>, <span class="st">"scratch"</span>, <span class="st">"workspaces"</span><span class="op">)</span>,</span>
 <span>  ask <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-18">Arguments<a class="anchor" aria-label="anchor" href="#arguments-18"></a></h4>
+<h4 id="arguments-19">Arguments<a class="anchor" aria-label="anchor" href="#arguments-19"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>destroy, ask</code></dt>
 <dd><p>see <code><a href="https://docs.ropensci.org/targets/reference/tar_destroy.html" class="external-link">tar_destroy</a></code></p></dd>
 
@@ -664,7 +711,7 @@ and function behaviors might change under such condition (for example,
 <p></p><hr><a id="method-PipelineTools-save_data"></a><div class="section">
 <h3 id="pipelinetools-save-data-"><code>PipelineTools$save_data()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-save-data-"></a></h3>
 <p>save data to pipeline data folder</p><div class="section">
-<h4 id="usage-19">Usage<a class="anchor" aria-label="anchor" href="#usage-19"></a></h4>
+<h4 id="usage-20">Usage<a class="anchor" aria-label="anchor" href="#usage-20"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">save_data</span><span class="op">(</span></span>
 <span>  <span class="va">data</span>,</span>
 <span>  <span class="va">name</span>,</span>
@@ -673,7 +720,7 @@ and function behaviors might change under such condition (for example,
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-19">Arguments<a class="anchor" aria-label="anchor" href="#arguments-19"></a></h4>
+<h4 id="arguments-20">Arguments<a class="anchor" aria-label="anchor" href="#arguments-20"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>data</code></dt>
 <dd><p>R object</p></dd>
 
@@ -695,7 +742,7 @@ environments, use <code>'rds'</code></p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-11">Returns<a class="anchor" aria-label="anchor" href="#returns-11"></a></h4>
+<h4 id="returns-12">Returns<a class="anchor" aria-label="anchor" href="#returns-12"></a></h4>
 <p>the saved file path</p>
 </div>
 
@@ -704,7 +751,7 @@ environments, use <code>'rds'</code></p></dd>
 <p></p><hr><a id="method-PipelineTools-load_data"></a><div class="section">
 <h3 id="pipelinetools-load-data-"><code>PipelineTools$load_data()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-load-data-"></a></h3>
 <p>load data from pipeline data folder</p><div class="section">
-<h4 id="usage-20">Usage<a class="anchor" aria-label="anchor" href="#usage-20"></a></h4>
+<h4 id="usage-21">Usage<a class="anchor" aria-label="anchor" href="#usage-21"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">load_data</span><span class="op">(</span></span>
 <span>  <span class="va">name</span>,</span>
 <span>  error_if_missing <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -713,7 +760,7 @@ environments, use <code>'rds'</code></p></dd>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-20">Arguments<a class="anchor" aria-label="anchor" href="#arguments-20"></a></h4>
+<h4 id="arguments-21">Arguments<a class="anchor" aria-label="anchor" href="#arguments-21"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>name</code></dt>
 <dd><p>the name of the data</p></dd>
 
@@ -733,7 +780,7 @@ from the file extension</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-12">Returns<a class="anchor" aria-label="anchor" href="#returns-12"></a></h4>
+<h4 id="returns-13">Returns<a class="anchor" aria-label="anchor" href="#returns-13"></a></h4>
 <p>the data if file is found or a default value</p>
 </div>
 
@@ -745,10 +792,10 @@ from the file extension</p></dd>
 The preferences should not affect how pipeline is working, hence usually
 stores minor variables such as graphic options. Changing preferences
 will not invalidate pipeline cache.</p><div class="section">
-<h4 id="usage-21">Usage<a class="anchor" aria-label="anchor" href="#usage-21"></a></h4>
+<h4 id="usage-22">Usage<a class="anchor" aria-label="anchor" href="#usage-22"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">set_preferences</span><span class="op">(</span><span class="va">...</span>, .list <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-21">Arguments<a class="anchor" aria-label="anchor" href="#arguments-21"></a></h4>
+<h4 id="arguments-22">Arguments<a class="anchor" aria-label="anchor" href="#arguments-22"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>..., .list</code></dt>
 <dd><p>key-value pairs of initial preference values. The keys
 must start with 'global' or the module ID, followed by dot and preference
@@ -765,7 +812,7 @@ underscore, and hyphen, will be coerced to lower case (case-insensitive)</p></dd
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-13">Returns<a class="anchor" aria-label="anchor" href="#returns-13"></a></h4>
+<h4 id="returns-14">Returns<a class="anchor" aria-label="anchor" href="#returns-14"></a></h4>
 <p>A list of key-value pairs</p>
 </div>
 
@@ -774,7 +821,7 @@ underscore, and hyphen, will be coerced to lower case (case-insensitive)</p></dd
 <p></p><hr><a id="method-PipelineTools-get_preferences"></a><div class="section">
 <h3 id="pipelinetools-get-preferences-"><code>PipelineTools$get_preferences()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-get-preferences-"></a></h3>
 <p>get persistent preferences from the pipeline.</p><div class="section">
-<h4 id="usage-22">Usage<a class="anchor" aria-label="anchor" href="#usage-22"></a></h4>
+<h4 id="usage-23">Usage<a class="anchor" aria-label="anchor" href="#usage-23"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">get_preferences</span><span class="op">(</span></span>
 <span>  <span class="va">keys</span>,</span>
 <span>  simplify <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -783,7 +830,7 @@ underscore, and hyphen, will be coerced to lower case (case-insensitive)</p></dd
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-22">Arguments<a class="anchor" aria-label="anchor" href="#arguments-22"></a></h4>
+<h4 id="arguments-23">Arguments<a class="anchor" aria-label="anchor" href="#arguments-23"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>keys</code></dt>
 <dd><p>characters to get the preferences</p></dd>
 
@@ -804,7 +851,7 @@ default is true; set to false to always return a list of preferences</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-14">Returns<a class="anchor" aria-label="anchor" href="#returns-14"></a></h4>
+<h4 id="returns-15">Returns<a class="anchor" aria-label="anchor" href="#returns-15"></a></h4>
 <p>A list of the preferences. If <code>simplify</code> is true and length
 if keys is 1, then returns the value of that preference</p>
 </div><p></p><div class="section">
@@ -837,10 +884,10 @@ if keys is 1, then returns the value of that preference</p>
 <p></p><hr><a id="method-PipelineTools-has_preferences"></a><div class="section">
 <h3 id="pipelinetools-has-preferences-"><code>PipelineTools$has_preferences()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-has-preferences-"></a></h3>
 <p>whether pipeline has preference keys</p><div class="section">
-<h4 id="usage-23">Usage<a class="anchor" aria-label="anchor" href="#usage-23"></a></h4>
+<h4 id="usage-24">Usage<a class="anchor" aria-label="anchor" href="#usage-24"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">has_preferences</span><span class="op">(</span><span class="va">keys</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-23">Arguments<a class="anchor" aria-label="anchor" href="#arguments-23"></a></h4>
+<h4 id="arguments-24">Arguments<a class="anchor" aria-label="anchor" href="#arguments-24"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>keys</code></dt>
 <dd><p>characters name of the preferences</p></dd>
 
@@ -850,7 +897,7 @@ if keys is 1, then returns the value of that preference</p>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-15">Returns<a class="anchor" aria-label="anchor" href="#returns-15"></a></h4>
+<h4 id="returns-16">Returns<a class="anchor" aria-label="anchor" href="#returns-16"></a></h4>
 <p>logical whether the keys exist</p>
 </div>
 
@@ -859,10 +906,10 @@ if keys is 1, then returns the value of that preference</p>
 <p></p><hr><a id="method-PipelineTools-source_document"></a><div class="section">
 <h3 id="pipelinetools-source-document-"><code>PipelineTools$source_document()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-source-document-"></a></h3>
 <p>obtain the source document</p><div class="section">
-<h4 id="usage-24">Usage<a class="anchor" aria-label="anchor" href="#usage-24"></a></h4>
+<h4 id="usage-25">Usage<a class="anchor" aria-label="anchor" href="#usage-25"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">source_document</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-16">Returns<a class="anchor" aria-label="anchor" href="#returns-16"></a></h4>
+<h4 id="returns-17">Returns<a class="anchor" aria-label="anchor" href="#returns-17"></a></h4>
 <p>characters if the source document (<code>main.Rmd</code>) is found,
 otherwise <code>NULL</code></p>
 </div>
@@ -872,7 +919,7 @@ otherwise <code>NULL</code></p>
 <p></p><hr><a id="method-PipelineTools-generate_report"></a><div class="section">
 <h3 id="pipelinetools-generate-report-"><code>PipelineTools$generate_report()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-generate-report-"></a></h3>
 <p>generate pipeline</p><div class="section">
-<h4 id="usage-25">Usage<a class="anchor" aria-label="anchor" href="#usage-25"></a></h4>
+<h4 id="usage-26">Usage<a class="anchor" aria-label="anchor" href="#usage-26"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">generate_report</span><span class="op">(</span></span>
 <span>  <span class="va">name</span>,</span>
 <span>  subject <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -883,7 +930,7 @@ otherwise <code>NULL</code></p>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-24">Arguments<a class="anchor" aria-label="anchor" href="#arguments-24"></a></h4>
+<h4 id="arguments-25">Arguments<a class="anchor" aria-label="anchor" href="#arguments-25"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>name</code></dt>
 <dd><p>report name, see field <code>'available_reports'</code></p></dd>
 
@@ -914,7 +961,7 @@ make sure the function itself is self-contained.</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-17">Returns<a class="anchor" aria-label="anchor" href="#returns-17"></a></h4>
+<h4 id="returns-18">Returns<a class="anchor" aria-label="anchor" href="#returns-18"></a></h4>
 <p>A job identification number, see <code><a href="rave-pipeline-jobs.html">resolve_job</a></code> for
 querying job details</p>
 </div>
@@ -924,10 +971,10 @@ querying job details</p>
 <p></p><hr><a id="method-PipelineTools-clone"></a><div class="section">
 <h3 id="pipelinetools-clone-"><code>PipelineTools$clone()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-26">Usage<a class="anchor" aria-label="anchor" href="#usage-26"></a></h4>
+<h4 id="usage-27">Usage<a class="anchor" aria-label="anchor" href="#usage-27"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-25">Arguments<a class="anchor" aria-label="anchor" href="#arguments-25"></a></h4>
+<h4 id="arguments-26">Arguments<a class="anchor" aria-label="anchor" href="#arguments-26"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 

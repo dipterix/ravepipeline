@@ -67,6 +67,8 @@ Class definition for 'RAVE' pipelines
 
 - [`PipelineTools$get_settings()`](#method-PipelineTools-get_settings)
 
+- [`PipelineTools$import_settings()`](#method-PipelineTools-import_settings)
+
 - [`PipelineTools$read()`](#method-PipelineTools-read)
 
 - [`PipelineTools$run()`](#method-PipelineTools-run)
@@ -234,6 +236,54 @@ get current inputs
 #### Returns
 
 The value of the inputs, or a list if `key` is missing
+
+------------------------------------------------------------------------
+
+### `PipelineTools$import_settings()`
+
+import input settings from file: this can be a `'settings.yaml'` from an
+exported pipeline, or a report `HTML`
+
+#### Usage
+
+    PipelineTools$import_settings(
+      path,
+      format = c("auto", "yaml", "html"),
+      src_pipeline = NULL,
+      settings_names = NULL,
+      dry_run = TRUE
+    )
+
+#### Arguments
+
+- `path`:
+
+  path to the file containing settings information
+
+- `format`:
+
+  format of the file; default is to derive from the file extension
+
+- `src_pipeline`:
+
+  pipeline or pipeline name from which the settings file was generated.
+  For `HTML` reports, this is automatically derived; default is current
+  pipeline if the information cannot be obtained
+
+- `settings_names`:
+
+  names of the input settings to import; default is `NULL` to import
+  all. This option helps avoid changing the underlying data, such as
+  project and subject that has been loaded, and only adjust analysis
+  parameters.
+
+- `dry_run`:
+
+  whether to set current pipeline immediately; default is `FALSE`.
+
+#### Returns
+
+Imported settings as a list
 
 ------------------------------------------------------------------------
 
