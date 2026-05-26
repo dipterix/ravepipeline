@@ -29,9 +29,6 @@
 \alias{pipeline_load_extdata}
 \alias{pipeline_save_extdata}
 \alias{pipeline_shared}
-\alias{pipeline_set_preferences}
-\alias{pipeline_get_preferences}
-\alias{pipeline_has_preferences}
 \title{Low-level 'RAVE' pipeline functions}
 \usage{
 pipeline_root(root_path, temporary = FALSE)
@@ -193,24 +190,6 @@ pipeline_shared(
   pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
   callr_function = callr::r
 )
-
-pipeline_set_preferences(
-  ...,
-  .list = NULL,
-  .pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
-  .preference_instance = NULL
-)
-
-pipeline_get_preferences(
-  keys,
-  simplify = TRUE,
-  ifnotfound = NULL,
-  validator = NULL,
-  ...,
-  .preference_instance = NULL
-)
-
-pipeline_has_preferences(keys, ..., .preference_instance = NULL)
 }
 \arguments{
 \item{root_path}{the root directory for pipeline templates}
@@ -221,7 +200,7 @@ from subject pipeline folders}
 
 \item{name, pipeline_name}{the pipeline name to create; usually also the folder}
 
-\item{pipe_dir, .pipe_dir}{where the pipeline directory is; can be set via
+\item{pipe_dir}{where the pipeline directory is; can be set via
 system environment \code{Sys.setenv("RAVE_PIPELINE"=...)}}
 
 \item{scheduler}{how to schedule the target jobs: default is \code{'none'},
@@ -256,7 +235,7 @@ true; only works in \code{pipeline_run_bare} and will be ignored by
 
 \item{debug}{whether to debug the process; default is false}
 
-\item{..., .list}{other parameters, targets, etc.}
+\item{...}{other parameters, targets, etc.}
 
 \item{destroy}{what part of data repository needs to be cleaned}
 
@@ -335,12 +314,6 @@ choices are \code{'yaml'}, \code{'fst'}, \code{'csv'}, \code{'rds'}}
 is not found}
 
 \item{data}{extended data to be saved}
-
-\item{.preference_instance}{internally used}
-
-\item{keys}{preference keys}
-
-\item{validator}{\code{NULL} or function to validate values}
 }
 \value{
 \describe{

@@ -1028,6 +1028,9 @@ PipelineTools <- R6::R6Class(
     #' @param ifnotfound default value when the key is missing
     #' @param validator \code{NULL} or function to validate the values; see
     #' 'Examples'
+    #' @param modes length of zero (no type-constraint), character vector
+    #' with length of one or `length(keys)` specifying the type of preference
+    #' values; see \code{\link{pipeline_get_preferences}}
     #' @param ... passed to \code{validator} if \code{validator} is a function
     #' @returns A list of the preferences. If \code{simplify} is true and length
     #' if keys is 1, then returns the value of that preference
@@ -1056,12 +1059,13 @@ PipelineTools <- R6::R6Class(
     #' }
     #'
     get_preferences = function(keys, simplify = TRUE, ifnotfound = NULL,
-                               validator = NULL, ...) {
+                               validator = NULL, modes = NULL, ...) {
       pipeline_get_preferences(
         keys = keys,
         simplify = simplify,
         ifnotfound = ifnotfound,
         validator = validator,
+        modes = modes,
         ...,
         .preference_instance = private$.preferences
       )

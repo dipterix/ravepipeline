@@ -816,6 +816,7 @@ underscore, and hyphen, will be coerced to lower case (case-insensitive)}
   simplify = TRUE,
   ifnotfound = NULL,
   validator = NULL,
+  modes = NULL,
   ...
 )}
     \if{html}{\out{</div>}}
@@ -829,6 +830,9 @@ default is true; set to false to always return a list of preferences}
       \item{\code{ifnotfound}}{default value when the key is missing}
       \item{\code{validator}}{\code{NULL} or function to validate the values; see
 'Examples'}
+      \item{\code{modes}}{length of zero (no type-constraint), character vector
+with length of one or \code{length(keys)} specifying the type of preference
+values; see \code{\link{pipeline_get_preferences}}}
       \item{\code{...}}{passed to \code{validator} if \code{validator} is a function}
     }
     \if{html}{\out{</div>}}
