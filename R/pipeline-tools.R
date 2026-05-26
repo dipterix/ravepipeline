@@ -1441,7 +1441,6 @@ pipeline_shared <- function(pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
 
 }
 
-
 pipeline_py_info <- function(pipe_dir = Sys.getenv("RAVE_PIPELINE", "."), must_work = NA) {
 
   pipe_dir <- normalizePath(pipe_dir, mustWork = TRUE)

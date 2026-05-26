@@ -399,3 +399,231 @@ PipelineResult <- R6::R6Class(
 as.promise.PipelineResult <- function(x) {
   x$promise
 }
+
+#' @export
+plot.ravepipeline_plot_data <- function(
+    x, callr_function = NULL, ...) {
+
+  if (identical(Sys.getenv("RAVE_PIPELINE_ACTIVE"), "true")) {
+    # Running within pipeline, plot generic should have been implemented
+    return(NextMethod(plot))
+  }
+
+  # Check attribute
+  pipeline_name <- attr(x, "pipeline_name")
+
+  if (length(pipeline_name) != 1 || !is.character(pipeline_name) ||
+      is.na(pipeline_name) || !nzchar(pipeline_name)) {
+    return(NextMethod(plot))
+  }
+
+  # pipeline_name
+  p <- tryCatch(
+    {
+      pipeline(pipeline_name)
+    },
+    error = function(e) {
+      NULL
+    }
+  )
+
+  if (is.null(p)) {
+    # Unable to find the pipeline
+    return(NextMethod(plot))
+  }
+
+  env <- p$shared_env(callr_function = callr_function)
+
+  # strip classes
+  cls <- class(x)
+  cls <- cls[!cls %in% c("ravepipeline_plot_data")]
+
+  pipeline_plot_class <- attr(x, "pipeline_plot_class")
+  if (length(pipeline_plot_class) == 1 &&
+      is.character(pipeline_plot_class) &&
+      !is.na(pipeline_plot_class) &&
+      nzchar(pipeline_plot_class) &&
+      !isTRUE(pipeline_plot_class %in% cls)) {
+    cls <- c(pipeline_plot_class, cls)
+  }
+
+  ._plot_data <- structure(class = cls, x)
+  env$._plot_data <- ._plot_data
+  with(env, {
+    plot(._plot_data)
+  })
+}
+
+#' @export
+print.ravepipeline_plot_data <- function(x, ...) {
+  cls <- class(x)
+  pipeline_name <- attr(x, "pipeline_name")
+  pipeline_plot_class <- attr(x, "pipeline_plot_class")
+
+  cat(c(
+    "<RAVE plot data>",
+    sprintf("Pipeline: %s; class: %s", pipeline_name, pipeline_plot_class),
+    ""
+  ), sep = "\n")
+
+  class(x) <- cls[!cls %in% "ravepipeline_plot_data"]
+  attr(x, "pipeline_name") <- NULL
+  attr(x, "pipeline_plot_class") <- NULL
+
+  NextMethod(print, object = x)
+}
+
+#' @title Create plot data from within pipeline make-file
+#' @description
+#' Tags an \R object so that calling \code{\link{plot}} on it outside the
+#' pipeline can still dispatch the correct \verb{S3} method, even though that
+#' method is only defined inside the pipeline's shared \R scripts.
+#'
+#' @section How plotting dispatch works:
+#' A RAVE pipeline keeps its plot helpers in files whose names start with
+#' \verb{shared} inside the pipeline's \verb{R/} folder (e.g.
+#' \verb{R/shared-plots.R}).  Those files are sourced automatically every
+#' time the pipeline runs, but they are \emph{not} available in an ordinary
+#' interactive \R session.
+#'
+#' \code{pipeline_plot_data} bridges the two contexts by:
+#' \enumerate{
+#'   \item Inserting \code{name} and the sentinel class
+#'         \code{"ravepipeline_plot_data"} to the class vector of \code{x}.
+#'   \item Attaching the pipeline name as an attribute so the object can be
+#'         re-associated with its pipeline later.
+#' }
+#'
+#' When \code{plot()} is subsequently called:
+#' \describe{
+#'   \item{Inside the pipeline (during \code{pipeline_run})}{
+#'     The environment variable \env{RAVE_PIPELINE_ACTIVE} is \code{"true"},
+#'     the shared scripts have already been sourced, and \code{plot.<name>}
+#'     is in scope.  \code{plot.ravepipeline_plot_data} simply calls
+#'     \code{NextMethod()} so dispatch falls through to \code{plot.<name>}.
+#'   }
+#'   \item{Outside the pipeline (interactive session, report, Shiny app)}{
+#'     \code{plot.ravepipeline_plot_data} locates the pipeline by
+#'     \code{pipeline_name}, calls \code{$shared_env()} to source all
+#'     \verb{R/shared*.R} files in an isolated environment, and then
+#'     evaluates \code{plot(x)} inside that environment, where
+#'     \code{plot.<name>} is now available.
+#'   }
+#' }
+#'
+#' @section Implementing a pipeline plot method:
+#' \strong{Step 1 – define the \verb{S3} method} in any file whose name starts
+#' with \verb{shared} inside the pipeline's \verb{R/} directory (e.g.
+#' \verb{R/shared-plots.R}).  The function receives the original object \code{x}
+#' with its user-defined class prepended, so standard \R dispatch applies:
+#'
+#' \preformatted{
+#' # R/shared-plots.R  (inside the pipeline source tree)
+#' plot.my_pipeline_result <- function(x, ...) {
+#'   graphics::plot(
+#'     x$time, x$signal,
+#'     type = "l",
+#'     xlab = "Time (s)",
+#'     ylab = "Amplitude",
+#'     main = x$title %||% ""
+#'   )
+#' }
+#' }
+#'
+#' \strong{Step 2 – wrap the target} inside \verb{main.Rmd} (or any pipeline
+#' make-file) by calling \code{pipeline_plot_data} with the same \code{name}
+#' you used for the \verb{S3} method:
+#'
+#' \preformatted{
+#' # main.Rmd  (pipeline make-file target block)
+#' result_plot <- {
+#'   ravepipeline::pipeline_plot_data(
+#'     list(time = seq(0, 1, by = 0.01),
+#'          signal = sin(2 * pi * 10 * seq(0, 1, by = 0.01)),
+#'          title  = "10 Hz sine wave"),
+#'     name = "my_pipeline_result"
+#'   )
+#' }
+#' }
+#'
+#' \strong{Step 3 – call \code{plot()} anywhere:}
+#'
+#' \preformatted{
+#' # Interactive session or report
+#' p <- pipeline("my_pipeline")
+#' result <- p$read("result_plot")
+#' plot(result)   # sources R/shared-plots.R automatically, then calls
+#'                # plot.my_pipeline_result(result)
+#' }
+#'
+#' @param x R object to be used as plot data.
+#' @param name \verb{S3} class name for which \code{plot.<name>} is implemented
+#'   in the pipeline's \verb{R/shared*.R} files.  Must contain only ASCII
+#'   letters, digits, dots, or underscores.  Defaults to the unevaluated
+#'   expression passed as \code{x}.
+#' @param strip_oldclasses if \code{TRUE} (default) and \code{x} already
+#'   carries a \code{"ravepipeline_plot_data"} class from a previous call,
+#'   the stale plot classes are stripped before re-tagging.  Set to
+#'   \code{FALSE} to preserve the full original class vector.
+#' @param pipe_dir path to the active pipeline directory.  Do not set this
+#'   when calling from within a pipeline make-file; the default reads the
+#'   \env{RAVE_PIPELINE} environment variable which is set automatically
+#'   during \code{\link{pipeline_run}}.
+#' @param pipeline_name character string overriding the pipeline name stored in
+#'   the returned object.  When \code{NULL} (default) the name is inferred from
+#'   \code{pipe_dir}.
+#' @returns Object \code{x} with the class vector
+#'   \code{c(name, "ravepipeline_plot_data", <original classes>)} and two
+#'   extra attributes: \code{pipeline_name} and \code{pipeline_plot_class}.
+#'
+#' @examples
+#'
+#'
+#' # 1.  R/shared-plots.R  -- define the S3 method
+#' plot.toy_example <- function(x, ...) {
+#'   graphics::plot(x$data,
+#'                  xlab = "Index", ylab = "Value",
+#'                  main = x$title %||% "")
+#' }
+#'
+#' # 2.  main.Rmd target block -- wrap the data
+#' plot_data <- ravepipeline::pipeline_plot_data(
+#'   list(data = 1:10, title = "Toy example"),
+#'   name = "toy_example",
+#'   pipeline_name = "toy_pipeline"
+#' )
+#'
+#' # 3.  Interactive session -- just call plot()
+#' plot(plot_data)  # dispatches to plot.toy_example via shared_env
+#'
+#' @export
+pipeline_plot_data <- function(x, name = substitute(x), strip_oldclasses = TRUE,
+                               pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
+                               pipeline_name = NULL) {
+
+  if (is.null(pipeline_name)) {
+    pipe_dir <- activate_pipeline(pipe_dir)
+    pipeline_name <- attr(pipe_dir, "target_name")
+  }
+
+  name <- paste(as.character(name), collapse = "")
+
+  if (!isTRUE(grepl("^[a-zA-Z0-9_.-]+$", name))) {
+    stop("ravepipeline::pipeline_plot_data(x, name): `name` must only contain letters, digits, dots, underscores, not ", sQuote(name))
+  }
+
+  cls <- class(x)
+
+  # Strip out the existing name/class
+  if (strip_oldclasses && "ravepipeline_plot_data" %in% cls) {
+    idx <- which(cls == "ravepipeline_plot_data")
+    cls <- cls[-seq_len(idx[[length(idx)]])]
+  }
+
+  structure(
+    class = c(name, "ravepipeline_plot_data", cls),
+    pipeline_name = pipeline_name,
+    pipeline_plot_class = name,
+    x
+  )
+}

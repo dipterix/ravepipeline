@@ -404,7 +404,7 @@ pipeline_run_bare <- function(
             do.call(fun, args)
           }
         },
-        error = function( e ) {
+        error = function(e) {
           Sys.unsetenv(c("RAVE_PIPELINE_ACTIVE", "RAVE_WITH_PARALLEL"))
           # if(debug) {
           #   g <- globalenv()
