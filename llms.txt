@@ -172,6 +172,9 @@ power_explorer$visualize(glimpse = TRUE, aspect_ratio = 10)
   [`pipeline_install_github()`](http://dipterix.org/ravepipeline/reference/pipeline_install.md)
   : Install 'RAVE' pipelines
 
+- [`pipeline_plot_data()`](http://dipterix.org/ravepipeline/reference/pipeline_plot_data.md)
+  : Create plot data from within pipeline make-file
+
 - [`pipeline_settings_set()`](http://dipterix.org/ravepipeline/reference/pipeline_settings_get_set.md)
   [`pipeline_settings_get()`](http://dipterix.org/ravepipeline/reference/pipeline_settings_get_set.md)
   : Get or change pipeline input parameter settings

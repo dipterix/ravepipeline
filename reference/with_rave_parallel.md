@@ -105,8 +105,8 @@ res <- lapply_jobs(1:5, function(x, ...) {
 
 simplify2array(res)
 #>       [,1] [,2] [,3] [,4] [,5]
-#> child 7110 7110 7110 7110 7110
-#> main  7110 7110 7110 7110 7110
+#> child 7022 7022 7022 7022 7022
+#> main  7022 7022 7022 7022 7022
 
 # Comparison
 f <- function(n = 5, workers = 0) {
