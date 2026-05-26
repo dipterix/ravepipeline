@@ -167,24 +167,6 @@ pipeline_shared(
   pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
   callr_function = callr::r
 )
-
-pipeline_set_preferences(
-  ...,
-  .list = NULL,
-  .pipe_dir = Sys.getenv("RAVE_PIPELINE", "."),
-  .preference_instance = NULL
-)
-
-pipeline_get_preferences(
-  keys,
-  simplify = TRUE,
-  ifnotfound = NULL,
-  validator = NULL,
-  ...,
-  .preference_instance = NULL
-)
-
-pipeline_has_preferences(keys, ..., .preference_instance = NULL)
 ```
 
 ## Arguments
@@ -202,7 +184,7 @@ pipeline_has_preferences(keys, ..., .preference_instance = NULL)
 
   the pipeline name to create; usually also the folder
 
-- pipe_dir, .pipe_dir:
+- pipe_dir:
 
   where the pipeline directory is; can be set via system environment
   `Sys.setenv("RAVE_PIPELINE"=...)`
@@ -255,7 +237,7 @@ pipeline_has_preferences(keys, ..., .preference_instance = NULL)
 
   whether to debug the process; default is false
 
-- ..., .list:
+- ...:
 
   other parameters, targets, etc.
 
@@ -388,18 +370,6 @@ pipeline_has_preferences(keys, ..., .preference_instance = NULL)
 - data:
 
   extended data to be saved
-
-- .preference_instance:
-
-  internally used
-
-- keys:
-
-  preference keys
-
-- validator:
-
-  `NULL` or function to validate values
 
 ## Value
 

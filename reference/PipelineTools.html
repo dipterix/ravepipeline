@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.23</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.24</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -827,6 +827,7 @@ underscore, and hyphen, will be coerced to lower case (case-insensitive)</p></dd
 <span>  simplify <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  ifnotfound <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  validator <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  modes <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
@@ -844,6 +845,11 @@ default is true; set to false to always return a list of preferences</p></dd>
       <dt><code>validator</code></dt>
 <dd><p><code>NULL</code> or function to validate the values; see
 'Examples'</p></dd>
+
+      <dt><code>modes</code></dt>
+<dd><p>length of zero (no type-constraint), character vector
+with length of one or <code>length(keys)</code> specifying the type of preference
+values; see <code><a href="rave-pipeline-preferences.html">pipeline_get_preferences</a></code></p></dd>
 
       <dt><code>...</code></dt>
 <dd><p>passed to <code>validator</code> if <code>validator</code> is a function</p></dd>

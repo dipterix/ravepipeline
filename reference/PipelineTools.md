@@ -881,6 +881,7 @@ get persistent preferences from the pipeline.
       simplify = TRUE,
       ifnotfound = NULL,
       validator = NULL,
+      modes = NULL,
       ...
     )
 
@@ -902,6 +903,12 @@ get persistent preferences from the pipeline.
 - `validator`:
 
   `NULL` or function to validate the values; see 'Examples'
+
+- `modes`:
+
+  length of zero (no type-constraint), character vector with length of
+  one or `length(keys)` specifying the type of preference values; see
+  [`pipeline_get_preferences`](http://dipterix.org/ravepipeline/reference/rave-pipeline-preferences.md)
 
 - `...`:
 

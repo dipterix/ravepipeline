@@ -88,6 +88,11 @@
   [`remove_job()`](http://dipterix.org/ravepipeline/reference/rave-pipeline-jobs.md)
   : Run a function (job) in another session
 
+- [`pipeline_set_preferences()`](http://dipterix.org/ravepipeline/reference/rave-pipeline-preferences.md)
+  [`pipeline_get_preferences()`](http://dipterix.org/ravepipeline/reference/rave-pipeline-preferences.md)
+  [`pipeline_has_preferences()`](http://dipterix.org/ravepipeline/reference/rave-pipeline-preferences.md)
+  : Pipeline preference management (low-level)
+
 - [`pipeline_root()`](http://dipterix.org/ravepipeline/reference/rave-pipeline.md)
   [`pipeline_list()`](http://dipterix.org/ravepipeline/reference/rave-pipeline.md)
   [`pipeline_find()`](http://dipterix.org/ravepipeline/reference/rave-pipeline.md)
@@ -114,9 +119,6 @@
   [`pipeline_load_extdata()`](http://dipterix.org/ravepipeline/reference/rave-pipeline.md)
   [`pipeline_save_extdata()`](http://dipterix.org/ravepipeline/reference/rave-pipeline.md)
   [`pipeline_shared()`](http://dipterix.org/ravepipeline/reference/rave-pipeline.md)
-  [`pipeline_set_preferences()`](http://dipterix.org/ravepipeline/reference/rave-pipeline.md)
-  [`pipeline_get_preferences()`](http://dipterix.org/ravepipeline/reference/rave-pipeline.md)
-  [`pipeline_has_preferences()`](http://dipterix.org/ravepipeline/reference/rave-pipeline.md)
   : Low-level 'RAVE' pipeline functions
 
 - [`rave_serialize_refhook()`](http://dipterix.org/ravepipeline/reference/rave-serialize-refhook.md)
