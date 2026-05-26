@@ -1648,7 +1648,7 @@ pipeline_get_preferences <- function(
     modes <- rep(modes, ceiling(length(modes) / length(keys)))
     modes <- structure(
       names = keys,
-      as.list(modes[seq_len(keys)])
+      as.list(modes[seq_along(keys)])
     )
   } else {
     modes <- NULL
