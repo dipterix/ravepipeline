@@ -90,7 +90,7 @@ subsequently called:
 
 ## Implementing a pipeline plot method
 
-**Step 1 – define the `S3` method** in any file whose name starts with
+**Step 1: define the `S3` method** in any file whose name starts with
 `shared` inside the pipeline's `R/` directory (e.g. `R/shared-plots.R`).
 The function receives the original object `x` with its user-defined
 class prepended, so standard R dispatch applies:
@@ -107,7 +107,7 @@ class prepended, so standard R dispatch applies:
       )
     }
 
-**Step 2 – wrap the target** inside `main.Rmd` (or any pipeline
+**Step 2: wrap the target** inside `main.Rmd` (or any pipeline
 make-file) by calling `pipeline_plot_data` with the same `name` you used
 for the `S3` method:
 
@@ -122,7 +122,7 @@ for the `S3` method:
       )
     }
 
-**Step 3 – call [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
+**Step 3: call [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
 anywhere:**
 
 

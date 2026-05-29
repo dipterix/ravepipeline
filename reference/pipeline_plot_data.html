@@ -11,7 +11,7 @@ method is only defined inside the pipeline's shared R scripts."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.25</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -127,7 +127,7 @@ evaluates <code>plot(x)</code> inside that environment, where
     <h2 id="implementing-a-pipeline-plot-method">Implementing a pipeline plot method<a class="anchor" aria-label="anchor" href="#implementing-a-pipeline-plot-method"></a></h2>
 
 
-<p><strong>Step 1 – define the <code>S3</code> method</strong> in any file whose name starts
+<p><strong>Step 1: define the <code>S3</code> method</strong> in any file whose name starts
 with <code>shared</code> inside the pipeline's <code>R/</code> directory (e.g.
 <code>R/shared-plots.R</code>).  The function receives the original object <code>x</code>
 with its user-defined class prepended, so standard <span style="R">R</span> dispatch applies:</p>
@@ -143,7 +143,7 @@ with its user-defined class prepended, so standard <span style="R">R</span> disp
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 
-<p><strong>Step 2 – wrap the target</strong> inside <code>main.Rmd</code> (or any pipeline
+<p><strong>Step 2: wrap the target</strong> inside <code>main.Rmd</code> (or any pipeline
 make-file) by calling <code>pipeline_plot_data</code> with the same <code>name</code>
 you used for the <code>S3</code> method:</p>
 <div class="sourceCode"><pre><code><span></span>
@@ -157,7 +157,7 @@ you used for the <code>S3</code> method:</p>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 
-<p><strong>Step 3 – call <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> anywhere:</strong></p>
+<p><strong>Step 3: call <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> anywhere:</strong></p>
 <div class="sourceCode"><pre><code><span></span>
 <span><span class="co"># Interactive session or report</span></span>
 <span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pipeline.html">pipeline</a></span><span class="op">(</span><span class="st">"my_pipeline"</span><span class="op">)</span></span>

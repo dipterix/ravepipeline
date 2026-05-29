@@ -42,12 +42,12 @@ pipeline_import_wizard(fun, pipeline_name, env = parent.frame())
   character; the pipeline name this wizard handles, with
   context-dependent meaning:
 
-  - In `pipeline_export_wizard`: the **destination** pipeline name — the
+  - In `pipeline_export_wizard`: the **destination** pipeline name: the
     wizard is invoked when exporting the current pipeline's settings
     *to* `pipeline_name` (corresponds to `dst_pipeline_name` in
     `pipeline_translate_settings`).
 
-  - In `pipeline_import_wizard`: the **source** pipeline name — the
+  - In `pipeline_import_wizard`: the **source** pipeline name: the
     wizard is invoked when importing settings *from* `pipeline_name`
     into the current pipeline (corresponds to `src_pipeline_name` in
     `pipeline_translate_settings`).

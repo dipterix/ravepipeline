@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.25</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,30 @@
       <small>Source: <a href="https://github.com/dipterix/ravepipeline/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.0" id="ravepipeline-010">ravepipeline 0.1.0<a class="anchor" aria-label="anchor" href="#ravepipeline-010"></a></h2>
+<ul><li>Added <code>pipeline_plot_data</code> to help dispatch <code>plot</code> methods defined from within a pipeline, keeping plot logic encapsulated inside the pipeline script</li>
+<li>Added <code>pipeline_translate_settings</code>, <code>pipeline_export_wizard</code>, and <code>pipeline_import_wizard</code> for translating and migrating settings between pipeline versions or modules</li>
+<li>Added <code>import_settings</code> method to the <code>PipelineTools</code> class for importing external settings directly into a pipeline instance; fixed an edge case where the internal settings map was a <code>fastmap2</code> instead of a plain list</li>
+<li>Pipeline subset operator (<code>pipeline[[...]]</code>) now reads from <code>settings.yaml</code> when the pipeline has not yet been evaluated, providing access to default inputs before a run</li>
+<li>
+<code>pipeline_get_preferences</code> gains a <code>modes</code> argument for type-mode validation; stored values whose <code><a href="https://rdrr.io/r/base/mode.html" class="external-link">mode()</a></code> does not match are treated as missing and <code>ifnotfound</code> is returned instead</li>
+<li>Added <code>html_embed_write</code> and <code>html_embed_read</code> to embed and recover arbitrary R objects as hidden data inside HTML documents</li>
+<li>JSON serialization sanitizes inputs before passing them to <code>jsonlite</code>, preventing conversion errors for types that <code>jsonlite</code> cannot encode</li>
+<li>
+<code>pandoc</code> discovery is now more robust and integrated into <code>RAVE</code> options; fixed <code>RSTUDIO_PANDOC</code> not being set in some environments; fixed <code>pandoc</code> not found on certain systems</li>
+<li>Pipeline reports no longer force <code>toc</code> and <code>code_folding</code>; these can now be customized by the caller; <code>distill</code> is used as an optional report style when the package is available, with <code>rmarkdown</code> as the fallback</li>
+<li>Added a <code>callback</code> argument to pipeline report generation for post-processing hooks; <code>start_job</code> gains log-streaming support so outputs always stream to the console; fixed a log-set bug when the job result is <code>NULL</code> and changed the default behavior to not attach the log file</li>
+<li>
+<code>lapply_jobs</code> now evaluates the worker function in the <code>runtime_env</code> environment so global helper functions defined in the same script can reference each other correctly</li>
+<li>
+<code>PipelineTools$run_as_task</code> enables running a pipeline as a <code>shiny</code> <code>ExtendedTask</code>, allowing non-blocking pipeline execution inside a Shiny app without blocking the session; pipelines also support early cancellation</li>
+<li>Added <code>MCP</code> helper utilities (<code>docs_package_help_topics</code>, <code>docs_help_page</code>, <code>docs_package_implementation</code>, <code>search_package_info</code>) for use with <code>rave-pipelines</code> repository tooling</li>
+<li>Pipeline templates are updated to match the latest <code>shidashi</code> framework changes; a timestamp is written on template updates; Python sub-module presence is verified before import</li>
+<li>
+<code>ravepipeline_finalize_installation</code> is now exported for post-install setup</li>
+<li>Miscellaneous fixes: corrected <code>detect_generic_land()</code> lookup, tightened embedding metadata accuracy, and removed obsolete vignettes</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.3" id="ravepipeline-003">ravepipeline 0.0.3<a class="anchor" aria-label="anchor" href="#ravepipeline-003"></a></h2><p class="text-muted">CRAN release: 2025-09-10</p>
 <ul><li>Removed <code>raveio</code> from templates</li>

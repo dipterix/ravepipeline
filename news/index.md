@@ -1,5 +1,59 @@
 # Changelog
 
+## ravepipeline 0.1.0
+
+- Added `pipeline_plot_data` to help dispatch `plot` methods defined
+  from within a pipeline, keeping plot logic encapsulated inside the
+  pipeline script
+- Added `pipeline_translate_settings`, `pipeline_export_wizard`, and
+  `pipeline_import_wizard` for translating and migrating settings
+  between pipeline versions or modules
+- Added `import_settings` method to the `PipelineTools` class for
+  importing external settings directly into a pipeline instance; fixed
+  an edge case where the internal settings map was a `fastmap2` instead
+  of a plain list
+- Pipeline subset operator (`pipeline[[...]]`) now reads from
+  `settings.yaml` when the pipeline has not yet been evaluated,
+  providing access to default inputs before a run
+- `pipeline_get_preferences` gains a `modes` argument for type-mode
+  validation; stored values whose
+  [`mode()`](https://rdrr.io/r/base/mode.html) does not match are
+  treated as missing and `ifnotfound` is returned instead
+- Added `html_embed_write` and `html_embed_read` to embed and recover
+  arbitrary R objects as hidden data inside HTML documents
+- JSON serialization sanitizes inputs before passing them to `jsonlite`,
+  preventing conversion errors for types that `jsonlite` cannot encode
+- `pandoc` discovery is now more robust and integrated into `RAVE`
+  options; fixed `RSTUDIO_PANDOC` not being set in some environments;
+  fixed `pandoc` not found on certain systems
+- Pipeline reports no longer force `toc` and `code_folding`; these can
+  now be customized by the caller; `distill` is used as an optional
+  report style when the package is available, with `rmarkdown` as the
+  fallback
+- Added a `callback` argument to pipeline report generation for
+  post-processing hooks; `start_job` gains log-streaming support so
+  outputs always stream to the console; fixed a log-set bug when the job
+  result is `NULL` and changed the default behavior to not attach the
+  log file
+- `lapply_jobs` now evaluates the worker function in the `runtime_env`
+  environment so global helper functions defined in the same script can
+  reference each other correctly
+- `PipelineTools$run_as_task` enables running a pipeline as a `shiny`
+  `ExtendedTask`, allowing non-blocking pipeline execution inside a
+  Shiny app without blocking the session; pipelines also support early
+  cancellation
+- Added `MCP` helper utilities (`docs_package_help_topics`,
+  `docs_help_page`, `docs_package_implementation`,
+  `search_package_info`) for use with `rave-pipelines` repository
+  tooling
+- Pipeline templates are updated to match the latest `shidashi`
+  framework changes; a timestamp is written on template updates; Python
+  sub-module presence is verified before import
+- `ravepipeline_finalize_installation` is now exported for post-install
+  setup
+- Miscellaneous fixes: corrected `detect_generic_land()` lookup,
+  tightened embedding metadata accuracy, and removed obsolete vignettes
+
 ## ravepipeline 0.0.3
 
 CRAN release: 2025-09-10

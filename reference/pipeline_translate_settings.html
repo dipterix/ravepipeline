@@ -13,7 +13,7 @@ pipeline_import_wizard register those wizard functions."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.3.25</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,11 +83,11 @@ the settings translation and returns the modified settings list.</p></dd>
 <dt id="arg-pipeline-name">pipeline_name<a class="anchor" aria-label="anchor" href="#arg-pipeline-name"></a></dt>
 <dd><p>character; the pipeline name this wizard handles, with
 context-dependent meaning:</p><ul><li><p>In <code>pipeline_export_wizard</code>: the <strong>destination</strong> pipeline
-name — the wizard is invoked when exporting the current pipeline's
+name: the wizard is invoked when exporting the current pipeline's
 settings <em>to</em> <code>pipeline_name</code> (corresponds to
 <code>dst_pipeline_name</code> in <code>pipeline_translate_settings</code>).</p></li>
 <li><p>In <code>pipeline_import_wizard</code>: the <strong>source</strong> pipeline
-name — the wizard is invoked when importing settings <em>from</em>
+name: the wizard is invoked when importing settings <em>from</em>
 <code>pipeline_name</code> into the current pipeline (corresponds to
 <code>src_pipeline_name</code> in <code>pipeline_translate_settings</code>).</p></li>
 </ul></dd>
