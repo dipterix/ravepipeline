@@ -353,7 +353,7 @@ html_embed_write <- function(html_path,
     }
   }
 
-  # Combine json and text items — differ only in MIME type.
+  # Combine json and text items: differ only in MIME type.
   mem_items <- c(
     lapply(names(json_string), function(nm) {
       list(nm = nm, x = json_string[[nm]], data_type = "application/json")

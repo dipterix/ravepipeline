@@ -1,9 +1,13 @@
-## Version 0.0.3 (current)
+## Version 0.0.3 (new)
 
 R CMD check results
 
 0 errors | 0 warnings | 0 notes
 
+Reverse-check: OK
+
+
+## Version 0.0.3 (current)
 
 ## Version 0.0.2 (skipped)
 

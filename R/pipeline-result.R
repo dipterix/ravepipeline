@@ -512,7 +512,7 @@ print.ravepipeline_plot_data <- function(x, ...) {
 #' }
 #'
 #' @section Implementing a pipeline plot method:
-#' \strong{Step 1 – define the \verb{S3} method} in any file whose name starts
+#' \strong{Step 1: define the \verb{S3} method} in any file whose name starts
 #' with \verb{shared} inside the pipeline's \verb{R/} directory (e.g.
 #' \verb{R/shared-plots.R}).  The function receives the original object \code{x}
 #' with its user-defined class prepended, so standard \R dispatch applies:
@@ -530,7 +530,7 @@ print.ravepipeline_plot_data <- function(x, ...) {
 #' }
 #' }
 #'
-#' \strong{Step 2 – wrap the target} inside \verb{main.Rmd} (or any pipeline
+#' \strong{Step 2: wrap the target} inside \verb{main.Rmd} (or any pipeline
 #' make-file) by calling \code{pipeline_plot_data} with the same \code{name}
 #' you used for the \verb{S3} method:
 #'
@@ -546,7 +546,7 @@ print.ravepipeline_plot_data <- function(x, ...) {
 #' }
 #' }
 #'
-#' \strong{Step 3 – call \code{plot()} anywhere:}
+#' \strong{Step 3: call \code{plot()} anywhere:}
 #'
 #' \preformatted{
 #' # Interactive session or report

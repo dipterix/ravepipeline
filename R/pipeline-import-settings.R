@@ -107,11 +107,11 @@ pipeline_get_import_wizard <- function(src_pipeline_name,
 #'   context-dependent meaning:
 #'   \itemize{
 #'     \item In \code{pipeline_export_wizard}: the \strong{destination} pipeline
-#'       name — the wizard is invoked when exporting the current pipeline's
+#'       name: the wizard is invoked when exporting the current pipeline's
 #'       settings \emph{to} \code{pipeline_name} (corresponds to
 #'       \code{dst_pipeline_name} in \code{pipeline_translate_settings}).
 #'     \item In \code{pipeline_import_wizard}: the \strong{source} pipeline
-#'       name — the wizard is invoked when importing settings \emph{from}
+#'       name: the wizard is invoked when importing settings \emph{from}
 #'       \code{pipeline_name} into the current pipeline (corresponds to
 #'       \code{src_pipeline_name} in \code{pipeline_translate_settings}).
 #'   }
