@@ -2,6 +2,8 @@
 
 ## ravepipeline 0.1.0
 
+CRAN release: 2026-05-30
+
 - Added `pipeline_plot_data` to help dispatch `plot` methods defined
   from within a pipeline, keeping plot logic encapsulated inside the
   pipeline script
