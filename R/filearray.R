@@ -26,13 +26,25 @@ RAVEFileArray <- R6::R6Class(
     #' @description Serialization helper, convert the object to a descriptive list
     #' @param ... ignored
     `@marshal` = function(...) {
+      # Saving all keys starting with signature* so the cache can catch the
+      # signatures
+      fhead <- as.list(private$impl$.header)
+      nms <- names(fhead)
+      signatures <- nms[startsWith(nms, "signature")]
+      if (length(signatures)) {
+        signatures <- fhead[signatures]
+      } else {
+        signatures <- list()
+      }
+
       list(
         namespace = "ravepipeline",
         r6_generator = "RAVEFileArray",
         data = list(
           filebase = private$impl$.filebase,
           mode = private$impl$.mode
-        )
+        ),
+        signatures = signatures
       )
     },
 
