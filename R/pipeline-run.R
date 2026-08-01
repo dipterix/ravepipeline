@@ -145,7 +145,7 @@ pipeline_run <- function(
               do.call(fun, args)
             }
           },
-          error = function( e ) {
+          error = function(e) {
             Sys.unsetenv(c("RAVE_PIPELINE_ACTIVE", "RAVE_WITH_PARALLEL"))
             stop(ns$sanitize_target_error(e))
           }

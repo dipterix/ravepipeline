@@ -281,7 +281,7 @@ rave_knitr_engine <- function(targets) {
       lang <- "R"
     }
 
-    if (! lang %in% RAVE_KNITR_SUPPORTED_LANG) {
+    if (!lang %in% RAVE_KNITR_SUPPORTED_LANG) {
       stop("Chunk `", options$label, "` has invalid `language` options. Please choose from the following engines: \n  ", paste(RAVE_KNITR_SUPPORTED_LANG, collapse = ", "))
     }
 
@@ -297,7 +297,7 @@ rave_knitr_engine <- function(targets) {
     # real_engine <- knitr::knit_engines$get(lang)
 
     env <- knitr::knit_global()
-    switch(
+    object <- switch(
       lang,
       "R" = {
         real_engine <- knitr::knit_engines$get("R")
@@ -313,6 +313,7 @@ rave_knitr_engine <- function(targets) {
         if (length(nms2)) {
           rm(list = nms2, envir = env, inherits = FALSE)
         }
+        env[[options$export]]
       },
       "python" = {
         real_engine <- python_engine
@@ -323,12 +324,23 @@ rave_knitr_engine <- function(targets) {
         }
         res <- real_engine(options)
         env[[options$export]] <- py[[options$export]]
+        env[[options$export]]
       },
       {
         # not reach here
         stop("unsupported language")
       }
     )
+
+    # estimate the object size
+    object_serialized <- serialize(
+      object = object,
+      connection = NULL,
+      refhook = rave_serialize_impl
+    )
+    object_size <- to_ram_size(length(object_serialized))
+    size_unit <- attr(object_size, "unit")
+    message(sprintf("Built %s ~ %.3g %s", options$export, object_size, size_unit))
 
     return(res)
 
