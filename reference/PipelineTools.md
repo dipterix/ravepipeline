@@ -994,6 +994,7 @@ the values that have been explicitly changed, and revising a declared
       name,
       default = NULL,
       type = PREFERENCE_TYPES,
+      getter = NULL,
       validator = NULL,
       domain = PREFERENCE_DOMAINS,
       global = FALSE,
@@ -1021,6 +1022,16 @@ the values that have been explicitly changed, and revising a declared
   (`"double"` or `"integer"`), `"named_list"` (a list whose elements are
   all named), or an exact storage type such as `"logical"`, `"integer"`,
   `"double"`, `"character"`, or `"list"`
+
+- `getter`:
+
+  `NULL`, or a function with formals no more than `value` and
+  `pipeline`, mapping the stored value to whatever the caller should
+  receive; for instance turning a palette name into the colors
+  themselves. It is stored and re-evaluated under the same rules as
+  `validator`, and its result is **not** checked against `type`. The
+  result carries the value it was derived from in a `"preference_value"`
+  attribute
 
 - `validator`:
 
@@ -1090,7 +1101,7 @@ read or write a preference declared by `define_preference`
 
 #### Usage
 
-    PipelineTools$use_preference(name, value, verbose = TRUE)
+    PipelineTools$use_preference(name, value, apply_getter = TRUE, verbose = TRUE)
 
 #### Arguments
 
@@ -1105,6 +1116,11 @@ read or write a preference declared by `define_preference`
   optional; when supplied, the value is validated and stored before
   being read back. Supplying `NULL` removes the stored value, resetting
   the preference to its declared default
+
+- `apply_getter`:
+
+  whether to run the declared `getter` over the value before returning
+  it; default is true. Set to `FALSE` to read the raw stored value
 
 - `verbose`:
 

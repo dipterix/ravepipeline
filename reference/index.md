@@ -26,6 +26,10 @@
   [`base64_plot()`](http://dipterix.org/ravepipeline/reference/base64-utils.md)
   : Convert from and to 'base64' string
 
+- [`define_preference_discrete_colormap()`](http://dipterix.org/ravepipeline/reference/define_preference_colormap.md)
+  [`define_preference_continuous_colormap()`](http://dipterix.org/ravepipeline/reference/define_preference_colormap.md)
+  : Declare a color palette preference
+
 - [`dir_create2()`](http://dipterix.org/ravepipeline/reference/dir_create2.md)
   : Force creating directory with checks
 
@@ -81,6 +85,10 @@
   [`pipeline_export_wizard()`](http://dipterix.org/ravepipeline/reference/pipeline_translate_settings.md)
   [`pipeline_import_wizard()`](http://dipterix.org/ravepipeline/reference/pipeline_translate_settings.md)
   : Translate pipeline settings between pipelines
+
+- [`DISCRETE_COLORMAPS()`](http://dipterix.org/ravepipeline/reference/rave-colormaps.md)
+  [`CONTINUOUS_COLORMAPS()`](http://dipterix.org/ravepipeline/reference/rave-colormaps.md)
+  : Built-in 'RAVE' color palettes
 
 - [`start_job()`](http://dipterix.org/ravepipeline/reference/rave-pipeline-jobs.md)
   [`check_job()`](http://dipterix.org/ravepipeline/reference/rave-pipeline-jobs.md)
