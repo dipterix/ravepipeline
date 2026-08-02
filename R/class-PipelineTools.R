@@ -1080,6 +1080,113 @@ PipelineTools <- R6::R6Class(
                                .preference_instance = private$.preferences)
     },
 
+    #' @description declare a preference, so it can later be read and written
+    #' by its short name instead of its full key. This is the recommended way
+    #' for modules to manage preferences; \code{set_preferences} and
+    #' \code{get_preferences} are the low-level counterparts.
+    #'
+    #' Declaring a preference stores its \emph{metadata} only; the declared
+    #' \code{default} is not written to the preference store. It materializes
+    #' whenever the preference is read while unset, so the store holds exactly
+    #' the values that have been explicitly changed, and revising a declared
+    #' \code{default} takes effect immediately for anyone who never overrode it.
+    #' @param name preference name, must contain only letters, digits,
+    #' underscore, and hyphen; will be coerced to lower case (case-insensitive)
+    #' @param default default value, returned whenever the preference is unset;
+    #' \code{NULL} (the default) declares a preference that simply has no value
+    #' until one is set
+    #' @param type expected storage type of the value (see \code{\link{typeof}}),
+    #' checked whenever the value is set or read; choices are \code{"any"}
+    #' (no check), \code{"numeric"} (\code{"double"} or \code{"integer"}),
+    #' \code{"named_list"} (a list whose elements are all named), or an exact
+    #' storage type such as \code{"logical"}, \code{"integer"},
+    #' \code{"double"}, \code{"character"}, or \code{"list"}
+    #' @param validator \code{NULL}, or a function with formals no more than
+    #' \code{value} and \code{pipeline}, returning \code{TRUE} or \code{NULL}
+    #' when the value is acceptable, returning \code{FALSE} or a character
+    #' message when it is not, or raising an error. The function body is stored
+    #' as source text so it survives across sessions, and is re-evaluated in a
+    #' fresh environment: it must be self-contained, referring to no variables
+    #' from where it was written, and qualifying anything outside the base
+    #' package with \code{pkg::fun}
+    #' @param domain preference category; choices are \code{"default"},
+    #' \code{"graphics"}, \code{"analysis"}, and \code{"export"}. The same
+    #' \code{name} may be declared once per domain
+    #' @param global whether the preference is shared by all 'RAVE' modules
+    #' (\code{TRUE}), or belongs to this pipeline only (\code{FALSE}, default)
+    #' @param verbose whether to emit trace-level logs; default is true
+    #' @returns Invisibly, the preference metadata
+    #' @examples
+    #'
+    #' library(ravepipeline)
+    #' if(interactive() && length(pipeline_list()) > 0) {
+    #'   pipeline <- pipeline("power_explorer")
+    #'
+    #'   # declare once, e.g. when the module is loaded
+    #'   pipeline$define_preference(
+    #'     "cex", default = 1.2, type = "numeric", domain = "graphics",
+    #'     validator = function(value) {
+    #'       if(value <= 0) { return("`cex` must be positive") }
+    #'       TRUE
+    #'     }
+    #'   )
+    #'
+    #'   # read: the declared default, since nothing has been set yet
+    #'   pipeline$use_preference("cex")
+    #'
+    #'   # write, then read back
+    #'   pipeline$use_preference("cex", value = 2)
+    #'   pipeline$use_preference("cex")
+    #'
+    #'   # invalid values are rejected
+    #'   try({ pipeline$use_preference("cex", value = -1) })
+    #'
+    #'   # back to the declared default
+    #'   pipeline$reset_preference("cex")
+    #'   pipeline$use_preference("cex")
+    #' }
+    #'
+    define_preference = function(name, default = NULL, type = PREFERENCE_TYPES,
+                                 validator = NULL, domain = PREFERENCE_DOMAINS,
+                                 global = FALSE, verbose = TRUE) {
+      define_preference(
+        pipeline = self, name = name, default = default, type = type,
+        validator = validator, domain = domain, global = global,
+        verbose = verbose
+      )
+    },
+
+    #' @description read or write a preference declared by
+    #' \code{define_preference}
+    #' @param name preference name, either the short name used when declaring
+    #' it, or the full \verb{namespace.domain.name} key. A short name resolves
+    #' against this pipeline first, then against the global declarations
+    #' @param value optional; when supplied, the value is validated and stored
+    #' before being read back. Supplying \code{NULL} removes the stored value,
+    #' resetting the preference to its declared default
+    #' @param verbose whether to emit trace-level logs; default is true
+    #' @returns The preference value; the declared default when the preference
+    #' is unset, or when the stored value no longer passes \code{validator}
+    use_preference = function(name, value, verbose = TRUE) {
+      if(missing(value)) {
+        use_preference(pipeline = self, name = name, verbose = verbose)
+      } else {
+        use_preference(pipeline = self, name = name, value = value,
+                       verbose = verbose)
+      }
+    },
+
+    #' @description reset a preference declared by \code{define_preference}
+    #' back to its declared default, by removing the stored value
+    #' @param name preference name, either the short name used when declaring
+    #' it, or the full \verb{namespace.domain.name} key
+    #' @param verbose whether to emit trace-level logs; default is true
+    #' @returns Invisibly, \code{TRUE} if the preference has been declared and
+    #' was reset, otherwise \code{FALSE}
+    reset_preference = function(name, verbose = TRUE) {
+      reset_preference(pipeline = self, name = name, verbose = verbose)
+    },
+
     #' @description obtain the source document
     #' @returns characters if the source document (`main.Rmd`) is found,
     #' otherwise \code{NULL}

@@ -54,6 +54,40 @@ if(interactive() && length(pipeline_list()) > 0) {
   pipeline$has_preferences("global.example.dummy_preference")
 }
 
+
+## ------------------------------------------------
+## Method `PipelineTools$define_preference()`
+## ------------------------------------------------
+
+
+library(ravepipeline)
+if(interactive() && length(pipeline_list()) > 0) {
+  pipeline <- pipeline("power_explorer")
+
+  # declare once, e.g. when the module is loaded
+  pipeline$define_preference(
+    "cex", default = 1.2, type = "numeric", domain = "graphics",
+    validator = function(value) {
+      if(value <= 0) { return("`cex` must be positive") }
+      TRUE
+    }
+  )
+
+  # read: the declared default, since nothing has been set yet
+  pipeline$use_preference("cex")
+
+  # write, then read back
+  pipeline$use_preference("cex", value = 2)
+  pipeline$use_preference("cex")
+
+  # invalid values are rejected
+  try({ pipeline$use_preference("cex", value = -1) })
+
+  # back to the declared default
+  pipeline$reset_preference("cex")
+  pipeline$use_preference("cex")
+}
+
 }
 \seealso{
 \code{\link{pipeline}}
@@ -115,6 +149,9 @@ signatures of data and commands}
     \item \href{#method-PipelineTools-set_preferences}{\code{PipelineTools$set_preferences()}}
     \item \href{#method-PipelineTools-get_preferences}{\code{PipelineTools$get_preferences()}}
     \item \href{#method-PipelineTools-has_preferences}{\code{PipelineTools$has_preferences()}}
+    \item \href{#method-PipelineTools-define_preference}{\code{PipelineTools$define_preference()}}
+    \item \href{#method-PipelineTools-use_preference}{\code{PipelineTools$use_preference()}}
+    \item \href{#method-PipelineTools-reset_preference}{\code{PipelineTools$reset_preference()}}
     \item \href{#method-PipelineTools-source_document}{\code{PipelineTools$source_document()}}
     \item \href{#method-PipelineTools-generate_report}{\code{PipelineTools$generate_report()}}
     \item \href{#method-PipelineTools-clone}{\code{PipelineTools$clone()}}
@@ -889,6 +926,157 @@ if(interactive() && length(pipeline_list()) > 0) {
   }
   \subsection{Returns}{
     logical whether the keys exist
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipelineTools-define_preference"></a>}}
+\if{latex}{\out{\hypertarget{method-PipelineTools-define_preference}{}}}
+\subsection{\code{PipelineTools$define_preference()}}{
+  declare a preference, so it can later be read and written
+by its short name instead of its full key. This is the recommended way
+for modules to manage preferences; \code{set_preferences} and
+\code{get_preferences} are the low-level counterparts.
+
+Declaring a preference stores its \emph{metadata} only; the declared
+\code{default} is not written to the preference store. It materializes
+whenever the preference is read while unset, so the store holds exactly
+the values that have been explicitly changed, and revising a declared
+\code{default} takes effect immediately for anyone who never overrode it.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$define_preference(
+  name,
+  default = NULL,
+  type = PREFERENCE_TYPES,
+  validator = NULL,
+  domain = PREFERENCE_DOMAINS,
+  global = FALSE,
+  verbose = TRUE
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{name}}{preference name, must contain only letters, digits,
+underscore, and hyphen; will be coerced to lower case (case-insensitive)}
+      \item{\code{default}}{default value, returned whenever the preference is unset;
+\code{NULL} (the default) declares a preference that simply has no value
+until one is set}
+      \item{\code{type}}{expected storage type of the value (see \code{\link{typeof}}),
+checked whenever the value is set or read; choices are \code{"any"}
+(no check), \code{"numeric"} (\code{"double"} or \code{"integer"}),
+\code{"named_list"} (a list whose elements are all named), or an exact
+storage type such as \code{"logical"}, \code{"integer"},
+\code{"double"}, \code{"character"}, or \code{"list"}}
+      \item{\code{validator}}{\code{NULL}, or a function with formals no more than
+\code{value} and \code{pipeline}, returning \code{TRUE} or \code{NULL}
+when the value is acceptable, returning \code{FALSE} or a character
+message when it is not, or raising an error. The function body is stored
+as source text so it survives across sessions, and is re-evaluated in a
+fresh environment: it must be self-contained, referring to no variables
+from where it was written, and qualifying anything outside the base
+package with \code{pkg::fun}}
+      \item{\code{domain}}{preference category; choices are \code{"default"},
+\code{"graphics"}, \code{"analysis"}, and \code{"export"}. The same
+\code{name} may be declared once per domain}
+      \item{\code{global}}{whether the preference is shared by all 'RAVE' modules
+(\code{TRUE}), or belongs to this pipeline only (\code{FALSE}, default)}
+      \item{\code{verbose}}{whether to emit trace-level logs; default is true}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Invisibly, the preference metadata
+  }
+  \subsection{Examples}{
+    \if{html}{\out{<div class="r example copy">}}
+    \preformatted{library(ravepipeline)
+if(interactive() && length(pipeline_list()) > 0) {
+  pipeline <- pipeline("power_explorer")
+
+  # declare once, e.g. when the module is loaded
+  pipeline$define_preference(
+    "cex", default = 1.2, type = "numeric", domain = "graphics",
+    validator = function(value) {
+      if(value <= 0) { return("`cex` must be positive") }
+      TRUE
+    }
+  )
+
+  # read: the declared default, since nothing has been set yet
+  pipeline$use_preference("cex")
+
+  # write, then read back
+  pipeline$use_preference("cex", value = 2)
+  pipeline$use_preference("cex")
+
+  # invalid values are rejected
+  try({ pipeline$use_preference("cex", value = -1) })
+
+  # back to the declared default
+  pipeline$reset_preference("cex")
+  pipeline$use_preference("cex")
+}
+}
+    \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipelineTools-use_preference"></a>}}
+\if{latex}{\out{\hypertarget{method-PipelineTools-use_preference}{}}}
+\subsection{\code{PipelineTools$use_preference()}}{
+  read or write a preference declared by
+\code{define_preference}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$use_preference(name, value, verbose = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{name}}{preference name, either the short name used when declaring
+it, or the full \verb{namespace.domain.name} key. A short name resolves
+against this pipeline first, then against the global declarations}
+      \item{\code{value}}{optional; when supplied, the value is validated and stored
+before being read back. Supplying \code{NULL} removes the stored value,
+resetting the preference to its declared default}
+      \item{\code{verbose}}{whether to emit trace-level logs; default is true}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The preference value; the declared default when the preference
+is unset, or when the stored value no longer passes \code{validator}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipelineTools-reset_preference"></a>}}
+\if{latex}{\out{\hypertarget{method-PipelineTools-reset_preference}{}}}
+\subsection{\code{PipelineTools$reset_preference()}}{
+  reset a preference declared by \code{define_preference}
+back to its declared default, by removing the stored value
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$reset_preference(name, verbose = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{name}}{preference name, either the short name used when declaring
+it, or the full \verb{namespace.domain.name} key}
+      \item{\code{verbose}}{whether to emit trace-level logs; default is true}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Invisibly, \code{TRUE} if the preference has been declared and
+was reset, otherwise \code{FALSE}
   }
 }
 
