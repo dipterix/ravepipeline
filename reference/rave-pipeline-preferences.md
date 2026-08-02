@@ -119,6 +119,20 @@ Valid examples: `"global.graphics.use_ggplot"`,
 
 Setting a preference value to `NULL` removes the key from the store.
 
+These functions are low-level: every call repeats the full key, the
+default, and the type constraint. Module code should prefer the
+declarative methods `define_preference`, `use_preference`, and
+`reset_preference` on the
+[`PipelineTools`](http://dipterix.org/ravepipeline/reference/PipelineTools.md)
+class, which declare a preference once and then refer to it by a short
+name.
+
+## See also
+
+[`PipelineTools`](http://dipterix.org/ravepipeline/reference/PipelineTools.md)
+for the declarative preference methods `define_preference`,
+`use_preference`, and `reset_preference`
+
 ## Examples
 
 ``` r

@@ -11,7 +11,7 @@ across R sessions."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,7 +33,7 @@ across R sessions."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Pipeline preference management (low-level)</h1>
-      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravepipeline/blob/main/R/pipeline-tools.R" class="external-link"><code>R/pipeline-tools.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/dipterix/ravepipeline/blob/main/R/pipeline-preferences.R" class="external-link"><code>R/pipeline-preferences.R</code></a></small>
       <div class="d-none name"><code>rave-pipeline-preferences.Rd</code></div>
     </div>
 
@@ -157,6 +157,17 @@ current pipeline name.</p></dd>
 </dl><p>Valid examples: <code>"global.graphics.use_ggplot"</code>,
 <code>"power_explorer.export.default_format"</code>.</p>
 <p>Setting a preference value to <code>NULL</code> removes the key from the store.</p>
+<p>These functions are low-level: every call repeats the full key, the default,
+and the type constraint. Module code should prefer the declarative methods
+<code>define_preference</code>, <code>use_preference</code>, and
+<code>reset_preference</code> on the <code><a href="PipelineTools.html">PipelineTools</a></code> class, which
+declare a preference once and then refer to it by a short name.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
+    <div class="dont-index"><p><code><a href="PipelineTools.html">PipelineTools</a></code> for the declarative preference methods
+<code>define_preference</code>, <code>use_preference</code>, and
+<code>reset_preference</code></p></div>
     </div>
 
     <div class="section level2">

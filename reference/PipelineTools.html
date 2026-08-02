@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -121,6 +121,9 @@ signatures of data and commands</p></dd>
 <li><p><a href="#method-PipelineTools-set_preferences"><code>PipelineTools$set_preferences()</code></a></p></li>
 <li><p><a href="#method-PipelineTools-get_preferences"><code>PipelineTools$get_preferences()</code></a></p></li>
 <li><p><a href="#method-PipelineTools-has_preferences"><code>PipelineTools$has_preferences()</code></a></p></li>
+<li><p><a href="#method-PipelineTools-define_preference"><code>PipelineTools$define_preference()</code></a></p></li>
+<li><p><a href="#method-PipelineTools-use_preference"><code>PipelineTools$use_preference()</code></a></p></li>
+<li><p><a href="#method-PipelineTools-reset_preference"><code>PipelineTools$reset_preference()</code></a></p></li>
 <li><p><a href="#method-PipelineTools-source_document"><code>PipelineTools$source_document()</code></a></p></li>
 <li><p><a href="#method-PipelineTools-generate_report"><code>PipelineTools$generate_report()</code></a></p></li>
 <li><p><a href="#method-PipelineTools-clone"><code>PipelineTools$clone()</code></a></p></li>
@@ -909,13 +912,169 @@ if keys is 1, then returns the value of that preference</p>
 
 </div>
 
+<p></p><hr><a id="method-PipelineTools-define_preference"></a><div class="section">
+<h3 id="pipelinetools-define-preference-"><code>PipelineTools$define_preference()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-define-preference-"></a></h3>
+<p>declare a preference, so it can later be read and written
+by its short name instead of its full key. This is the recommended way
+for modules to manage preferences; <code>set_preferences</code> and
+<code>get_preferences</code> are the low-level counterparts.</p>
+<p>Declaring a preference stores its <em>metadata</em> only; the declared
+<code>default</code> is not written to the preference store. It materializes
+whenever the preference is read while unset, so the store holds exactly
+the values that have been explicitly changed, and revising a declared
+<code>default</code> takes effect immediately for anyone who never overrode it.</p><div class="section">
+<h4 id="usage-25">Usage<a class="anchor" aria-label="anchor" href="#usage-25"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">define_preference</span><span class="op">(</span></span>
+<span>  <span class="va">name</span>,</span>
+<span>  default <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  type <span class="op">=</span> <span class="va">PREFERENCE_TYPES</span>,</span>
+<span>  validator <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  domain <span class="op">=</span> <span class="va">PREFERENCE_DOMAINS</span>,</span>
+<span>  global <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div><p></p><div class="section">
+<h4 id="arguments-25">Arguments<a class="anchor" aria-label="anchor" href="#arguments-25"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>name</code></dt>
+<dd><p>preference name, must contain only letters, digits,
+underscore, and hyphen; will be coerced to lower case (case-insensitive)</p></dd>
+
+      <dt><code>default</code></dt>
+<dd><p>default value, returned whenever the preference is unset;
+<code>NULL</code> (the default) declares a preference that simply has no value
+until one is set</p></dd>
+
+      <dt><code>type</code></dt>
+<dd><p>expected storage type of the value (see <code><a href="https://rdrr.io/r/base/typeof.html" class="external-link">typeof</a></code>),
+checked whenever the value is set or read; choices are <code>"any"</code>
+(no check), <code>"numeric"</code> (<code>"double"</code> or <code>"integer"</code>),
+<code>"named_list"</code> (a list whose elements are all named), or an exact
+storage type such as <code>"logical"</code>, <code>"integer"</code>,
+<code>"double"</code>, <code>"character"</code>, or <code>"list"</code></p></dd>
+
+      <dt><code>validator</code></dt>
+<dd><p><code>NULL</code>, or a function with formals no more than
+<code>value</code> and <code>pipeline</code>, returning <code>TRUE</code> or <code>NULL</code>
+when the value is acceptable, returning <code>FALSE</code> or a character
+message when it is not, or raising an error. The function body is stored
+as source text so it survives across sessions, and is re-evaluated in a
+fresh environment: it must be self-contained, referring to no variables
+from where it was written, and qualifying anything outside the base
+package with <code>pkg::fun</code></p></dd>
+
+      <dt><code>domain</code></dt>
+<dd><p>preference category; choices are <code>"default"</code>,
+<code>"graphics"</code>, <code>"analysis"</code>, and <code>"export"</code>. The same
+<code>name</code> may be declared once per domain</p></dd>
+
+      <dt><code>global</code></dt>
+<dd><p>whether the preference is shared by all 'RAVE' modules
+(<code>TRUE</code>), or belongs to this pipeline only (<code>FALSE</code>, default)</p></dd>
+
+      <dt><code>verbose</code></dt>
+<dd><p>whether to emit trace-level logs; default is true</p></dd>
+
+
+</dl><p></p></div>
+</div><p></p><div class="section">
+<h4 id="returns-17">Returns<a class="anchor" aria-label="anchor" href="#returns-17"></a></h4>
+<p>Invisibly, the preference metadata</p>
+</div><p></p><div class="section">
+<h4 id="examples-2">Examples<a class="anchor" aria-label="anchor" href="#examples-2"></a></h4>
+<p></p><div class="r example copy"><div class="sourceCode"><pre><code><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dipterix.org/ravepipeline/" class="external-link">ravepipeline</a></span><span class="op">)</span></span>
+<span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/rave-pipeline.html">pipeline_list</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">pipeline</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pipeline.html">pipeline</a></span><span class="op">(</span><span class="st">"power_explorer"</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># declare once, e.g. when the module is loaded</span></span>
+<span>  <span class="va">pipeline</span><span class="op">$</span><span class="fu">define_preference</span><span class="op">(</span></span>
+<span>    <span class="st">"cex"</span>, default <span class="op">=</span> <span class="fl">1.2</span>, type <span class="op">=</span> <span class="st">"numeric"</span>, domain <span class="op">=</span> <span class="st">"graphics"</span>,</span>
+<span>    validator <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">value</span><span class="op">)</span> <span class="op">{</span></span>
+<span>      <span class="kw">if</span><span class="op">(</span><span class="va">value</span> <span class="op">&lt;=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="st">"`cex` must be positive"</span><span class="op">)</span> <span class="op">}</span></span>
+<span>      <span class="cn">TRUE</span></span>
+<span>    <span class="op">}</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># read: the declared default, since nothing has been set yet</span></span>
+<span>  <span class="va">pipeline</span><span class="op">$</span><span class="fu">use_preference</span><span class="op">(</span><span class="st">"cex"</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># write, then read back</span></span>
+<span>  <span class="va">pipeline</span><span class="op">$</span><span class="fu">use_preference</span><span class="op">(</span><span class="st">"cex"</span>, value <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>  <span class="va">pipeline</span><span class="op">$</span><span class="fu">use_preference</span><span class="op">(</span><span class="st">"cex"</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># invalid values are rejected</span></span>
+<span>  <span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="op">{</span> <span class="va">pipeline</span><span class="op">$</span><span class="fu">use_preference</span><span class="op">(</span><span class="st">"cex"</span>, value <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span> <span class="op">}</span><span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># back to the declared default</span></span>
+<span>  <span class="va">pipeline</span><span class="op">$</span><span class="fu">reset_preference</span><span class="op">(</span><span class="st">"cex"</span><span class="op">)</span></span>
+<span>  <span class="va">pipeline</span><span class="op">$</span><span class="fu">use_preference</span><span class="op">(</span><span class="st">"cex"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div><p></p></div>
+</div>
+
+</div>
+
+<p></p><hr><a id="method-PipelineTools-use_preference"></a><div class="section">
+<h3 id="pipelinetools-use-preference-"><code>PipelineTools$use_preference()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-use-preference-"></a></h3>
+<p>read or write a preference declared by
+<code>define_preference</code></p><div class="section">
+<h4 id="usage-26">Usage<a class="anchor" aria-label="anchor" href="#usage-26"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">use_preference</span><span class="op">(</span><span class="va">name</span>, <span class="va">value</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div><p></p><div class="section">
+<h4 id="arguments-26">Arguments<a class="anchor" aria-label="anchor" href="#arguments-26"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>name</code></dt>
+<dd><p>preference name, either the short name used when declaring
+it, or the full <code>namespace.domain.name</code> key. A short name resolves
+against this pipeline first, then against the global declarations</p></dd>
+
+      <dt><code>value</code></dt>
+<dd><p>optional; when supplied, the value is validated and stored
+before being read back. Supplying <code>NULL</code> removes the stored value,
+resetting the preference to its declared default</p></dd>
+
+      <dt><code>verbose</code></dt>
+<dd><p>whether to emit trace-level logs; default is true</p></dd>
+
+
+</dl><p></p></div>
+</div><p></p><div class="section">
+<h4 id="returns-18">Returns<a class="anchor" aria-label="anchor" href="#returns-18"></a></h4>
+<p>The preference value; the declared default when the preference
+is unset, or when the stored value no longer passes <code>validator</code></p>
+</div>
+
+</div>
+
+<p></p><hr><a id="method-PipelineTools-reset_preference"></a><div class="section">
+<h3 id="pipelinetools-reset-preference-"><code>PipelineTools$reset_preference()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-reset-preference-"></a></h3>
+<p>reset a preference declared by <code>define_preference</code>
+back to its declared default, by removing the stored value</p><div class="section">
+<h4 id="usage-27">Usage<a class="anchor" aria-label="anchor" href="#usage-27"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">reset_preference</span><span class="op">(</span><span class="va">name</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div><p></p><div class="section">
+<h4 id="arguments-27">Arguments<a class="anchor" aria-label="anchor" href="#arguments-27"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>name</code></dt>
+<dd><p>preference name, either the short name used when declaring
+it, or the full <code>namespace.domain.name</code> key</p></dd>
+
+      <dt><code>verbose</code></dt>
+<dd><p>whether to emit trace-level logs; default is true</p></dd>
+
+
+</dl><p></p></div>
+</div><p></p><div class="section">
+<h4 id="returns-19">Returns<a class="anchor" aria-label="anchor" href="#returns-19"></a></h4>
+<p>Invisibly, <code>TRUE</code> if the preference has been declared and
+was reset, otherwise <code>FALSE</code></p>
+</div>
+
+</div>
+
 <p></p><hr><a id="method-PipelineTools-source_document"></a><div class="section">
 <h3 id="pipelinetools-source-document-"><code>PipelineTools$source_document()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-source-document-"></a></h3>
 <p>obtain the source document</p><div class="section">
-<h4 id="usage-25">Usage<a class="anchor" aria-label="anchor" href="#usage-25"></a></h4>
+<h4 id="usage-28">Usage<a class="anchor" aria-label="anchor" href="#usage-28"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">source_document</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-17">Returns<a class="anchor" aria-label="anchor" href="#returns-17"></a></h4>
+<h4 id="returns-20">Returns<a class="anchor" aria-label="anchor" href="#returns-20"></a></h4>
 <p>characters if the source document (<code>main.Rmd</code>) is found,
 otherwise <code>NULL</code></p>
 </div>
@@ -925,7 +1084,7 @@ otherwise <code>NULL</code></p>
 <p></p><hr><a id="method-PipelineTools-generate_report"></a><div class="section">
 <h3 id="pipelinetools-generate-report-"><code>PipelineTools$generate_report()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-generate-report-"></a></h3>
 <p>generate pipeline</p><div class="section">
-<h4 id="usage-26">Usage<a class="anchor" aria-label="anchor" href="#usage-26"></a></h4>
+<h4 id="usage-29">Usage<a class="anchor" aria-label="anchor" href="#usage-29"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">generate_report</span><span class="op">(</span></span>
 <span>  <span class="va">name</span>,</span>
 <span>  subject <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -936,7 +1095,7 @@ otherwise <code>NULL</code></p>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-25">Arguments<a class="anchor" aria-label="anchor" href="#arguments-25"></a></h4>
+<h4 id="arguments-28">Arguments<a class="anchor" aria-label="anchor" href="#arguments-28"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>name</code></dt>
 <dd><p>report name, see field <code>'available_reports'</code></p></dd>
 
@@ -967,7 +1126,7 @@ make sure the function itself is self-contained.</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-18">Returns<a class="anchor" aria-label="anchor" href="#returns-18"></a></h4>
+<h4 id="returns-21">Returns<a class="anchor" aria-label="anchor" href="#returns-21"></a></h4>
 <p>A job identification number, see <code><a href="rave-pipeline-jobs.html">resolve_job</a></code> for
 querying job details</p>
 </div>
@@ -977,10 +1136,10 @@ querying job details</p>
 <p></p><hr><a id="method-PipelineTools-clone"></a><div class="section">
 <h3 id="pipelinetools-clone-"><code>PipelineTools$clone()</code><a class="anchor" aria-label="anchor" href="#pipelinetools-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-27">Usage<a class="anchor" aria-label="anchor" href="#usage-27"></a></h4>
+<h4 id="usage-30">Usage<a class="anchor" aria-label="anchor" href="#usage-30"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">PipelineTools</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-26">Arguments<a class="anchor" aria-label="anchor" href="#arguments-26"></a></h4>
+<h4 id="arguments-29">Arguments<a class="anchor" aria-label="anchor" href="#arguments-29"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 
@@ -1040,6 +1199,40 @@ querying job details</p>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="va">pipeline</span><span class="op">$</span><span class="fu">has_preferences</span><span class="op">(</span><span class="st">"global.example.dummy_preference"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
+<span class="r-in"><span><span class="co">## Method `PipelineTools$define_preference()`</span></span></span>
+<span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dipterix.org/ravepipeline/" class="external-link">ravepipeline</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="rave-pipeline.html">pipeline_list</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">&gt;</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="va">pipeline</span> <span class="op">&lt;-</span> <span class="fu"><a href="pipeline.html">pipeline</a></span><span class="op">(</span><span class="st">"power_explorer"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># declare once, e.g. when the module is loaded</span></span></span>
+<span class="r-in"><span>  <span class="va">pipeline</span><span class="op">$</span><span class="fu">define_preference</span><span class="op">(</span></span></span>
+<span class="r-in"><span>    <span class="st">"cex"</span>, default <span class="op">=</span> <span class="fl">1.2</span>, type <span class="op">=</span> <span class="st">"numeric"</span>, domain <span class="op">=</span> <span class="st">"graphics"</span>,</span></span>
+<span class="r-in"><span>    validator <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">value</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>      <span class="kw">if</span><span class="op">(</span><span class="va">value</span> <span class="op">&lt;=</span> <span class="fl">0</span><span class="op">)</span> <span class="op">{</span> <span class="kw"><a href="https://rdrr.io/r/base/function.html" class="external-link">return</a></span><span class="op">(</span><span class="st">"`cex` must be positive"</span><span class="op">)</span> <span class="op">}</span></span></span>
+<span class="r-in"><span>      <span class="cn">TRUE</span></span></span>
+<span class="r-in"><span>    <span class="op">}</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># read: the declared default, since nothing has been set yet</span></span></span>
+<span class="r-in"><span>  <span class="va">pipeline</span><span class="op">$</span><span class="fu">use_preference</span><span class="op">(</span><span class="st">"cex"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># write, then read back</span></span></span>
+<span class="r-in"><span>  <span class="va">pipeline</span><span class="op">$</span><span class="fu">use_preference</span><span class="op">(</span><span class="st">"cex"</span>, value <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">pipeline</span><span class="op">$</span><span class="fu">use_preference</span><span class="op">(</span><span class="st">"cex"</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># invalid values are rejected</span></span></span>
+<span class="r-in"><span>  <span class="kw"><a href="https://rdrr.io/r/base/try.html" class="external-link">try</a></span><span class="op">(</span><span class="op">{</span> <span class="va">pipeline</span><span class="op">$</span><span class="fu">use_preference</span><span class="op">(</span><span class="st">"cex"</span>, value <span class="op">=</span> <span class="op">-</span><span class="fl">1</span><span class="op">)</span> <span class="op">}</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span>  <span class="co"># back to the declared default</span></span></span>
+<span class="r-in"><span>  <span class="va">pipeline</span><span class="op">$</span><span class="fu">reset_preference</span><span class="op">(</span><span class="st">"cex"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">pipeline</span><span class="op">$</span><span class="fu">use_preference</span><span class="op">(</span><span class="st">"cex"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

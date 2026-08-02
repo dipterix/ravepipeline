@@ -4,6 +4,13 @@
 
 CRAN release: 2026-05-30
 
+- Added `define_preference`, `use_preference`, and `reset_preference`
+  methods to the `PipelineTools` class: a preference is declared once
+  with a domain, storage type, default, and optional `validator`, then
+  read and written by its short name instead of its full key. Declared
+  defaults are lazy, so the preference store only holds values that have
+  been explicitly changed and revising a default takes effect for anyone
+  who never overrode it
 - Added `pipeline_plot_data` to help dispatch `plot` methods defined
   from within a pipeline, keeping plot logic encapsulated inside the
   pipeline script

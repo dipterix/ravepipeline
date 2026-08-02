@@ -107,6 +107,12 @@ Class definition for 'RAVE' pipelines
 
 - [`PipelineTools$has_preferences()`](#method-PipelineTools-has_preferences)
 
+- [`PipelineTools$define_preference()`](#method-PipelineTools-define_preference)
+
+- [`PipelineTools$use_preference()`](#method-PipelineTools-use_preference)
+
+- [`PipelineTools$reset_preference()`](#method-PipelineTools-reset_preference)
+
 - [`PipelineTools$source_document()`](#method-PipelineTools-source_document)
 
 - [`PipelineTools$generate_report()`](#method-PipelineTools-generate_report)
@@ -969,6 +975,175 @@ logical whether the keys exist
 
 ------------------------------------------------------------------------
 
+### `PipelineTools$define_preference()`
+
+declare a preference, so it can later be read and written by its short
+name instead of its full key. This is the recommended way for modules to
+manage preferences; `set_preferences` and `get_preferences` are the
+low-level counterparts.
+
+Declaring a preference stores its *metadata* only; the declared
+`default` is not written to the preference store. It materializes
+whenever the preference is read while unset, so the store holds exactly
+the values that have been explicitly changed, and revising a declared
+`default` takes effect immediately for anyone who never overrode it.
+
+#### Usage
+
+    PipelineTools$define_preference(
+      name,
+      default = NULL,
+      type = PREFERENCE_TYPES,
+      validator = NULL,
+      domain = PREFERENCE_DOMAINS,
+      global = FALSE,
+      verbose = TRUE
+    )
+
+#### Arguments
+
+- `name`:
+
+  preference name, must contain only letters, digits, underscore, and
+  hyphen; will be coerced to lower case (case-insensitive)
+
+- `default`:
+
+  default value, returned whenever the preference is unset; `NULL` (the
+  default) declares a preference that simply has no value until one is
+  set
+
+- `type`:
+
+  expected storage type of the value (see
+  [`typeof`](https://rdrr.io/r/base/typeof.html)), checked whenever the
+  value is set or read; choices are `"any"` (no check), `"numeric"`
+  (`"double"` or `"integer"`), `"named_list"` (a list whose elements are
+  all named), or an exact storage type such as `"logical"`, `"integer"`,
+  `"double"`, `"character"`, or `"list"`
+
+- `validator`:
+
+  `NULL`, or a function with formals no more than `value` and
+  `pipeline`, returning `TRUE` or `NULL` when the value is acceptable,
+  returning `FALSE` or a character message when it is not, or raising an
+  error. The function body is stored as source text so it survives
+  across sessions, and is re-evaluated in a fresh environment: it must
+  be self-contained, referring to no variables from where it was
+  written, and qualifying anything outside the base package with
+  `pkg::fun`
+
+- `domain`:
+
+  preference category; choices are `"default"`, `"graphics"`,
+  `"analysis"`, and `"export"`. The same `name` may be declared once per
+  domain
+
+- `global`:
+
+  whether the preference is shared by all 'RAVE' modules (`TRUE`), or
+  belongs to this pipeline only (`FALSE`, default)
+
+- `verbose`:
+
+  whether to emit trace-level logs; default is true
+
+#### Returns
+
+Invisibly, the preference metadata
+
+#### Examples
+
+    library(ravepipeline)
+    if(interactive() && length(pipeline_list()) > 0) {
+      pipeline <- pipeline("power_explorer")
+
+      # declare once, e.g. when the module is loaded
+      pipeline$define_preference(
+        "cex", default = 1.2, type = "numeric", domain = "graphics",
+        validator = function(value) {
+          if(value <= 0) { return("`cex` must be positive") }
+          TRUE
+        }
+      )
+
+      # read: the declared default, since nothing has been set yet
+      pipeline$use_preference("cex")
+
+      # write, then read back
+      pipeline$use_preference("cex", value = 2)
+      pipeline$use_preference("cex")
+
+      # invalid values are rejected
+      try({ pipeline$use_preference("cex", value = -1) })
+
+      # back to the declared default
+      pipeline$reset_preference("cex")
+      pipeline$use_preference("cex")
+    }
+
+------------------------------------------------------------------------
+
+### `PipelineTools$use_preference()`
+
+read or write a preference declared by `define_preference`
+
+#### Usage
+
+    PipelineTools$use_preference(name, value, verbose = TRUE)
+
+#### Arguments
+
+- `name`:
+
+  preference name, either the short name used when declaring it, or the
+  full `namespace.domain.name` key. A short name resolves against this
+  pipeline first, then against the global declarations
+
+- `value`:
+
+  optional; when supplied, the value is validated and stored before
+  being read back. Supplying `NULL` removes the stored value, resetting
+  the preference to its declared default
+
+- `verbose`:
+
+  whether to emit trace-level logs; default is true
+
+#### Returns
+
+The preference value; the declared default when the preference is unset,
+or when the stored value no longer passes `validator`
+
+------------------------------------------------------------------------
+
+### `PipelineTools$reset_preference()`
+
+reset a preference declared by `define_preference` back to its declared
+default, by removing the stored value
+
+#### Usage
+
+    PipelineTools$reset_preference(name, verbose = TRUE)
+
+#### Arguments
+
+- `name`:
+
+  preference name, either the short name used when declaring it, or the
+  full `namespace.domain.name` key
+
+- `verbose`:
+
+  whether to emit trace-level logs; default is true
+
+#### Returns
+
+Invisibly, `TRUE` if the preference has been declared and was reset,
+otherwise `FALSE`
+
+------------------------------------------------------------------------
+
 ### `PipelineTools$source_document()`
 
 obtain the source document
@@ -1105,5 +1280,39 @@ if(interactive() && length(pipeline_list()) > 0) {
   )
 
   pipeline$has_preferences("global.example.dummy_preference")
+}
+
+
+## ------------------------------------------------
+## Method `PipelineTools$define_preference()`
+## ------------------------------------------------
+
+
+library(ravepipeline)
+if(interactive() && length(pipeline_list()) > 0) {
+  pipeline <- pipeline("power_explorer")
+
+  # declare once, e.g. when the module is loaded
+  pipeline$define_preference(
+    "cex", default = 1.2, type = "numeric", domain = "graphics",
+    validator = function(value) {
+      if(value <= 0) { return("`cex` must be positive") }
+      TRUE
+    }
+  )
+
+  # read: the declared default, since nothing has been set yet
+  pipeline$use_preference("cex")
+
+  # write, then read back
+  pipeline$use_preference("cex", value = 2)
+  pipeline$use_preference("cex")
+
+  # invalid values are rejected
+  try({ pipeline$use_preference("cex", value = -1) })
+
+  # back to the declared default
+  pipeline$reset_preference("cex")
+  pipeline$use_preference("cex")
 }
 ```
