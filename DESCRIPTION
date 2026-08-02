@@ -1,7 +1,7 @@
 Package: ravepipeline
 Type: Package
 Title: Reproducible Pipeline Infrastructure for Neuroscience
-Version: 0.1.0.3
+Version: 0.1.0.4
 Language: en-US
 Authors@R: c(
     person("Zhengjia", "Wang", email = "dipterix.wang@gmail.com", role = c("aut", "cre", "cph")),
@@ -32,7 +32,9 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 URL: https://dipterix.org/ravepipeline/, https://rave.wiki, https://github.com/dipterix/ravepipeline
 BugReports: https://github.com/dipterix/ravepipeline/issues
-Imports: 
+Imports:
+    grDevices,
+    graphics,
     stats,
     tools,
     utils,

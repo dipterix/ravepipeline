@@ -1,4 +1,4 @@
-# ravepipeline 0.1.0
+# ravepipeline 0.1.1
 
 * Added `define_preference`, `use_preference`, and `reset_preference` methods to
   the `PipelineTools` class: a preference is declared once with a domain, storage
@@ -6,6 +6,23 @@
   instead of its full key. Declared defaults are lazy, so the preference store
   only holds values that have been explicitly changed and revising a default
   takes effect for anyone who never overrode it
+* Preferences gain an optional `getter` that maps the stored value to whatever
+  the caller should receive, for instance turning a palette name into the colors
+  themselves. `use_preference` applies it by default and tags the result with the
+  value it was derived from in a `preference_value` attribute; pass
+  `apply_getter = FALSE` to read the raw stored value instead
+* Added `DISCRETE_COLORMAPS` and `CONTINUOUS_COLORMAPS`, the built-in
+  qualitative and continuous color palettes, along with
+  `define_preference_discrete_colormap` and
+  `define_preference_continuous_colormap`, which declare a palette preference
+  validated against the matching table and resolve it to the colors on read
+* Building a pipeline now estimates and reports the size of each target as it is
+  built, so unexpectedly large intermediate objects are easier to spot
+* `RAVEFileArray` serialization now carries the file array `signature` header
+  entries alongside the file base and mode, so downstream caches can see them
+
+# ravepipeline 0.1.0
+
 * Added `pipeline_plot_data` to help dispatch `plot` methods defined from within
   a pipeline, keeping plot logic encapsulated inside the pipeline script
 * Added `pipeline_translate_settings`, `pipeline_export_wizard`, and

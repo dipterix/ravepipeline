@@ -3,6 +3,7 @@
 # `R_USER_CONFIG_DIR` must be set before the pipeline is created, since
 # `PipelineTools$initialize` resolves the store up front.
 with_preference_pipeline <- function(fun) {
+  testthat::skip_on_cran()
   config_root <- tempfile(pattern = "rave-prefs-")
   module_root <- tempfile(pattern = "rave-prefs-modules-")
   pipeline_root_folder <- file.path(module_root, "modules")
@@ -212,5 +213,108 @@ testthat::test_that("undeclared preferences are an error", {
     # `NULL` defaults are legal: they declare a preference with no value
     p$define_preference("empty")
     testthat::expect_null(p$use_preference("empty"))
+  })
+})
+
+# ---- getters ---------------------------------------------------------------
+
+testthat::test_that("a getter maps the stored value, keeping it recoverable", {
+  with_preference_pipeline(function(p) {
+
+    p$define_preference("shout", default = "abc", type = "character",
+                        verbose = FALSE,
+                        getter = function(value) toupper(value))
+
+    testthat::expect_equal(as.vector(p$use_preference("shout")), "ABC")
+    testthat::expect_equal(
+      attr(p$use_preference("shout"), "preference_value"), "abc")
+
+    # the raw stored value is still reachable
+    testthat::expect_equal(
+      p$use_preference("shout", apply_getter = FALSE), "abc")
+  })
+})
+
+testthat::test_that("a getter returning NULL does not error", {
+  with_preference_pipeline(function(p) {
+
+    # `NULL` cannot carry the `preference_value` attribute; that must degrade
+    # quietly rather than blow up or be swallowed by a bare `try()`
+    p$define_preference("nothing", default = "abc", type = "character",
+                        verbose = FALSE, getter = function(value) NULL)
+
+    testthat::expect_null(p$use_preference("nothing"))
+  })
+})
+
+testthat::test_that("re-declaring refreshes a revised validator", {
+  with_preference_pipeline(function(p) {
+
+    define_preference(p, "narrow", default = "a", type = "character",
+                      verbose = FALSE,
+                      validator = function(value) value %in% c("a"))
+    testthat::expect_error(p$use_preference("narrow", value = "b"))
+
+    # same default, wider validator: the declaration must still take effect
+    res <- define_preference(p, "narrow", default = "a", type = "character",
+                             verbose = FALSE,
+                             validator = function(value) value %in% c("a", "b"))
+    testthat::expect_true(res$metadata_updated)
+    testthat::expect_equal(p$use_preference("narrow", value = "b"), "b")
+
+    # an unchanged re-declaration is a no-op
+    res <- define_preference(p, "narrow", default = "a", type = "character",
+                             verbose = FALSE,
+                             validator = function(value) value %in% c("a", "b"))
+    testthat::expect_false(res$metadata_updated)
+  })
+})
+
+# ---- colormap preferences --------------------------------------------------
+
+testthat::test_that("colormap tables are queried without side effects", {
+  # `preview = FALSE` is how callers query the table quietly
+  testthat::expect_silent(nms <- names(DISCRETE_COLORMAPS(preview = FALSE)))
+  testthat::expect_true("tab10" %in% nms)
+  testthat::expect_true("viridis" %in% names(CONTINUOUS_COLORMAPS(preview = FALSE)))
+
+  # `seed_colors` is scoped to the call: it must not join the shared table
+  before <- names(DISCRETE_COLORMAPS(preview = FALSE))
+  testthat::expect_equal(
+    DISCRETE_COLORMAPS("scratch_only", seed_colors = c("#000000")), "#000000")
+  testthat::expect_equal(names(DISCRETE_COLORMAPS(preview = FALSE)), before)
+})
+
+testthat::test_that("discrete colormap preference resolves to colors", {
+  with_preference_pipeline(function(p) {
+
+    res <- define_preference_discrete_colormap(p, verbose = FALSE)
+    testthat::expect_equal(res$preference_value, "default")
+
+    value <- p$use_preference("discrete_colormap", value = "tab10")
+    testthat::expect_equal(attr(value, "preference_value"), "tab10")
+    testthat::expect_equal(as.vector(value), DISCRETE_COLORMAPS("tab10"))
+
+    # a continuous-only name is not a discrete palette
+    testthat::expect_error(
+      p$use_preference("discrete_colormap", value = "viridis"))
+  })
+})
+
+testthat::test_that("continuous colormap preference validates against its own table", {
+  with_preference_pipeline(function(p) {
+
+    define_preference_continuous_colormap(p, verbose = FALSE)
+
+    # regression: the validator used to be wired to the discrete table, so
+    # every real continuous palette was rejected...
+    value <- p$use_preference("continuous_colormap", value = "viridis")
+    testthat::expect_equal(attr(value, "preference_value"), "viridis")
+    testthat::expect_true(length(value) > 1)
+
+    # ...and discrete-only names were accepted, then silently swapped for the
+    # default ramp
+    testthat::expect_error(
+      p$use_preference("continuous_colormap", value = "tab10"))
   })
 })

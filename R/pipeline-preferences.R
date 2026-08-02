@@ -269,45 +269,78 @@ preference_metadata_key <- function(namespace, domain, name) {
 # and machines; it is therefore evaluated in a fresh environment whose parent is
 # this namespace, and it cannot see variables from wherever it was written.
 construct_preference_validator <- function(metadata) {
-  new_function2(
-    args = alist(value = , pipeline = ),
-    env = new.env(parent = asNamespace("ravepipeline")),
-    quote_type = "quote",
-    body = bquote({
-      # the missing-key sentinel is a bare list, and would otherwise satisfy
-      # the `list` / `named_list` / `any` checks
-      if (is_key_missing(value)) {
-        stop(sprintf("Preference \"%s\" has no value.", .(metadata$name)))
-      }
+  function(value, pipeline) {
+    # the missing-key sentinel is a bare list, and would otherwise satisfy
+    # the `list` / `named_list` / `any` checks
+    if (is_key_missing(value)) {
+      stop(sprintf("Preference \"%s\" has no value.", metadata$name))
+    }
 
-      .type_check <- check_preference_type(value, .(metadata$type))
-      if (!isTRUE(.type_check)) {
-        stop(sprintf("Preference \"%s\": %s.", .(metadata$name), .type_check))
-      }
+    type_check <- check_preference_type(value, metadata$type)
+    if (!isTRUE(type_check)) {
+      stop(sprintf("Preference \"%s\": %s.", metadata$name, type_check))
+    }
 
-      .validator_str <- .(metadata$validator)
-      if (length(.validator_str) > 0) {
-        .validator_expr <- parse(text = .validator_str)
-        .validator_env <- environment()
-        # suppress print messages and only emit messages/warnings
-        utils::capture.output({
-          vres <- eval(.validator_expr, envir = .validator_env)
-        }, type = "output")
+    if (length(metadata$validator) > 0) {
+      validator_expr <- parse(text = metadata$validator)
+      validator_env <- new.env(parent = asNamespace("ravepipeline"))
+      validator_env$value <- value
+      validator_env$pipeline <- pipeline
+      # suppress print messages and only emit messages/warnings
+      utils::capture.output({
+        vres <- eval(validator_expr, envir = validator_env)
+      }, type = "output")
 
-        if (is.character(vres)) {
-          stop(vres)
-        }
-        if (identical(vres, FALSE)) {
-          stop(sprintf("Preference \"%s\" did not pass its validator.", .(metadata$name)))
-        }
-        if (!isTRUE(vres) && !is.null(vres)) {
-          stop(sprintf("Validator for `%s` did not return TRUE/FALSE/NULL nor error string. The preference validator is malformed",
-                       .(metadata$name)))
-        }
+      if (is.character(vres)) {
+        stop(vres)
       }
-      invisible(TRUE)
-    })
-  )
+      if (identical(vres, FALSE)) {
+        stop(sprintf("Preference \"%s\" did not pass its validator.", metadata$name))
+      }
+      if (!isTRUE(vres) && !is.null(vres)) {
+        stop(sprintf(
+          "Validator for `%s` did not return TRUE/FALSE/NULL nor error string. The preference validator is malformed",
+          metadata$name
+        ))
+      }
+    }
+    invisible(TRUE)
+  }
+}
+
+construct_preference_getter <- function(metadata) {
+
+  function(value, pipeline) {
+    if (length(metadata$getter)) {
+      getter_expr <- parse(text = metadata$getter)
+      getter_env <- new.env(parent = asNamespace("ravepipeline"))
+      getter_env$value <- value
+      getter_env$pipeline <- pipeline
+
+      # suppress print messages and only emit messages/warnings
+      utils::capture.output({
+        value <- eval(getter_expr, envir = getter_env)
+      }, type = "output")
+    }
+    value
+  }
+}
+
+# Runs the declared getter (when there is one) over a raw preference value. The
+# result carries the value it was derived from in a `preference_value`
+# attribute, so callers can still recover what is actually stored.
+apply_preference_getter <- function(metadata, value, pipeline) {
+  if (!length(metadata$getter)) { return(value) }
+
+  result <- construct_preference_getter(metadata)(value = value,
+                                                  pipeline = pipeline)
+
+  # `NULL` cannot carry attributes; a getter is allowed to return it, in which
+  # case the stored value is simply not recoverable from the result
+  if (!is.null(result)) {
+    attr(result, "preference_value") <- value
+  }
+  result
 }
 
 # Resolves `name` (either a bare key name, or a full `namespace.domain.name`
@@ -357,10 +390,11 @@ get_preference_metadata <- function(pipeline, name) {
   return(KEY_MISSING)
 }
 
-define_preference <- function(
+define_preference_impl <- function(
     pipeline, name, default = NULL,
     type = PREFERENCE_TYPES,
     validator = NULL,
+    getter = NULL,
     domain = PREFERENCE_DOMAINS, global = FALSE,
     verbose = TRUE) {
 
@@ -398,13 +432,27 @@ define_preference <- function(
     )
   }
 
+  if (is.function(getter)) {
+    fmls <- formals(getter)
+    stopifnot(
+      "`getter` must be a function (if not `NULL`) containing formals no more than `value`, `pipeline`" =
+        all(names(fmls) %in% c("value", "pipeline"))
+    )
+    getter <- deparse(body(getter))
+  } else {
+    stopifnot(
+      "`getter` must be a function or `NULL`" = is.null(getter)
+    )
+  }
+
   metadata <- list(
     name = name,
     global = global,
     key = pref_key,
     default = default,
     type = type,
-    validator = validator
+    validator = validator,
+    getter = getter
   )
 
   metadata_signature <- digest(metadata)
@@ -460,7 +508,7 @@ define_preference <- function(
   invisible(metadata)
 }
 
-use_preference <- function(pipeline, name, value, verbose = TRUE) {
+use_preference_impl <- function(pipeline, name, value, apply_getter = FALSE, verbose = TRUE) {
 
   force(pipeline)
 
@@ -498,29 +546,32 @@ use_preference <- function(pipeline, name, value, verbose = TRUE) {
   )
 
   if (is_key_missing(current)) {
-    return(metadata$default)
+    current <- metadata$default
+  } else {
+    invalid <- tryCatch({
+      validator_reconstructed(value = current, pipeline = pipeline)
+      NULL
+    }, error = function(e) {
+      e
+    })
+
+    if (!is.null(invalid)) {
+      if (verbose) {
+        logger(
+          "Preference `{metadata$key}` has an invalid stored value ({invalid$message}), using the declared default instead.",
+          level = "trace",
+          use_glue = TRUE
+        )
+      }
+      current <- metadata$default
+    }
   }
 
-  invalid <- tryCatch({
-    validator_reconstructed(value = current, pipeline = pipeline)
-    NULL
-  }, error = function(e) {
-    e
-  })
-
-  if (is.null(invalid)) {
-    return(current)
+  if (apply_getter) {
+    current <- apply_preference_getter(metadata = metadata, value = current,
+                                       pipeline = pipeline)
   }
-
-  if (verbose) {
-    logger(
-      "Preference `{metadata$key}` has an invalid stored value ({invalid$message}), using the declared default instead.",
-      level = "trace",
-      use_glue = TRUE
-    )
-  }
-
-  metadata$default
+  current
 
 }
 
@@ -549,3 +600,51 @@ reset_preference <- function(pipeline, name, verbose = TRUE) {
 
   invisible(TRUE)
 }
+
+
+# Declares a preference and reads it back in one step. Always delegates to
+# `define_preference_impl`, which compares the metadata signature and only
+# writes when the declaration actually changed: skipping the delegation on a
+# cheaper test (say, an unchanged `default`) would leave a revised `validator`,
+# `getter`, or `type` stranded in the store forever.
+define_preference <- function(
+    pipeline, name, default,
+    type = PREFERENCE_TYPES,
+    domain = PREFERENCE_DOMAINS,
+    validator = NULL,
+    getter = NULL,
+    global = FALSE,
+    verbose = TRUE) {
+
+  previous <- get_preference_metadata(pipeline = pipeline, name = name)
+  previous_signature <- if (is_key_missing(previous)) { NULL } else { previous$signature }
+
+  metadata <- define_preference_impl(
+    pipeline = pipeline,
+    name = name,
+    global = global,
+    domain = domain,
+    type = type,
+    default = default,
+    validator = validator,
+    verbose = verbose,
+    getter = getter
+  )
+
+  # read the raw value once, then derive the getter result from it: reading a
+  # second time with `apply_getter = TRUE` would re-run the getter for nothing
+  current_preference <- use_preference_impl(
+    pipeline = pipeline,
+    name = name,
+    apply_getter = FALSE,
+    verbose = verbose
+  )
+
+  invisible(list(
+    preference_value = current_preference,
+    metadata_updated = !identical(previous_signature, metadata$signature),
+    metadata = metadata
+  ))
+
+}
+

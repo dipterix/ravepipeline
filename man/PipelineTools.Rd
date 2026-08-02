@@ -949,6 +949,7 @@ the values that have been explicitly changed, and revising a declared
   name,
   default = NULL,
   type = PREFERENCE_TYPES,
+  getter = NULL,
   validator = NULL,
   domain = PREFERENCE_DOMAINS,
   global = FALSE,
@@ -970,6 +971,13 @@ checked whenever the value is set or read; choices are \code{"any"}
 \code{"named_list"} (a list whose elements are all named), or an exact
 storage type such as \code{"logical"}, \code{"integer"},
 \code{"double"}, \code{"character"}, or \code{"list"}}
+      \item{\code{getter}}{\code{NULL}, or a function with formals no more than
+\code{value} and \code{pipeline}, mapping the stored value to whatever
+the caller should receive; for instance turning a palette name into the
+colors themselves. It is stored and re-evaluated under the same rules as
+\code{validator}, and its result is \strong{not} checked against
+\code{type}. The result carries the value it was derived from in a
+\code{"preference_value"} attribute}
       \item{\code{validator}}{\code{NULL}, or a function with formals no more than
 \code{value} and \code{pipeline}, returning \code{TRUE} or \code{NULL}
 when the value is acceptable, returning \code{FALSE} or a character
@@ -1032,7 +1040,7 @@ if(interactive() && length(pipeline_list()) > 0) {
 \code{define_preference}
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{PipelineTools$use_preference(name, value, verbose = TRUE)}
+    \preformatted{PipelineTools$use_preference(name, value, apply_getter = TRUE, verbose = TRUE)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -1044,6 +1052,9 @@ against this pipeline first, then against the global declarations}
       \item{\code{value}}{optional; when supplied, the value is validated and stored
 before being read back. Supplying \code{NULL} removes the stored value,
 resetting the preference to its declared default}
+      \item{\code{apply_getter}}{whether to run the declared \code{getter} over the
+value before returning it; default is true. Set to \code{FALSE} to read
+the raw stored value}
       \item{\code{verbose}}{whether to emit trace-level logs; default is true}
     }
     \if{html}{\out{</div>}}

@@ -1109,6 +1109,13 @@ PipelineTools <- R6::R6Class(
     #' fresh environment: it must be self-contained, referring to no variables
     #' from where it was written, and qualifying anything outside the base
     #' package with \code{pkg::fun}
+    #' @param getter \code{NULL}, or a function with formals no more than
+    #' \code{value} and \code{pipeline}, mapping the stored value to whatever
+    #' the caller should receive; for instance turning a palette name into the
+    #' colors themselves. It is stored and re-evaluated under the same rules as
+    #' \code{validator}, and its result is \strong{not} checked against
+    #' \code{type}. The result carries the value it was derived from in a
+    #' \code{"preference_value"} attribute
     #' @param domain preference category; choices are \code{"default"},
     #' \code{"graphics"}, \code{"analysis"}, and \code{"export"}. The same
     #' \code{name} may be declared once per domain
@@ -1146,13 +1153,14 @@ PipelineTools <- R6::R6Class(
     #'   pipeline$use_preference("cex")
     #' }
     #'
-    define_preference = function(name, default = NULL, type = PREFERENCE_TYPES,
-                                 validator = NULL, domain = PREFERENCE_DOMAINS,
-                                 global = FALSE, verbose = TRUE) {
-      define_preference(
+    define_preference = function(
+        name, default = NULL, type = PREFERENCE_TYPES,
+        getter = NULL, validator = NULL, domain = PREFERENCE_DOMAINS,
+        global = FALSE, verbose = TRUE) {
+      define_preference_impl(
         pipeline = self, name = name, default = default, type = type,
         validator = validator, domain = domain, global = global,
-        verbose = verbose
+        verbose = verbose, getter = getter
       )
     },
 
@@ -1164,15 +1172,18 @@ PipelineTools <- R6::R6Class(
     #' @param value optional; when supplied, the value is validated and stored
     #' before being read back. Supplying \code{NULL} removes the stored value,
     #' resetting the preference to its declared default
+    #' @param apply_getter whether to run the declared \code{getter} over the
+    #' value before returning it; default is true. Set to \code{FALSE} to read
+    #' the raw stored value
     #' @param verbose whether to emit trace-level logs; default is true
     #' @returns The preference value; the declared default when the preference
     #' is unset, or when the stored value no longer passes \code{validator}
-    use_preference = function(name, value, verbose = TRUE) {
-      if(missing(value)) {
-        use_preference(pipeline = self, name = name, verbose = verbose)
+    use_preference = function(name, value, apply_getter = TRUE, verbose = TRUE) {
+      if (missing(value)) {
+        use_preference_impl(pipeline = self, name = name, verbose = verbose, apply_getter = apply_getter)
       } else {
-        use_preference(pipeline = self, name = name, value = value,
-                       verbose = verbose)
+        use_preference_impl(pipeline = self, name = name, value = value,
+                       apply_getter = apply_getter, verbose = verbose)
       }
     },
 
