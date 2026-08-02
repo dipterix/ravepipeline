@@ -113,6 +113,8 @@ Class definition for 'RAVE' pipelines
 
 - [`PipelineTools$reset_preference()`](#method-PipelineTools-reset_preference)
 
+- [`PipelineTools$remove_preference()`](#method-PipelineTools-remove_preference)
+
 - [`PipelineTools$source_document()`](#method-PipelineTools-source_document)
 
 - [`PipelineTools$generate_report()`](#method-PipelineTools-generate_report)
@@ -998,7 +1000,8 @@ the values that have been explicitly changed, and revising a declared
       validator = NULL,
       domain = PREFERENCE_DOMAINS,
       global = FALSE,
-      verbose = TRUE
+      verbose = TRUE,
+      force = FALSE
     )
 
 #### Arguments
@@ -1059,9 +1062,21 @@ the values that have been explicitly changed, and revising a declared
 
   whether to emit trace-level logs; default is true
 
+- `force`:
+
+  whether to re-declare even when the stored declaration is already
+  current; default is false. Declarations are recorded with a version
+  (the module's, or this package's when `global` is true) and
+  re-declaring at the same version is skipped, so a module can declare
+  its preferences on every launch without touching the disk. Set this to
+  `TRUE` while developing, when the version does not change between
+  edits; it logs a warning, and should be left `FALSE` in production
+
 #### Returns
 
-Invisibly, the preference metadata
+Invisibly, a list with the stored value (`preference_value`), whether
+the declaration was rewritten (`metadata_updated`), and the preference
+`metadata`
 
 #### Examples
 
@@ -1156,6 +1171,36 @@ default, by removing the stored value
 #### Returns
 
 Invisibly, `TRUE` if the preference has been declared and was reset,
+otherwise `FALSE`
+
+------------------------------------------------------------------------
+
+### `PipelineTools$remove_preference()`
+
+delete a preference entirely, removing both its stored value and the
+declaration made by `define_preference`. This is not `reset_preference`:
+a reset keeps the declaration so reads fall back to the default, whereas
+removing leaves the preference undeclared, and reading it is an error
+until it is declared again
+
+#### Usage
+
+    PipelineTools$remove_preference(name, verbose = TRUE)
+
+#### Arguments
+
+- `name`:
+
+  preference name, either the short name used when declaring it, or the
+  full `namespace.domain.name` key
+
+- `verbose`:
+
+  whether to emit trace-level logs; default is true
+
+#### Returns
+
+Invisibly, `TRUE` if the preference had been declared and was removed,
 otherwise `FALSE`
 
 ------------------------------------------------------------------------

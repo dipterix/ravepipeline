@@ -18,13 +18,15 @@ chosen palette is never overwritten.
 define_preference_discrete_colormap(
   pipeline,
   default = "default",
-  verbose = TRUE
+  verbose = TRUE,
+  force = FALSE
 )
 
 define_preference_continuous_colormap(
   pipeline,
   default = "default",
-  verbose = TRUE
+  verbose = TRUE,
+  force = FALSE
 )
 ```
 
@@ -44,6 +46,15 @@ define_preference_continuous_colormap(
 - verbose:
 
   whether to emit trace-level logs; default is true
+
+- force:
+
+  whether to re-declare even when the stored declaration is already
+  current; default is false. See `define_preference` in
+  [`PipelineTools`](http://dipterix.org/ravepipeline/reference/PipelineTools.md):
+  declaring is skipped when the recorded version is up to date, so these
+  helpers can be called on every launch without touching the disk. Set
+  to `TRUE` only while developing
 
 ## Value
 

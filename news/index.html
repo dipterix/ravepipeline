@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.1" id="ravepipeline-011">ravepipeline 0.1.1<a class="anchor" aria-label="anchor" href="#ravepipeline-011"></a></h2>
-<ul><li>Added <code>define_preference</code>, <code>use_preference</code>, and <code>reset_preference</code> methods to the <code>PipelineTools</code> class: a preference is declared once with a domain, storage type, default, and optional <code>validator</code>, then read and written by its short name instead of its full key. Declared defaults are lazy, so the preference store only holds values that have been explicitly changed and revising a default takes effect for anyone who never overrode it</li>
+<ul><li>Added <code>define_preference</code>, <code>use_preference</code>, <code>reset_preference</code>, and <code>remove_preference</code> methods to the <code>PipelineTools</code> class: a preference is declared once with a domain, storage type, default, and optional <code>validator</code>, then read and written by its short name instead of its full key. Declared defaults are lazy, so the preference store only holds values that have been explicitly changed, and a revised default reaches anyone who never overrode it. <code>reset_preference</code> drops the stored value and keeps the declaration, so reads fall back to the default; <code>remove_preference</code> deletes both, leaving the preference undeclared</li>
+<li>Declaring a preference is now skipped when it is already up to date, so a module can declare on every launch without touching the disk. Each declaration records a version — the module’s, or this package’s for <code>global</code> preferences, whose metadata is shared across pipelines — and is only rewritten when that version moves. Revising a <code>default</code>, <code>validator</code>, <code>getter</code>, or <code>type</code> therefore takes effect on a version bump, or immediately with <code>force = TRUE</code>, which logs a warning and is meant for development rather than production</li>
 <li>Preferences gain an optional <code>getter</code> that maps the stored value to whatever the caller should receive, for instance turning a palette name into the colors themselves. <code>use_preference</code> applies it by default and tags the result with the value it was derived from in a <code>preference_value</code> attribute; pass <code>apply_getter = FALSE</code> to read the raw stored value instead</li>
 <li>Added <code>DISCRETE_COLORMAPS</code> and <code>CONTINUOUS_COLORMAPS</code>, the built-in qualitative and continuous color palettes, along with <code>define_preference_discrete_colormap</code> and <code>define_preference_continuous_colormap</code>, which declare a palette preference validated against the matching table and resolve it to the colors on read</li>
 <li>Building a pipeline now estimates and reports the size of each target as it is built, so unexpectedly large intermediate objects are easier to spot</li>

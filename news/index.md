@@ -2,13 +2,24 @@
 
 ## ravepipeline 0.1.1
 
-- Added `define_preference`, `use_preference`, and `reset_preference`
-  methods to the `PipelineTools` class: a preference is declared once
-  with a domain, storage type, default, and optional `validator`, then
-  read and written by its short name instead of its full key. Declared
-  defaults are lazy, so the preference store only holds values that have
-  been explicitly changed and revising a default takes effect for anyone
-  who never overrode it
+- Added `define_preference`, `use_preference`, `reset_preference`, and
+  `remove_preference` methods to the `PipelineTools` class: a preference
+  is declared once with a domain, storage type, default, and optional
+  `validator`, then read and written by its short name instead of its
+  full key. Declared defaults are lazy, so the preference store only
+  holds values that have been explicitly changed, and a revised default
+  reaches anyone who never overrode it. `reset_preference` drops the
+  stored value and keeps the declaration, so reads fall back to the
+  default; `remove_preference` deletes both, leaving the preference
+  undeclared
+- Declaring a preference is now skipped when it is already up to date,
+  so a module can declare on every launch without touching the disk.
+  Each declaration records a version — the module’s, or this package’s
+  for `global` preferences, whose metadata is shared across pipelines —
+  and is only rewritten when that version moves. Revising a `default`,
+  `validator`, `getter`, or `type` therefore takes effect on a version
+  bump, or immediately with `force = TRUE`, which logs a warning and is
+  meant for development rather than production
 - Preferences gain an optional `getter` that maps the stored value to
   whatever the caller should receive, for instance turning a palette
   name into the colors themselves. `use_preference` applies it by
