@@ -264,6 +264,48 @@ preference_metadata_key <- function(namespace, domain, name) {
   sprintf("%s.preference_metadata.%s.%s", namespace, domain, name)
 }
 
+# The version a declaration is stamped with, as a plain character string:
+# `utils::compareVersion` takes characters only, and a character round-trips
+# through the store without carrying a class along.
+#
+# A `global` declaration is a built-in owned by this package and its metadata key
+# is shared by every pipeline, so it follows this package's version. Stamping a
+# shared key with whichever module declared it last would let a module at a
+# higher version permanently suppress a lower-versioned module's declaration.
+# A module-level declaration follows the module's own version.
+pipeline_declared_version <- function(pipeline, global = FALSE) {
+  version <- tryCatch({
+    if (isTRUE(global)) {
+      as.character(utils::packageVersion("ravepipeline"))
+    } else {
+      as.character(pipeline$description$Version)
+    }
+  }, error = function(e) { NULL })
+
+  if (length(version) != 1 || is.na(version) || !nzchar(trimws(version))) {
+    return(NULL)
+  }
+  version <- trimws(version)
+
+  # `compareVersion` does not signal on malformed input, it silently parses to
+  # `NA`; refuse anything that is not a real version so the caller refreshes
+  # instead of comparing garbage
+  parsed <- tryCatch(numeric_version(version, strict = FALSE),
+                     error = function(e) { NA })
+  if (length(parsed) != 1 || is.na(parsed)) { return(NULL) }
+
+  version
+}
+
+# TRUE when the stored declaration is at least as new as `current`, so the
+# declaration can be skipped. Anything unusable reads as "not current", which
+# refreshes.
+preference_version_current <- function(stored, current) {
+  if (length(stored) != 1 || length(current) != 1) { return(FALSE) }
+  if (is.na(stored) || is.na(current)) { return(FALSE) }
+  isTRUE(utils::compareVersion(as.character(stored), as.character(current)) >= 0)
+}
+
 # Rebuilds a stand-alone validator from `metadata`. The validator is stored as
 # deparsed source rather than as a closure so it stays portable across sessions
 # and machines; it is therefore evaluated in a fresh environment whose parent is
@@ -375,14 +417,16 @@ get_preference_metadata <- function(pipeline, name) {
     domains <- PREFERENCE_DOMAINS
   }
 
+  # this scans up to `length(namespaces) * length(domains)` keys, so it reads
+  # with `get` rather than gating on `has`: `FileMap$get` is a `file.exists` plus
+  # a single `readRDS`, while every `has` re-reads and parses the whole store
+  # header. The class check below already does the guarding.
   for (namespace in namespaces) {
     for (domain in domains) {
       metakey <- preference_metadata_key(namespace, domain, name)
-      if (pipeline$has_preferences(metakey)) {
-        metadata <- pipeline$get_preferences(metakey, ifnotfound = KEY_MISSING)
-        if (inherits(metadata, "ravepipeline_preference_metadata")) {
-          return(metadata)
-        }
+      metadata <- pipeline$get_preferences(metakey, ifnotfound = KEY_MISSING)
+      if (inherits(metadata, "ravepipeline_preference_metadata")) {
+        return(metadata)
       }
     }
   }
@@ -396,6 +440,7 @@ define_preference_impl <- function(
     validator = NULL,
     getter = NULL,
     domain = PREFERENCE_DOMAINS, global = FALSE,
+    version = NULL,
     verbose = TRUE) {
 
   force(pipeline)
@@ -457,6 +502,9 @@ define_preference_impl <- function(
 
   metadata_signature <- digest(metadata)
   metadata$signature <- metadata_signature
+  # recorded after the digest on purpose: `signature` must keep meaning "the
+  # declaration changed", so bumping a version does not read as a redeclaration
+  metadata$version <- version
   class(metadata) <- "ravepipeline_preference_metadata"
 
   validator_reconstructed <- construct_preference_validator(metadata)
@@ -476,25 +524,28 @@ define_preference_impl <- function(
   }
 
   metadata_exists <- FALSE
-  if (pipeline$has_preferences(pref_metakey)) {
-    metadata_old <- pipeline$get_preferences(pref_metakey)
-    if (inherits(metadata_old, "ravepipeline_preference_metadata")) {
-      if (isTRUE(metadata_old$signature == metadata$signature)) {
-        metadata_exists <- TRUE
-      } else if (!isTRUE(metadata_old$key == pref_key)) {
-        # the declaration moved namespace or domain: drop the orphaned value
-        if (verbose) {
-          logger(
-            "Preference `{metadata_old$key}` has been re-declared as `{pref_key}`: removing the stale value.",
-            level = "trace",
-            use_glue = TRUE
-          )
-        }
-        pipeline$set_preferences(.list = structure(
-          names = metadata_old$key,
-          list(NULL)
-        ))
+  # a plain `get` is enough: `FileMap$get` is a `file.exists` + `readRDS` on one
+  # file, whereas `has` re-reads and parses the whole store header
+  metadata_old <- pipeline$get_preferences(pref_metakey, ifnotfound = KEY_MISSING)
+  if (inherits(metadata_old, "ravepipeline_preference_metadata")) {
+    # the version is compared too, so a bump is persisted once and later
+    # launches can skip the declaration entirely
+    if (isTRUE(metadata_old$signature == metadata$signature) &&
+        identical(metadata_old$version, metadata$version)) {
+      metadata_exists <- TRUE
+    } else if (!isTRUE(metadata_old$key == pref_key)) {
+      # the declaration moved namespace or domain: drop the orphaned value
+      if (verbose) {
+        logger(
+          "Preference `{metadata_old$key}` has been re-declared as `{pref_key}`: removing the stale value.",
+          level = "trace",
+          use_glue = TRUE
+        )
       }
+      pipeline$set_preferences(.list = structure(
+        names = metadata_old$key,
+        list(NULL)
+      ))
     }
   }
 
@@ -601,12 +652,60 @@ reset_preference <- function(pipeline, name, verbose = TRUE) {
   invisible(TRUE)
 }
 
+# Deletes a preference outright. Unlike `reset_preference`, which drops the
+# value and keeps the declaration so reads fall back to the default, this drops
+# the declaration too: afterwards the preference is undeclared, and reading it
+# is an error until it is declared again.
+remove_preference <- function(pipeline, name, verbose = TRUE) {
 
-# Declares a preference and reads it back in one step. Always delegates to
-# `define_preference_impl`, which compares the metadata signature and only
-# writes when the declaration actually changed: skipping the delegation on a
-# cheaper test (say, an unchanged `default`) would leave a revised `validator`,
-# `getter`, or `type` stranded in the store forever.
+  force(pipeline)
+
+  metadata <- get_preference_metadata(pipeline = pipeline, name = name)
+  if (is_key_missing(metadata)) {
+    return(invisible(FALSE))
+  }
+
+  # recover the namespace and domain from the value key so the metadata key can
+  # be rebuilt. Parsing is safe because a preference name may not contain dots,
+  # and unlike reading a stored field it also works for metadata written before
+  # versions were recorded.
+  parsed <- strsplit(metadata$key, ".", fixed = TRUE)[[1]]
+  if (length(parsed) != 3) {
+    stop(sprintf("Malformed preference key `%s`; cannot remove.", metadata$key))
+  }
+  pref_metakey <- preference_metadata_key(parsed[[1]], parsed[[2]], parsed[[3]])
+
+  if (verbose) {
+    logger(
+      "Removing preference `{metadata$key}` and its declaration.",
+      level = "trace",
+      use_glue = TRUE
+    )
+  }
+
+  # both keys in one call: `mset` collects the `NULL`s and removes them together
+  pipeline$set_preferences(.list = structure(
+    names = c(metadata$key, pref_metakey),
+    list(NULL, NULL)
+  ))
+
+  invisible(TRUE)
+}
+
+
+# Declares a preference and reads it back in one step.
+#
+# Declaring is expensive: it deparses `validator`/`getter`, digests the result,
+# and may write to the on-disk store. Modules declare their preferences at
+# launch, so doing all that every time is wasteful. The declaration is therefore
+# stamped with a version, and re-declaring at the same version is skipped
+# outright.
+#
+# Gating on something cheaper but content-free (say, an unchanged `default`)
+# would leave a revised `validator`, `getter`, or `type` stranded in the store
+# forever; the version is the module's own statement that its declarations
+# changed. `force = TRUE` bypasses the gate for development, when the version
+# is static.
 define_preference <- function(
     pipeline, name, default,
     type = PREFERENCE_TYPES,
@@ -614,22 +713,56 @@ define_preference <- function(
     validator = NULL,
     getter = NULL,
     global = FALSE,
-    verbose = TRUE) {
+    verbose = TRUE,
+    force = FALSE) {
 
-  previous <- get_preference_metadata(pipeline = pipeline, name = name)
-  previous_signature <- if (is_key_missing(previous)) { NULL } else { previous$signature }
+  # NOTE: `force` is a formal here, so `base::force()` is shadowed. `pipeline`
+  # needs no forcing anyway, it is used a few lines down.
+  domain <- match.arg(domain)
+  global <- as.logical(global)[[1]]
 
-  metadata <- define_preference_impl(
-    pipeline = pipeline,
-    name = name,
-    global = global,
-    domain = domain,
-    type = type,
-    default = default,
-    validator = validator,
-    verbose = verbose,
-    getter = getter
-  )
+  # `domain` and `global` are known here, so the exact metadata key is too:
+  # there is no need for `get_preference_metadata`'s namespace x domain scan
+  pref_key_ns <- if (global) { "global" } else { pipeline$pipeline_name }
+  pref_metakey <- preference_metadata_key(
+    pref_key_ns, domain, tolower(trimws(name)))
+
+  forced <- isTRUE(force)
+  if (forced) {
+    # deliberately not gated on `verbose` or on `interactive()`: the point is to
+    # surface a `force = TRUE` left behind in deployed code, which is exactly
+    # the non-interactive case
+    logger(
+      "Preference `{pref_metakey}` is force-declared, rewriting the preference store on every call. Set `force = FALSE` in production.",
+      level = "warning",
+      use_glue = TRUE
+    )
+  }
+
+  previous <- pipeline$get_preferences(pref_metakey, ifnotfound = KEY_MISSING)
+  previous_declared <- inherits(previous, "ravepipeline_preference_metadata")
+  previous_signature <- if (previous_declared) { previous$signature } else { NULL }
+
+  current_version <- pipeline_declared_version(pipeline, global = global)
+
+  if (!forced && previous_declared &&
+      preference_version_current(previous$version, current_version)) {
+    # up to date: skip the deparse, the digest, and any write
+    metadata <- previous
+  } else {
+    metadata <- define_preference_impl(
+      pipeline = pipeline,
+      name = name,
+      global = global,
+      domain = domain,
+      type = type,
+      default = default,
+      validator = validator,
+      version = current_version,
+      verbose = verbose,
+      getter = getter
+    )
+  }
 
   # read the raw value once, then derive the getter result from it: reading a
   # second time with `apply_getter = TRUE` would re-run the getter for nothing

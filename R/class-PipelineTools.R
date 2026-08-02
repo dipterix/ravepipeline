@@ -1122,7 +1122,16 @@ PipelineTools <- R6::R6Class(
     #' @param global whether the preference is shared by all 'RAVE' modules
     #' (\code{TRUE}), or belongs to this pipeline only (\code{FALSE}, default)
     #' @param verbose whether to emit trace-level logs; default is true
-    #' @returns Invisibly, the preference metadata
+    #' @param force whether to re-declare even when the stored declaration is
+    #' already current; default is false. Declarations are recorded with a
+    #' version (the module's, or this package's when \code{global} is true) and
+    #' re-declaring at the same version is skipped, so a module can declare its
+    #' preferences on every launch without touching the disk. Set this to
+    #' \code{TRUE} while developing, when the version does not change between
+    #' edits; it logs a warning, and should be left \code{FALSE} in production
+    #' @returns Invisibly, a list with the stored value
+    #' (\code{preference_value}), whether the declaration was rewritten
+    #' (\code{metadata_updated}), and the preference \code{metadata}
     #' @examples
     #'
     #' library(ravepipeline)
@@ -1156,11 +1165,14 @@ PipelineTools <- R6::R6Class(
     define_preference = function(
         name, default = NULL, type = PREFERENCE_TYPES,
         getter = NULL, validator = NULL, domain = PREFERENCE_DOMAINS,
-        global = FALSE, verbose = TRUE) {
-      define_preference_impl(
+        global = FALSE, verbose = TRUE, force = FALSE) {
+      # this method and the package-level function share a name, and an R6
+      # method can be detached and called as a plain function, so name the
+      # namespace explicitly rather than relying on lexical scoping
+      asNamespace("ravepipeline")$define_preference(
         pipeline = self, name = name, default = default, type = type,
         validator = validator, domain = domain, global = global,
-        verbose = verbose, getter = getter
+        verbose = verbose, getter = getter, force = force
       )
     },
 
@@ -1195,7 +1207,23 @@ PipelineTools <- R6::R6Class(
     #' @returns Invisibly, \code{TRUE} if the preference has been declared and
     #' was reset, otherwise \code{FALSE}
     reset_preference = function(name, verbose = TRUE) {
-      reset_preference(pipeline = self, name = name, verbose = verbose)
+      asNamespace("ravepipeline")$reset_preference(
+        pipeline = self, name = name, verbose = verbose)
+    },
+
+    #' @description delete a preference entirely, removing both its stored
+    #' value and the declaration made by \code{define_preference}. This is not
+    #' \code{reset_preference}: a reset keeps the declaration so reads fall back
+    #' to the default, whereas removing leaves the preference undeclared, and
+    #' reading it is an error until it is declared again
+    #' @param name preference name, either the short name used when declaring
+    #' it, or the full \verb{namespace.domain.name} key
+    #' @param verbose whether to emit trace-level logs; default is true
+    #' @returns Invisibly, \code{TRUE} if the preference had been declared and
+    #' was removed, otherwise \code{FALSE}
+    remove_preference = function(name, verbose = TRUE) {
+      asNamespace("ravepipeline")$remove_preference(
+        pipeline = self, name = name, verbose = verbose)
     },
 
     #' @description obtain the source document

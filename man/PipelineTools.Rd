@@ -152,6 +152,7 @@ signatures of data and commands}
     \item \href{#method-PipelineTools-define_preference}{\code{PipelineTools$define_preference()}}
     \item \href{#method-PipelineTools-use_preference}{\code{PipelineTools$use_preference()}}
     \item \href{#method-PipelineTools-reset_preference}{\code{PipelineTools$reset_preference()}}
+    \item \href{#method-PipelineTools-remove_preference}{\code{PipelineTools$remove_preference()}}
     \item \href{#method-PipelineTools-source_document}{\code{PipelineTools$source_document()}}
     \item \href{#method-PipelineTools-generate_report}{\code{PipelineTools$generate_report()}}
     \item \href{#method-PipelineTools-clone}{\code{PipelineTools$clone()}}
@@ -953,7 +954,8 @@ the values that have been explicitly changed, and revising a declared
   validator = NULL,
   domain = PREFERENCE_DOMAINS,
   global = FALSE,
-  verbose = TRUE
+  verbose = TRUE,
+  force = FALSE
 )}
     \if{html}{\out{</div>}}
   }
@@ -992,11 +994,20 @@ package with \code{pkg::fun}}
       \item{\code{global}}{whether the preference is shared by all 'RAVE' modules
 (\code{TRUE}), or belongs to this pipeline only (\code{FALSE}, default)}
       \item{\code{verbose}}{whether to emit trace-level logs; default is true}
+      \item{\code{force}}{whether to re-declare even when the stored declaration is
+already current; default is false. Declarations are recorded with a
+version (the module's, or this package's when \code{global} is true) and
+re-declaring at the same version is skipped, so a module can declare its
+preferences on every launch without touching the disk. Set this to
+\code{TRUE} while developing, when the version does not change between
+edits; it logs a warning, and should be left \code{FALSE} in production}
     }
     \if{html}{\out{</div>}}
   }
   \subsection{Returns}{
-    Invisibly, the preference metadata
+    Invisibly, a list with the stored value
+(\code{preference_value}), whether the declaration was rewritten
+(\code{metadata_updated}), and the preference \code{metadata}
   }
   \subsection{Examples}{
     \if{html}{\out{<div class="r example copy">}}
@@ -1088,6 +1099,35 @@ it, or the full \verb{namespace.domain.name} key}
   \subsection{Returns}{
     Invisibly, \code{TRUE} if the preference has been declared and
 was reset, otherwise \code{FALSE}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipelineTools-remove_preference"></a>}}
+\if{latex}{\out{\hypertarget{method-PipelineTools-remove_preference}{}}}
+\subsection{\code{PipelineTools$remove_preference()}}{
+  delete a preference entirely, removing both its stored
+value and the declaration made by \code{define_preference}. This is not
+\code{reset_preference}: a reset keeps the declaration so reads fall back
+to the default, whereas removing leaves the preference undeclared, and
+reading it is an error until it is declared again
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$remove_preference(name, verbose = TRUE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{name}}{preference name, either the short name used when declaring
+it, or the full \verb{namespace.domain.name} key}
+      \item{\code{verbose}}{whether to emit trace-level logs; default is true}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    Invisibly, \code{TRUE} if the preference had been declared and
+was removed, otherwise \code{FALSE}
   }
 }
 

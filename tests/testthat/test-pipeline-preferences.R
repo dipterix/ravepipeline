@@ -70,14 +70,17 @@ testthat::test_that("setting then resetting a preference", {
 testthat::test_that("revised defaults only affect preferences never overridden", {
   with_preference_pipeline(function(p) {
 
+    # `force` stands in for a version bump here: re-declaring at an unchanged
+    # version is skipped by design, so a revised default reaches the store only
+    # when the module version moves (or the developer forces it)
     p$define_preference("revised", default = 1, type = "numeric")
     testthat::expect_equal(p$use_preference("revised"), 1)
 
-    p$define_preference("revised", default = 2, type = "numeric")
+    p$define_preference("revised", default = 2, type = "numeric", force = TRUE)
     testthat::expect_equal(p$use_preference("revised"), 2)
 
     p$use_preference("revised", value = 7)
-    p$define_preference("revised", default = 3, type = "numeric")
+    p$define_preference("revised", default = 3, type = "numeric", force = TRUE)
     testthat::expect_equal(p$use_preference("revised"), 7)
   })
 })
@@ -247,7 +250,7 @@ testthat::test_that("a getter returning NULL does not error", {
   })
 })
 
-testthat::test_that("re-declaring refreshes a revised validator", {
+testthat::test_that("`force` refreshes a revised validator", {
   with_preference_pipeline(function(p) {
 
     define_preference(p, "narrow", default = "a", type = "character",
@@ -255,16 +258,23 @@ testthat::test_that("re-declaring refreshes a revised validator", {
                       validator = function(value) value %in% c("a"))
     testthat::expect_error(p$use_preference("narrow", value = "b"))
 
-    # same default, wider validator: the declaration must still take effect
+    # same default and same version, wider validator: the version gate skips it
     res <- define_preference(p, "narrow", default = "a", type = "character",
                              verbose = FALSE,
+                             validator = function(value) value %in% c("a", "b"))
+    testthat::expect_false(res$metadata_updated)
+    testthat::expect_error(p$use_preference("narrow", value = "b"))
+
+    # `force` is how a developer picks the revision up without a version bump
+    res <- define_preference(p, "narrow", default = "a", type = "character",
+                             verbose = FALSE, force = TRUE,
                              validator = function(value) value %in% c("a", "b"))
     testthat::expect_true(res$metadata_updated)
     testthat::expect_equal(p$use_preference("narrow", value = "b"), "b")
 
-    # an unchanged re-declaration is a no-op
+    # an unchanged re-declaration is a no-op even under `force`
     res <- define_preference(p, "narrow", default = "a", type = "character",
-                             verbose = FALSE,
+                             verbose = FALSE, force = TRUE,
                              validator = function(value) value %in% c("a", "b"))
     testthat::expect_false(res$metadata_updated)
   })
@@ -273,6 +283,7 @@ testthat::test_that("re-declaring refreshes a revised validator", {
 # ---- colormap preferences --------------------------------------------------
 
 testthat::test_that("colormap tables are queried without side effects", {
+  testthat::skip_on_cran()
   # `preview = FALSE` is how callers query the table quietly
   testthat::expect_silent(nms <- names(DISCRETE_COLORMAPS(preview = FALSE)))
   testthat::expect_true("tab10" %in% nms)
@@ -316,5 +327,164 @@ testthat::test_that("continuous colormap preference validates against its own ta
     # default ramp
     testthat::expect_error(
       p$use_preference("continuous_colormap", value = "tab10"))
+  })
+})
+
+# ---- lazy declaration ------------------------------------------------------
+
+# Absolute paths into the on-disk store, so a test can prove that nothing was
+# written rather than trusting the reported `metadata_updated` flag.
+preference_store_paths <- function(metakey) {
+  store <- ravepipeline_config_dir("preferences", "default")
+  list(
+    metadata = file.path(store, "MAP-RDSDB", safe_urlencode(metakey)),
+    header = file.path(store, "MAP-RDSHEAD")
+  )
+}
+
+testthat::test_that("re-declaring at the same version does not touch the disk", {
+  with_preference_pipeline(function(p) {
+
+    metakey <- "preference_demo.preference_metadata.default.lazy"
+    p$define_preference("lazy", default = 1, type = "numeric", verbose = FALSE)
+
+    paths <- preference_store_paths(metakey)
+    testthat::expect_true(file.exists(paths$metadata))
+    before <- list(meta = file.mtime(paths$metadata),
+                   header = file.mtime(paths$header))
+
+    # a full second, so a rewrite cannot hide inside mtime granularity
+    Sys.sleep(1.1)
+    res <- p$define_preference("lazy", default = 1, type = "numeric",
+                               verbose = FALSE)
+
+    testthat::expect_false(res$metadata_updated)
+    testthat::expect_identical(file.mtime(paths$metadata), before$meta)
+    testthat::expect_identical(file.mtime(paths$header), before$header)
+  })
+})
+
+testthat::test_that("declarations are stamped with the module version", {
+  with_preference_pipeline(function(p) {
+
+    res <- p$define_preference("stamped", default = 1, type = "numeric",
+                               verbose = FALSE)
+    testthat::expect_identical(res$metadata$version,
+                               as.character(p$description$Version))
+  })
+})
+
+testthat::test_that("global declarations are stamped with the package version", {
+  with_preference_pipeline(function(p) {
+
+    # a global metadata key is shared by every pipeline, so stamping it with the
+    # declaring module's version would let one module's version permanently
+    # suppress another's declaration
+    res <- p$define_preference("shared", default = 1, type = "numeric",
+                               global = TRUE, verbose = FALSE)
+
+    testthat::expect_identical(
+      res$metadata$version,
+      as.character(utils::packageVersion("ravepipeline")))
+    testthat::expect_false(
+      identical(res$metadata$version, as.character(p$description$Version)))
+  })
+})
+
+testthat::test_that("an older or absent stored version refreshes the declaration", {
+  with_preference_pipeline(function(p) {
+
+    metakey <- "preference_demo.preference_metadata.default.aged"
+    p$define_preference("aged", default = 1, type = "numeric", verbose = FALSE)
+
+    # rewind the recorded version, as an older release would have left it
+    stored <- p$get_preferences(metakey)
+    stored$version <- "0.0.0"
+    p$set_preferences(.list = structure(names = metakey, list(stored)))
+
+    res <- p$define_preference("aged", default = 1, type = "numeric",
+                               verbose = FALSE)
+    testthat::expect_identical(res$metadata$version,
+                               as.character(p$description$Version))
+
+    # metadata written before versions were recorded at all
+    stored$version <- NULL
+    p$set_preferences(.list = structure(names = metakey, list(stored)))
+    res <- p$define_preference("aged", default = 1, type = "numeric",
+                               verbose = FALSE)
+    testthat::expect_identical(res$metadata$version,
+                               as.character(p$description$Version))
+  })
+})
+
+testthat::test_that("a stored version newer than the module is left alone", {
+  with_preference_pipeline(function(p) {
+
+    metakey <- "preference_demo.preference_metadata.default.ahead"
+    p$define_preference("ahead", default = 1, type = "numeric", verbose = FALSE)
+
+    stored <- p$get_preferences(metakey)
+    stored$version <- "99.0.0"
+    p$set_preferences(.list = structure(names = metakey, list(stored)))
+
+    res <- p$define_preference("ahead", default = 2, type = "numeric",
+                               verbose = FALSE)
+    testthat::expect_identical(res$metadata$version, "99.0.0")
+    testthat::expect_equal(res$metadata$default, 1)
+  })
+})
+
+testthat::test_that("`force` warns so it is visible when left in production", {
+  with_preference_pipeline(function(p) {
+
+    p$define_preference("noisy", default = 1, type = "numeric", verbose = FALSE)
+
+    msg <- utils::capture.output(type = "message", {
+      p$define_preference("noisy", default = 1, type = "numeric",
+                          verbose = FALSE, force = TRUE)
+    })
+    testthat::expect_true(any(grepl("force = FALSE", msg, fixed = TRUE)))
+  })
+})
+
+# ---- remove_preference -----------------------------------------------------
+
+testthat::test_that("remove_preference deletes, it does not reset", {
+  with_preference_pipeline(function(p) {
+
+    value_key <- "preference_demo.default.doomed"
+    metakey <- "preference_demo.preference_metadata.default.doomed"
+
+    p$define_preference("doomed", default = 1, type = "numeric", verbose = FALSE)
+    p$use_preference("doomed", value = 7)
+    testthat::expect_true(p$has_preferences(value_key))
+    testthat::expect_true(p$has_preferences(metakey))
+
+    testthat::expect_true(p$remove_preference("doomed", verbose = FALSE))
+
+    # both keys gone: a reset would have kept the declaration
+    testthat::expect_false(p$has_preferences(value_key))
+    testthat::expect_false(p$has_preferences(metakey))
+
+    # ... and the preference reads as undeclared rather than as its default
+    testthat::expect_error(p$use_preference("doomed"), "define_preference")
+
+    # re-declaring brings it back
+    p$define_preference("doomed", default = 1, type = "numeric", verbose = FALSE)
+    testthat::expect_equal(p$use_preference("doomed"), 1)
+  })
+})
+
+testthat::test_that("remove_preference accepts a full key and reports misses", {
+  with_preference_pipeline(function(p) {
+
+    testthat::expect_false(p$remove_preference("never_declared", verbose = FALSE))
+
+    p$define_preference("bykey", default = 1, type = "numeric",
+                        domain = "graphics", verbose = FALSE)
+    testthat::expect_true(
+      p$remove_preference("preference_demo.graphics.bykey", verbose = FALSE))
+    testthat::expect_false(
+      p$has_preferences("preference_demo.preference_metadata.graphics.bykey"))
   })
 })

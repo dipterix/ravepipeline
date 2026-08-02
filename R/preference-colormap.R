@@ -14,6 +14,11 @@
 #' @param default palette name used whenever the preference is unset; must be a
 #' valid name for the corresponding table
 #' @param verbose whether to emit trace-level logs; default is true
+#' @param force whether to re-declare even when the stored declaration is
+#' already current; default is false. See \code{define_preference} in
+#' \code{\link{PipelineTools}}: declaring is skipped when the recorded version
+#' is up to date, so these helpers can be called on every launch without
+#' touching the disk. Set to \code{TRUE} only while developing
 #' @returns Invisibly, a list with the stored palette name
 #' (\code{preference_value}), whether the declaration was rewritten
 #' (\code{metadata_updated}), and the preference \code{metadata}. Read the
@@ -43,7 +48,8 @@ NULL
 define_preference_discrete_colormap <- function(
   pipeline,
   default = "default",
-  verbose = TRUE
+  verbose = TRUE,
+  force = FALSE
 ) {
   define_preference(
     pipeline = pipeline,
@@ -52,6 +58,7 @@ define_preference_discrete_colormap <- function(
     domain = "graphics",
     type = "character",
     verbose = verbose,
+    force = force,
     validator = function(value) {
       seeds <- DISCRETE_COLORMAPS(preview = FALSE)
       seed_names <- names(seeds)
@@ -75,7 +82,8 @@ define_preference_discrete_colormap <- function(
 define_preference_continuous_colormap <- function(
     pipeline,
     default = "default",
-    verbose = TRUE
+    verbose = TRUE,
+    force = FALSE
 ) {
   define_preference(
     pipeline = pipeline,
@@ -84,6 +92,7 @@ define_preference_continuous_colormap <- function(
     domain = "graphics",
     type = "character",
     verbose = verbose,
+    force = force,
     validator = function(value) {
       seeds <- CONTINUOUS_COLORMAPS(preview = FALSE)
       seed_names <- names(seeds)
