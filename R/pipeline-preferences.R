@@ -311,6 +311,12 @@ preference_version_current <- function(stored, current) {
 # and machines; it is therefore evaluated in a fresh environment whose parent is
 # this namespace, and it cannot see variables from wherever it was written.
 construct_preference_validator <- function(metadata) {
+
+  # pipeline <- ravepipeline::pipeline("voltage_explorer")
+  # metadata <- ravepipeline:::get_preference_metadata(pipeline, "channel_annotation_style")
+  # value <- "asdasda"
+  # ravepipeline:::construct_preference_validator(metadata)(value, pipeline)
+
   function(value, pipeline) {
     # the missing-key sentinel is a bare list, and would otherwise satisfy
     # the `list` / `named_list` / `any` checks

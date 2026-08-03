@@ -21,6 +21,15 @@
   themselves. `use_preference` applies it by default and tags the result with the
   value it was derived from in a `preference_value` attribute; pass
   `apply_getter = FALSE` to read the raw stored value instead
+* Added `define_preference_multichoice` and `define_preference_logical`, which
+  declare a preference restricted to a fixed set of choices, or a `TRUE`/`FALSE`
+  flag, building the `validator` so that a declaration only needs the choices or
+  the default. `define_preference_multichoice` takes `partial_match`, in which
+  case a unique abbreviation is accepted, stored as it was given, and expanded to
+  the full choice on read
+* `KEY_MISSING` is now exported, so that a wrapper around `use_preference` can
+  take it as the "no value supplied" default and forward it unchanged to read the
+  preference instead of writing it
 * Added `DISCRETE_COLORMAPS` and `CONTINUOUS_COLORMAPS`, the built-in
   qualitative and continuous color palettes, along with
   `define_preference_discrete_colormap` and

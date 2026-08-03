@@ -67,7 +67,10 @@ r6_reserved_fields <- c(".__enclos_env__", "clone", "print", "initialize", "priv
 #' @export
 PIPELINE_FORK_PATTERN <- "(^data|^R|^py|^preferences|\\.R$|\\.py$|\\.yaml$|\\.txt$|\\.csv$|\\.fst$|\\.conf$|\\.json$|\\.rds$|\\.Rmd$)"
 
+#' @rdname ravepipeline-constants
+#' @export
 KEY_MISSING <- structure(list(), class = "key_missing")
+
 is_key_missing <- function(x) {
   inherits(x, "key_missing")
 }

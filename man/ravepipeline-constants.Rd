@@ -3,9 +3,12 @@
 \name{ravepipeline-constants}
 \alias{ravepipeline-constants}
 \alias{PIPELINE_FORK_PATTERN}
+\alias{KEY_MISSING}
 \title{Constant variables used in 'RAVE' pipeline}
 \usage{
 PIPELINE_FORK_PATTERN
+
+KEY_MISSING
 }
 \description{
 Regular expression \code{PIPELINE_FORK_PATTERN} defines the file matching

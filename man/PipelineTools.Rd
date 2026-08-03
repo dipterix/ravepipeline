@@ -1051,7 +1051,12 @@ if(interactive() && length(pipeline_list()) > 0) {
 \code{define_preference}
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{PipelineTools$use_preference(name, value, apply_getter = TRUE, verbose = TRUE)}
+    \preformatted{PipelineTools$use_preference(
+  name,
+  value = KEY_MISSING,
+  apply_getter = TRUE,
+  verbose = TRUE
+)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{

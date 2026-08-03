@@ -1190,12 +1190,13 @@ PipelineTools <- R6::R6Class(
     #' @param verbose whether to emit trace-level logs; default is true
     #' @returns The preference value; the declared default when the preference
     #' is unset, or when the stored value no longer passes \code{validator}
-    use_preference = function(name, value, apply_getter = TRUE, verbose = TRUE) {
-      if (missing(value)) {
-        use_preference_impl(pipeline = self, name = name, verbose = verbose, apply_getter = apply_getter)
+    use_preference = function(name, value = KEY_MISSING, apply_getter = TRUE, verbose = TRUE) {
+      if (missing(value) || is_key_missing(value)) {
+        use_preference_impl(pipeline = self, name = name, verbose = verbose,
+                            apply_getter = apply_getter)
       } else {
         use_preference_impl(pipeline = self, name = name, value = value,
-                       apply_getter = apply_getter, verbose = verbose)
+                            apply_getter = apply_getter, verbose = verbose)
       }
     },
 
