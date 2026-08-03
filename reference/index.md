@@ -26,6 +26,10 @@
   [`base64_plot()`](http://dipterix.org/ravepipeline/reference/base64-utils.md)
   : Convert from and to 'base64' string
 
+- [`define_preference_multichoice()`](http://dipterix.org/ravepipeline/reference/define_preference_basic.md)
+  [`define_preference_logical()`](http://dipterix.org/ravepipeline/reference/define_preference_basic.md)
+  : Declare a preference with a common value constraint
+
 - [`define_preference_discrete_colormap()`](http://dipterix.org/ravepipeline/reference/define_preference_colormap.md)
   [`define_preference_continuous_colormap()`](http://dipterix.org/ravepipeline/reference/define_preference_colormap.md)
   : Declare a color palette preference
@@ -151,6 +155,7 @@
   : Set/Get 'RAVE' option
 
 - [`PIPELINE_FORK_PATTERN`](http://dipterix.org/ravepipeline/reference/ravepipeline-constants.md)
+  [`KEY_MISSING`](http://dipterix.org/ravepipeline/reference/ravepipeline-constants.md)
   : Constant variables used in 'RAVE' pipeline
 
 - [`ravepipeline_finalize_installation()`](http://dipterix.org/ravepipeline/reference/ravepipeline_finalize_installation.md)

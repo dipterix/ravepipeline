@@ -1116,7 +1116,12 @@ read or write a preference declared by `define_preference`
 
 #### Usage
 
-    PipelineTools$use_preference(name, value, apply_getter = TRUE, verbose = TRUE)
+    PipelineTools$use_preference(
+      name,
+      value = KEY_MISSING,
+      apply_getter = TRUE,
+      verbose = TRUE
+    )
 
 #### Arguments
 
