@@ -146,7 +146,10 @@ pipeline_report_generate <- function(
 
   fork_policy <- report$fork_policy
   if (length(fork_policy) == 1) {
-    pipeline <- pipeline$fork(path = file.path(work_dir, "pipeline"))
+    pipeline <- pipeline$fork(
+      path = file.path(work_dir, "pipeline"),
+      policy = fork_policy
+    )
   }
 
   report_template_path <- file.path(pipeline$pipeline_path, report$entry)
