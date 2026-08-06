@@ -97,6 +97,8 @@ Class definition for 'RAVE' pipelines
 
 - [`PipelineTools$clean()`](#method-PipelineTools-clean)
 
+- [`PipelineTools$meta()`](#method-PipelineTools-meta)
+
 - [`PipelineTools$save_data()`](#method-PipelineTools-save_data)
 
 - [`PipelineTools$load_data()`](#method-PipelineTools-load_data)
@@ -754,6 +756,32 @@ clean all or part of the data store
 
   see
   [`tar_destroy`](https://docs.ropensci.org/targets/reference/tar_destroy.html)
+
+------------------------------------------------------------------------
+
+### `PipelineTools$meta()`
+
+get time-stamp of when the targets was built last time
+
+#### Usage
+
+    PipelineTools$meta(names = NULL, time_zone = "UTC")
+
+#### Arguments
+
+- `names`:
+
+  targets names; default is all targets
+
+- `time_zone`:
+
+  time-zone for reporting time stamp when the target was built; default
+  is `'UTC'`
+
+#### Returns
+
+A data table of name, data signature, time, type, size in bytes,
+warnings and error in generating the target.
 
 ------------------------------------------------------------------------
 
