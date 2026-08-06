@@ -144,6 +144,7 @@ signatures of data and commands}
     \item \href{#method-PipelineTools-fork_to_subject}{\code{PipelineTools$fork_to_subject()}}
     \item \href{#method-PipelineTools-with_activated}{\code{PipelineTools$with_activated()}}
     \item \href{#method-PipelineTools-clean}{\code{PipelineTools$clean()}}
+    \item \href{#method-PipelineTools-meta}{\code{PipelineTools$meta()}}
     \item \href{#method-PipelineTools-save_data}{\code{PipelineTools$save_data()}}
     \item \href{#method-PipelineTools-load_data}{\code{PipelineTools$load_data()}}
     \item \href{#method-PipelineTools-set_preferences}{\code{PipelineTools$set_preferences()}}
@@ -738,6 +739,31 @@ and function behaviors might change under such condition (for example,
       \item{\code{destroy, ask}}{see \code{\link[targets]{tar_destroy}}}
     }
     \if{html}{\out{</div>}}
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-PipelineTools-meta"></a>}}
+\if{latex}{\out{\hypertarget{method-PipelineTools-meta}{}}}
+\subsection{\code{PipelineTools$meta()}}{
+  get time-stamp of when the targets was built last time
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{PipelineTools$meta(names = NULL, time_zone = "UTC")}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{names}}{targets names; default is all targets}
+      \item{\code{time_zone}}{time-zone for reporting time stamp when the target
+was built; default is \code{'UTC'}}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A data table of name, data signature, time, type, size in bytes,
+warnings and error in generating the target.
   }
 }
 

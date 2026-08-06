@@ -966,6 +966,48 @@ PipelineTools <- R6::R6Class(
       pipeline_clean(pipe_dir = private$.pipeline_path, ask = ask, destroy = destroy)
     },
 
+    #' @description get time-stamp of when the targets was built last time
+    #' @param names targets names; default is all targets
+    #' @param time_zone time-zone for reporting time stamp when the target
+    #' was built; default is \code{'UTC'}
+    #' @returns A data table of name, data signature, time, type, size in bytes,
+    #' warnings and error in generating the target.
+    meta = function(names = NULL, time_zone = "UTC") {
+      activate_pipeline(pipe_dir = private$.pipeline_path)
+
+      if (!length(names)) {
+        names <- pipeline_target_names(pipe_dir = private$.pipeline_path)
+      }
+      names <- unname(names)
+
+      has_meta <- tryCatch(
+        {
+          targets::tar_exist_meta()
+        },
+        error = function(e) { FALSE }
+      )
+      if (!isTRUE(has_meta)) {
+        return(data.frame(
+          name = names,
+          data = NA_character_,
+          time = NA_character_,
+          type = NA_character_,
+          bytes = NA_real_,
+          warnings = NA_character_,
+          error = NA_character_
+        ))
+      }
+
+      meta_columns <- c("name", "data", "time", "type", "bytes", "warnings", "error")
+      meta_table <- targets::tar_meta(
+        complete_only = FALSE, targets_only = TRUE,
+        fields = meta_columns
+      )
+      meta_table$time <- format(meta_table$time, "%Y-%m-%d %H:%M:%S", tz = time_zone, usetz = TRUE)
+      return(merge(data.frame(name = names), meta_table[, meta_columns],
+                   by = "name", all.x = TRUE, all.y = FALSE))
+    },
+
     #' @description save data to pipeline data folder
     #' @param data R object
     #' @param name the name of the data to save, must start with letters
