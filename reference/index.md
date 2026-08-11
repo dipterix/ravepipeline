@@ -60,6 +60,10 @@
   [`add_module_registry()`](http://dipterix.org/ravepipeline/reference/module_registry.md)
   : 'RAVE' module registry
 
+- [`pkg_available_reports()`](http://dipterix.org/ravepipeline/reference/package-reports.md)
+  [`pkg_build_report()`](http://dipterix.org/ravepipeline/reference/package-reports.md)
+  : Discover and build reports shipped with an R package
+
 - [`configure_knitr()`](http://dipterix.org/ravepipeline/reference/pipeline-knitr-markdown.md)
   [`pipeline_setup_rmd()`](http://dipterix.org/ravepipeline/reference/pipeline-knitr-markdown.md)
   [`pipeline_render()`](http://dipterix.org/ravepipeline/reference/pipeline-knitr-markdown.md)

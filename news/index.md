@@ -48,6 +48,13 @@
 - `RAVEFileArray` serialization now carries the file array `signature`
   header entries alongside the file base and mode, so downstream caches
   can see them
+- Added `pkg_available_reports` and `pkg_build_report`, which list and
+  render the `R Markdown` reports a package ships under its
+  `inst/reports` directory. A report is named by its path relative to
+  that directory without the extension, so reports may be grouped into
+  sub-folders, and the name is matched ignoring case. A shared
+  `common.css` and a per-report `<report>_styles.css` are picked up
+  automatically and attached to the rendered document
 
 ## ravepipeline 0.1.0
 
