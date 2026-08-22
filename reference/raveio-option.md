@@ -126,7 +126,7 @@ raveio_getopt()
 #> [1] "N27"
 #> 
 #> $session_string
-#> [1] "5a9393034f82d7f"
+#> [1] "283930517e93513"
 #> 
 #> $py_virtualenv
 #> [1] ""
@@ -147,7 +147,7 @@ raveio_getopt()
 #> [1] "America/Chicago"
 #> 
 #> $max_mem
-#> 15.6149368286133
+#> 15.6149406433105
 #> $disable_fork_clusters
 #> [1] FALSE
 #> 
