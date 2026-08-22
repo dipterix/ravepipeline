@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,9 @@
       <small>Source: <a href="https://github.com/dipterix/ravepipeline/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.2.0" id="ravepipeline-020">ravepipeline 0.2.0<a class="anchor" aria-label="anchor" href="#ravepipeline-020"></a></h2>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.1" id="ravepipeline-011">ravepipeline 0.1.1<a class="anchor" aria-label="anchor" href="#ravepipeline-011"></a></h2>
 <ul><li>Added <code>define_preference</code>, <code>use_preference</code>, <code>reset_preference</code>, and <code>remove_preference</code> methods to the <code>PipelineTools</code> class: a preference is declared once with a domain, storage type, default, and optional <code>validator</code>, then read and written by its short name instead of its full key. Declared defaults are lazy, so the preference store only holds values that have been explicitly changed, and a revised default reaches anyone who never overrode it. <code>reset_preference</code> drops the stored value and keeps the declaration, so reads fall back to the default; <code>remove_preference</code> deletes both, leaving the preference undeclared</li>

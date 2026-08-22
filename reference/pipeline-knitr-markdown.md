@@ -78,8 +78,8 @@ configure_knitr("R")
 #> {
 #>     rave_knitr_build(targets, make_file)
 #> }
-#> <bytecode: 0x55e5a96664d0>
-#> <environment: 0x55e5a9666150>
+#> <bytecode: 0x562d4e7d30a8>
+#> <environment: 0x562d4e7d2d28>
 
 if (FALSE) { # \dontrun{
 
