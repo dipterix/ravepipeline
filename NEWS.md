@@ -1,3 +1,5 @@
+# ravepipeline 0.2.0
+
 # ravepipeline 0.1.1
 
 * Added `define_preference`, `use_preference`, `reset_preference`, and
