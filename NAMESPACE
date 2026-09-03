@@ -47,9 +47,11 @@ S3method(print,ravepipeline_html_embed_manifest)
 S3method(print,ravepipeline_job_status)
 S3method(print,ravepipeline_jobid)
 S3method(print,ravepipeline_plot_data)
+S3method(rave_serialize_impl,"multi-rave-brain")
 S3method(rave_serialize_impl,"rave-brain")
 S3method(rave_serialize_impl,RAVESerializable)
 S3method(rave_serialize_impl,default)
+S3method(rave_unserialize_impl,"rave_serialized_multi-rave-brain")
 S3method(rave_unserialize_impl,"rave_serialized_rave-brain")
 S3method(rave_unserialize_impl,default)
 S3method(rave_unserialize_impl,rave_serialized)
@@ -160,17 +162,23 @@ export(set_logger_path)
 export(start_job)
 export(update_local_snippet)
 export(with_rave_parallel)
-importFrom(R6,R6Class)
-importFrom(R6,is.R6)
-importFrom(R6,is.R6Class)
+importFrom(R6,
+  R6Class,
+  is.R6,
+  is.R6Class
+)
 importFrom(digest,digest)
 importFrom(glue,glue)
-importFrom(promises,"%...!%")
-importFrom(promises,"%...>%")
-importFrom(promises,"%...T!%")
-importFrom(promises,"%...T>%")
-importFrom(promises,as.promise)
+importFrom(promises,
+  "%...!%",
+  "%...>%",
+  "%...T!%",
+  "%...T>%",
+  as.promise
+)
 importFrom(remotes,install_deps)
-importFrom(utils,capture.output)
-importFrom(utils,head)
-importFrom(utils,str)
+importFrom(utils,
+  capture.output,
+  head,
+  str
+)

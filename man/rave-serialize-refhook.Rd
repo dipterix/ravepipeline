@@ -7,12 +7,14 @@
 \alias{rave_serialize_impl.default}
 \alias{rave_serialize_impl.RAVESerializable}
 \alias{rave_serialize_impl.rave-brain}
+\alias{rave_serialize_impl.multi-rave-brain}
 \alias{rave_unserialize_refhook}
 \alias{rave_unserialize_impl}
 \alias{rave_unserialize_impl.default}
 \alias{rave_unserialize_impl.rave_serialized}
 \alias{rave_unserialize_impl.rave_serialized_r6}
 \alias{rave_unserialize_impl.rave_serialized_rave-brain}
+\alias{rave_unserialize_impl.rave_serialized_multi-rave-brain}
 \title{Serialization reference hook generic functions}
 \usage{
 rave_serialize_refhook(object)
@@ -25,6 +27,8 @@ rave_serialize_impl(object)
 
 \method{rave_serialize_impl}{`rave-brain`}(object)
 
+\method{rave_serialize_impl}{`multi-rave-brain`}(object)
+
 rave_unserialize_refhook(x)
 
 rave_unserialize_impl(x)
@@ -36,6 +40,8 @@ rave_unserialize_impl(x)
 \method{rave_unserialize_impl}{rave_serialized_r6}(x)
 
 \method{rave_unserialize_impl}{`rave_serialized_rave-brain`}(x)
+
+\method{rave_unserialize_impl}{`rave_serialized_multi-rave-brain`}(x)
 }
 \arguments{
 \item{object}{Object to serialize (environment or external pointers)}
