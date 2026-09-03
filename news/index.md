@@ -2,6 +2,27 @@
 
 ## ravepipeline 0.2.0
 
+CRAN release: 2026-08-22
+
+- Unified how `rave-brain` objects are saved and restored: the
+  reference-hook serializers (`rave_serialize_impl`, used by the default
+  target format, background jobs, and the file-map cache) and the
+  `rave-brain` target format now share one implementation instead of two
+  that had drifted apart. A brain written by either route comes back
+  with its electrodes (including whether contacts were spheres or
+  prototypes), surfaces, surface annotations, atlases, and streamlines.
+  A brain built outside `ravecore` — such as
+  `threeBrain::threeBrain(path = ...)` — is now restored from its own
+  path rather than looked up as a nonexistent `RAVE` subject, while a
+  brain built by `ravecore` still resolves its subject directory through
+  `ravecore`, so moving the data directory does not break it
+- Added serialization support for merged brains (`multi-rave-brain`) to
+  `rave_serialize_impl` and `rave_unserialize_impl`; previously only the
+  `rave-brain` target format handled them
+- Serialized brains now record the `threeBrain` version that wrote them,
+  so parameter lists saved by earlier versions are still read back
+  through a dedicated compatibility path
+
 ## ravepipeline 0.1.1
 
 - Added `define_preference`, `use_preference`, `reset_preference`, and

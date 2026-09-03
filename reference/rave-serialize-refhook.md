@@ -18,6 +18,9 @@ rave_serialize_impl(object)
 # S3 method for class '`rave-brain`'
 rave_serialize_impl(object)
 
+# S3 method for class '`multi-rave-brain`'
+rave_serialize_impl(object)
+
 rave_unserialize_refhook(x)
 
 rave_unserialize_impl(x)
@@ -32,6 +35,9 @@ rave_unserialize_impl(x)
 rave_unserialize_impl(x)
 
 # S3 method for class '`rave_serialized_rave-brain`'
+rave_unserialize_impl(x)
+
+# S3 method for class '`rave_serialized_multi-rave-brain`'
 rave_unserialize_impl(x)
 ```
 
