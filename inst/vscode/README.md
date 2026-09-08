@@ -35,8 +35,11 @@ for (i in 1:2) {
 ```
 
 Naming a job that is still running is not an error — the second takes a
-suffixed id (`preprocess#2`) and runs alongside in its own terminal. Leave
-`name` unset for a terminal per job.
+suffixed id (`preprocess#2`) and runs alongside in its own terminal.
+
+Leave `name` unset and the job gets its own terminal, which closes itself when
+the job ends instead of piling up. That happens whether the job succeeded or
+failed, so give a name to any job whose output you may want to read afterwards.
 
 The process id of a running task is written to the **RAVE Pipeline** output
 channel; it cannot appear in the name, which VS Code fixes when the task is

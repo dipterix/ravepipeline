@@ -376,7 +376,9 @@ start_job_vscode <- function(fun, fun_args = list(), packages = NULL,
 
   job_id <- prepare_job(
     fun = fun, fun_args = fun_args, packages = packages, workdir = workdir,
-    digest_key = digest_key, envvars = envvars, log_path = log_path
+    digest_key = digest_key, envvars = envvars, log_path = log_path,
+    # The task terminal is the point of this backend, so stream to it as well
+    tee_console = TRUE
   )
   job_root <- get_job_path(job_id, check = FALSE)
   script_path <- file.path(job_root, "script.R")
@@ -386,6 +388,10 @@ start_job_vscode <- function(fun, fun_args = list(), packages = NULL,
   task_key <- if (length(name)) { trimws(as.character(name)[[1]]) } else { job_id }
   if (is.na(task_key) || !nzchar(task_key)) { task_key <- job_id }
 
+  # An unnamed job's key is unique to that run, so its terminal can never be
+  # reused; closing it on exit is what stops them piling up.
+  close_on_finish <- identical(as.character(task_key), as.character(job_id))
+
   response <- tryCatch(
     vscode_request(
       command = "runTask",
@@ -394,6 +400,7 @@ start_job_vscode <- function(fun, fun_args = list(), packages = NULL,
       params = list(
         key = task_key,
         jobId = job_id,
+        closeOnFinish = close_on_finish,
         # Older extensions ignore `key` and display `name` verbatim; sending
         # the composed label keeps them showing the right thing.
         name = vscode_task_label(task_key),

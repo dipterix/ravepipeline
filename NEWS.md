@@ -18,7 +18,16 @@
   `RAVE-Task [ID: name]`, rather than whatever `name` was passed. The name is
   also the task's identity, so two jobs sharing one now reuse a single terminal
   instead of opening a new one for every run; a name still in use by a running
-  task is suffixed so both jobs run
+  task is suffixed so both jobs run. A job left unnamed gets a terminal that
+  closes itself once the job ends, whether it succeeded or not, so name any job
+  whose output is worth reading afterwards
+* A job started with `start_job(method = "rs_job")` or
+  `start_job(method = "vscode_task")` now streams its console output to the
+  `RStudio` Jobs pane or the editor terminal while it runs, rather than
+  redirecting everything into a log file the caller only sees afterwards. The
+  log file is still written in full, so `resolve_job()` and the
+  `ravepipeline.log_maxline` option are unaffected. Jobs run through `callr` or
+  `mirai` are unchanged, neither having a console the output could reach
 
 # ravepipeline 0.2.0
 

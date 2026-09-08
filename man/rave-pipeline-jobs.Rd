@@ -54,7 +54,8 @@ when the editor integration is unavailable.}
 \item{name}{name of the job; under \code{'vscode_task'} it also identifies
 the editor task, which is always shown as \verb{RAVE-Task [ID: name]}, and
 two jobs sharing a name share one terminal, running one after another. Leave
-it unset for a terminal per job}
+it unset for a terminal per job, which closes itself once the job ends
+rather than accumulating; name a job whose output is worth keeping}
 
 \item{ensure_init}{whether to make sure the job has been started; default
 is true}

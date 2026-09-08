@@ -1,3 +1,8 @@
+# Editor integration tests: they probe the host for installed applications,
+# write to the bridge directory, and start background jobs. None of that
+# belongs on a CRAN check machine.
+testthat::skip_on_cran()
+
 ravepipeline <- asNamespace("ravepipeline")
 
 # Run `expr` with a temporary set of environment variables, restoring whatever

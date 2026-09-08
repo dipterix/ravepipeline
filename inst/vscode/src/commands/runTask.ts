@@ -8,6 +8,8 @@ interface RunTaskParams {
   jobId?: string;
   /** Legacy display name, honoured when an older R sends no `key`. */
   name?: string;
+  /** Set for a key nothing can reuse, so the terminal should not linger. */
+  closeOnFinish?: boolean;
   program?: string;
   args?: string[];
   cwd?: string;
@@ -66,7 +68,11 @@ export async function runTask(request: RaveRequest): Promise<Record<string, unkn
     clear: true,
     // Show the output without stealing the caret from the editor.
     focus: false,
-    echo: false
+    echo: false,
+    // An unnamed job's terminal is never reused, so it would just accumulate.
+    // Closing is unconditional -- a failed run's output goes with it, which is
+    // why a job worth inspecting should be given a name.
+    close: params.closeOnFinish === true
   };
 
   const running = await vscode.tasks.executeTask(task);

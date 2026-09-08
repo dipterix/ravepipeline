@@ -2,7 +2,7 @@
   "name": "rave-vscode-plugin",
   "displayName": "RAVE VSCode Plugin",
   "description": "Run RAVE jobs from R as native VS Code tasks.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "dipterix",
   "license": "MIT",
   "author": {

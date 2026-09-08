@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.2.1
+
+- An unnamed job's terminal now closes itself when the job ends, since its id
+  is unique to that run and nothing can ever reuse it. Named tasks keep their
+  terminal.
+
 ## 0.2.0
 
 - Added the `notify` command, so R can raise an editor notification through
