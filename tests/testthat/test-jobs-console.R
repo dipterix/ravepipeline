@@ -16,27 +16,31 @@ run_job_script <- function(tee_console) {
   )
   job_root <- get_job_path(job_id, check = FALSE)
 
-  console <- suppressWarnings(system2(
-    file.path(R.home("bin"), "Rscript"),
-    c("--no-save", "--no-restore", "--no-echo",
-      shQuote(file.path(job_root, "script.R"))),
-    stdout = TRUE,
-    stderr = TRUE,
-    # The child must find the same library this session is testing against
-    env = sprintf("R_LIBS=%s",
-                  paste(.libPaths(), collapse = .Platform$path.sep))
-  ))
+  # `callr` rather than `system2`, whose `env=` is the shell's `VAR=value cmd`
+  # prefix and so means nothing to `cmd.exe`. `callr` also passes `.libPaths()`
+  # through, which is how the child finds the library under test.
+  child <- callr::rscript(
+    file.path(job_root, "script.R"),
+    show = FALSE,
+    fail_on_status = FALSE,
+    # Nothing a profile prints may be mistaken for the job's own output
+    user_profile = FALSE,
+    system_profile = FALSE
+  )
 
   log <- tryCatch(
     readLines(file.path(job_root, "console_outputs.txt"), warn = FALSE),
-    error = function(e) { character(0L) }
+    error = function(e) { character(0L) },
+    warning = function(w) { character(0L) }
   )
   status <- get_job_status(job_id)
   remove_job(job_id)
 
   list(
     status = status$status,
-    console = paste(console, collapse = "\n"),
+    stdout = paste(child$stdout, collapse = "\n"),
+    stderr = paste(child$stderr, collapse = "\n"),
+    console = paste(c(child$stdout, child$stderr), collapse = "\n"),
     log = paste(log, collapse = "\n")
   )
 }
@@ -50,8 +54,10 @@ testthat::test_that("a console-backed job streams output and still logs it", {
 
   testthat::expect_equal(res$status, 3)
 
-  testthat::expect_match(res$console, "STDOUT-MARK")
-  testthat::expect_match(res$console, "MESSAGE-MARK")
+  # Both land on stdout specifically: `cat` through the split, and `message`
+  # through the handler that reroutes it there.
+  testthat::expect_match(res$stdout, "STDOUT-MARK")
+  testthat::expect_match(res$stdout, "MESSAGE-MARK")
 
   testthat::expect_match(res$log, "STDOUT-MARK")
   testthat::expect_match(res$log, "MESSAGE-MARK")

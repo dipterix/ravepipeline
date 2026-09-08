@@ -1,5 +1,11 @@
 # ravepipeline (development version)
 
+* Fixed two long-standing faults in the internal program finder on `Linux`. It
+  raised `invalid 'file' argument` when the program was absent and the machine
+  had no `Homebrew`, and it reported every *installed* program as missing when
+  one was found. Both affected `vscode_bridge_status()` and
+  `install_vscode_extension()`, as well as the discovery of `npm` and `pandoc`.
+  `macOS` and `Windows` take other branches and were never affected
 * Added `start_job(method = "vscode_task")`, which runs a background job as a
   native editor task in `VSCode` and `Positron`, so the job appears in the
   terminal panel with a name, live output, and a stop button — the counterpart

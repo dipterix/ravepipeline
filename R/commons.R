@@ -196,10 +196,12 @@ brew_program <- function(program) {
     {
       res <- Sys.which("brew")
       if (!nzchar(res)) {
-        if (file.exists()) {
-          res <- "~/.linuxbrew/bin/brew"
+        # Linuxbrew installs either under the user's home or the shared prefix
+        user_brew <- path.expand("~/.linuxbrew/bin/brew")
+        res <- if (file.exists(user_brew)) {
+          user_brew
         } else {
-          res <- "/home/linuxbrew/.linuxbrew/bin/brew"
+          "/home/linuxbrew/.linuxbrew/bin/brew"
         }
       }
       res
@@ -249,8 +251,11 @@ find_program <- function(program) {
           # Check brew
           res <- brew_program(program)
         }
-        res
       }
+      # Outside the `if`: a program `Sys.which` already found must still be
+      # the value of this branch, or the switch yields NULL and the program
+      # is reported missing.
+      res
     },
     {
       Sys.which(program)
@@ -260,7 +265,9 @@ find_program <- function(program) {
   if (length(path) == 0 || is.na(path) || !nzchar(path) || !file.exists(path)) {
     return("")
   } else {
-    return(path)
+    # `Sys.which` names its result after the program; a stray name makes an
+    # `identical` comparison against a plain path fail for no visible reason.
+    return(unname(path))
   }
 }
 
