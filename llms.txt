@@ -273,6 +273,16 @@ power_explorer$visualize(glimpse = TRUE, aspect_ratio = 10)
 
   Read write `'YAML'` format
 
+- [`install_vscode_extension()`](http://dipterix.org/ravepipeline/reference/vscode-extension.md)
+  [`uninstall_vscode_extension()`](http://dipterix.org/ravepipeline/reference/vscode-extension.md)
+  [`vscode_bridge_status()`](http://dipterix.org/ravepipeline/reference/vscode-extension.md)
+  :
+
+  Companion editor extension for `VSCode` and `Positron`
+
+- [`vscode_notify()`](http://dipterix.org/ravepipeline/reference/vscode_notify.md)
+  : Show a notification in the editor
+
 - [`with_rave_parallel()`](http://dipterix.org/ravepipeline/reference/with_rave_parallel.md)
   [`lapply_jobs()`](http://dipterix.org/ravepipeline/reference/with_rave_parallel.md)
   : Internal parallel functions

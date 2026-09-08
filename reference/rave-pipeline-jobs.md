@@ -10,7 +10,7 @@ start_job(
   fun_args = list(),
   packages = NULL,
   workdir = NULL,
-  method = c("callr", "rs_job", "mirai"),
+  method = c("callr", "rs_job", "vscode_task", "mirai"),
   name = NULL,
   ensure_init = TRUE,
   digest_key = NULL,
@@ -53,12 +53,20 @@ remove_job(job_id)
 - method:
 
   job type; choices are `'rs_job'` (only used in `'RStudio'`
-  environment), `'mirai'` (when package `'mirai'` is installed), and
-  `'callr'` (default).
+  environment), `'vscode_task'` (runs the job as an editor task in
+  `VSCode` or `Positron`; requires the companion extension, see
+  [`install_vscode_extension`](http://dipterix.org/ravepipeline/reference/vscode-extension.md)),
+  `'mirai'` (when package `'mirai'` is installed), and `'callr'`
+  (default). Both `'rs_job'` and `'vscode_task'` fall back to `'callr'`
+  when the editor integration is unavailable.
 
 - name:
 
-  name of the job
+  name of the job; under `'vscode_task'` it also identifies the editor
+  task, which is always shown as `RAVE-Task [ID: name]`, and two jobs
+  sharing a name share one terminal, running one after another. Leave it
+  unset for a terminal per job, which closes itself once the job ends
+  rather than accumulating; name a job whose output is worth keeping
 
 - ensure_init:
 

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -32,6 +32,15 @@
       <small>Source: <a href="https://github.com/dipterix/ravepipeline/blob/main/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="ravepipeline-development-version">ravepipeline (development version)<a class="anchor" aria-label="anchor" href="#ravepipeline-development-version"></a></h2>
+<ul><li>Added <code>start_job(method = "vscode_task")</code>, which runs a background job as a native editor task in <code>VSCode</code> and <code>Positron</code>, so the job appears in the terminal panel with a name, live output, and a stop button — the counterpart of the <code>RStudio</code> Jobs pane. This closes a long-standing gap in <code>Positron</code>, where <code><a href="../reference/rave-pipeline-jobs.html">start_job()</a></code> silently fell back to <code>callr</code> because <code>RStudio</code>’s job API is absent. The method falls back to <code>callr</code> whenever the editor integration is unavailable, so it is safe to request anywhere</li>
+<li>Added <code><a href="../reference/vscode-extension.html">install_vscode_extension()</a></code>, <code><a href="../reference/vscode-extension.html">uninstall_vscode_extension()</a></code>, and <code><a href="../reference/vscode-extension.html">vscode_bridge_status()</a></code> to manage and diagnose the companion editor extension, whose sources ship in <code>inst/vscode</code>
+</li>
+<li>Added <code><a href="../reference/vscode_notify.html">vscode_notify()</a></code>, which raises a <code>VSCode</code> or <code>Positron</code> notification from R through the companion extension, optionally with buttons whose answer is returned to R. It returns at once when no editor window is listening, so it is safe to call anywhere</li>
+<li>A job started with <code>start_job(method = "vscode_task")</code> is now always shown as <code>RAVE-Task [ID: name]</code>, rather than whatever <code>name</code> was passed. The name is also the task’s identity, so two jobs sharing one now reuse a single terminal instead of opening a new one for every run; a name still in use by a running task is suffixed so both jobs run. A job left unnamed gets a terminal that closes itself once the job ends, whether it succeeded or not, so name any job whose output is worth reading afterwards</li>
+<li>A job started with <code>start_job(method = "rs_job")</code> or <code>start_job(method = "vscode_task")</code> now streams its console output to the <code>RStudio</code> Jobs pane or the editor terminal while it runs, rather than redirecting everything into a log file the caller only sees afterwards. The log file is still written in full, so <code><a href="../reference/rave-pipeline-jobs.html">resolve_job()</a></code> and the <code>ravepipeline.log_maxline</code> option are unaffected. Jobs run through <code>callr</code> or <code>mirai</code> are unchanged, neither having a console the output could reach</li>
+</ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.0" id="ravepipeline-020">ravepipeline 0.2.0<a class="anchor" aria-label="anchor" href="#ravepipeline-020"></a></h2><p class="text-muted">CRAN release: 2026-08-22</p>
 <ul><li>Unified how <code>rave-brain</code> objects are saved and restored: the reference-hook serializers (<code>rave_serialize_impl</code>, used by the default target format, background jobs, and the file-map cache) and the <code>rave-brain</code> target format now share one implementation instead of two that had drifted apart. A brain written by either route comes back with its electrodes (including whether contacts were spheres or prototypes), surfaces, surface annotations, atlases, and streamlines. A brain built outside <code>ravecore</code> — such as <code>threeBrain::threeBrain(path = ...)</code> — is now restored from its own path rather than looked up as a nonexistent <code>RAVE</code> subject, while a brain built by <code>ravecore</code> still resolves its subject directory through <code>ravecore</code>, so moving the data directory does not break it</li>

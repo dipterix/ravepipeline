@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,7 +44,7 @@
 <span>  fun_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  packages <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  workdir <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"callr"</span>, <span class="st">"rs_job"</span>, <span class="st">"mirai"</span><span class="op">)</span>,</span>
+<span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"callr"</span>, <span class="st">"rs_job"</span>, <span class="st">"vscode_task"</span>, <span class="st">"mirai"</span><span class="op">)</span>,</span>
 <span>  name <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ensure_init <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  digest_key <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -88,12 +88,20 @@
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>job type; choices are <code>'rs_job'</code> (only used in
-<code>'RStudio'</code> environment), <code>'mirai'</code> (when package <code>'mirai'</code>
-is installed), and <code>'callr'</code> (default).</p></dd>
+<code>'RStudio'</code> environment), <code>'vscode_task'</code> (runs the job as an
+editor task in <code>VSCode</code> or <code>Positron</code>; requires the companion
+extension, see <code><a href="vscode-extension.html">install_vscode_extension</a></code>), <code>'mirai'</code>
+(when package <code>'mirai'</code> is installed), and <code>'callr'</code> (default).
+Both <code>'rs_job'</code> and <code>'vscode_task'</code> fall back to <code>'callr'</code>
+when the editor integration is unavailable.</p></dd>
 
 
 <dt id="arg-name">name<a class="anchor" aria-label="anchor" href="#arg-name"></a></dt>
-<dd><p>name of the job</p></dd>
+<dd><p>name of the job; under <code>'vscode_task'</code> it also identifies
+the editor task, which is always shown as <code>RAVE-Task [ID: name]</code>, and
+two jobs sharing a name share one terminal, running one after another. Leave
+it unset for a terminal per job, which closes itself once the job ends
+rather than accumulating; name a job whose output is worth keeping</p></dd>
 
 
 <dt id="arg-ensure-init">ensure_init<a class="anchor" aria-label="anchor" href="#arg-ensure-init"></a></dt>
