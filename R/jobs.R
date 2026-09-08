@@ -496,9 +496,16 @@ start_job_mirai <- function(fun, fun_args = list(), packages = NULL,
 #' @param packages list of packages to load
 #' @param workdir working directory; default is temporary path
 #' @param method job type; choices are \code{'rs_job'} (only used in
-#' \code{'RStudio'} environment), \code{'mirai'} (when package \code{'mirai'}
-#' is installed), and \code{'callr'} (default).
-#' @param name name of the job
+#' \code{'RStudio'} environment), \code{'vscode_task'} (runs the job as an
+#' editor task in \verb{VSCode} or \verb{Positron}; requires the companion
+#' extension, see \code{\link{install_vscode_extension}}), \code{'mirai'}
+#' (when package \code{'mirai'} is installed), and \code{'callr'} (default).
+#' Both \code{'rs_job'} and \code{'vscode_task'} fall back to \code{'callr'}
+#' when the editor integration is unavailable.
+#' @param name name of the job; under \code{'vscode_task'} it also identifies
+#' the editor task, which is always shown as \verb{RAVE-Task [ID: name]}, and
+#' two jobs sharing a name share one terminal, running one after another. Leave
+#' it unset for a terminal per job
 #' @param job_id job identification number
 #' @param timeout timeout in seconds before the resolve ends; jobs that
 #' are still running are subject to \code{unresolved} policy
@@ -563,7 +570,7 @@ start_job <- function(
     fun_args = list(),
     packages = NULL,
     workdir = NULL,
-    method = c("callr", "rs_job", "mirai"),
+    method = c("callr", "rs_job", "vscode_task", "mirai"),
     name = NULL,
     ensure_init = TRUE,
     digest_key = NULL,
@@ -593,6 +600,19 @@ start_job <- function(
     method,
     "rs_job" = {
       start_job_rs(
+        fun = fun,
+        fun_args = fun_args,
+        packages = packages,
+        workdir = workdir,
+        name = name,
+        digest_key = digest_key,
+        envvars = envvars,
+        log_path = log_path
+      )
+    },
+    "vscode_task" = {
+      # Falls back to `callr` internally when no editor window is listening
+      start_job_vscode(
         fun = fun,
         fun_args = fun_args,
         packages = packages,

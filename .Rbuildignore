@@ -14,3 +14,9 @@
 ^\.positai$
 ^\.claude$
 ^revdep$
+^inst/vscode/node_modules$
+^inst/vscode/dist$
+^inst/vscode/out$
+^inst/vscode/\.vscode-test$
+^inst/vscode/.*\.vsix$
+^inst/vscode/package-lock\.json$

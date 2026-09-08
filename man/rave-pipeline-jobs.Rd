@@ -13,7 +13,7 @@ start_job(
   fun_args = list(),
   packages = NULL,
   workdir = NULL,
-  method = c("callr", "rs_job", "mirai"),
+  method = c("callr", "rs_job", "vscode_task", "mirai"),
   name = NULL,
   ensure_init = TRUE,
   digest_key = NULL,
@@ -44,10 +44,17 @@ remove_job(job_id)
 \item{workdir}{working directory; default is temporary path}
 
 \item{method}{job type; choices are \code{'rs_job'} (only used in
-\code{'RStudio'} environment), \code{'mirai'} (when package \code{'mirai'}
-is installed), and \code{'callr'} (default).}
+\code{'RStudio'} environment), \code{'vscode_task'} (runs the job as an
+editor task in \verb{VSCode} or \verb{Positron}; requires the companion
+extension, see \code{\link{install_vscode_extension}}), \code{'mirai'}
+(when package \code{'mirai'} is installed), and \code{'callr'} (default).
+Both \code{'rs_job'} and \code{'vscode_task'} fall back to \code{'callr'}
+when the editor integration is unavailable.}
 
-\item{name}{name of the job}
+\item{name}{name of the job; under \code{'vscode_task'} it also identifies
+the editor task, which is always shown as \verb{RAVE-Task [ID: name]}, and
+two jobs sharing a name share one terminal, running one after another. Leave
+it unset for a terminal per job}
 
 \item{ensure_init}{whether to make sure the job has been started; default
 is true}
