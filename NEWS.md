@@ -1,3 +1,34 @@
+# ravepipeline (development version)
+
+* Added `start_job(method = "vscode_task")`, which runs a background job as a
+  native editor task in `VSCode` and `Positron`, so the job appears in the
+  terminal panel with a name, live output, and a stop button — the counterpart
+  of the `RStudio` Jobs pane. This closes a long-standing gap in `Positron`,
+  where `start_job()` silently fell back to `callr` because `RStudio`'s job API
+  is absent. The method falls back to `callr` whenever the editor integration
+  is unavailable, so it is safe to request anywhere
+* Added `install_vscode_extension()`, `uninstall_vscode_extension()`, and
+  `vscode_bridge_status()` to manage and diagnose the companion editor
+  extension, whose sources ship in `inst/vscode`
+* Added `vscode_notify()`, which raises a `VSCode` or `Positron` notification
+  from R through the companion extension, optionally with buttons whose answer
+  is returned to R. It returns at once when no editor window is listening, so
+  it is safe to call anywhere
+* A job started with `start_job(method = "vscode_task")` is now always shown as
+  `RAVE-Task [ID: name]`, rather than whatever `name` was passed. The name is
+  also the task's identity, so two jobs sharing one now reuse a single terminal
+  instead of opening a new one for every run; a name still in use by a running
+  task is suffixed so both jobs run. A job left unnamed gets a terminal that
+  closes itself once the job ends, whether it succeeded or not, so name any job
+  whose output is worth reading afterwards
+* A job started with `start_job(method = "rs_job")` or
+  `start_job(method = "vscode_task")` now streams its console output to the
+  `RStudio` Jobs pane or the editor terminal while it runs, rather than
+  redirecting everything into a log file the caller only sees afterwards. The
+  log file is still written in full, so `resolve_job()` and the
+  `ravepipeline.log_maxline` option are unaffected. Jobs run through `callr` or
+  `mirai` are unchanged, neither having a console the output could reach
+
 # ravepipeline 0.2.0
 
 * Unified how `rave-brain` objects are saved and restored: the reference-hook

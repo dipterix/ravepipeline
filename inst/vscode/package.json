@@ -1,0 +1,98 @@
+{
+  "name": "rave-vscode-plugin",
+  "displayName": "RAVE VSCode Plugin",
+  "description": "Run RAVE jobs from R as native VS Code tasks.",
+  "version": "0.2.1",
+  "publisher": "dipterix",
+  "license": "MIT",
+  "author": {
+    "name": "Zhengjia Wang"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dipterix/ravepipeline.git",
+    "directory": "inst/vscode"
+  },
+  "bugs": {
+    "url": "https://github.com/dipterix/ravepipeline/issues"
+  },
+  "homepage": "https://dipterix.org/ravepipeline/",
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "R",
+    "RAVE",
+    "pipeline",
+    "tasks"
+  ],
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "main": "./dist/extension.js",
+  "//files": "Selects what goes into the .vsix. Preferred over a .vscodeignore file, which R CMD check flags as a hidden file.",
+  "files": [
+    "dist",
+    "package.json",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "taskDefinitions": [
+      {
+        "type": "rave",
+        "required": [
+          "id"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "RAVE job identifier."
+          }
+        }
+      }
+    ],
+    "configuration": {
+      "title": "RAVE Pipeline",
+      "properties": {
+        "rave.bridgeDir": {
+          "type": "string",
+          "default": "",
+          "markdownDescription": "Directory used to exchange requests with R. Leave empty to use the default `ravepipeline` cache location."
+        },
+        "rave.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Watch for job requests from R."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "rave.showBridgeStatus",
+        "title": "RAVE: Show Bridge Status"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node esbuild.js --production",
+    "watch": "node esbuild.js --watch",
+    "typecheck": "tsc --noEmit",
+    "package": "npm run build && vsce package --out rave-vscode-plugin.vsix",
+    "publish:vsce": "vsce publish",
+    "publish:ovsx": "ovsx publish"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.75.0",
+    "@vscode/vsce": "^3.2.0",
+    "esbuild": "^0.24.0",
+    "ovsx": "^0.10.0",
+    "typescript": "^5.6.0"
+  }
+}

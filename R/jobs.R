@@ -59,7 +59,8 @@ save_job_status <- function(status, path) {
 }
 
 prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
-                        digest_key = NULL, envvars = NULL, log_path = NULL) {
+                        digest_key = NULL, envvars = NULL, log_path = NULL,
+                        tee_console = FALSE) {
 
   if (
     length(workdir) == 1 &&
@@ -114,7 +115,9 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
     ),
     args = as.list(fun_args),
     packages = packages,
-    log_path = log_path
+    log_path = log_path,
+    # Whether the backend running this script has a console a user can see
+    tee_console = isTRUE(tee_console)
   )
 
   # Write initial state
@@ -260,6 +263,11 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
           log_path <- file.path(job_root, "console_outputs.txt")
           file.create(log_path, showWarnings = FALSE)
         }
+        # `split` tees stdout to the backend's own console. It is only
+        # available for `output`, so with a console the message stream is
+        # rerouted through stdout below rather than sunk separately.
+        tee_console <- isTRUE(shared_objects$tee_console)
+
         sink_needs_reset <- FALSE
         log_con <- tryCatch(
           {
@@ -270,13 +278,17 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
           }
         )
         if (inherits(log_con, "connection")) {
-          sink(log_con, type = "output", append = TRUE)
-          sink(log_con, type = "message", append = TRUE)
+          sink(log_con, type = "output", split = tee_console)
+          if (!tee_console) {
+            sink(log_con, type = "message", append = TRUE)
+          }
           sink_needs_reset <- TRUE
           on.exit(
             {
               if (sink_needs_reset) {
-                try(sink(type = "message"), silent = TRUE)
+                if (!tee_console) {
+                  try(sink(type = "message"), silent = TRUE)
+                }
                 try(sink(type = "output"), silent = TRUE)
                 try(close(log_con), silent = TRUE)
               }
@@ -296,13 +308,27 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
         job_status$status <- 2
         save_job_status(job_status, status_path)
 
-        result <- do.call(fun, args)
+        result <- if (tee_console) {
+          withCallingHandlers(
+            do.call(fun, args),
+            message = function(m) {
+              # A plain `cat` goes to stdout, which the split carries to both
+              # the console and the log; muffling drops the stderr copy.
+              cat(conditionMessage(m))
+              invokeRestart("muffleMessage")
+            }
+          )
+        } else {
+          do.call(fun, args)
+        }
         result_path <- file.path(job_root, "results.rds")
         saveRDS(result, file = result_path, refhook = rave_serialize_refhook)
 
         # Close the log connection before saving the final status to avoid file lock issues on some platforms
         if (sink_needs_reset) {
-          try(sink(type = "message"), silent = TRUE)
+          if (!tee_console) {
+            try(sink(type = "message"), silent = TRUE)
+          }
           try(sink(type = "output"), silent = TRUE)
           try(close(log_con), silent = TRUE)
           sink_needs_reset <- FALSE
@@ -400,7 +426,9 @@ start_job_rs <- function(fun, fun_args = list(), packages = NULL, workdir = NULL
     workdir = workdir,
     digest_key = digest_key,
     envvars = envvars,
-    log_path = log_path
+    log_path = log_path,
+    # The Jobs pane displays the script's output, so stream to it as well
+    tee_console = TRUE
   )
   job_root <- get_job_path(job_id, check = FALSE)
   script_path <- file.path(job_root, "script.R")
@@ -432,6 +460,9 @@ start_job_callr <- function(fun, fun_args = list(), packages = NULL,
     digest_key = digest_key,
     envvars = envvars,
     log_path = log_path
+    # No `tee_console`: `r_bg` gives the child a pipe that nothing here drains,
+    # so a chatty job would block once its buffer fills. The log file is the
+    # only route out, and `resolve_job` tails it.
   )
   job_root <- get_job_path(job_id, check = FALSE)
   script_path <- file.path(job_root, "script.R")
@@ -496,9 +527,17 @@ start_job_mirai <- function(fun, fun_args = list(), packages = NULL,
 #' @param packages list of packages to load
 #' @param workdir working directory; default is temporary path
 #' @param method job type; choices are \code{'rs_job'} (only used in
-#' \code{'RStudio'} environment), \code{'mirai'} (when package \code{'mirai'}
-#' is installed), and \code{'callr'} (default).
-#' @param name name of the job
+#' \code{'RStudio'} environment), \code{'vscode_task'} (runs the job as an
+#' editor task in \verb{VSCode} or \verb{Positron}; requires the companion
+#' extension, see \code{\link{install_vscode_extension}}), \code{'mirai'}
+#' (when package \code{'mirai'} is installed), and \code{'callr'} (default).
+#' Both \code{'rs_job'} and \code{'vscode_task'} fall back to \code{'callr'}
+#' when the editor integration is unavailable.
+#' @param name name of the job; under \code{'vscode_task'} it also identifies
+#' the editor task, which is always shown as \verb{RAVE-Task [ID: name]}, and
+#' two jobs sharing a name share one terminal, running one after another. Leave
+#' it unset for a terminal per job, which closes itself once the job ends
+#' rather than accumulating; name a job whose output is worth keeping
 #' @param job_id job identification number
 #' @param timeout timeout in seconds before the resolve ends; jobs that
 #' are still running are subject to \code{unresolved} policy
@@ -563,7 +602,7 @@ start_job <- function(
     fun_args = list(),
     packages = NULL,
     workdir = NULL,
-    method = c("callr", "rs_job", "mirai"),
+    method = c("callr", "rs_job", "vscode_task", "mirai"),
     name = NULL,
     ensure_init = TRUE,
     digest_key = NULL,
@@ -593,6 +632,19 @@ start_job <- function(
     method,
     "rs_job" = {
       start_job_rs(
+        fun = fun,
+        fun_args = fun_args,
+        packages = packages,
+        workdir = workdir,
+        name = name,
+        digest_key = digest_key,
+        envvars = envvars,
+        log_path = log_path
+      )
+    },
+    "vscode_task" = {
+      # Falls back to `callr` internally when no editor window is listening
+      start_job_vscode(
         fun = fun,
         fun_args = fun_args,
         packages = packages,
