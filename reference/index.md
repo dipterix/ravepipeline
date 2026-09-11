@@ -16,6 +16,9 @@
 
   'R6' wrapper for `'FileArray'`
 
+- [`RAVEPipelineAnalysis`](http://dipterix.org/ravepipeline/reference/RAVEPipelineAnalysis.md)
+  : Modular analysis unit for 'RAVE' pipelines
+
 - [`RAVESerializable`](http://dipterix.org/ravepipeline/reference/RAVESerializable.md)
   : Abstract class for 'RAVE' serialization
 

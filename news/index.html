@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,7 +34,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="ravepipeline-development-version">ravepipeline (development version)<a class="anchor" aria-label="anchor" href="#ravepipeline-development-version"></a></h2>
-<ul><li>Fixed two long-standing faults in the internal program finder on <code>Linux</code>. It raised <code>invalid 'file' argument</code> when the program was absent and the machine had no <code>Homebrew</code>, and it reported every <em>installed</em> program as missing when one was found. Both affected <code><a href="../reference/vscode-extension.html">vscode_bridge_status()</a></code> and <code><a href="../reference/vscode-extension.html">install_vscode_extension()</a></code>, as well as the discovery of <code>npm</code> and <code>pandoc</code>. <code>macOS</code> and <code>Windows</code> take other branches and were never affected</li>
+<ul><li>Added <code>RAVEPipelineAnalysis</code>, a small class for writing one analysis as plain functions (input, <code>shiny</code> server, <code>preprocess</code>, <code>analyze</code>, <code>visualize</code>) that the <code>RAVE</code> dashboard renders, collects, runs, and captures. It works without <code>shiny</code>; extra arguments to <code>analyze_data()</code> persist in <code>options</code>, while those to <code>visualize_data()</code> apply to that call only</li>
+<li>Fixed two long-standing faults in the internal program finder on <code>Linux</code>. It raised <code>invalid 'file' argument</code> when the program was absent and the machine had no <code>Homebrew</code>, and it reported every <em>installed</em> program as missing when one was found. Both affected <code><a href="../reference/vscode-extension.html">vscode_bridge_status()</a></code> and <code><a href="../reference/vscode-extension.html">install_vscode_extension()</a></code>, as well as the discovery of <code>npm</code> and <code>pandoc</code>. <code>macOS</code> and <code>Windows</code> take other branches and were never affected</li>
 <li>Added <code>start_job(method = "vscode_task")</code>, which runs a background job as a native editor task in <code>VSCode</code> and <code>Positron</code>, so the job appears in the terminal panel with a name, live output, and a stop button — the counterpart of the <code>RStudio</code> Jobs pane. This closes a long-standing gap in <code>Positron</code>, where <code><a href="../reference/rave-pipeline-jobs.html">start_job()</a></code> silently fell back to <code>callr</code> because <code>RStudio</code>’s job API is absent. The method falls back to <code>callr</code> whenever the editor integration is unavailable, so it is safe to request anywhere</li>
 <li>Added <code><a href="../reference/vscode-extension.html">install_vscode_extension()</a></code>, <code><a href="../reference/vscode-extension.html">uninstall_vscode_extension()</a></code>, and <code><a href="../reference/vscode-extension.html">vscode_bridge_status()</a></code> to manage and diagnose the companion editor extension, whose sources ship in <code>inst/vscode</code>
 </li>

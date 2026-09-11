@@ -2,6 +2,12 @@
 
 ## ravepipeline (development version)
 
+- Added `RAVEPipelineAnalysis`, a small class for writing one analysis
+  as plain functions (input, `shiny` server, `preprocess`, `analyze`,
+  `visualize`) that the `RAVE` dashboard renders, collects, runs, and
+  captures. It works without `shiny`; extra arguments to
+  `analyze_data()` persist in `options`, while those to
+  `visualize_data()` apply to that call only
 - Fixed two long-standing faults in the internal program finder on
   `Linux`. It raised `invalid 'file' argument` when the program was
   absent and the machine had no `Homebrew`, and it reported every
