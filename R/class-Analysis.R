@@ -41,193 +41,113 @@ is_named_list <- function(x) {
   length(nms) == length(x) && !anyNA(nms) && all(nzchar(nms))
 }
 
+# Whether `x` is atomic data: `NULL`, an atomic vector, or a list (such as a
+# data frame) whose elements are all atomic data; environments (including R6
+# objects) and functions are not
+is_atomic_data <- function(x) {
+  if (is.null(x) || is.atomic(x)) {
+    return(TRUE)
+  }
+  if (!is.list(x)) {
+    return(FALSE)
+  }
+  for (item in x) {
+    if (!is_atomic_data(item)) {
+      return(FALSE)
+    }
+  }
+  TRUE
+}
+
+check_is_pipeline <- function(pipeline) {
+  if (!inherits(pipeline, "PipelineTools")) {
+    stop("`pipeline` must be a RAVE pipeline [PipelineTools] object.", call. = FALSE)
+  }
+  invisible(pipeline)
+}
+
+get_shiny_root_session <- function(session) {
+  if (!is.environment(session) || !is.function(session$rootScope)) {
+    stop("`session` must be a shiny session", call. = FALSE)
+  }
+  session$rootScope()
+}
+
+
 #' Modular analysis unit for 'RAVE' pipelines
 #'
 #' @description
-#' A light-weight container that lets module developers describe one analysis
-#' as a handful of plain functions, while the 'RAVE' dashboard (the
-#' controller) decides when to render the inputs, collect their values, run
-#' the analysis, and show the results. Every step is optional, and none of
-#' them requires \pkg{shiny}.
-#'
-#' @details
-#' A controller runs an analysis in the following order; without registered
-#' functions, \code{preprocess_data} and \code{analyze_data} return their
-#' input unchanged, and \code{visualize_data} does nothing:
-#' \preformatted{
-#' value  <- analysis$collect_inputs(input)
-#' value  <- analysis$preprocess_data(value)
-#' result <- analysis$analyze_data(value)
-#' analysis$visualize_data(result)
-#' }
-#'
-#' Developers register the steps with the \code{set_*} methods. Each step
-#' function must accept the arguments listed below, by name; a function with a
-#' \code{...} formal argument accepts all of them.
-#' \describe{
-#' \item{\code{set_input_ui}}{\code{function(inputId, pipeline)};
-#' returns whatever the dashboard renders, usually a \pkg{shiny} input whose
-#' identifier must be \code{inputId}}
-#' \item{\code{set_shiny_server}}{\code{function(input, output, session)};
-#' a \pkg{shiny} module server running in the analysis \code{namespace}}
-#' \item{\code{set_preprocess}}{\code{function(value, pipeline)};
-#' converts the collected input values into analysis parameters, and should
-#' call \code{stop()} to reject invalid values before the analysis runs}
-#' \item{\code{set_analyze}}{\code{function(value, pipeline, options)};
-#' runs synchronously on the output of \code{preprocess_data}, typically
-#' saving it with \code{pipeline$set_settings()} before running or reading
-#' pipeline targets, and returns the analysis result}
-#' \item{\code{set_visualize}}{\code{function(value, pipeline, options)};
-#' receives the analysis result and prints, plots, or writes text; the caller
-#' (for example an R Markdown chunk) captures the output}
-#' }
-#'
-#' Options are a named list shared by the analyze and visualize steps. Set the
-#' defaults with \code{analysis$options <- list(...)}. Extra named arguments to
-#' \code{analyze_data} update the options and are kept for later calls, while
-#' extra arguments to \code{visualize_data} apply to that call only. An option
-#' whose name partially matches the first argument of these methods (for
-#' example \code{val}) must be passed through \code{.list}.
-#'
-#' Input identifiers are \code{"<name>__<input_name>"} (see \code{get_id}),
-#' placed under the \pkg{shiny} module \code{namespace}, which defaults to the
-#' pipeline name; standard 'RAVE' modules use the same name for the module and
-#' its pipeline. Set \code{namespace} explicitly when they differ.
-#'
-#' @examples
-#'
-#' \dontrun{
-#' 
-#' # ---- A pipeline to work with ---------------------------------------
-#' # Any 'RAVE' pipeline works; here is a bare template in a temporary folder
-#' root_path <- tempfile()
-#' pipeline_path <- pipeline_create_template(
-#'   root_path = root_path, pipeline_name = "analysis_demo",
-#'   overwrite = TRUE, activate = FALSE, template_type = "rmd-bare")
-#' pipe <- pipeline_from_path(pipeline_path)
-#'
-#' # ---- Developer side: describe the analysis --------------------------
-#' analysis <- RAVEPipelineAnalysis$new(name = "scatter", pipeline = pipe)
-#'
-#' # Inputs return whatever the dashboard renders, usually shiny inputs;
-#' # plain HTML strings here so the example does not need shiny
-#' analysis$set_input_ui("n", function(inputId, pipeline) {
-#'   n <- pipeline$get_settings("n", default = 100)
-#'   paste0('<input id="', inputId, '" type="number" value="', n, '">')
-#' })
-#' analysis$set_input_ui("col", function(inputId, pipeline) {
-#'   col <- pipeline$get_settings("col", default = "steelblue")
-#'   paste0('<input id="', inputId, '" value="', col, '">')
-#' })
-#'
-#' # Pre-process: turn raw input values into analysis parameters
-#' analysis$set_preprocess(function(value, pipeline) {
-#'   value$n <- suppressWarnings(as.integer(value$n))
-#'   if (is.na(value$n) || value$n < 2) {
-#'     stop("`n` must be an integer greater than 1")
-#'   }
-#'   value
-#' })
-#'
-#' # Analyze: save the parameters to the pipeline, then compute
-#' analysis$set_analyze(function(value, pipeline, options) {
-#'   pipeline$set_settings(.list = value)
-#'   if (length(options$seed)) {
-#'     set.seed(options$seed)
-#'   }
-#'   x <- stats::rnorm(value$n)
-#'   list(x = x, y = x + stats::rnorm(value$n), col = value$col)
-#' })
-#'
-#' # Visualize: any mix of printed text and plots
-#' analysis$set_visualize(function(value, pipeline, options) {
-#'   cat("Correlation:", round(stats::cor(value$x, value$y), 2), "\n")
-#'   plot(value$x, value$y, col = value$col, pch = 16, main = options$main)
-#' })
-#'
-#' # Default options
-#' analysis$options <- list(main = "Simulated data")
-#'
-#' # ---- Controller side: what the dashboard does ----------------------
-#' analysis$input_names
-#' analysis$get_id("n")
-#' analysis$get_id("n", with_namespace = TRUE)
-#' analysis$render_input("n")
-#'
-#' # `input` mimics shiny's `input`: values keyed by input identifier
-#' input <- list(scatter__n = "50", scatter__col = "orange")
-#'
-#' value <- analysis$collect_inputs(input)
-#' value <- analysis$preprocess_data(value)
-#'
-#' # `seed` is kept in `analysis$options` for later calls
-#' result <- analysis$analyze_data(value, seed = 42)
-#' analysis$options
-#'
-#' # the analysis saved its parameters to the pipeline
-#' pipe$get_settings("n")
-#'
-#' # `main` applies to this call only
-#' analysis$visualize_data(result, main = "One-off title")
-#' analysis$options$main
-#'
-#' # invalid input is rejected before the analysis runs
-#' try(analysis$preprocess_data(list(n = "one", col = "red")))
-#'
-#' # ---- Clean up -------------------------------------------------------
-#' unlink(root_path, recursive = TRUE)
-#' 
-#' }
+#' A light-weight container that describes one analysis as a handful of plain
+#' functions. The analysis never stores a pipeline: the 'RAVE' dashboard (the
+#' controller) passes the pipeline, the \pkg{shiny} session, or the values of
+#' the prerequisite pipeline targets to the methods that need them.
 #'
 #' @export
 RAVEPipelineAnalysis <- R6::R6Class(
   classname = "RAVEPipelineAnalysis",
   portable = TRUE,
+  cloneable = FALSE,
   private = list(
     .name = character(0L),
+    .namespace = character(0L),
     .ui = NULL,
     .server = NULL,
+    .collect_from_shiny = NULL,
+    .collect_from_pipeline = NULL,
+    .store_to_pipeline = NULL,
     .preprocess = NULL,
+    .pipeline_targets = character(0L),
     .analyze = NULL,
     .visualize = NULL,
-    .pipeline = NULL,
-    .namespace = NULL,
-    .options = NULL,
 
-    # Updates the options keys in `opts` and keeps the others
-    .merge_options = function(opts) {
-      if (!length(opts)) {
-        return(invisible())
+    # The values of the declared pipeline targets, from the named list
+    # `pipeline_targets`
+    .pick_pipeline_targets = function(pipeline_targets) {
+      target_names <- private$.pipeline_targets
+      missing_names <- target_names[!target_names %in% names(pipeline_targets)]
+      if (length(missing_names)) {
+        stop(sprintf(
+          "Analysis '%s' requires the values of pipeline targets %s. The following targets are missing: %s",
+          private$.name, paste(sprintf("`%s`", target_names), collapse = ", "),
+          paste(sprintf("`%s`", missing_names), collapse = ", ")
+        ), call. = FALSE)
       }
-      if (!is_named_list(opts)) {
-        stop("All options must be named", call. = FALSE)
-      }
-      new_options <- private$.options
-      new_options[names(opts)] <- opts
-      private$.options <- new_options
-      invisible()
+      as.list(pipeline_targets)[target_names]
     }
   ),
   public = list(
+
+    #' @field options named list of options passed to the analyze and
+    #' visualize steps; assigning replaces the whole list, and \code{NULL}
+    #' clears it
+    options = structure(list(), names = character(0L)),
+
+    set_option = function(..., .list = list(), .clear_first = FALSE) {
+      if (.clear_first) {
+        self$options <- structure(list(), names = character(0L))
+      }
+      self$options <- utils::modifyList(self$options, c(list(...), .list))
+      invisible(self)
+    },
 
     #' @description Constructor
     #' @param name analysis name, a single string of letters, digits, and
     #' underscores that starts with a letter; used as the prefix of the
     #' input identifiers
-    #' @param pipeline a \code{\link{PipelineTools}} instance, see
-    #' \code{\link{pipeline}}
     #' @param namespace \pkg{shiny} module namespace under which the inputs
-    #' are rendered; default is the pipeline name
-    initialize = function(name, pipeline, namespace = pipeline$pipeline_name) {
+    #' are rendered, usually the module ID; a single non-empty string
+    initialize = function(name, namespace) {
       if (!is.character(name) || length(name) != 1L ||
           !grepl("^[a-zA-Z][a-zA-Z0-9_]*$", name)) {
         stop("`name` must be a single string of letters, digits, and underscores, starting with a letter", call. = FALSE) # nolint: line_length_linter.
       }
+      if (!is.character(namespace) || length(namespace) != 1L ||
+          is.na(namespace) || !nzchar(namespace)) {
+        stop("`namespace` must be a single non-empty string", call. = FALSE)
+      }
       private$.name <- name
-      self$pipeline <- pipeline
       private$.namespace <- namespace
       private$.ui <- list()
-      private$.options <- list()
     },
 
     #' @description Get the identifier of an input or output element
@@ -240,7 +160,7 @@ RAVEPipelineAnalysis <- R6::R6Class(
     get_id = function(id, with_namespace = FALSE) {
       id <- sprintf("%s__%s", private$.name, id)
       if (with_namespace) {
-        id <- self$ns(id)
+        id <- self$`@ns`(id)
       }
       id
     },
@@ -248,8 +168,8 @@ RAVEPipelineAnalysis <- R6::R6Class(
     #' @description Register the function that renders an input
     #' @param input_name input name, a single string; the collected value
     #' uses this name
-    #' @param ui_func \code{function(inputId, pipeline)} returning the input
-    #' element, or \code{NULL} to remove the input
+    #' @param ui_func \code{function(inputId, restored_inputs)} returning the
+    #' input element, or \code{NULL} to remove the input
     #' @returns The analysis object itself, invisibly
     set_input_ui = function(input_name, ui_func) {
       if (!is.character(input_name) || length(input_name) != 1L ||
@@ -258,43 +178,141 @@ RAVEPipelineAnalysis <- R6::R6Class(
       }
       private$.ui[[input_name]] <- check_function_args(
         ui_func, name = sprintf("`ui_func` for input '%s'", input_name),
-        allow_null = TRUE, arg_names = c("inputId", "pipeline")
+        allow_null = TRUE, arg_names = c("inputId", "restored_inputs")
       )
       invisible(self)
     },
 
     #' @description Render an input registered by \code{set_input_ui}
     #' @param input_name input name
+    #' @param pipeline a \code{\link{PipelineTools}} instance from which the
+    #' saved input values are restored, see
+    #' \code{collect_inputs_from_pipeline}
     #' @returns The value returned by the input function, which receives the
-    #' identifier with namespace; \code{NULL} invisibly if the input is not
-    #' registered
-    render_input = function(input_name) {
+    #' identifier with namespace and the restored input values; \code{NULL}
+    #' invisibly if the input is not registered
+    `@render_input` = function(input_name, pipeline) {
+      check_is_pipeline(pipeline)
       ui_func <- private$.ui[[input_name]]
       if (!is.function(ui_func)) {
         return(invisible())
       }
       ui_func(
         inputId = self$get_id(input_name, with_namespace = TRUE),
-        pipeline = self$pipeline
+        restored_inputs = self$`@collect_inputs_from_pipeline`(pipeline)
       )
     },
 
-    #' @description Collect the values of all registered inputs
-    #' @param input a \pkg{shiny} \code{input} object, or any list, whose
-    #' elements are the input values keyed by identifier
-    #' @param with_namespace whether the keys of \code{input} include the
-    #' namespace; default is false, which matches the \code{input} inside
-    #' the module server; set to true for the root session \code{input}
-    #' @returns A named list of input values, one per registered input; a
-    #' value is \code{NULL} if \code{input} does not contain it
-    collect_inputs = function(input, with_namespace = FALSE) {
-      input_names <- self$input_names
-      structure(
-        names = input_names,
-        lapply(input_names, function(input_name) {
-          input[[self$get_id(input_name, with_namespace = with_namespace)]]
-        })
+    #' @description Register the function that collects the input values
+    #' from \pkg{shiny}
+    #' @param collect_func \code{function(session)} returning the input
+    #' values as a named list, where \code{session} is scoped to the analysis
+    #' \code{namespace}; \code{NULL} restores the default, which reads the
+    #' registered inputs
+    #' @returns The analysis object itself, invisibly
+    set_collect_inputs_from_shiny = function(collect_func) {
+      private$.collect_from_shiny <- check_function_args(
+        collect_func,
+        name = "collect_func",
+        allow_null = TRUE,
+        arg_names = "session"
       )
+      invisible(self)
+    },
+
+    #' @description Collect the input values from a \pkg{shiny} session
+    #' @param session \pkg{shiny} session; any scope works, since the values
+    #' are read under the analysis \code{namespace}
+    #' @returns A named list of input values; by default one per registered
+    #' input, which is \code{NULL} if the session does not have it
+    `@collect_inputs_from_shiny` = function(session) {
+      session <- get_shiny_root_session(session)$makeScope(private$.namespace)
+      collect_func <- private$.collect_from_shiny
+      if (is.function(collect_func)) {
+        inputs <- collect_func(session = session)
+      } else {
+        shiny <- asNamespace("shiny")
+        input_names <- self$input_names
+        inputs <- shiny$isolate({
+          structure(
+            names = input_names,
+            lapply(input_names, function(input_name) {
+              session$input[[self$get_id(input_name)]]
+            })
+          )
+        })
+      }
+      inputs
+    },
+
+    #' @description Register the function that restores the input values
+    #' from a pipeline
+    #' @param collect_func \code{function(pipeline)} returning the input
+    #' values as a named list; \code{NULL} restores the default, which reads
+    #' the pipeline settings named \code{inputs_settings_name}
+    #' @returns The analysis object itself, invisibly
+    set_collect_inputs_from_pipeline = function(collect_func) {
+      private$.collect_from_pipeline <- check_function_args(
+        collect_func,
+        name = "collect_func",
+        allow_null = TRUE,
+        arg_names = "pipeline"
+      )
+      invisible(self)
+    },
+
+    #' @description Restore the input values saved in a pipeline
+    #' @param pipeline a \code{\link{PipelineTools}} instance
+    #' @returns A named list of input values; by default the pipeline
+    #' settings named \code{inputs_settings_name}, or an empty list if no
+    #' values have been saved
+    `@collect_inputs_from_pipeline` = function(pipeline) {
+      check_is_pipeline(pipeline)
+      collect_func <- private$.collect_from_pipeline
+      if (is.function(collect_func)) {
+        inputs <- collect_func(pipeline = pipeline)
+      } else {
+        inputs <- pipeline$get_settings(self$inputs_settings_name, default = list())
+      }
+      inputs
+    },
+
+    #' @description Register the function that converts the input values
+    #' before they are saved to a pipeline
+    #' @param store_func \code{function(inputs)} returning the named list to
+    #' save; \code{NULL} restores the default, which saves the input values
+    #' unchanged
+    #' @returns The analysis object itself, invisibly
+    set_store_inputs_to_pipeline = function(store_func) {
+      private$.store_to_pipeline <- check_function_args(
+        store_func,
+        name = "store_func",
+        allow_null = TRUE,
+        # This is the rare places where pipeline object will be directly exposed to analyzer
+        arg_names = c("inputs", "pipeline")
+      )
+      invisible(self)
+    },
+
+    #' @description Save the input values to the pipeline settings named
+    #' \code{inputs_settings_name}
+    #' @param inputs input values, usually from
+    #' \code{collect_inputs_from_shiny}
+    #' @param pipeline a \code{\link{PipelineTools}} instance
+    #' @returns The saved values, invisibly
+    `@store_inputs_to_pipeline` = function(inputs, pipeline) {
+      check_is_pipeline(pipeline)
+      store_func <- private$.store_to_pipeline
+      if (is.function(store_func)) {
+        inputs <- store_func(inputs = inputs, pipeline = pipeline)
+      }
+      if (!is_key_missing(inputs)) {
+        pipeline$set_settings(.list = structure(
+          list(inputs),
+          names = self$inputs_settings_name
+        ))
+      }
+      invisible(inputs)
     },
 
     #' @description Register the \pkg{shiny} module server
@@ -312,65 +330,67 @@ RAVEPipelineAnalysis <- R6::R6Class(
     },
 
     #' @description Start the \pkg{shiny} module server registered by
-    #' \code{set_shiny_server}; must run within a \pkg{shiny} session
-    #' @param session \pkg{shiny} session; default is the current session.
-    #' Any scope of the session works, since the server always runs under
-    #' the analysis \code{namespace}
+    #' \code{set_shiny_server}
+    #' @param session \pkg{shiny} session; any scope works, since the server
+    #' always runs under the analysis \code{namespace}
     #' @returns The value returned by the server function; \code{NULL}
     #' invisibly if no server is registered
-    shiny_server = function(session = NULL) {
+    `@shiny_server` = function(session) {
+      root_session <- get_shiny_root_session(session)
       if (!is.function(private$.server)) {
         return(invisible())
       }
-      stopifnot(
-        "Package `shiny` must be installed to run a shiny-server" = (system.file(package = "shiny") != "")
+      asNamespace("shiny")$moduleServer(
+        id = private$.namespace,
+        module = private$.server,
+        session = root_session
       )
-      shiny <- asNamespace("shiny")
-      if (is.null(session)) {
-        session <- shiny$getDefaultReactiveDomain()
-      }
-      if (is.null(session)) {
-        stop("`shiny_server()` must run within a shiny session, or with `session` specified", call. = FALSE) # nolint: line_length_linter.
-      }
-      root_session <- session$rootScope()
-      namespace <- self$ns(NULL)
-      if (!length(namespace)) {
-        return(private$.server(
-          input = root_session$input,
-          output = root_session$output,
-          session = root_session
-        ))
-      }
-      shiny$moduleServer(id = namespace, module = private$.server, session = root_session)
     },
 
     #' @description Register the \code{preprocess} step
-    #' @param preprocess_func \code{function(value, pipeline)} returning the
-    #' processed values, or \code{NULL} to remove the step
+    #' @param preprocess_func \code{function(value, pipeline_targets)}
+    #' returning the processed values, or \code{NULL} to remove the step
+    #' @param pipeline_targets names of the pipeline targets that must be
+    #' built before the \code{preprocess} step; their values are passed to
+    #' the \code{preprocess} and analyze steps. Default is \code{NULL}
+    #' (none)
     #' @returns The analysis object itself, invisibly
-    set_preprocess = function(preprocess_func) {
-      private$.preprocess <- check_function_args(
+    set_preprocess = function(preprocess_func, pipeline_targets = NULL) {
+      if (!is.null(pipeline_targets) && (
+        !is.character(pipeline_targets) || anyNA(pipeline_targets) ||
+        !all(nzchar(pipeline_targets)) || anyDuplicated(pipeline_targets) > 0
+      )) {
+        stop("`pipeline_targets` must be `NULL` or a character vector of unique non-empty target names", call. = FALSE) # nolint: line_length_linter.
+      }
+      preprocess_func <- check_function_args(
         preprocess_func,
         name = "preprocess_func",
         allow_null = TRUE,
-        arg_names = c("value", "pipeline")
+        arg_names = c("value", "pipeline_targets")
       )
+      private$.preprocess <- preprocess_func
+      private$.pipeline_targets <- as.character(pipeline_targets)
       invisible(self)
     },
 
     #' @description Process the collected input values before the analysis
-    #' @param value input values, usually from \code{collect_inputs}
+    #' @param value input values, usually from
+    #' \code{collect_inputs_from_pipeline}
+    #' @param pipeline_targets named list of pipeline target values, which
+    #' must include every target in the \code{pipeline_targets} field, for
+    #' example \code{pipeline[analysis$pipeline_targets, simplify = FALSE]}
     #' @returns The processed values, or \code{value} if no
     #' \code{preprocess} step is registered
-    preprocess_data = function(value) {
+    `@preprocess_data` = function(value, pipeline_targets = list()) {
+      pipeline_targets <- private$.pick_pipeline_targets(pipeline_targets)
       if (!is.function(private$.preprocess)) {
         return(value)
       }
-      private$.preprocess(value = value, pipeline = self$pipeline)
+      private$.preprocess(value = value, pipeline_targets = pipeline_targets)
     },
 
     #' @description Register the analyze step
-    #' @param analyze_func \code{function(value, pipeline, options)}
+    #' @param analyze_func \code{function(value, pipeline_targets, options)}
     #' returning the analysis result, or \code{NULL} to remove the step
     #' @returns The analysis object itself, invisibly
     set_analyze = function(analyze_func) {
@@ -378,67 +398,55 @@ RAVEPipelineAnalysis <- R6::R6Class(
         analyze_func,
         name = "analyze_func",
         allow_null = TRUE,
-        arg_names = c("value", "pipeline", "options")
+        arg_names = c("value", "options")
       )
       invisible(self)
     },
 
-    #' @description Run the analysis; this method does not call
-    #' \code{preprocess_data}, so pass its result in
+    #' @description Run the analysis with the current \code{options}; this
+    #' method does not call \code{preprocess_data}, so pass its result in
     #' @param value_processed processed values, usually returned by
     #' \code{preprocess_data}
-    #' @param ...,.list named options to update and keep in \code{options}
-    #' before the analysis runs; \code{.list} takes precedence over
-    #' \code{...} for the same name
+    #' @param pipeline_targets named list of pipeline target values, as in
+    #' \code{preprocess_data}
     #' @returns The analysis result, or \code{value_processed} if no analyze
     #' step is registered
-    analyze_data = function(value_processed, ..., .list = list()) {
-      private$.merge_options(c(list(...), as.list(.list)))
+    `@analyze_data` = function(value_processed) {
       if (!is.function(private$.analyze)) {
         return(value_processed)
       }
       private$.analyze(
         value = value_processed,
-        pipeline = self$pipeline,
         options = self$options
       )
     },
 
     #' @description Register the visualize step
-    #' @param visualize_func \code{function(value, pipeline, options)} that
-    #' prints, plots, or writes text, or \code{NULL} to remove the step
+    #' @param visualize_func \code{function(value, options)} that prints,
+    #' plots, or writes text, or \code{NULL} to remove the step
     #' @returns The analysis object itself, invisibly
     set_visualize = function(visualize_func) {
       private$.visualize <- check_function_args(
         visualize_func,
         name = "visualize_func",
         allow_null = TRUE,
-        arg_names = c("value", "pipeline", "options")
+        arg_names = c("value", "options")
       )
       invisible(self)
     },
 
-    #' @description Visualize the analysis result
+    #' @description Visualize the analysis result with the current
+    #' \code{options}
     #' @param value analysis result, usually from \code{analyze_data}
-    #' @param ...,.list named options for this call only; \code{options} is
-    #' restored afterwards. \code{.list} takes precedence over \code{...}
-    #' for the same name
     #' @returns The value returned by the visualize function, visible or
     #' invisible as that function returned it (so a returned plot object is
     #' printed at top level or in a report chunk); \code{NULL} invisibly if
     #' no visualize step is registered
-    visualize_data = function(value, ..., .list = list()) {
+    `@visualize_data` = function(value) {
       if (!is.function(private$.visualize)) {
         return(invisible())
       }
-      options_orig <- private$.options
-      on.exit({ private$.options <- options_orig }, add = TRUE)
-      private$.merge_options(c(list(...), as.list(.list)))
-      private$.visualize(
-        value = value,
-        pipeline = self$pipeline,
-        options = self$options
-      )
+      private$.visualize(value = value, options = self$options)
     }
 
   ),
@@ -457,50 +465,35 @@ RAVEPipelineAnalysis <- R6::R6Class(
       as.character(names(private$.ui))
     },
 
-    #' @field options named list of options passed to the analyze and
-    #' visualize steps; assigning replaces the whole list, and \code{NULL}
-    #' clears it
-    options = function(v) {
-      if (!missing(v)) {
-        if (is.null(v)) {
-          v <- list()
-        }
-        if (!is_named_list(v)) {
-          stop("`options` must be a named list", call. = FALSE)
-        }
-        private$.options <- v
-      }
-      private$.options
+    #' @field pipeline_targets names of the pipeline targets whose values the
+    #' \code{preprocess} and analyze steps receive, read-only; see
+    #' \code{set_preprocess}
+    pipeline_targets = function() {
+      private$.pipeline_targets
     },
 
-    #' @field pipeline the \code{\link{PipelineTools}} instance that the
-    #' analysis works with
-    pipeline = function(v) {
-      if (!missing(v)) {
-        stopifnot("`pipeline` must be a RAVE pipeline [PipelineTools] object." = inherits(v, "PipelineTools"))
-        private$.pipeline <- v
-      }
-      private$.pipeline
+    #' @field inputs_settings_name name of the pipeline settings that holds
+    #' the saved input values, read-only
+    inputs_settings_name = function() {
+      sprintf("analysis_inputs_%s", private$.name)
+    },
+
+    #' @field results_target_name name of the pipeline target that holds the
+    #' analysis result, read-only
+    results_target_name = function() {
+      sprintf("analysis_results_%s", private$.name)
     },
 
     #' @field ns \pkg{shiny} namespace function: \code{ns(id)} adds the
     #' namespace prefix to \code{id}, and \code{ns(NULL)} returns the prefix
-    ns = function() {
+    `@ns` = function() {
       if (system.file(package = "shiny") != "") {
         asNamespace("shiny")$NS(private$.namespace)
       } else {
-        if (length(private$.namespace)) {
-          ns_prefix <- paste(private$.namespace, collapse = "-")
-        } else {
-          ns_prefix <- character(0L)
-        }
-
+        ns_prefix <- private$.namespace
         function(id) {
           if (length(id) == 0) {
             return(ns_prefix)
-          }
-          if (length(ns_prefix) == 0) {
-            return(id)
           }
           paste(ns_prefix, id, sep = "-")
         }
@@ -509,3 +502,4 @@ RAVEPipelineAnalysis <- R6::R6Class(
 
   )
 )
+
