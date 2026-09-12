@@ -1556,7 +1556,7 @@ pipeline_from_path <- function(path, settings_file = "settings.yaml") {
       })
     )
   }
-  if (length(simplify) && length(re) == 1) {
+  if (simplify && length(re) == 1) {
     re <- re[[1]]
   }
   re
