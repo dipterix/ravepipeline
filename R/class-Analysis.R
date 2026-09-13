@@ -549,7 +549,7 @@ RAVEPipelineAnalysis <- R6::R6Class(
           label = sprintf("__Collect_analysis_inputs-%s", private$.name),
           export = cleaned_target_name,
           code = cleaned_target_expr,
-          deps = "settings",
+          deps = c(self$inputs_settings_name, "settings"),
           cue = "thorough",
           format = NULL
         )
