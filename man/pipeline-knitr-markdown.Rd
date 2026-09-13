@@ -7,7 +7,7 @@
 \alias{pipeline_render}
 \title{Configure \code{'rmarkdown'} files to build 'RAVE' pipelines}
 \usage{
-configure_knitr(languages = c("R", "python"))
+configure_knitr(languages = c("R", "python"), targets = fastqueue2())
 
 pipeline_setup_rmd(
   module_id,
@@ -32,6 +32,10 @@ pipeline_render(
 \item{languages}{one or more programming languages to support; options are
 \code{'R'} and \code{'python'}}
 
+\item{targets}{internal queue that collects the pipeline target
+specifications; \code{pipeline_setup_rmd} passes its own queue so it can
+add the analysis targets. Leave it as the default, a new queue}
+
 \item{module_id}{the module ID, usually the name of direct parent folder
 containing the pipeline file}
 
@@ -55,6 +59,9 @@ pipeline scripts
 Allows building 'RAVE' pipelines from \code{'rmarkdown'} files.
 Please use it in \code{'rmarkdown'} scripts only. Use
 \code{\link{pipeline_create_template}} to create an example.
+\code{pipeline_setup_rmd} also turns every \code{\link{RAVEPipelineAnalysis}}
+defined at the top level of the module \verb{R/shared-*.R} scripts into
+pipeline targets.
 }
 \examples{
 

@@ -120,3 +120,19 @@ testthat::test_that("run pipeline", {
   )
 
 })
+
+testthat::test_that("fork copies a pipeline without changing the pipeline root", {
+  root_path <- tempfile()
+  on.exit({ unlink(root_path, recursive = TRUE) }, add = TRUE)
+  pipeline_path <- pipeline_create_template(
+    root_path = root_path, pipeline_name = "fork_demo",
+    overwrite = TRUE, activate = FALSE, template_type = "rmd-bare")
+  pipe <- pipeline_from_path(pipeline_path)
+
+  root <- pipeline_root()
+  forked <- pipe$fork(path = file.path(root_path, "forked"))
+  expect_identical(pipeline_root(), root)
+  expect_true(inherits(forked, "PipelineTools"))
+  expect_equal(normalizePath(forked$pipeline_path), normalizePath(file.path(root_path, "forked")))
+  expect_equal(forked$get_settings("n"), pipe$get_settings("n"))
+})

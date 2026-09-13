@@ -2,9 +2,14 @@
 
 * Added `RAVEPipelineAnalysis`, a small class for writing one analysis as plain
   functions (input, `shiny` server, `preprocess`, `analyze`, `visualize`) that
-  the `RAVE` dashboard renders, collects, runs, and captures. It works without
-  `shiny`; extra arguments to `analyze_data()` persist in `options`, while those
-  to `visualize_data()` apply to that call only
+  the `RAVE` dashboard or a pipeline runs. The analysis never stores a
+  pipeline: its inputs are saved to and restored from the pipeline settings
+  `analysis_inputs_<name>`, prerequisite targets are declared with
+  `set_preprocess()`, and options are set through `options` or `set_option()`.
+  When a pipeline is compiled, each analysis defined in its `R/shared-*.R`
+  scripts becomes the pipeline target `analysis_results_<name>`
+* `PipelineTools$fork()` no longer replaces the pipeline root of the session
+  with the folder of the fork, which dropped any root set earlier
 * Fixed two long-standing faults in the internal program finder on `Linux`. It
   raised `invalid 'file' argument` when the program was absent and the machine
   had no `Homebrew`, and it reported every *installed* program as missing when

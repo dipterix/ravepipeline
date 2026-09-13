@@ -4,141 +4,26 @@
 \alias{RAVEPipelineAnalysis}
 \title{Modular analysis unit for 'RAVE' pipelines}
 \description{
-A light-weight container that lets module developers describe one analysis
-as a handful of plain functions, while the 'RAVE' dashboard (the
-controller) decides when to render the inputs, collect their values, run
-the analysis, and show the results. Every step is optional, and none of
-them requires \pkg{shiny}.
+A light-weight container that describes one analysis as a handful of plain
+functions. The analysis never stores a pipeline: the 'RAVE' dashboard (the
+controller) passes the pipeline, the \pkg{shiny} session, or the values of
+the prerequisite pipeline targets to the methods that need them. Methods
+whose names start with \code{@} are called by the controller (the
+dashboard or the pipeline), not by analysis developers.
+
+When a pipeline is compiled, every analysis defined at the top level of a
+\verb{R/shared-*.R} script becomes the pipeline target named
+\code{results_target_name}, plus the target
+\verb{analysis_cleaned_inputs_<name>} when the analysis has a custom
+pipeline collector. The pipeline settings file must contain the key
+\code{inputs_settings_name}; its value can start as an empty list.
 }
-\details{
-A controller runs an analysis in the following order; without registered
-functions, \code{preprocess_data} and \code{analyze_data} return their
-input unchanged, and \code{visualize_data} does nothing:
-\preformatted{
-value  <- analysis$collect_inputs(input)
-value  <- analysis$preprocess_data(value)
-result <- analysis$analyze_data(value)
-analysis$visualize_data(result)
-}
-
-Developers register the steps with the \code{set_*} methods. Each step
-function must accept the arguments listed below, by name; a function with a
-\code{...} formal argument accepts all of them.
-\describe{
-\item{\code{set_input_ui}}{\code{function(inputId, pipeline)};
-returns whatever the dashboard renders, usually a \pkg{shiny} input whose
-identifier must be \code{inputId}}
-\item{\code{set_shiny_server}}{\code{function(input, output, session)};
-a \pkg{shiny} module server running in the analysis \code{namespace}}
-\item{\code{set_preprocess}}{\code{function(value, pipeline)};
-converts the collected input values into analysis parameters, and should
-call \code{stop()} to reject invalid values before the analysis runs}
-\item{\code{set_analyze}}{\code{function(value, pipeline, options)};
-runs synchronously on the output of \code{preprocess_data}, typically
-saving it with \code{pipeline$set_settings()} before running or reading
-pipeline targets, and returns the analysis result}
-\item{\code{set_visualize}}{\code{function(value, pipeline, options)};
-receives the analysis result and prints, plots, or writes text; the caller
-(for example an R Markdown chunk) captures the output}
-}
-
-Options are a named list shared by the analyze and visualize steps. Set the
-defaults with \code{analysis$options <- list(...)}. Extra named arguments to
-\code{analyze_data} update the options and are kept for later calls, while
-extra arguments to \code{visualize_data} apply to that call only. An option
-whose name partially matches the first argument of these methods (for
-example \code{val}) must be passed through \code{.list}.
-
-Input identifiers are \code{"<name>__<input_name>"} (see \code{get_id}),
-placed under the \pkg{shiny} module \code{namespace}, which defaults to the
-pipeline name; standard 'RAVE' modules use the same name for the module and
-its pipeline. Set \code{namespace} explicitly when they differ.
-}
-\examples{
-
-\dontrun{
-
-# ---- A pipeline to work with ---------------------------------------
-# Any 'RAVE' pipeline works; here is a bare template in a temporary folder
-root_path <- tempfile()
-pipeline_path <- pipeline_create_template(
-  root_path = root_path, pipeline_name = "analysis_demo",
-  overwrite = TRUE, activate = FALSE, template_type = "rmd-bare")
-pipe <- pipeline_from_path(pipeline_path)
-
-# ---- Developer side: describe the analysis --------------------------
-analysis <- RAVEPipelineAnalysis$new(name = "scatter", pipeline = pipe)
-
-# Inputs return whatever the dashboard renders, usually shiny inputs;
-# plain HTML strings here so the example does not need shiny
-analysis$set_input_ui("n", function(inputId, pipeline) {
-  n <- pipeline$get_settings("n", default = 100)
-  paste0('<input id="', inputId, '" type="number" value="', n, '">')
-})
-analysis$set_input_ui("col", function(inputId, pipeline) {
-  col <- pipeline$get_settings("col", default = "steelblue")
-  paste0('<input id="', inputId, '" value="', col, '">')
-})
-
-# Pre-process: turn raw input values into analysis parameters
-analysis$set_preprocess(function(value, pipeline) {
-  value$n <- suppressWarnings(as.integer(value$n))
-  if (is.na(value$n) || value$n < 2) {
-    stop("`n` must be an integer greater than 1")
+\section{Public fields}{
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{description}}{a short text describing the analysis}
   }
-  value
-})
-
-# Analyze: save the parameters to the pipeline, then compute
-analysis$set_analyze(function(value, pipeline, options) {
-  pipeline$set_settings(.list = value)
-  if (length(options$seed)) {
-    set.seed(options$seed)
-  }
-  x <- stats::rnorm(value$n)
-  list(x = x, y = x + stats::rnorm(value$n), col = value$col)
-})
-
-# Visualize: any mix of printed text and plots
-analysis$set_visualize(function(value, pipeline, options) {
-  cat("Correlation:", round(stats::cor(value$x, value$y), 2), "\n")
-  plot(value$x, value$y, col = value$col, pch = 16, main = options$main)
-})
-
-# Default options
-analysis$options <- list(main = "Simulated data")
-
-# ---- Controller side: what the dashboard does ----------------------
-analysis$input_names
-analysis$get_id("n")
-analysis$get_id("n", with_namespace = TRUE)
-analysis$render_input("n")
-
-# `input` mimics shiny's `input`: values keyed by input identifier
-input <- list(scatter__n = "50", scatter__col = "orange")
-
-value <- analysis$collect_inputs(input)
-value <- analysis$preprocess_data(value)
-
-# `seed` is kept in `analysis$options` for later calls
-result <- analysis$analyze_data(value, seed = 42)
-analysis$options
-
-# the analysis saved its parameters to the pipeline
-pipe$get_settings("n")
-
-# `main` applies to this call only
-analysis$visualize_data(result, main = "One-off title")
-analysis$options$main
-
-# invalid input is rejected before the analysis runs
-try(analysis$preprocess_data(list(n = "one", col = "red")))
-
-# ---- Clean up -------------------------------------------------------
-unlink(root_path, recursive = TRUE)
-
-}
-
+  \if{html}{\out{</div>}}
 }
 \section{Active bindings}{
   \if{html}{\out{<div class="r6-active-bindings">}}
@@ -148,13 +33,20 @@ unlink(root_path, recursive = TRUE)
     \item{\code{input_names}}{names of the registered inputs, read-only}
 
     \item{\code{options}}{named list of options passed to the analyze and
-visualize steps; assigning replaces the whole list, and \code{NULL}
-clears it}
+visualize steps; assigning replaces the whole list and must be a named
+list (\code{list()} clears it). Use \code{set_option} to change
+individual options}
 
-    \item{\code{pipeline}}{the \code{\link{PipelineTools}} instance that the
-analysis works with}
+    \item{\code{pipeline_targets}}{names of the pipeline targets whose values the
+\code{preprocess} step receives, read-only; see \code{set_preprocess}}
 
-    \item{\code{ns}}{\pkg{shiny} namespace function: \code{ns(id)} adds the
+    \item{\code{inputs_settings_name}}{name of the pipeline settings that holds
+the saved input values, read-only}
+
+    \item{\code{results_target_name}}{name of the pipeline target that holds the
+analysis result, read-only}
+
+    \item{\code{@ns}}{\pkg{shiny} namespace function: \code{ns(id)} adds the
 namespace prefix to \code{id}, and \code{ns(NULL)} returns the prefix}
   }
   \if{html}{\out{</div>}}
@@ -162,22 +54,57 @@ namespace prefix to \code{id}, and \code{ns(NULL)} returns the prefix}
 \section{Methods}{
 \subsection{Public methods}{
   \itemize{
+    \item \href{#method-RAVEPipelineAnalysis-set_option}{\code{RAVEPipelineAnalysis$set_option()}}
     \item \href{#method-RAVEPipelineAnalysis-initialize}{\code{RAVEPipelineAnalysis$new()}}
     \item \href{#method-RAVEPipelineAnalysis-get_id}{\code{RAVEPipelineAnalysis$get_id()}}
     \item \href{#method-RAVEPipelineAnalysis-set_input_ui}{\code{RAVEPipelineAnalysis$set_input_ui()}}
-    \item \href{#method-RAVEPipelineAnalysis-render_input}{\code{RAVEPipelineAnalysis$render_input()}}
-    \item \href{#method-RAVEPipelineAnalysis-collect_inputs}{\code{RAVEPipelineAnalysis$collect_inputs()}}
+    \item \href{#method-RAVEPipelineAnalysis-@render_input}{\code{RAVEPipelineAnalysis$@render_input()}}
+    \item \href{#method-RAVEPipelineAnalysis-set_collect_inputs_from_shiny}{\code{RAVEPipelineAnalysis$set_collect_inputs_from_shiny()}}
+    \item \href{#method-RAVEPipelineAnalysis-@collect_inputs_from_shiny}{\code{RAVEPipelineAnalysis$@collect_inputs_from_shiny()}}
+    \item \href{#method-RAVEPipelineAnalysis-set_collect_inputs_from_pipeline}{\code{RAVEPipelineAnalysis$set_collect_inputs_from_pipeline()}}
+    \item \href{#method-RAVEPipelineAnalysis-@collect_inputs_from_pipeline}{\code{RAVEPipelineAnalysis$@collect_inputs_from_pipeline()}}
+    \item \href{#method-RAVEPipelineAnalysis-set_store_inputs_to_pipeline}{\code{RAVEPipelineAnalysis$set_store_inputs_to_pipeline()}}
+    \item \href{#method-RAVEPipelineAnalysis-@store_inputs_to_pipeline}{\code{RAVEPipelineAnalysis$@store_inputs_to_pipeline()}}
+    \item \href{#method-RAVEPipelineAnalysis-@test_roundtrip_pipeline_inputs}{\code{RAVEPipelineAnalysis$@test_roundtrip_pipeline_inputs()}}
     \item \href{#method-RAVEPipelineAnalysis-set_shiny_server}{\code{RAVEPipelineAnalysis$set_shiny_server()}}
-    \item \href{#method-RAVEPipelineAnalysis-shiny_server}{\code{RAVEPipelineAnalysis$shiny_server()}}
+    \item \href{#method-RAVEPipelineAnalysis-@shiny_server}{\code{RAVEPipelineAnalysis$@shiny_server()}}
     \item \href{#method-RAVEPipelineAnalysis-set_preprocess}{\code{RAVEPipelineAnalysis$set_preprocess()}}
-    \item \href{#method-RAVEPipelineAnalysis-preprocess_data}{\code{RAVEPipelineAnalysis$preprocess_data()}}
+    \item \href{#method-RAVEPipelineAnalysis-@preprocess_data}{\code{RAVEPipelineAnalysis$@preprocess_data()}}
     \item \href{#method-RAVEPipelineAnalysis-set_analyze}{\code{RAVEPipelineAnalysis$set_analyze()}}
-    \item \href{#method-RAVEPipelineAnalysis-analyze_data}{\code{RAVEPipelineAnalysis$analyze_data()}}
+    \item \href{#method-RAVEPipelineAnalysis-@analyze_data}{\code{RAVEPipelineAnalysis$@analyze_data()}}
     \item \href{#method-RAVEPipelineAnalysis-set_visualize}{\code{RAVEPipelineAnalysis$set_visualize()}}
-    \item \href{#method-RAVEPipelineAnalysis-visualize_data}{\code{RAVEPipelineAnalysis$visualize_data()}}
-    \item \href{#method-RAVEPipelineAnalysis-clone}{\code{RAVEPipelineAnalysis$clone()}}
+    \item \href{#method-RAVEPipelineAnalysis-@visualize_data}{\code{RAVEPipelineAnalysis$@visualize_data()}}
+    \item \href{#method-RAVEPipelineAnalysis-@build_targets}{\code{RAVEPipelineAnalysis$@build_targets()}}
   }
 }
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-RAVEPipelineAnalysis-set_option"></a>}}
+\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-set_option}{}}}
+\subsection{\code{RAVEPipelineAnalysis$set_option()}}{
+  Set options one key at a time; this is how to change
+individual options, since \code{analysis$options$key <- value} is not
+reliable on an active binding
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{RAVEPipelineAnalysis$set_option(..., .list = list(), .clear_first = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{..., .list}}{named options; each replaces the whole option of the
+same name (a nested list is not merged), and a \code{NULL} value is
+kept as \code{NULL}. \code{.list} takes precedence over \code{...} for
+the same name}
+      \item{\code{.clear_first}}{whether to remove all existing options first}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The analysis object itself, invisibly
+  }
+}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-RAVEPipelineAnalysis-initialize"></a>}}
 \if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-initialize}{}}}
@@ -185,7 +112,11 @@ namespace prefix to \code{id}, and \code{ns(NULL)} returns the prefix}
   Constructor
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{RAVEPipelineAnalysis$new(name, pipeline, namespace = pipeline$pipeline_name)}
+    \preformatted{RAVEPipelineAnalysis$new(
+  name,
+  namespace,
+  description = gsub("[_]+", " ", name)
+)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -194,10 +125,10 @@ namespace prefix to \code{id}, and \code{ns(NULL)} returns the prefix}
       \item{\code{name}}{analysis name, a single string of letters, digits, and
 underscores that starts with a letter; used as the prefix of the
 input identifiers}
-      \item{\code{pipeline}}{a \code{\link{PipelineTools}} instance, see
-\code{\link{pipeline}}}
       \item{\code{namespace}}{\pkg{shiny} module namespace under which the inputs
-are rendered; default is the pipeline name}
+are rendered, usually the module ID; a single non-empty string}
+      \item{\code{description}}{a short text describing the analysis; default is
+the name with underscores replaced by spaces}
     }
     \if{html}{\out{</div>}}
   }
@@ -244,8 +175,8 @@ server (for example \code{input[[id]]} or \code{output[[id]]})}
     \describe{
       \item{\code{input_name}}{input name, a single string; the collected value
 uses this name}
-      \item{\code{ui_func}}{\code{function(inputId, pipeline)} returning the input
-element, or \code{NULL} to remove the input}
+      \item{\code{ui_func}}{\code{function(inputId, restored_inputs)} returning the
+input element, or \code{NULL} to remove the input}
     }
     \if{html}{\out{</div>}}
   }
@@ -255,53 +186,217 @@ element, or \code{NULL} to remove the input}
 }
 
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-RAVEPipelineAnalysis-render_input"></a>}}
-\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-render_input}{}}}
-\subsection{\code{RAVEPipelineAnalysis$render_input()}}{
+\if{html}{\out{<a id="method-RAVEPipelineAnalysis-@render_input"></a>}}
+\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-@render_input}{}}}
+\subsection{\code{RAVEPipelineAnalysis$@render_input()}}{
   Render an input registered by \code{set_input_ui}
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{RAVEPipelineAnalysis$render_input(input_name)}
+    \preformatted{RAVEPipelineAnalysis$@render_input(input_name, pipeline)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
       \item{\code{input_name}}{input name}
+      \item{\code{pipeline}}{a \code{\link{PipelineTools}} instance from which the
+saved input values are restored, see
+\code{@collect_inputs_from_pipeline}}
     }
     \if{html}{\out{</div>}}
   }
   \subsection{Returns}{
     The value returned by the input function, which receives the
-identifier with namespace; \code{NULL} invisibly if the input is not
-registered
+identifier with namespace and the restored input values; \code{NULL}
+invisibly if the input is not registered
   }
 }
 
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-RAVEPipelineAnalysis-collect_inputs"></a>}}
-\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-collect_inputs}{}}}
-\subsection{\code{RAVEPipelineAnalysis$collect_inputs()}}{
-  Collect the values of all registered inputs
+\if{html}{\out{<a id="method-RAVEPipelineAnalysis-set_collect_inputs_from_shiny"></a>}}
+\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-set_collect_inputs_from_shiny}{}}}
+\subsection{\code{RAVEPipelineAnalysis$set_collect_inputs_from_shiny()}}{
+  Register the function that collects the input values
+from \pkg{shiny}
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{RAVEPipelineAnalysis$collect_inputs(input, with_namespace = FALSE)}
+    \preformatted{RAVEPipelineAnalysis$set_collect_inputs_from_shiny(collect_func)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{input}}{a \pkg{shiny} \code{input} object, or any list, whose
-elements are the input values keyed by identifier}
-      \item{\code{with_namespace}}{whether the keys of \code{input} include the
-namespace; default is false, which matches the \code{input} inside
-the module server; set to true for the root session \code{input}}
+      \item{\code{collect_func}}{\code{function(session)} returning the input
+values as a named list, where \code{session} is scoped to the analysis
+\code{namespace}; \code{NULL} restores the default, which reads the
+registered inputs within \code{shiny::isolate()}. A custom function is
+called as is, so it should isolate its own reads if it may run outside
+of a reactive context}
     }
     \if{html}{\out{</div>}}
   }
   \subsection{Returns}{
-    A named list of input values, one per registered input; a
-value is \code{NULL} if \code{input} does not contain it
+    The analysis object itself, invisibly
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-RAVEPipelineAnalysis-@collect_inputs_from_shiny"></a>}}
+\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-@collect_inputs_from_shiny}{}}}
+\subsection{\code{RAVEPipelineAnalysis$@collect_inputs_from_shiny()}}{
+  Collect the input values from a \pkg{shiny} session
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{RAVEPipelineAnalysis$@collect_inputs_from_shiny(session)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{session}}{\pkg{shiny} session; any scope works, since the values
+are read under the analysis \code{namespace}}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A named list of input values; by default one per registered
+input, which is \code{NULL} if the session does not have it
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-RAVEPipelineAnalysis-set_collect_inputs_from_pipeline"></a>}}
+\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-set_collect_inputs_from_pipeline}{}}}
+\subsection{\code{RAVEPipelineAnalysis$set_collect_inputs_from_pipeline()}}{
+  Register the function that restores the input values
+from a pipeline
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{RAVEPipelineAnalysis$set_collect_inputs_from_pipeline(collect_func)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{collect_func}}{\code{function(pipeline_settings)} returning the
+input values as a named list, where \code{pipeline_settings} is the
+named list of pipeline settings; \code{NULL} restores the default,
+which reads the settings named \code{inputs_settings_name}. The
+settings are resolved in the dashboard and when the pipeline is
+compiled, but come straight from the settings file when the pipeline
+runs, so settings stored as external data differ between the two}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The analysis object itself, invisibly
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-RAVEPipelineAnalysis-@collect_inputs_from_pipeline"></a>}}
+\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-@collect_inputs_from_pipeline}{}}}
+\subsection{\code{RAVEPipelineAnalysis$@collect_inputs_from_pipeline()}}{
+  Restore the input values saved in a pipeline
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{RAVEPipelineAnalysis$@collect_inputs_from_pipeline(pipeline_settings)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{pipeline_settings}}{named list of pipeline settings, or a
+\code{\link{PipelineTools}} instance whose settings are used}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A named list of input values; by default the pipeline
+settings named \code{inputs_settings_name}, or an empty list if no
+values have been saved
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-RAVEPipelineAnalysis-set_store_inputs_to_pipeline"></a>}}
+\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-set_store_inputs_to_pipeline}{}}}
+\subsection{\code{RAVEPipelineAnalysis$set_store_inputs_to_pipeline()}}{
+  Register the function that converts the input values
+before they are saved to a pipeline
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{RAVEPipelineAnalysis$set_store_inputs_to_pipeline(store_func)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{store_func}}{\code{function(inputs, pipeline)} returning the
+named list to save as the pipeline settings named
+\code{inputs_settings_name}; its value is always saved.
+\code{NULL} restores the default, which saves the input values
+unchanged. This is the only step that receives the pipeline, so it may
+save some values as other settings; those are not part of the saved
+inputs, so list them in the \code{pipeline_targets} of
+\code{set_preprocess} if the analysis depends on them}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The analysis object itself, invisibly
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-RAVEPipelineAnalysis-@store_inputs_to_pipeline"></a>}}
+\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-@store_inputs_to_pipeline}{}}}
+\subsection{\code{RAVEPipelineAnalysis$@store_inputs_to_pipeline()}}{
+  Save the input values to the pipeline settings named
+\code{inputs_settings_name}
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{RAVEPipelineAnalysis$@store_inputs_to_pipeline(inputs, pipeline)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{inputs}}{input values, usually from
+\code{@collect_inputs_from_shiny}}
+      \item{\code{pipeline}}{a \code{\link{PipelineTools}} instance}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    The saved value, which is the value returned by the store
+function (the input values by default), invisibly
+  }
+}
+
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-RAVEPipelineAnalysis-@test_roundtrip_pipeline_inputs"></a>}}
+\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-@test_roundtrip_pipeline_inputs}{}}}
+\subsection{\code{RAVEPipelineAnalysis$@test_roundtrip_pipeline_inputs()}}{
+  Check that the input values survive being saved to a
+settings file and read back; the check uses a temporary copy of the
+pipeline, so \code{pipeline} is not changed
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{RAVEPipelineAnalysis$@test_roundtrip_pipeline_inputs(pipeline)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{pipeline}}{a \code{\link{PipelineTools}} instance holding the
+input values to check}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    \code{TRUE} if the values read back are identical to the
+original ones, otherwise \code{FALSE}
   }
 }
 
@@ -329,22 +424,21 @@ value is \code{NULL} if \code{input} does not contain it
 }
 
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-RAVEPipelineAnalysis-shiny_server"></a>}}
-\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-shiny_server}{}}}
-\subsection{\code{RAVEPipelineAnalysis$shiny_server()}}{
+\if{html}{\out{<a id="method-RAVEPipelineAnalysis-@shiny_server"></a>}}
+\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-@shiny_server}{}}}
+\subsection{\code{RAVEPipelineAnalysis$@shiny_server()}}{
   Start the \pkg{shiny} module server registered by
-\code{set_shiny_server}; must run within a \pkg{shiny} session
+\code{set_shiny_server}
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{RAVEPipelineAnalysis$shiny_server(session = NULL)}
+    \preformatted{RAVEPipelineAnalysis$@shiny_server(session)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{session}}{\pkg{shiny} session; default is the current session.
-Any scope of the session works, since the server always runs under
-the analysis \code{namespace}}
+      \item{\code{session}}{\pkg{shiny} session; any scope works, since the server
+always runs under the analysis \code{namespace}}
     }
     \if{html}{\out{</div>}}
   }
@@ -361,14 +455,18 @@ invisibly if no server is registered
   Register the \code{preprocess} step
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{RAVEPipelineAnalysis$set_preprocess(preprocess_func)}
+    \preformatted{RAVEPipelineAnalysis$set_preprocess(preprocess_func, pipeline_targets = NULL)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{preprocess_func}}{\code{function(value, pipeline)} returning the
-processed values, or \code{NULL} to remove the step}
+      \item{\code{preprocess_func}}{\code{function(value, pipeline_targets)}
+returning the processed values, which must hold everything the
+analyze step needs, or \code{NULL} to remove the step}
+      \item{\code{pipeline_targets}}{names of the pipeline targets that must be
+built before the \code{preprocess} step; their values are passed to
+the \code{preprocess} step only. Default is \code{NULL} (none)}
     }
     \if{html}{\out{</div>}}
   }
@@ -378,19 +476,23 @@ processed values, or \code{NULL} to remove the step}
 }
 
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-RAVEPipelineAnalysis-preprocess_data"></a>}}
-\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-preprocess_data}{}}}
-\subsection{\code{RAVEPipelineAnalysis$preprocess_data()}}{
+\if{html}{\out{<a id="method-RAVEPipelineAnalysis-@preprocess_data"></a>}}
+\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-@preprocess_data}{}}}
+\subsection{\code{RAVEPipelineAnalysis$@preprocess_data()}}{
   Process the collected input values before the analysis
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{RAVEPipelineAnalysis$preprocess_data(value)}
+    \preformatted{RAVEPipelineAnalysis$@preprocess_data(value, pipeline_targets = list())}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{value}}{input values, usually from \code{collect_inputs}}
+      \item{\code{value}}{input values, usually from
+\code{@collect_inputs_from_pipeline}}
+      \item{\code{pipeline_targets}}{named list of pipeline target values, which
+must include every target in the \code{pipeline_targets} field, for
+example \code{pipeline[analysis$pipeline_targets, simplify = FALSE]}}
     }
     \if{html}{\out{</div>}}
   }
@@ -413,8 +515,8 @@ processed values, or \code{NULL} to remove the step}
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{analyze_func}}{\code{function(value, pipeline, options)}
-returning the analysis result, or \code{NULL} to remove the step}
+      \item{\code{analyze_func}}{\code{function(value, options)} returning the
+analysis result, or \code{NULL} to remove the step}
     }
     \if{html}{\out{</div>}}
   }
@@ -424,24 +526,22 @@ returning the analysis result, or \code{NULL} to remove the step}
 }
 
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-RAVEPipelineAnalysis-analyze_data"></a>}}
-\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-analyze_data}{}}}
-\subsection{\code{RAVEPipelineAnalysis$analyze_data()}}{
-  Run the analysis; this method does not call
-\code{preprocess_data}, so pass its result in
+\if{html}{\out{<a id="method-RAVEPipelineAnalysis-@analyze_data"></a>}}
+\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-@analyze_data}{}}}
+\subsection{\code{RAVEPipelineAnalysis$@analyze_data()}}{
+  Run the analysis with the current \code{options}; this
+method does not call \code{@preprocess_data}, so pass its result in.
+The analyze step receives only the processed values and the options
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{RAVEPipelineAnalysis$analyze_data(value_processed, ..., .list = list())}
+    \preformatted{RAVEPipelineAnalysis$@analyze_data(value_processed)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
       \item{\code{value_processed}}{processed values, usually returned by
-\code{preprocess_data}}
-      \item{\code{..., .list}}{named options to update and keep in \code{options}
-before the analysis runs; \code{.list} takes precedence over
-\code{...} for the same name}
+\code{@preprocess_data}}
     }
     \if{html}{\out{</div>}}
   }
@@ -464,8 +564,8 @@ step is registered
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{visualize_func}}{\code{function(value, pipeline, options)} that
-prints, plots, or writes text, or \code{NULL} to remove the step}
+      \item{\code{visualize_func}}{\code{function(value, options)} that prints,
+plots, or writes text, or \code{NULL} to remove the step}
     }
     \if{html}{\out{</div>}}
   }
@@ -475,22 +575,20 @@ prints, plots, or writes text, or \code{NULL} to remove the step}
 }
 
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-RAVEPipelineAnalysis-visualize_data"></a>}}
-\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-visualize_data}{}}}
-\subsection{\code{RAVEPipelineAnalysis$visualize_data()}}{
-  Visualize the analysis result
+\if{html}{\out{<a id="method-RAVEPipelineAnalysis-@visualize_data"></a>}}
+\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-@visualize_data}{}}}
+\subsection{\code{RAVEPipelineAnalysis$@visualize_data()}}{
+  Visualize the analysis result with the current
+\code{options}
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{RAVEPipelineAnalysis$visualize_data(value, ..., .list = list())}
+    \preformatted{RAVEPipelineAnalysis$@visualize_data(value)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{value}}{analysis result, usually from \code{analyze_data}}
-      \item{\code{..., .list}}{named options for this call only; \code{options} is
-restored afterwards. \code{.list} takes precedence over \code{...}
-for the same name}
+      \item{\code{value}}{analysis result, usually from \code{@analyze_data}}
     }
     \if{html}{\out{</div>}}
   }
@@ -503,21 +601,29 @@ no visualize step is registered
 }
 
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-RAVEPipelineAnalysis-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-clone}{}}}
-\subsection{\code{RAVEPipelineAnalysis$clone()}}{
-  The objects of this class are cloneable with this method.
+\if{html}{\out{<a id="method-RAVEPipelineAnalysis-@build_targets"></a>}}
+\if{latex}{\out{\hypertarget{method-RAVEPipelineAnalysis-@build_targets}{}}}
+\subsection{\code{RAVEPipelineAnalysis$@build_targets()}}{
+  Create the pipeline target specifications for this
+analysis; called when the pipeline is compiled
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{RAVEPipelineAnalysis$clone(deep = FALSE)}
+    \preformatted{RAVEPipelineAnalysis$@build_targets(varname, format = NULL, cue = "thorough")}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
     \if{html}{\out{<div class="arguments">}}
     \describe{
-      \item{\code{deep}}{Whether to make a deep clone.}
+      \item{\code{varname}}{name of the variable that holds this analysis in the
+pipeline environment; the generated code refers to it}
+      \item{\code{format, cue}}{storage format and \code{targets} cue of the
+results target}
     }
     \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    A list of target specifications: the cleaned-inputs target
+(only with a custom pipeline collector), then the results target
   }
 }
 

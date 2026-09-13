@@ -641,7 +641,7 @@ but also their ancestors will be excluded from the result.}
   fork (copy) the current pipeline to a new directory
   \subsection{Usage}{
     \if{html}{\out{<div class="r">}}
-    \preformatted{PipelineTools$fork(path, policy = "default")}
+    \preformatted{PipelineTools$fork(path, policy = "default", temporary = TRUE)}
     \if{html}{\out{</div>}}
   }
   \subsection{Arguments}{
@@ -651,6 +651,7 @@ but also their ancestors will be excluded from the result.}
       \item{\code{policy}}{fork policy defined by module author, see text file
 'fork-policy' under the pipeline directory; if missing, then default to
 avoid copying \code{main.html} and \code{shared} folder}
+      \item{\code{temporary}}{passed to \code{\link{pipeline}}}
     }
     \if{html}{\out{</div>}}
   }
