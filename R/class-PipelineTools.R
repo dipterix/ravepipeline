@@ -803,8 +803,9 @@ PipelineTools <- R6::R6Class(
     #' @param policy fork policy defined by module author, see text file
     #' 'fork-policy' under the pipeline directory; if missing, then default to
     #' avoid copying \code{main.html} and \code{shared} folder
+    #' @param temporary passed to \code{\link{pipeline}}
     #' @returns A new pipeline object based on the path given
-    fork = function(path, policy = "default") {
+    fork = function(path, policy = "default", temporary = TRUE) {
       pipeline_fork(
         src = self$pipeline_path,
         dest = path,
@@ -814,7 +815,8 @@ PipelineTools <- R6::R6Class(
       pipeline(
         pipeline_name = basename(path),
         settings_file = basename(self$settings_path),
-        paths = dirname(path)
+        paths = dirname(path), 
+        temporary = temporary
       )
     },
 
