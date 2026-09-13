@@ -1,68 +1,24 @@
 # Modular analysis unit for 'RAVE' pipelines
 
-A light-weight container that lets module developers describe one
-analysis as a handful of plain functions, while the 'RAVE' dashboard
-(the controller) decides when to render the inputs, collect their
-values, run the analysis, and show the results. Every step is optional,
-and none of them requires shiny.
+A light-weight container that describes one analysis as a handful of
+plain functions. The analysis never stores a pipeline: the 'RAVE'
+dashboard (the controller) passes the pipeline, the shiny session, or
+the values of the prerequisite pipeline targets to the methods that need
+them. Methods whose names start with `@` are called by the controller
+(the dashboard or the pipeline), not by analysis developers.
 
-## Details
+When a pipeline is compiled, every analysis defined at the top level of
+a `R/shared-*.R` script becomes the pipeline target named
+`results_target_name`, plus the target `analysis_cleaned_inputs_<name>`
+when the analysis has a custom pipeline collector. The pipeline settings
+file must contain the key `inputs_settings_name`; its value can start as
+an empty list.
 
-A controller runs an analysis in the following order; without registered
-functions, `preprocess_data` and `analyze_data` return their input
-unchanged, and `visualize_data` does nothing:
+## Public fields
 
+- `description`:
 
-    value  <- analysis$collect_inputs(input)
-    value  <- analysis$preprocess_data(value)
-    result <- analysis$analyze_data(value)
-    analysis$visualize_data(result)
-
-Developers register the steps with the `set_*` methods. Each step
-function must accept the arguments listed below, by name; a function
-with a `...` formal argument accepts all of them.
-
-- `set_input_ui`:
-
-  `function(inputId, pipeline)`; returns whatever the dashboard renders,
-  usually a shiny input whose identifier must be `inputId`
-
-- `set_shiny_server`:
-
-  `function(input, output, session)`; a shiny module server running in
-  the analysis `namespace`
-
-- `set_preprocess`:
-
-  `function(value, pipeline)`; converts the collected input values into
-  analysis parameters, and should call
-  [`stop()`](https://rdrr.io/r/base/stop.html) to reject invalid values
-  before the analysis runs
-
-- `set_analyze`:
-
-  `function(value, pipeline, options)`; runs synchronously on the output
-  of `preprocess_data`, typically saving it with
-  `pipeline$set_settings()` before running or reading pipeline targets,
-  and returns the analysis result
-
-- `set_visualize`:
-
-  `function(value, pipeline, options)`; receives the analysis result and
-  prints, plots, or writes text; the caller (for example an R Markdown
-  chunk) captures the output
-
-Options are a named list shared by the analyze and visualize steps. Set
-the defaults with `analysis$options <- list(...)`. Extra named arguments
-to `analyze_data` update the options and are kept for later calls, while
-extra arguments to `visualize_data` apply to that call only. An option
-whose name partially matches the first argument of these methods (for
-example `val`) must be passed through `.list`.
-
-Input identifiers are `"<name>__<input_name>"` (see `get_id`), placed
-under the shiny module `namespace`, which defaults to the pipeline name;
-standard 'RAVE' modules use the same name for the module and its
-pipeline. Set `namespace` explicitly when they differ.
+  a short text describing the analysis
 
 ## Active bindings
 
@@ -77,15 +33,25 @@ pipeline. Set `namespace` explicitly when they differ.
 - `options`:
 
   named list of options passed to the analyze and visualize steps;
-  assigning replaces the whole list, and `NULL` clears it
+  assigning replaces the whole list and must be a named list
+  ([`list()`](https://rdrr.io/r/base/list.html) clears it). Use
+  `set_option` to change individual options
 
-- `pipeline`:
+- `pipeline_targets`:
 
-  the
-  [`PipelineTools`](http://dipterix.org/ravepipeline/reference/PipelineTools.md)
-  instance that the analysis works with
+  names of the pipeline targets whose values the `preprocess` step
+  receives, read-only; see `set_preprocess`
 
-- `ns`:
+- `inputs_settings_name`:
+
+  name of the pipeline settings that holds the saved input values,
+  read-only
+
+- `results_target_name`:
+
+  name of the pipeline target that holds the analysis result, read-only
+
+- `@ns`:
 
   shiny namespace function: `ns(id)` adds the namespace prefix to `id`,
   and `ns(NULL)` returns the prefix
@@ -94,33 +60,75 @@ pipeline. Set `namespace` explicitly when they differ.
 
 ### Public methods
 
+- [`RAVEPipelineAnalysis$set_option()`](#method-RAVEPipelineAnalysis-set_option)
+
 - [`RAVEPipelineAnalysis$new()`](#method-RAVEPipelineAnalysis-initialize)
 
 - [`RAVEPipelineAnalysis$get_id()`](#method-RAVEPipelineAnalysis-get_id)
 
 - [`RAVEPipelineAnalysis$set_input_ui()`](#method-RAVEPipelineAnalysis-set_input_ui)
 
-- [`RAVEPipelineAnalysis$render_input()`](#method-RAVEPipelineAnalysis-render_input)
+- [`RAVEPipelineAnalysis$@render_input()`](#method-RAVEPipelineAnalysis-@render_input)
 
-- [`RAVEPipelineAnalysis$collect_inputs()`](#method-RAVEPipelineAnalysis-collect_inputs)
+- [`RAVEPipelineAnalysis$set_collect_inputs_from_shiny()`](#method-RAVEPipelineAnalysis-set_collect_inputs_from_shiny)
+
+- [`RAVEPipelineAnalysis$@collect_inputs_from_shiny()`](#method-RAVEPipelineAnalysis-@collect_inputs_from_shiny)
+
+- [`RAVEPipelineAnalysis$set_collect_inputs_from_pipeline()`](#method-RAVEPipelineAnalysis-set_collect_inputs_from_pipeline)
+
+- [`RAVEPipelineAnalysis$@collect_inputs_from_pipeline()`](#method-RAVEPipelineAnalysis-@collect_inputs_from_pipeline)
+
+- [`RAVEPipelineAnalysis$set_store_inputs_to_pipeline()`](#method-RAVEPipelineAnalysis-set_store_inputs_to_pipeline)
+
+- [`RAVEPipelineAnalysis$@store_inputs_to_pipeline()`](#method-RAVEPipelineAnalysis-@store_inputs_to_pipeline)
+
+- [`RAVEPipelineAnalysis$@test_roundtrip_pipeline_inputs()`](#method-RAVEPipelineAnalysis-@test_roundtrip_pipeline_inputs)
 
 - [`RAVEPipelineAnalysis$set_shiny_server()`](#method-RAVEPipelineAnalysis-set_shiny_server)
 
-- [`RAVEPipelineAnalysis$shiny_server()`](#method-RAVEPipelineAnalysis-shiny_server)
+- [`RAVEPipelineAnalysis$@shiny_server()`](#method-RAVEPipelineAnalysis-@shiny_server)
 
 - [`RAVEPipelineAnalysis$set_preprocess()`](#method-RAVEPipelineAnalysis-set_preprocess)
 
-- [`RAVEPipelineAnalysis$preprocess_data()`](#method-RAVEPipelineAnalysis-preprocess_data)
+- [`RAVEPipelineAnalysis$@preprocess_data()`](#method-RAVEPipelineAnalysis-@preprocess_data)
 
 - [`RAVEPipelineAnalysis$set_analyze()`](#method-RAVEPipelineAnalysis-set_analyze)
 
-- [`RAVEPipelineAnalysis$analyze_data()`](#method-RAVEPipelineAnalysis-analyze_data)
+- [`RAVEPipelineAnalysis$@analyze_data()`](#method-RAVEPipelineAnalysis-@analyze_data)
 
 - [`RAVEPipelineAnalysis$set_visualize()`](#method-RAVEPipelineAnalysis-set_visualize)
 
-- [`RAVEPipelineAnalysis$visualize_data()`](#method-RAVEPipelineAnalysis-visualize_data)
+- [`RAVEPipelineAnalysis$@visualize_data()`](#method-RAVEPipelineAnalysis-@visualize_data)
 
-- [`RAVEPipelineAnalysis$clone()`](#method-RAVEPipelineAnalysis-clone)
+- [`RAVEPipelineAnalysis$@build_targets()`](#method-RAVEPipelineAnalysis-@build_targets)
+
+------------------------------------------------------------------------
+
+### `RAVEPipelineAnalysis$set_option()`
+
+Set options one key at a time; this is how to change individual options,
+since `analysis$options$key <- value` is not reliable on an active
+binding
+
+#### Usage
+
+    RAVEPipelineAnalysis$set_option(..., .list = list(), .clear_first = FALSE)
+
+#### Arguments
+
+- `..., .list`:
+
+  named options; each replaces the whole option of the same name (a
+  nested list is not merged), and a `NULL` value is kept as `NULL`.
+  `.list` takes precedence over `...` for the same name
+
+- `.clear_first`:
+
+  whether to remove all existing options first
+
+#### Returns
+
+The analysis object itself, invisibly
 
 ------------------------------------------------------------------------
 
@@ -130,7 +138,11 @@ Constructor
 
 #### Usage
 
-    RAVEPipelineAnalysis$new(name, pipeline, namespace = pipeline$pipeline_name)
+    RAVEPipelineAnalysis$new(
+      name,
+      namespace,
+      description = gsub("[_]+", " ", name)
+    )
 
 #### Arguments
 
@@ -139,17 +151,15 @@ Constructor
   analysis name, a single string of letters, digits, and underscores
   that starts with a letter; used as the prefix of the input identifiers
 
-- `pipeline`:
-
-  a
-  [`PipelineTools`](http://dipterix.org/ravepipeline/reference/PipelineTools.md)
-  instance, see
-  [`pipeline`](http://dipterix.org/ravepipeline/reference/pipeline.md)
-
 - `namespace`:
 
-  shiny module namespace under which the inputs are rendered; default is
-  the pipeline name
+  shiny module namespace under which the inputs are rendered, usually
+  the module ID; a single non-empty string
+
+- `description`:
+
+  a short text describing the analysis; default is the name with
+  underscores replaced by spaces
 
 ------------------------------------------------------------------------
 
@@ -196,8 +206,8 @@ Register the function that renders an input
 
 - `ui_func`:
 
-  `function(inputId, pipeline)` returning the input element, or `NULL`
-  to remove the input
+  `function(inputId, restored_inputs)` returning the input element, or
+  `NULL` to remove the input
 
 #### Returns
 
@@ -205,13 +215,13 @@ The analysis object itself, invisibly
 
 ------------------------------------------------------------------------
 
-### `RAVEPipelineAnalysis$render_input()`
+### `RAVEPipelineAnalysis$@render_input()`
 
 Render an input registered by `set_input_ui`
 
 #### Usage
 
-    RAVEPipelineAnalysis$render_input(input_name)
+    RAVEPipelineAnalysis$@render_input(input_name, pipeline)
 
 #### Arguments
 
@@ -219,38 +229,194 @@ Render an input registered by `set_input_ui`
 
   input name
 
+- `pipeline`:
+
+  a
+  [`PipelineTools`](http://dipterix.org/ravepipeline/reference/PipelineTools.md)
+  instance from which the saved input values are restored, see
+  `@collect_inputs_from_pipeline`
+
 #### Returns
 
 The value returned by the input function, which receives the identifier
-with namespace; `NULL` invisibly if the input is not registered
+with namespace and the restored input values; `NULL` invisibly if the
+input is not registered
 
 ------------------------------------------------------------------------
 
-### `RAVEPipelineAnalysis$collect_inputs()`
+### `RAVEPipelineAnalysis$set_collect_inputs_from_shiny()`
 
-Collect the values of all registered inputs
+Register the function that collects the input values from shiny
 
 #### Usage
 
-    RAVEPipelineAnalysis$collect_inputs(input, with_namespace = FALSE)
+    RAVEPipelineAnalysis$set_collect_inputs_from_shiny(collect_func)
 
 #### Arguments
 
-- `input`:
+- `collect_func`:
 
-  a shiny `input` object, or any list, whose elements are the input
-  values keyed by identifier
-
-- `with_namespace`:
-
-  whether the keys of `input` include the namespace; default is false,
-  which matches the `input` inside the module server; set to true for
-  the root session `input`
+  `function(session)` returning the input values as a named list, where
+  `session` is scoped to the analysis `namespace`; `NULL` restores the
+  default, which reads the registered inputs within
+  [`shiny::isolate()`](https://rdrr.io/pkg/shiny/man/isolate.html). A
+  custom function is called as is, so it should isolate its own reads if
+  it may run outside of a reactive context
 
 #### Returns
 
-A named list of input values, one per registered input; a value is
-`NULL` if `input` does not contain it
+The analysis object itself, invisibly
+
+------------------------------------------------------------------------
+
+### `RAVEPipelineAnalysis$@collect_inputs_from_shiny()`
+
+Collect the input values from a shiny session
+
+#### Usage
+
+    RAVEPipelineAnalysis$@collect_inputs_from_shiny(session)
+
+#### Arguments
+
+- `session`:
+
+  shiny session; any scope works, since the values are read under the
+  analysis `namespace`
+
+#### Returns
+
+A named list of input values; by default one per registered input, which
+is `NULL` if the session does not have it
+
+------------------------------------------------------------------------
+
+### `RAVEPipelineAnalysis$set_collect_inputs_from_pipeline()`
+
+Register the function that restores the input values from a pipeline
+
+#### Usage
+
+    RAVEPipelineAnalysis$set_collect_inputs_from_pipeline(collect_func)
+
+#### Arguments
+
+- `collect_func`:
+
+  `function(pipeline_settings)` returning the input values as a named
+  list, where `pipeline_settings` is the named list of pipeline
+  settings; `NULL` restores the default, which reads the settings named
+  `inputs_settings_name`. The settings are resolved in the dashboard and
+  when the pipeline is compiled, but come straight from the settings
+  file when the pipeline runs, so settings stored as external data
+  differ between the two
+
+#### Returns
+
+The analysis object itself, invisibly
+
+------------------------------------------------------------------------
+
+### `RAVEPipelineAnalysis$@collect_inputs_from_pipeline()`
+
+Restore the input values saved in a pipeline
+
+#### Usage
+
+    RAVEPipelineAnalysis$@collect_inputs_from_pipeline(pipeline_settings)
+
+#### Arguments
+
+- `pipeline_settings`:
+
+  named list of pipeline settings, or a
+  [`PipelineTools`](http://dipterix.org/ravepipeline/reference/PipelineTools.md)
+  instance whose settings are used
+
+#### Returns
+
+A named list of input values; by default the pipeline settings named
+`inputs_settings_name`, or an empty list if no values have been saved
+
+------------------------------------------------------------------------
+
+### `RAVEPipelineAnalysis$set_store_inputs_to_pipeline()`
+
+Register the function that converts the input values before they are
+saved to a pipeline
+
+#### Usage
+
+    RAVEPipelineAnalysis$set_store_inputs_to_pipeline(store_func)
+
+#### Arguments
+
+- `store_func`:
+
+  `function(inputs, pipeline)` returning the named list to save as the
+  pipeline settings named `inputs_settings_name`; its value is always
+  saved. `NULL` restores the default, which saves the input values
+  unchanged. This is the only step that receives the pipeline, so it may
+  save some values as other settings; those are not part of the saved
+  inputs, so list them in the `pipeline_targets` of `set_preprocess` if
+  the analysis depends on them
+
+#### Returns
+
+The analysis object itself, invisibly
+
+------------------------------------------------------------------------
+
+### `RAVEPipelineAnalysis$@store_inputs_to_pipeline()`
+
+Save the input values to the pipeline settings named
+`inputs_settings_name`
+
+#### Usage
+
+    RAVEPipelineAnalysis$@store_inputs_to_pipeline(inputs, pipeline)
+
+#### Arguments
+
+- `inputs`:
+
+  input values, usually from `@collect_inputs_from_shiny`
+
+- `pipeline`:
+
+  a
+  [`PipelineTools`](http://dipterix.org/ravepipeline/reference/PipelineTools.md)
+  instance
+
+#### Returns
+
+The saved value, which is the value returned by the store function (the
+input values by default), invisibly
+
+------------------------------------------------------------------------
+
+### `RAVEPipelineAnalysis$@test_roundtrip_pipeline_inputs()`
+
+Check that the input values survive being saved to a settings file and
+read back; the check uses a temporary copy of the pipeline, so
+`pipeline` is not changed
+
+#### Usage
+
+    RAVEPipelineAnalysis$@test_roundtrip_pipeline_inputs(pipeline)
+
+#### Arguments
+
+- `pipeline`:
+
+  a
+  [`PipelineTools`](http://dipterix.org/ravepipeline/reference/PipelineTools.md)
+  instance holding the input values to check
+
+#### Returns
+
+`TRUE` if the values read back are identical to the original ones,
+otherwise `FALSE`
 
 ------------------------------------------------------------------------
 
@@ -274,22 +440,20 @@ The analysis object itself, invisibly
 
 ------------------------------------------------------------------------
 
-### `RAVEPipelineAnalysis$shiny_server()`
+### `RAVEPipelineAnalysis$@shiny_server()`
 
-Start the shiny module server registered by `set_shiny_server`; must run
-within a shiny session
+Start the shiny module server registered by `set_shiny_server`
 
 #### Usage
 
-    RAVEPipelineAnalysis$shiny_server(session = NULL)
+    RAVEPipelineAnalysis$@shiny_server(session)
 
 #### Arguments
 
 - `session`:
 
-  shiny session; default is the current session. Any scope of the
-  session works, since the server always runs under the analysis
-  `namespace`
+  shiny session; any scope works, since the server always runs under the
+  analysis `namespace`
 
 #### Returns
 
@@ -304,14 +468,21 @@ Register the `preprocess` step
 
 #### Usage
 
-    RAVEPipelineAnalysis$set_preprocess(preprocess_func)
+    RAVEPipelineAnalysis$set_preprocess(preprocess_func, pipeline_targets = NULL)
 
 #### Arguments
 
 - `preprocess_func`:
 
-  `function(value, pipeline)` returning the processed values, or `NULL`
-  to remove the step
+  `function(value, pipeline_targets)` returning the processed values,
+  which must hold everything the analyze step needs, or `NULL` to remove
+  the step
+
+- `pipeline_targets`:
+
+  names of the pipeline targets that must be built before the
+  `preprocess` step; their values are passed to the `preprocess` step
+  only. Default is `NULL` (none)
 
 #### Returns
 
@@ -319,19 +490,25 @@ The analysis object itself, invisibly
 
 ------------------------------------------------------------------------
 
-### `RAVEPipelineAnalysis$preprocess_data()`
+### `RAVEPipelineAnalysis$@preprocess_data()`
 
 Process the collected input values before the analysis
 
 #### Usage
 
-    RAVEPipelineAnalysis$preprocess_data(value)
+    RAVEPipelineAnalysis$@preprocess_data(value, pipeline_targets = list())
 
 #### Arguments
 
 - `value`:
 
-  input values, usually from `collect_inputs`
+  input values, usually from `@collect_inputs_from_pipeline`
+
+- `pipeline_targets`:
+
+  named list of pipeline target values, which must include every target
+  in the `pipeline_targets` field, for example
+  `pipeline[analysis$pipeline_targets, simplify = FALSE]`
 
 #### Returns
 
@@ -351,8 +528,8 @@ Register the analyze step
 
 - `analyze_func`:
 
-  `function(value, pipeline, options)` returning the analysis result, or
-  `NULL` to remove the step
+  `function(value, options)` returning the analysis result, or `NULL` to
+  remove the step
 
 #### Returns
 
@@ -360,25 +537,21 @@ The analysis object itself, invisibly
 
 ------------------------------------------------------------------------
 
-### `RAVEPipelineAnalysis$analyze_data()`
+### `RAVEPipelineAnalysis$@analyze_data()`
 
-Run the analysis; this method does not call `preprocess_data`, so pass
-its result in
+Run the analysis with the current `options`; this method does not call
+`@preprocess_data`, so pass its result in. The analyze step receives
+only the processed values and the options
 
 #### Usage
 
-    RAVEPipelineAnalysis$analyze_data(value_processed, ..., .list = list())
+    RAVEPipelineAnalysis$@analyze_data(value_processed)
 
 #### Arguments
 
 - `value_processed`:
 
-  processed values, usually returned by `preprocess_data`
-
-- `..., .list`:
-
-  named options to update and keep in `options` before the analysis
-  runs; `.list` takes precedence over `...` for the same name
+  processed values, usually returned by `@preprocess_data`
 
 #### Returns
 
@@ -399,8 +572,8 @@ Register the visualize step
 
 - `visualize_func`:
 
-  `function(value, pipeline, options)` that prints, plots, or writes
-  text, or `NULL` to remove the step
+  `function(value, options)` that prints, plots, or writes text, or
+  `NULL` to remove the step
 
 #### Returns
 
@@ -408,24 +581,19 @@ The analysis object itself, invisibly
 
 ------------------------------------------------------------------------
 
-### `RAVEPipelineAnalysis$visualize_data()`
+### `RAVEPipelineAnalysis$@visualize_data()`
 
-Visualize the analysis result
+Visualize the analysis result with the current `options`
 
 #### Usage
 
-    RAVEPipelineAnalysis$visualize_data(value, ..., .list = list())
+    RAVEPipelineAnalysis$@visualize_data(value)
 
 #### Arguments
 
 - `value`:
 
-  analysis result, usually from `analyze_data`
-
-- `..., .list`:
-
-  named options for this call only; `options` is restored afterwards.
-  `.list` takes precedence over `...` for the same name
+  analysis result, usually from `@analyze_data`
 
 #### Returns
 
@@ -436,104 +604,27 @@ registered
 
 ------------------------------------------------------------------------
 
-### `RAVEPipelineAnalysis$clone()`
+### `RAVEPipelineAnalysis$@build_targets()`
 
-The objects of this class are cloneable with this method.
+Create the pipeline target specifications for this analysis; called when
+the pipeline is compiled
 
 #### Usage
 
-    RAVEPipelineAnalysis$clone(deep = FALSE)
+    RAVEPipelineAnalysis$@build_targets(varname, format = NULL, cue = "thorough")
 
 #### Arguments
 
-- `deep`:
+- `varname`:
 
-  Whether to make a deep clone.
+  name of the variable that holds this analysis in the pipeline
+  environment; the generated code refers to it
 
-## Examples
+- `format, cue`:
 
-``` r
+  storage format and `targets` cue of the results target
 
-if (FALSE) { # \dontrun{
+#### Returns
 
-# ---- A pipeline to work with ---------------------------------------
-# Any 'RAVE' pipeline works; here is a bare template in a temporary folder
-root_path <- tempfile()
-pipeline_path <- pipeline_create_template(
-  root_path = root_path, pipeline_name = "analysis_demo",
-  overwrite = TRUE, activate = FALSE, template_type = "rmd-bare")
-pipe <- pipeline_from_path(pipeline_path)
-
-# ---- Developer side: describe the analysis --------------------------
-analysis <- RAVEPipelineAnalysis$new(name = "scatter", pipeline = pipe)
-
-# Inputs return whatever the dashboard renders, usually shiny inputs;
-# plain HTML strings here so the example does not need shiny
-analysis$set_input_ui("n", function(inputId, pipeline) {
-  n <- pipeline$get_settings("n", default = 100)
-  paste0('<input id="', inputId, '" type="number" value="', n, '">')
-})
-analysis$set_input_ui("col", function(inputId, pipeline) {
-  col <- pipeline$get_settings("col", default = "steelblue")
-  paste0('<input id="', inputId, '" value="', col, '">')
-})
-
-# Pre-process: turn raw input values into analysis parameters
-analysis$set_preprocess(function(value, pipeline) {
-  value$n <- suppressWarnings(as.integer(value$n))
-  if (is.na(value$n) || value$n < 2) {
-    stop("`n` must be an integer greater than 1")
-  }
-  value
-})
-
-# Analyze: save the parameters to the pipeline, then compute
-analysis$set_analyze(function(value, pipeline, options) {
-  pipeline$set_settings(.list = value)
-  if (length(options$seed)) {
-    set.seed(options$seed)
-  }
-  x <- stats::rnorm(value$n)
-  list(x = x, y = x + stats::rnorm(value$n), col = value$col)
-})
-
-# Visualize: any mix of printed text and plots
-analysis$set_visualize(function(value, pipeline, options) {
-  cat("Correlation:", round(stats::cor(value$x, value$y), 2), "\n")
-  plot(value$x, value$y, col = value$col, pch = 16, main = options$main)
-})
-
-# Default options
-analysis$options <- list(main = "Simulated data")
-
-# ---- Controller side: what the dashboard does ----------------------
-analysis$input_names
-analysis$get_id("n")
-analysis$get_id("n", with_namespace = TRUE)
-analysis$render_input("n")
-
-# `input` mimics shiny's `input`: values keyed by input identifier
-input <- list(scatter__n = "50", scatter__col = "orange")
-
-value <- analysis$collect_inputs(input)
-value <- analysis$preprocess_data(value)
-
-# `seed` is kept in `analysis$options` for later calls
-result <- analysis$analyze_data(value, seed = 42)
-analysis$options
-
-# the analysis saved its parameters to the pipeline
-pipe$get_settings("n")
-
-# `main` applies to this call only
-analysis$visualize_data(result, main = "One-off title")
-analysis$options$main
-
-# invalid input is rejected before the analysis runs
-try(analysis$preprocess_data(list(n = "one", col = "red")))
-
-# ---- Clean up -------------------------------------------------------
-unlink(root_path, recursive = TRUE)
-
-} # }
-```
+A list of target specifications: the cleaned-inputs target (only with a
+custom pipeline collector), then the results target

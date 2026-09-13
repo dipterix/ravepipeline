@@ -3,12 +3,15 @@
 Allows building 'RAVE' pipelines from `'rmarkdown'` files. Please use it
 in `'rmarkdown'` scripts only. Use
 [`pipeline_create_template`](http://dipterix.org/ravepipeline/reference/rave-pipeline.md)
-to create an example.
+to create an example. `pipeline_setup_rmd` also turns every
+[`RAVEPipelineAnalysis`](http://dipterix.org/ravepipeline/reference/RAVEPipelineAnalysis.md)
+defined at the top level of the module `R/shared-*.R` scripts into
+pipeline targets.
 
 ## Usage
 
 ``` r
-configure_knitr(languages = c("R", "python"))
+configure_knitr(languages = c("R", "python"), targets = fastqueue2())
 
 pipeline_setup_rmd(
   module_id,
@@ -36,6 +39,12 @@ pipeline_render(
 
   one or more programming languages to support; options are `'R'` and
   `'python'`
+
+- targets:
+
+  internal queue that collects the pipeline target specifications;
+  `pipeline_setup_rmd` passes its own queue so it can add the analysis
+  targets. Leave it as the default, a new queue
 
 - module_id:
 
@@ -76,10 +85,18 @@ scripts
 configure_knitr("R")
 #> function (make_file) 
 #> {
+#>     lapply(targets$as_list(), function(item) {
+#>         if (isTRUE(item$is_delayed)) {
+#>             message("Evaluating delayed target ", item$export, 
+#>                 " [R]")
+#>             force(env[[item$export]])
+#>         }
+#>         return()
+#>     })
 #>     rave_knitr_build(targets, make_file)
 #> }
-#> <bytecode: 0x560e05b67e58>
-#> <environment: 0x560e05b67ad8>
+#> <bytecode: 0x55cff95e75f8>
+#> <environment: 0x55cff95bf0a8>
 
 if (FALSE) { # \dontrun{
 

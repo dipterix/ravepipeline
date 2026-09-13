@@ -646,7 +646,7 @@ fork (copy) the current pipeline to a new directory
 
 #### Usage
 
-    PipelineTools$fork(path, policy = "default")
+    PipelineTools$fork(path, policy = "default", temporary = TRUE)
 
 #### Arguments
 
@@ -659,6 +659,11 @@ fork (copy) the current pipeline to a new directory
   fork policy defined by module author, see text file 'fork-policy'
   under the pipeline directory; if missing, then default to avoid
   copying `main.html` and `shared` folder
+
+- `temporary`:
+
+  passed to
+  [`pipeline`](http://dipterix.org/ravepipeline/reference/pipeline.md)
 
 #### Returns
 
