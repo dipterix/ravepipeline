@@ -596,8 +596,14 @@ def rave_unserialize(x, path, name):
 #' @description Allows building 'RAVE' pipelines from \code{'rmarkdown'} files.
 #' Please use it in \code{'rmarkdown'} scripts only. Use
 #' \code{\link{pipeline_create_template}} to create an example.
+#' \code{pipeline_setup_rmd} also turns every \code{\link{RAVEPipelineAnalysis}}
+#' defined at the top level of the module \verb{R/shared-*.R} scripts into
+#' pipeline targets.
 #' @param languages one or more programming languages to support; options are
 #' \code{'R'} and \code{'python'}
+#' @param targets internal queue that collects the pipeline target
+#' specifications; \code{pipeline_setup_rmd} passes its own queue so it can
+#' add the analysis targets. Leave it as the default, a new queue
 #' @param module_id the module ID, usually the name of direct parent folder
 #' containing the pipeline file
 #' @param env environment to set up the pipeline translator
@@ -628,27 +634,43 @@ def rave_unserialize(x, path, name):
 #' }
 #'
 #' @export
-configure_knitr <- function(languages = c("R", "python")) {
+configure_knitr <- function(languages = c("R", "python"), targets = fastqueue2()) {
 
   if (!all(languages %in% RAVE_KNITR_SUPPORTED_LANG)) {
     stop("Only the following languages are supported: ", paste(RAVE_KNITR_SUPPORTED_LANG, collapse = ", "), ".")
   }
+  check_knit_packages(languages)
+
+  env <- knitr::knit_global()
+
   if (file.exists("settings.yaml")) {
     settings <- as.list(load_yaml("settings.yaml"))
-    env <- knitr::knit_global()
     for (nm in names(settings)) {
       env[[nm]] <- resolve_pipeline_settings_value(settings[[nm]], pipe_dir = ".")
     }
     # list2env(settings, envir = knitr::knit_global())
+  } else {
+    settings <- list()
   }
 
-  check_knit_packages(languages)
+  if (!inherits(targets, "fastqueue2")) {
+    targets <- fastqueue2()
+  }
 
-  targets <- fastqueue2()
 
+  # Inject engine with side effects to store targets
   rave_knitr_engine(targets)
 
   function(make_file) {
+
+    lapply(targets$as_list(), function(item) {
+      if (isTRUE(item$is_delayed)) {
+        message("Evaluating delayed target ", item$export, " [R]")
+        force(env[[item$export]])
+      }
+      return()
+    })
+    
     rave_knitr_build(targets, make_file)
   }
 }
@@ -666,15 +688,28 @@ pipeline_setup_rmd <- function(
 
   if ( length(project_path) != 1 || is.na(project_path) || !is.character(project_path) || trimws(project_path) %in% c("", "/", "NA")) {
     project_path <- normalizePath(".")
+    # When main.Rmd is rendered from commandline, the current directory is the module directory
+    # instead of the project root
+    if (file.exists(file.path(project_path, "_targets.yaml"))) {
+      module_root <- dirname(project_path)
+      if (basename(module_root) == "modules") {
+        project_path <- dirname(module_root)
+      }
+    }
   }
 
+  targets <- fastqueue2()
+  
+  env$build_pipeline <- configure_knitr(languages = languages, targets = targets)
   knitr::opts_chunk$set(collapse = collapse, comment = comment)
-  env$build_pipeline <- configure_knitr(languages = languages)
+  
+  # This needs to be called after configure_knitr
   env$.module_id <- module_id
-
+  
   module_path <- file.path(project_path, "modules", module_id)
-
   env$pipeline <- pipeline_from_path(module_path)
+
+
   shared_scripts <- list.files(
     file.path(module_path, "R"),
     pattern = "^shared-.*\\.R$",
@@ -710,17 +745,97 @@ pipeline_setup_rmd <- function(
     }
   }
 
-  settings <- load_yaml(file.path( project_path, "modules",
-                                   module_id, "settings.yaml"))
+  settings <- load_yaml(file.path(project_path, "modules",
+                                  module_id, "settings.yaml"))
 
-  pipe_dir <- file.path(project_path, "modules", module_id)
-  lapply(names(settings), function(nm) {
+  settings_keys <- names(settings)
+  lapply(settings_keys, function(nm) {
     settings[[nm]] <- resolve_pipeline_settings_value(value = settings[[nm]],
-                                                      pipe_dir = pipe_dir)
+                                                      pipe_dir = module_path)
   })
 
   env$.settings <- settings
   list2env(as.list(settings), envir = env)
+
+  # Compile analysis instances
+
+  # Needed for evaluating analysis targets
+  runtime_env <- new.env(parent = env)
+  runtime_env$settings <- as.list(settings)
+
+  target_exports <- c(unlist(lapply(as.list(targets), "[[", "export")), settings_keys, "settings")
+
+  # iterate, process analysis objects
+  varnames <- ls(env, all.names = FALSE)
+  
+  for (varname in varnames) {
+    # varname <- "streamline_collision_detection_analyzer"
+
+    # env[[varname]] might be delayedAssign, this will trigger evaluation
+    var <- tryCatch(
+      {
+        env[[varname]]
+      },
+      error = function(e) {
+        NULL
+      }
+    )
+    if (!R6::is.R6(var) || !inherits(var, "RAVEPipelineAnalysis")) {
+      next
+    }
+    analysis_targets <- var$`@build_targets`(varname = varname)
+
+    # Check if var$inputs_settings_name in settings
+    if (!isTRUE(var$inputs_settings_name %in% settings_keys)) {
+      stop(
+        "The pipeline has defined a `RAVEPipelineAnalysis` object that requires an input `",
+        var$inputs_settings_name,
+        "` from the settings file. ",
+        "Please define such input in your settings file; ",
+        "for example, by appending this line at the end of the \"settings.yaml\": `",
+        var$inputs_settings_name,
+        ": []`"
+      )
+    }
+    
+
+    for (item in analysis_targets) {
+
+      # Check duplicated target exports
+      if (isTRUE(item$export %in% target_exports)) {
+        stop(
+          "The analysis object `",
+          varname,
+          "` has a reserved pipeline target/export variable `",
+          item$export,
+          "`. Please remove/rename this target code block and re-compile. ",
+          "If you accidentally defined multiple analyses with the same name, ",
+          "or assigned one analysis to more than one variable, ",
+          "please rename or remove duplicated ones."
+        )
+      }
+
+      targets$add(item)
+      target_exports <- c(target_exports, item$export)
+
+      if (isTRUE(item$is_delayed)) {
+        do.call(
+          delayedAssign,
+          list(
+            x = item$export,
+            value = str2lang(item$code),
+            eval.env = new.env(parent = runtime_env),
+            assign.env = env
+          )
+        )
+      } else {
+        # This will force targets such as analysis_cleaned_inputs to be evaluated eagerly
+        env[[item$export]] <- eval(str2lang(item$code), envir = new.env(parent = runtime_env))
+      }
+
+    }
+  }
+
   invisible(settings)
 }
 
