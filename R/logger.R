@@ -1,4 +1,4 @@
-get_active_module_ids <- function(session = shiny::getDefaultReactiveDomain()) {
+get_active_module_ids <- function(session = NULL) {
 
   "
   Migrated from ravedash: RAVE stores a copy of module information at
@@ -7,6 +7,14 @@ get_active_module_ids <- function(session = shiny::getDefaultReactiveDomain()) {
   Also a `rave_id` will be included. When running from different rave session
   ID, the logger is supposed to reset time
   "
+
+  # `shiny` is only suggested, so the logger must work without it
+  if (is.null(session)) {
+    if (!package_installed("shiny")) {
+      return(NULL)
+    }
+    session <- shiny::getDefaultReactiveDomain()
+  }
 
   if (is.environment(session)) {
     # rave_events <- session$cache$get("rave_reactives", missing = NULL)

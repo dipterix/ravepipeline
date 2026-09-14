@@ -1,4 +1,6 @@
 testthat::test_that("Working directory", {
+  # the test compiles a pipeline
+  skip_if_cannot_compile_pipeline()
   ..old_wd <- getwd()
   ..old_opts <- options()
 

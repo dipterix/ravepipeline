@@ -7,7 +7,11 @@
   `analysis_inputs_<name>`, prerequisite targets are declared with
   `set_preprocess()`, and options are set through `options` or `set_option()`.
   When a pipeline is compiled, each analysis defined in its `R/shared-*.R`
-  scripts becomes the pipeline target `analysis_results_<name>`
+  scripts becomes the pipeline target `analysis_results_<name>`, and `run()`
+  runs an analysis with a pipeline, optionally rendering its visualization as
+  an `HTML` fragment
+* The logger works without `shiny` installed; it used to print "Cannot log
+  the following call" instead of the message
 * `PipelineTools$fork()` no longer replaces the pipeline root of the session
   with the folder of the fork, which dropped any root set earlier
 * Fixed two long-standing faults in the internal program finder on `Linux`. It

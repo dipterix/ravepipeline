@@ -1,4 +1,5 @@
 testthat::test_that("run pipeline", {
+  skip_if_cannot_compile_pipeline()
 
   utils::capture.output(
     type = "message",

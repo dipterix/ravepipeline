@@ -246,7 +246,7 @@ testthat::test_that("declared pipeline targets reach the preprocess step only", 
 
   # without step functions, values pass through
   expect_equal(analysis$`@preprocess_data`(list(a = 1)), list(a = 1))
-  expect_equal(analysis$`@analyze_data`(list(a = 1)), list(a = 1))
+  expect_equal(analysis$`@analyze_data`(list(a = 1))$results, list(a = 1))
 
   echo <- function(value, pipeline_targets) {
     list(value = value, pipeline_targets = pipeline_targets)
@@ -277,7 +277,7 @@ testthat::test_that("declared pipeline targets reach the preprocess step only", 
   analysis$set_analyze(function(value, ...) list(value = value, ...))
   analysis$set_option(a = 1)
   expect_equal(
-    analysis$`@analyze_data`(list(b = 2)),
+    analysis$`@analyze_data`(list(b = 2))$results,
     list(value = list(b = 2), options = list(a = 1))
   )
 })
@@ -311,7 +311,7 @@ testthat::test_that("options are named lists, set whole or one key at a time", {
   analysis$set_option(main = "title")
   analysis$set_analyze(function(value, options) options)
   analysis$set_visualize(function(value, options) options)
-  expect_equal(analysis$`@analyze_data`(NULL), list(main = "title"))
+  expect_equal(analysis$`@analyze_data`(NULL)$results, list(main = "title"))
   expect_equal(analysis$`@visualize_data`(NULL), list(main = "title"))
 })
 
@@ -354,7 +354,7 @@ testthat::test_that("build_targets reads the saved inputs by default", {
   env$my_analysis <- analysis
   env$analysis_inputs_demo <- list(k = 3)
   env$n <- 10
-  expect_equal(eval(str2lang(specs[[1]]$code), envir = env), 30)
+  expect_equal(eval(str2lang(specs[[1]]$code), envir = env)$results, 30)
 })
 
 testthat::test_that("build_targets adds a cleaned-inputs target for a custom collector", {
@@ -373,7 +373,7 @@ testthat::test_that("build_targets adds a cleaned-inputs target for a custom col
     c("analysis_cleaned_inputs_demo", "analysis_results_demo")
   )
   expect_equal(specs[[1]]$label, "__Collect_analysis_inputs-demo")
-  expect_equal(specs[[1]]$deps, "settings")
+  expect_setequal(specs[[1]]$deps, c("analysis_inputs_demo", "settings"))
   expect_false(isTRUE(specs[[1]]$is_delayed))
   expect_setequal(specs[[2]]$deps, c("analysis_cleaned_inputs_demo", "n"))
 
@@ -385,7 +385,50 @@ testthat::test_that("build_targets adds a cleaned-inputs target for a custom col
     eval(str2lang(spec$code), envir = env)
   }
   expect_equal(env$analysis_cleaned_inputs_demo, list(k = 4))
-  expect_equal(env$analysis_results_demo, 40)
+  expect_equal(env$analysis_results_demo$results, 40)
+})
+
+testthat::test_that("the analysis result records which analysis produced it", {
+  analysis <- RAVEPipelineAnalysis$new("demo", "module")
+
+  # without an analyze step, the processed value is the result
+  result <- analysis$`@analyze_data`(list(a = 1))
+  expect_s3_class(result, "RAVEPipelineAnalysis_results")
+  expect_equal(result$analysis_name, "demo")
+  expect_equal(result$results, list(a = 1))
+
+  analysis$set_analyze(function(value, options) value$a + 1)
+  result <- analysis$`@analyze_data`(list(a = 1))
+  expect_s3_class(result, "RAVEPipelineAnalysis_results")
+  expect_equal(result$results, 2)
+})
+
+testthat::test_that("visualize unwraps the results of the same analysis only", {
+  analysis <- RAVEPipelineAnalysis$new("demo", "module")
+  analysis$set_analyze(function(value, options) value * 2)
+  analysis$set_visualize(function(value, options) value + 1)
+  expect_equal(analysis$`@visualize_data`(analysis$`@analyze_data`(1)), 3)
+
+  # a plain value is visualized as is
+  expect_equal(analysis$`@visualize_data`(1), 2)
+
+  other <- RAVEPipelineAnalysis$new("other", "module")
+  expect_error(analysis$`@visualize_data`(other$`@analyze_data`(1)), "`other`")
+})
+
+testthat::test_that("render_inputs renders every registered input", {
+  testthat::skip_if_not_installed("htmltools")
+  analysis <- RAVEPipelineAnalysis$new("render_all", "module")
+  analysis$set_input_ui("n", function(inputId, restored_inputs) {
+    htmltools::tags$input(id = inputId)
+  })
+  analysis$set_input_ui("col", function(inputId, restored_inputs) {
+    htmltools::tags$input(id = inputId)
+  })
+  ui <- analysis$render_inputs(demo_pipeline)
+  expect_s3_class(ui, "shiny.tag.list")
+  expect_match(as.character(ui), "module-render_all__n", fixed = TRUE)
+  expect_match(as.character(ui), "module-render_all__col", fixed = TRUE)
 })
 
 testthat::test_that("the roundtrip check reads the inputs back from a settings file", {

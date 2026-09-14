@@ -232,6 +232,11 @@ RAVEPipelineAnalysis <- R6::R6Class(
       )
     },
 
+    #' @description Render all registered inputs, each showing the input
+    #' values saved in the pipeline; requires \pkg{htmltools}
+    #' @param pipeline a \code{\link{PipelineTools}} instance from which the
+    #' saved input values are restored
+    #' @returns An \pkg{htmltools} tag list of the rendered inputs
     render_inputs = function(pipeline) {
       stopifnot(package_installed("htmltools"))
       htmltools <- asNamespace("htmltools")
@@ -527,19 +532,22 @@ RAVEPipelineAnalysis <- R6::R6Class(
     #' The analyze step receives only the processed values and the options
     #' @param value_processed processed values, usually returned by
     #' \code{@preprocess_data}
-    #' @returns The analysis result, or \code{value_processed} if no analyze
-    #' step is registered
+    #' @returns An object of class \verb{RAVEPipelineAnalysis_results}: a list
+    #' with the analysis name (\code{analysis_name}) and the analysis result
+    #' (\code{results}), which is \code{value_processed} if no analyze step is
+    #' registered
     `@analyze_data` = function(value_processed) {
-      if (!is.function(private$.analyze)) {
-        return(value_processed)
-      }
-      results <- do.call(
-        private$.analyze,
-        list(
-          value = value_processed,
-          options = self$options
+      if (is.function(private$.analyze)) {
+        results <- do.call(
+          private$.analyze,
+          list(
+            value = value_processed,
+            options = self$options
+          )
         )
-      )
+      } else {
+        results <- value_processed
+      }
       structure(
         class = "RAVEPipelineAnalysis_results",
         list(
@@ -565,7 +573,9 @@ RAVEPipelineAnalysis <- R6::R6Class(
 
     #' @description Visualize the analysis result with the current
     #' \code{options}
-    #' @param value analysis result, usually from \code{@analyze_data}
+    #' @param value analysis result from \code{@analyze_data}, whose
+    #' \code{results} are visualized; it must come from this analysis. A plain
+    #' value that is not such a result is visualized as is
     #' @returns The value returned by the visualize function, visible or
     #' invisible as that function returned it (so a returned plot object is
     #' printed at top level or in a report chunk); \code{NULL} invisibly if
@@ -594,6 +604,31 @@ RAVEPipelineAnalysis <- R6::R6Class(
       do.call(private$.visualize, list(value = value, options = self$options))
     },
 
+    #' @description Run the analysis with a pipeline, without the 'RAVE'
+    #' dashboard
+    #' @param pipeline a \code{\link{PipelineTools}} instance
+    #' @param step where to stop: \code{"inputs"} returns the collected input
+    #' values, \code{"preprocess"} the processed values, and \code{"analyze"}
+    #' the analysis result; \code{"all"} and \code{"visualize"} are the same,
+    #' and also run the visualize step
+    #' @param eval_method \code{"run"} saves the input values to the pipeline
+    #' and builds the target \code{results_target_name}, which must exist;
+    #' \code{"debug"} computes the analysis in this session without that
+    #' target, for analyses not yet compiled into the pipeline, and does not
+    #' save the input values. In debug mode, and for \code{step} set to
+    #' \code{"preprocess"}, the prerequisite targets are read from the
+    #' pipeline, so they must have been built
+    #' @param session \pkg{shiny} session to collect the input values from;
+    #' default is \code{NULL}, which restores them from the pipeline settings
+    #' @param visualization_method \code{"direct"} calls the visualize step;
+    #' \code{"html"} renders it as an \verb{HTML} fragment, which requires
+    #' \pkg{rmarkdown}
+    #' @param ... passed to the \code{run} method of the pipeline when
+    #' \code{eval_method} is \code{"run"}
+    #' @returns Depends on \code{step}: the input values, the processed values,
+    #' the analysis result, or the value returned by the visualize step
+    #' (an \pkg{htmltools} \verb{HTML} fragment if \code{visualization_method}
+    #' is \code{"html"})
     run = function(
       pipeline,
       step = c("all", "inputs", "preprocess", "analyze", "visualize"),
@@ -630,7 +665,7 @@ RAVEPipelineAnalysis <- R6::R6Class(
       }
 
       if (step == "inputs") {
-        return(inputs)
+        return(cleaned_inputs)
       }
 
       if (step == "preprocess") {
@@ -665,11 +700,19 @@ RAVEPipelineAnalysis <- R6::R6Class(
           self$`@visualize_data`(value = analysis_results)
         },
         "html" = {
-          render_as_html_fragment(pipeline, self)
+          render_as_html_fragment(analysis = self, results = analysis_results)
         }
       )
     },
 
+    #' @description Save the input values to the pipeline, then build the
+    #' target \code{results_target_name} as a \pkg{shiny} extended task
+    #' @param pipeline a \code{\link{PipelineTools}} instance
+    #' @param session \pkg{shiny} session to collect the input values from;
+    #' default is \code{NULL}, which restores them from the pipeline settings
+    #' @param ... passed to the \code{run_as_task} method of the pipeline
+    #' @returns The task returned by the \code{run_as_task} method of the
+    #' pipeline
     run_as_task = function(pipeline, session = NULL, ...) {
       if (!is.null(session)) {
         inputs <- self$`@collect_inputs_from_shiny`(session)
@@ -829,58 +872,56 @@ RAVEPipelineAnalysis <- R6::R6Class(
   )
 )
 
-render_as_html_fragment <- function(pipeline, analysis) {
-  
-  # Assume the results is calculated
-  # must run pipeline$run(analysis$results_target_name) first
-  results <- pipeline$read(analysis$results_target_name)
-
+# Renders the visualize step of `analysis` for `results`, the value returned
+# by `analysis$`@analyze_data`()`, as an HTML fragment
+render_as_html_fragment <- function(analysis, results) {
+  if (!package_installed("rmarkdown") || !package_installed("htmltools")) {
+    stop(
+      "Rendering the visualization as HTML requires the suggested packages `rmarkdown` and `htmltools`.",
+      call. = FALSE
+    )
+  }
   render_env <- new.env(parent = globalenv())
-  render_env$pipeline <- pipeline
   render_env$analysis <- analysis
   render_env$results <- results
 
-  # Create a template
-  frag_template_str <- r"(
-#' ---
-#' title: "`r analysis$description`"
-#' description: "Generated by RAVE"
-#' date: "`r date()`"
-#' ---
+  # Create a template; an R Markdown one, since roxygen reads any line that
+  # starts with #' as documentation, even inside a string
+  frag_template_str <- r"(---
+title: "`r analysis$description`"
+description: "Generated by RAVE"
+date: "`r date()`"
+---
 
-#+ setup, include=FALSE, message=FALSE, echo=FALSE, results='hide'
-knitr::opts_knit$set(upload.fun = knitr::image_uri)
+```{r setup, include=FALSE, message=FALSE, echo=FALSE, results='hide'}
+knitr::opts_knit$set(upload.fun = knitr::image_uri, out.width = "100%")
+```
 
-# Get results
-results <- pipeline$read(analysis$results_target_name)
-
-if (!inherits(results, "RAVEPipelineAnalysis_results")) {
-  results <- pipeline$run(names = analysis$results_target_name)
-}
-
-#+ echo=FALSE, eval=TRUE, 
+```{r, echo=FALSE, eval=TRUE}
 analysis$`@visualize_data`(results)
+```
 )"
-  tf_r <- tempfile(fileext = ".r")
+  tf_rmd <- tempfile(fileext = ".Rmd")
   tf_html <- tempfile(fileext = ".html")
 
   on.exit(
     {
-      unlink(tf_r)
+      unlink(tf_rmd)
       unlink(tf_html)
     },
     add = TRUE
   )
 
-  writeLines(frag_template_str, tf_r)
+  writeLines(frag_template_str, tf_rmd)
 
   rmarkdown <- asNamespace("rmarkdown")
 
   rmarkdown$render(
-    input = tf_r,
+    input = tf_rmd,
     output_file = tf_html,
     output_format = rmarkdown$html_fragment(),
-    envir = render_env
+    envir = render_env,
+    quiet = TRUE
   )
 
   html_str <- readLines(tf_html)
