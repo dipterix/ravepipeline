@@ -70,6 +70,8 @@ an empty list.
 
 - [`RAVEPipelineAnalysis$@render_input()`](#method-RAVEPipelineAnalysis-@render_input)
 
+- [`RAVEPipelineAnalysis$render_inputs()`](#method-RAVEPipelineAnalysis-render_inputs)
+
 - [`RAVEPipelineAnalysis$set_collect_inputs_from_shiny()`](#method-RAVEPipelineAnalysis-set_collect_inputs_from_shiny)
 
 - [`RAVEPipelineAnalysis$@collect_inputs_from_shiny()`](#method-RAVEPipelineAnalysis-@collect_inputs_from_shiny)
@@ -99,6 +101,10 @@ an empty list.
 - [`RAVEPipelineAnalysis$set_visualize()`](#method-RAVEPipelineAnalysis-set_visualize)
 
 - [`RAVEPipelineAnalysis$@visualize_data()`](#method-RAVEPipelineAnalysis-@visualize_data)
+
+- [`RAVEPipelineAnalysis$run()`](#method-RAVEPipelineAnalysis-run)
+
+- [`RAVEPipelineAnalysis$run_as_task()`](#method-RAVEPipelineAnalysis-run_as_task)
 
 - [`RAVEPipelineAnalysis$@build_targets()`](#method-RAVEPipelineAnalysis-@build_targets)
 
@@ -241,6 +247,29 @@ Render an input registered by `set_input_ui`
 The value returned by the input function, which receives the identifier
 with namespace and the restored input values; `NULL` invisibly if the
 input is not registered
+
+------------------------------------------------------------------------
+
+### `RAVEPipelineAnalysis$render_inputs()`
+
+Render all registered inputs, each showing the input values saved in the
+pipeline; requires htmltools
+
+#### Usage
+
+    RAVEPipelineAnalysis$render_inputs(pipeline)
+
+#### Arguments
+
+- `pipeline`:
+
+  a
+  [`PipelineTools`](http://dipterix.org/ravepipeline/reference/PipelineTools.md)
+  instance from which the saved input values are restored
+
+#### Returns
+
+An htmltools tag list of the rendered inputs
 
 ------------------------------------------------------------------------
 
@@ -555,8 +584,9 @@ only the processed values and the options
 
 #### Returns
 
-The analysis result, or `value_processed` if no analyze step is
-registered
+An object of class `RAVEPipelineAnalysis_results`: a list with the
+analysis name (`analysis_name`) and the analysis result (`results`),
+which is `value_processed` if no analyze step is registered
 
 ------------------------------------------------------------------------
 
@@ -593,7 +623,9 @@ Visualize the analysis result with the current `options`
 
 - `value`:
 
-  analysis result, usually from `@analyze_data`
+  analysis result from `@analyze_data`, whose `results` are visualized;
+  it must come from this analysis. A plain value that is not such a
+  result is visualized as is
 
 #### Returns
 
@@ -601,6 +633,100 @@ The value returned by the visualize function, visible or invisible as
 that function returned it (so a returned plot object is printed at top
 level or in a report chunk); `NULL` invisibly if no visualize step is
 registered
+
+------------------------------------------------------------------------
+
+### `RAVEPipelineAnalysis$run()`
+
+Run the analysis with a pipeline, without the 'RAVE' dashboard
+
+#### Usage
+
+    RAVEPipelineAnalysis$run(
+      pipeline,
+      step = c("all", "inputs", "preprocess", "analyze", "visualize"),
+      eval_method = c("run", "debug"),
+      session = NULL,
+      visualization_method = c("direct", "html"),
+      ...
+    )
+
+#### Arguments
+
+- `pipeline`:
+
+  a
+  [`PipelineTools`](http://dipterix.org/ravepipeline/reference/PipelineTools.md)
+  instance
+
+- `step`:
+
+  where to stop: `"inputs"` returns the collected input values,
+  `"preprocess"` the processed values, and `"analyze"` the analysis
+  result; `"all"` and `"visualize"` are the same, and also run the
+  visualize step
+
+- `eval_method`:
+
+  `"run"` saves the input values to the pipeline and builds the target
+  `results_target_name`, which must exist; `"debug"` computes the
+  analysis in this session without that target, for analyses not yet
+  compiled into the pipeline, and does not save the input values. In
+  debug mode, and for `step` set to `"preprocess"`, the prerequisite
+  targets are read from the pipeline, so they must have been built
+
+- `session`:
+
+  shiny session to collect the input values from; default is `NULL`,
+  which restores them from the pipeline settings
+
+- `visualization_method`:
+
+  `"direct"` calls the visualize step; `"html"` renders it as an `HTML`
+  fragment, which requires rmarkdown
+
+- `...`:
+
+  passed to the `run` method of the pipeline when `eval_method` is
+  `"run"`
+
+#### Returns
+
+Depends on `step`: the input values, the processed values, the analysis
+result, or the value returned by the visualize step (an htmltools `HTML`
+fragment if `visualization_method` is `"html"`)
+
+------------------------------------------------------------------------
+
+### `RAVEPipelineAnalysis$run_as_task()`
+
+Save the input values to the pipeline, then build the target
+`results_target_name` as a shiny extended task
+
+#### Usage
+
+    RAVEPipelineAnalysis$run_as_task(pipeline, session = NULL, ...)
+
+#### Arguments
+
+- `pipeline`:
+
+  a
+  [`PipelineTools`](http://dipterix.org/ravepipeline/reference/PipelineTools.md)
+  instance
+
+- `session`:
+
+  shiny session to collect the input values from; default is `NULL`,
+  which restores them from the pipeline settings
+
+- `...`:
+
+  passed to the `run_as_task` method of the pipeline
+
+#### Returns
+
+The task returned by the `run_as_task` method of the pipeline
 
 ------------------------------------------------------------------------
 

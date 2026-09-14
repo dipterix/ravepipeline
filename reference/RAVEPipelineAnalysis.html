@@ -29,7 +29,7 @@ inputs_settings_name; its value can start as an empty list."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -128,6 +128,7 @@ namespace prefix to <code>id</code>, and <code>ns(NULL)</code> returns the prefi
 <li><p><a href="#method-RAVEPipelineAnalysis-get_id"><code>RAVEPipelineAnalysis$get_id()</code></a></p></li>
 <li><p><a href="#method-RAVEPipelineAnalysis-set_input_ui"><code>RAVEPipelineAnalysis$set_input_ui()</code></a></p></li>
 <li><p><a href="#method-RAVEPipelineAnalysis-@render_input"><code>RAVEPipelineAnalysis$@render_input()</code></a></p></li>
+<li><p><a href="#method-RAVEPipelineAnalysis-render_inputs"><code>RAVEPipelineAnalysis$render_inputs()</code></a></p></li>
 <li><p><a href="#method-RAVEPipelineAnalysis-set_collect_inputs_from_shiny"><code>RAVEPipelineAnalysis$set_collect_inputs_from_shiny()</code></a></p></li>
 <li><p><a href="#method-RAVEPipelineAnalysis-@collect_inputs_from_shiny"><code>RAVEPipelineAnalysis$@collect_inputs_from_shiny()</code></a></p></li>
 <li><p><a href="#method-RAVEPipelineAnalysis-set_collect_inputs_from_pipeline"><code>RAVEPipelineAnalysis$set_collect_inputs_from_pipeline()</code></a></p></li>
@@ -143,6 +144,8 @@ namespace prefix to <code>id</code>, and <code>ns(NULL)</code> returns the prefi
 <li><p><a href="#method-RAVEPipelineAnalysis-@analyze_data"><code>RAVEPipelineAnalysis$@analyze_data()</code></a></p></li>
 <li><p><a href="#method-RAVEPipelineAnalysis-set_visualize"><code>RAVEPipelineAnalysis$set_visualize()</code></a></p></li>
 <li><p><a href="#method-RAVEPipelineAnalysis-@visualize_data"><code>RAVEPipelineAnalysis$@visualize_data()</code></a></p></li>
+<li><p><a href="#method-RAVEPipelineAnalysis-run"><code>RAVEPipelineAnalysis$run()</code></a></p></li>
+<li><p><a href="#method-RAVEPipelineAnalysis-run_as_task"><code>RAVEPipelineAnalysis$run_as_task()</code></a></p></li>
 <li><p><a href="#method-RAVEPipelineAnalysis-@build_targets"><code>RAVEPipelineAnalysis$@build_targets()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-RAVEPipelineAnalysis-set_option"></a><div class="section">
 <h3 id="ravepipelineanalysis-set-option-"><code>RAVEPipelineAnalysis$set_option()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-set-option-"></a></h3>
@@ -276,14 +279,35 @@ invisibly if the input is not registered</p>
 
 </div>
 
+<p></p><hr><a id="method-RAVEPipelineAnalysis-render_inputs"></a><div class="section">
+<h3 id="ravepipelineanalysis-render-inputs-"><code>RAVEPipelineAnalysis$render_inputs()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-render-inputs-"></a></h3>
+<p>Render all registered inputs, each showing the input
+values saved in the pipeline; requires <span class="pkg">htmltools</span></p><div class="section">
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RAVEPipelineAnalysis</span><span class="op">$</span><span class="fu">render_inputs</span><span class="op">(</span><span class="va">pipeline</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div><p></p><div class="section">
+<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>pipeline</code></dt>
+<dd><p>a <code><a href="PipelineTools.html">PipelineTools</a></code> instance from which the
+saved input values are restored</p></dd>
+
+
+</dl><p></p></div>
+</div><p></p><div class="section">
+<h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
+<p>An <span class="pkg">htmltools</span> tag list of the rendered inputs</p>
+</div>
+
+</div>
+
 <p></p><hr><a id="method-RAVEPipelineAnalysis-set_collect_inputs_from_shiny"></a><div class="section">
 <h3 id="ravepipelineanalysis-set-collect-inputs-from-shiny-"><code>RAVEPipelineAnalysis$set_collect_inputs_from_shiny()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-set-collect-inputs-from-shiny-"></a></h3>
 <p>Register the function that collects the input values
 from <span class="pkg">shiny</span></p><div class="section">
-<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RAVEPipelineAnalysis</span><span class="op">$</span><span class="fu">set_collect_inputs_from_shiny</span><span class="op">(</span><span class="va">collect_func</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
+<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>collect_func</code></dt>
 <dd><p><code>function(session)</code> returning the input
 values as a named list, where <code>session</code> is scoped to the analysis
@@ -295,7 +319,7 @@ of a reactive context</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-4">Returns<a class="anchor" aria-label="anchor" href="#returns-4"></a></h4>
+<h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
 <p>The analysis object itself, invisibly</p>
 </div>
 
@@ -304,10 +328,10 @@ of a reactive context</p></dd>
 <p></p><hr><a id="method-RAVEPipelineAnalysis-@collect_inputs_from_shiny"></a><div class="section">
 <h3 id="ravepipelineanalysis-collect-inputs-from-shiny-"><code>RAVEPipelineAnalysis$@collect_inputs_from_shiny()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-collect-inputs-from-shiny-"></a></h3>
 <p>Collect the input values from a <span class="pkg">shiny</span> session</p><div class="section">
-<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code>RAVEPipelineAnalysis$@collect_inputs_from_shiny(session)</code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
+<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>session</code></dt>
 <dd><p><span class="pkg">shiny</span> session; any scope works, since the values
 are read under the analysis <code>namespace</code></p></dd>
@@ -315,7 +339,7 @@ are read under the analysis <code>namespace</code></p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-5">Returns<a class="anchor" aria-label="anchor" href="#returns-5"></a></h4>
+<h4 id="returns-6">Returns<a class="anchor" aria-label="anchor" href="#returns-6"></a></h4>
 <p>A named list of input values; by default one per registered
 input, which is <code>NULL</code> if the session does not have it</p>
 </div>
@@ -326,10 +350,10 @@ input, which is <code>NULL</code> if the session does not have it</p>
 <h3 id="ravepipelineanalysis-set-collect-inputs-from-pipeline-"><code>RAVEPipelineAnalysis$set_collect_inputs_from_pipeline()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-set-collect-inputs-from-pipeline-"></a></h3>
 <p>Register the function that restores the input values
 from a pipeline</p><div class="section">
-<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RAVEPipelineAnalysis</span><span class="op">$</span><span class="fu">set_collect_inputs_from_pipeline</span><span class="op">(</span><span class="va">collect_func</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
+<h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>collect_func</code></dt>
 <dd><p><code>function(pipeline_settings)</code> returning the
 input values as a named list, where <code>pipeline_settings</code> is the
@@ -342,7 +366,7 @@ runs, so settings stored as external data differ between the two</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-6">Returns<a class="anchor" aria-label="anchor" href="#returns-6"></a></h4>
+<h4 id="returns-7">Returns<a class="anchor" aria-label="anchor" href="#returns-7"></a></h4>
 <p>The analysis object itself, invisibly</p>
 </div>
 
@@ -351,10 +375,10 @@ runs, so settings stored as external data differ between the two</p></dd>
 <p></p><hr><a id="method-RAVEPipelineAnalysis-@collect_inputs_from_pipeline"></a><div class="section">
 <h3 id="ravepipelineanalysis-collect-inputs-from-pipeline-"><code>RAVEPipelineAnalysis$@collect_inputs_from_pipeline()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-collect-inputs-from-pipeline-"></a></h3>
 <p>Restore the input values saved in a pipeline</p><div class="section">
-<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code>RAVEPipelineAnalysis$@collect_inputs_from_pipeline(pipeline_settings)</code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
+<h4 id="arguments-9">Arguments<a class="anchor" aria-label="anchor" href="#arguments-9"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>pipeline_settings</code></dt>
 <dd><p>named list of pipeline settings, or a
 <code><a href="PipelineTools.html">PipelineTools</a></code> instance whose settings are used</p></dd>
@@ -362,7 +386,7 @@ runs, so settings stored as external data differ between the two</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-7">Returns<a class="anchor" aria-label="anchor" href="#returns-7"></a></h4>
+<h4 id="returns-8">Returns<a class="anchor" aria-label="anchor" href="#returns-8"></a></h4>
 <p>A named list of input values; by default the pipeline
 settings named <code>inputs_settings_name</code>, or an empty list if no
 values have been saved</p>
@@ -374,10 +398,10 @@ values have been saved</p>
 <h3 id="ravepipelineanalysis-set-store-inputs-to-pipeline-"><code>RAVEPipelineAnalysis$set_store_inputs_to_pipeline()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-set-store-inputs-to-pipeline-"></a></h3>
 <p>Register the function that converts the input values
 before they are saved to a pipeline</p><div class="section">
-<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
+<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RAVEPipelineAnalysis</span><span class="op">$</span><span class="fu">set_store_inputs_to_pipeline</span><span class="op">(</span><span class="va">store_func</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-9">Arguments<a class="anchor" aria-label="anchor" href="#arguments-9"></a></h4>
+<h4 id="arguments-10">Arguments<a class="anchor" aria-label="anchor" href="#arguments-10"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>store_func</code></dt>
 <dd><p><code>function(inputs, pipeline)</code> returning the
 named list to save as the pipeline settings named
@@ -391,7 +415,7 @@ inputs, so list them in the <code>pipeline_targets</code> of
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-8">Returns<a class="anchor" aria-label="anchor" href="#returns-8"></a></h4>
+<h4 id="returns-9">Returns<a class="anchor" aria-label="anchor" href="#returns-9"></a></h4>
 <p>The analysis object itself, invisibly</p>
 </div>
 
@@ -401,10 +425,10 @@ inputs, so list them in the <code>pipeline_targets</code> of
 <h3 id="ravepipelineanalysis-store-inputs-to-pipeline-"><code>RAVEPipelineAnalysis$@store_inputs_to_pipeline()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-store-inputs-to-pipeline-"></a></h3>
 <p>Save the input values to the pipeline settings named
 <code>inputs_settings_name</code></p><div class="section">
-<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
+<h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code>RAVEPipelineAnalysis$@store_inputs_to_pipeline(inputs, pipeline)</code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-10">Arguments<a class="anchor" aria-label="anchor" href="#arguments-10"></a></h4>
+<h4 id="arguments-11">Arguments<a class="anchor" aria-label="anchor" href="#arguments-11"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>inputs</code></dt>
 <dd><p>input values, usually from
 <code>@collect_inputs_from_shiny</code></p></dd>
@@ -415,7 +439,7 @@ inputs, so list them in the <code>pipeline_targets</code> of
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-9">Returns<a class="anchor" aria-label="anchor" href="#returns-9"></a></h4>
+<h4 id="returns-10">Returns<a class="anchor" aria-label="anchor" href="#returns-10"></a></h4>
 <p>The saved value, which is the value returned by the store
 function (the input values by default), invisibly</p>
 </div>
@@ -427,10 +451,10 @@ function (the input values by default), invisibly</p>
 <p>Check that the input values survive being saved to a
 settings file and read back; the check uses a temporary copy of the
 pipeline, so <code>pipeline</code> is not changed</p><div class="section">
-<h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
+<h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code>RAVEPipelineAnalysis$@test_roundtrip_pipeline_inputs(pipeline)</code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-11">Arguments<a class="anchor" aria-label="anchor" href="#arguments-11"></a></h4>
+<h4 id="arguments-12">Arguments<a class="anchor" aria-label="anchor" href="#arguments-12"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>pipeline</code></dt>
 <dd><p>a <code><a href="PipelineTools.html">PipelineTools</a></code> instance holding the
 input values to check</p></dd>
@@ -438,7 +462,7 @@ input values to check</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-10">Returns<a class="anchor" aria-label="anchor" href="#returns-10"></a></h4>
+<h4 id="returns-11">Returns<a class="anchor" aria-label="anchor" href="#returns-11"></a></h4>
 <p><code>TRUE</code> if the values read back are identical to the
 original ones, otherwise <code>FALSE</code></p>
 </div>
@@ -448,10 +472,10 @@ original ones, otherwise <code>FALSE</code></p>
 <p></p><hr><a id="method-RAVEPipelineAnalysis-set_shiny_server"></a><div class="section">
 <h3 id="ravepipelineanalysis-set-shiny-server-"><code>RAVEPipelineAnalysis$set_shiny_server()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-set-shiny-server-"></a></h3>
 <p>Register the <span class="pkg">shiny</span> module server</p><div class="section">
-<h4 id="usage-12">Usage<a class="anchor" aria-label="anchor" href="#usage-12"></a></h4>
+<h4 id="usage-13">Usage<a class="anchor" aria-label="anchor" href="#usage-13"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RAVEPipelineAnalysis</span><span class="op">$</span><span class="fu">set_shiny_server</span><span class="op">(</span><span class="va">server_func</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-12">Arguments<a class="anchor" aria-label="anchor" href="#arguments-12"></a></h4>
+<h4 id="arguments-13">Arguments<a class="anchor" aria-label="anchor" href="#arguments-13"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>server_func</code></dt>
 <dd><p><code>function(input, output, session)</code>, or
 <code>NULL</code> to remove the server</p></dd>
@@ -459,7 +483,7 @@ original ones, otherwise <code>FALSE</code></p>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-11">Returns<a class="anchor" aria-label="anchor" href="#returns-11"></a></h4>
+<h4 id="returns-12">Returns<a class="anchor" aria-label="anchor" href="#returns-12"></a></h4>
 <p>The analysis object itself, invisibly</p>
 </div>
 
@@ -469,10 +493,10 @@ original ones, otherwise <code>FALSE</code></p>
 <h3 id="ravepipelineanalysis-shiny-server-"><code>RAVEPipelineAnalysis$@shiny_server()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-shiny-server-"></a></h3>
 <p>Start the <span class="pkg">shiny</span> module server registered by
 <code>set_shiny_server</code></p><div class="section">
-<h4 id="usage-13">Usage<a class="anchor" aria-label="anchor" href="#usage-13"></a></h4>
+<h4 id="usage-14">Usage<a class="anchor" aria-label="anchor" href="#usage-14"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code>RAVEPipelineAnalysis$@shiny_server(session)</code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-13">Arguments<a class="anchor" aria-label="anchor" href="#arguments-13"></a></h4>
+<h4 id="arguments-14">Arguments<a class="anchor" aria-label="anchor" href="#arguments-14"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>session</code></dt>
 <dd><p><span class="pkg">shiny</span> session; any scope works, since the server
 always runs under the analysis <code>namespace</code></p></dd>
@@ -480,7 +504,7 @@ always runs under the analysis <code>namespace</code></p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-12">Returns<a class="anchor" aria-label="anchor" href="#returns-12"></a></h4>
+<h4 id="returns-13">Returns<a class="anchor" aria-label="anchor" href="#returns-13"></a></h4>
 <p>The value returned by the server function; <code>NULL</code>
 invisibly if no server is registered</p>
 </div>
@@ -490,10 +514,10 @@ invisibly if no server is registered</p>
 <p></p><hr><a id="method-RAVEPipelineAnalysis-set_preprocess"></a><div class="section">
 <h3 id="ravepipelineanalysis-set-preprocess-"><code>RAVEPipelineAnalysis$set_preprocess()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-set-preprocess-"></a></h3>
 <p>Register the <code>preprocess</code> step</p><div class="section">
-<h4 id="usage-14">Usage<a class="anchor" aria-label="anchor" href="#usage-14"></a></h4>
+<h4 id="usage-15">Usage<a class="anchor" aria-label="anchor" href="#usage-15"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RAVEPipelineAnalysis</span><span class="op">$</span><span class="fu">set_preprocess</span><span class="op">(</span><span class="va">preprocess_func</span>, pipeline_targets <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-14">Arguments<a class="anchor" aria-label="anchor" href="#arguments-14"></a></h4>
+<h4 id="arguments-15">Arguments<a class="anchor" aria-label="anchor" href="#arguments-15"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>preprocess_func</code></dt>
 <dd><p><code>function(value, pipeline_targets)</code>
 returning the processed values, which must hold everything the
@@ -507,7 +531,7 @@ the <code>preprocess</code> step only. Default is <code>NULL</code> (none)</p></
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-13">Returns<a class="anchor" aria-label="anchor" href="#returns-13"></a></h4>
+<h4 id="returns-14">Returns<a class="anchor" aria-label="anchor" href="#returns-14"></a></h4>
 <p>The analysis object itself, invisibly</p>
 </div>
 
@@ -516,10 +540,10 @@ the <code>preprocess</code> step only. Default is <code>NULL</code> (none)</p></
 <p></p><hr><a id="method-RAVEPipelineAnalysis-@preprocess_data"></a><div class="section">
 <h3 id="ravepipelineanalysis-preprocess-data-"><code>RAVEPipelineAnalysis$@preprocess_data()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-preprocess-data-"></a></h3>
 <p>Process the collected input values before the analysis</p><div class="section">
-<h4 id="usage-15">Usage<a class="anchor" aria-label="anchor" href="#usage-15"></a></h4>
+<h4 id="usage-16">Usage<a class="anchor" aria-label="anchor" href="#usage-16"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code>RAVEPipelineAnalysis$@preprocess_data(value, pipeline_targets = list())</code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-15">Arguments<a class="anchor" aria-label="anchor" href="#arguments-15"></a></h4>
+<h4 id="arguments-16">Arguments<a class="anchor" aria-label="anchor" href="#arguments-16"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>value</code></dt>
 <dd><p>input values, usually from
 <code>@collect_inputs_from_pipeline</code></p></dd>
@@ -532,7 +556,7 @@ example <code>pipeline[analysis$pipeline_targets, simplify = FALSE]</code></p></
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-14">Returns<a class="anchor" aria-label="anchor" href="#returns-14"></a></h4>
+<h4 id="returns-15">Returns<a class="anchor" aria-label="anchor" href="#returns-15"></a></h4>
 <p>The processed values, or <code>value</code> if no
 <code>preprocess</code> step is registered</p>
 </div>
@@ -542,10 +566,10 @@ example <code>pipeline[analysis$pipeline_targets, simplify = FALSE]</code></p></
 <p></p><hr><a id="method-RAVEPipelineAnalysis-set_analyze"></a><div class="section">
 <h3 id="ravepipelineanalysis-set-analyze-"><code>RAVEPipelineAnalysis$set_analyze()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-set-analyze-"></a></h3>
 <p>Register the analyze step</p><div class="section">
-<h4 id="usage-16">Usage<a class="anchor" aria-label="anchor" href="#usage-16"></a></h4>
+<h4 id="usage-17">Usage<a class="anchor" aria-label="anchor" href="#usage-17"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RAVEPipelineAnalysis</span><span class="op">$</span><span class="fu">set_analyze</span><span class="op">(</span><span class="va">analyze_func</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-16">Arguments<a class="anchor" aria-label="anchor" href="#arguments-16"></a></h4>
+<h4 id="arguments-17">Arguments<a class="anchor" aria-label="anchor" href="#arguments-17"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>analyze_func</code></dt>
 <dd><p><code>function(value, options)</code> returning the
 analysis result, or <code>NULL</code> to remove the step</p></dd>
@@ -553,7 +577,7 @@ analysis result, or <code>NULL</code> to remove the step</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-15">Returns<a class="anchor" aria-label="anchor" href="#returns-15"></a></h4>
+<h4 id="returns-16">Returns<a class="anchor" aria-label="anchor" href="#returns-16"></a></h4>
 <p>The analysis object itself, invisibly</p>
 </div>
 
@@ -564,10 +588,10 @@ analysis result, or <code>NULL</code> to remove the step</p></dd>
 <p>Run the analysis with the current <code>options</code>; this
 method does not call <code>@preprocess_data</code>, so pass its result in.
 The analyze step receives only the processed values and the options</p><div class="section">
-<h4 id="usage-17">Usage<a class="anchor" aria-label="anchor" href="#usage-17"></a></h4>
+<h4 id="usage-18">Usage<a class="anchor" aria-label="anchor" href="#usage-18"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code>RAVEPipelineAnalysis$@analyze_data(value_processed)</code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-17">Arguments<a class="anchor" aria-label="anchor" href="#arguments-17"></a></h4>
+<h4 id="arguments-18">Arguments<a class="anchor" aria-label="anchor" href="#arguments-18"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>value_processed</code></dt>
 <dd><p>processed values, usually returned by
 <code>@preprocess_data</code></p></dd>
@@ -575,9 +599,11 @@ The analyze step receives only the processed values and the options</p><div clas
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-16">Returns<a class="anchor" aria-label="anchor" href="#returns-16"></a></h4>
-<p>The analysis result, or <code>value_processed</code> if no analyze
-step is registered</p>
+<h4 id="returns-17">Returns<a class="anchor" aria-label="anchor" href="#returns-17"></a></h4>
+<p>An object of class <code>RAVEPipelineAnalysis_results</code>: a list
+with the analysis name (<code>analysis_name</code>) and the analysis result
+(<code>results</code>), which is <code>value_processed</code> if no analyze step is
+registered</p>
 </div>
 
 </div>
@@ -585,10 +611,10 @@ step is registered</p>
 <p></p><hr><a id="method-RAVEPipelineAnalysis-set_visualize"></a><div class="section">
 <h3 id="ravepipelineanalysis-set-visualize-"><code>RAVEPipelineAnalysis$set_visualize()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-set-visualize-"></a></h3>
 <p>Register the visualize step</p><div class="section">
-<h4 id="usage-18">Usage<a class="anchor" aria-label="anchor" href="#usage-18"></a></h4>
+<h4 id="usage-19">Usage<a class="anchor" aria-label="anchor" href="#usage-19"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RAVEPipelineAnalysis</span><span class="op">$</span><span class="fu">set_visualize</span><span class="op">(</span><span class="va">visualize_func</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-18">Arguments<a class="anchor" aria-label="anchor" href="#arguments-18"></a></h4>
+<h4 id="arguments-19">Arguments<a class="anchor" aria-label="anchor" href="#arguments-19"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>visualize_func</code></dt>
 <dd><p><code>function(value, options)</code> that prints,
 plots, or writes text, or <code>NULL</code> to remove the step</p></dd>
@@ -596,7 +622,7 @@ plots, or writes text, or <code>NULL</code> to remove the step</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-17">Returns<a class="anchor" aria-label="anchor" href="#returns-17"></a></h4>
+<h4 id="returns-18">Returns<a class="anchor" aria-label="anchor" href="#returns-18"></a></h4>
 <p>The analysis object itself, invisibly</p>
 </div>
 
@@ -606,17 +632,19 @@ plots, or writes text, or <code>NULL</code> to remove the step</p></dd>
 <h3 id="ravepipelineanalysis-visualize-data-"><code>RAVEPipelineAnalysis$@visualize_data()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-visualize-data-"></a></h3>
 <p>Visualize the analysis result with the current
 <code>options</code></p><div class="section">
-<h4 id="usage-19">Usage<a class="anchor" aria-label="anchor" href="#usage-19"></a></h4>
+<h4 id="usage-20">Usage<a class="anchor" aria-label="anchor" href="#usage-20"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code>RAVEPipelineAnalysis$@visualize_data(value)</code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-19">Arguments<a class="anchor" aria-label="anchor" href="#arguments-19"></a></h4>
+<h4 id="arguments-20">Arguments<a class="anchor" aria-label="anchor" href="#arguments-20"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>value</code></dt>
-<dd><p>analysis result, usually from <code>@analyze_data</code></p></dd>
+<dd><p>analysis result from <code>@analyze_data</code>, whose
+<code>results</code> are visualized; it must come from this analysis. A plain
+value that is not such a result is visualized as is</p></dd>
 
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-18">Returns<a class="anchor" aria-label="anchor" href="#returns-18"></a></h4>
+<h4 id="returns-19">Returns<a class="anchor" aria-label="anchor" href="#returns-19"></a></h4>
 <p>The value returned by the visualize function, visible or
 invisible as that function returned it (so a returned plot object is
 printed at top level or in a report chunk); <code>NULL</code> invisibly if
@@ -625,14 +653,100 @@ no visualize step is registered</p>
 
 </div>
 
+<p></p><hr><a id="method-RAVEPipelineAnalysis-run"></a><div class="section">
+<h3 id="ravepipelineanalysis-run-"><code>RAVEPipelineAnalysis$run()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-run-"></a></h3>
+<p>Run the analysis with a pipeline, without the 'RAVE'
+dashboard</p><div class="section">
+<h4 id="usage-21">Usage<a class="anchor" aria-label="anchor" href="#usage-21"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RAVEPipelineAnalysis</span><span class="op">$</span><span class="fu">run</span><span class="op">(</span></span>
+<span>  <span class="va">pipeline</span>,</span>
+<span>  step <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"all"</span>, <span class="st">"inputs"</span>, <span class="st">"preprocess"</span>, <span class="st">"analyze"</span>, <span class="st">"visualize"</span><span class="op">)</span>,</span>
+<span>  eval_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"run"</span>, <span class="st">"debug"</span><span class="op">)</span>,</span>
+<span>  session <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  visualization_method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"direct"</span>, <span class="st">"html"</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div><p></p><div class="section">
+<h4 id="arguments-21">Arguments<a class="anchor" aria-label="anchor" href="#arguments-21"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>pipeline</code></dt>
+<dd><p>a <code><a href="PipelineTools.html">PipelineTools</a></code> instance</p></dd>
+
+      <dt><code>step</code></dt>
+<dd><p>where to stop: <code>"inputs"</code> returns the collected input
+values, <code>"preprocess"</code> the processed values, and <code>"analyze"</code>
+the analysis result; <code>"all"</code> and <code>"visualize"</code> are the same,
+and also run the visualize step</p></dd>
+
+      <dt><code>eval_method</code></dt>
+<dd><p><code>"run"</code> saves the input values to the pipeline
+and builds the target <code>results_target_name</code>, which must exist;
+<code>"debug"</code> computes the analysis in this session without that
+target, for analyses not yet compiled into the pipeline, and does not
+save the input values. In debug mode, and for <code>step</code> set to
+<code>"preprocess"</code>, the prerequisite targets are read from the
+pipeline, so they must have been built</p></dd>
+
+      <dt><code>session</code></dt>
+<dd><p><span class="pkg">shiny</span> session to collect the input values from;
+default is <code>NULL</code>, which restores them from the pipeline settings</p></dd>
+
+      <dt><code>visualization_method</code></dt>
+<dd><p><code>"direct"</code> calls the visualize step;
+<code>"html"</code> renders it as an <code>HTML</code> fragment, which requires
+<span class="pkg">rmarkdown</span></p></dd>
+
+      <dt><code>...</code></dt>
+<dd><p>passed to the <code>run</code> method of the pipeline when
+<code>eval_method</code> is <code>"run"</code></p></dd>
+
+
+</dl><p></p></div>
+</div><p></p><div class="section">
+<h4 id="returns-20">Returns<a class="anchor" aria-label="anchor" href="#returns-20"></a></h4>
+<p>Depends on <code>step</code>: the input values, the processed values,
+the analysis result, or the value returned by the visualize step
+(an <span class="pkg">htmltools</span> <code>HTML</code> fragment if <code>visualization_method</code>
+is <code>"html"</code>)</p>
+</div>
+
+</div>
+
+<p></p><hr><a id="method-RAVEPipelineAnalysis-run_as_task"></a><div class="section">
+<h3 id="ravepipelineanalysis-run-as-task-"><code>RAVEPipelineAnalysis$run_as_task()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-run-as-task-"></a></h3>
+<p>Save the input values to the pipeline, then build the
+target <code>results_target_name</code> as a <span class="pkg">shiny</span> extended task</p><div class="section">
+<h4 id="usage-22">Usage<a class="anchor" aria-label="anchor" href="#usage-22"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">RAVEPipelineAnalysis</span><span class="op">$</span><span class="fu">run_as_task</span><span class="op">(</span><span class="va">pipeline</span>, session <span class="op">=</span> <span class="cn">NULL</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div><p></p><div class="section">
+<h4 id="arguments-22">Arguments<a class="anchor" aria-label="anchor" href="#arguments-22"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>pipeline</code></dt>
+<dd><p>a <code><a href="PipelineTools.html">PipelineTools</a></code> instance</p></dd>
+
+      <dt><code>session</code></dt>
+<dd><p><span class="pkg">shiny</span> session to collect the input values from;
+default is <code>NULL</code>, which restores them from the pipeline settings</p></dd>
+
+      <dt><code>...</code></dt>
+<dd><p>passed to the <code>run_as_task</code> method of the pipeline</p></dd>
+
+
+</dl><p></p></div>
+</div><p></p><div class="section">
+<h4 id="returns-21">Returns<a class="anchor" aria-label="anchor" href="#returns-21"></a></h4>
+<p>The task returned by the <code>run_as_task</code> method of the
+pipeline</p>
+</div>
+
+</div>
+
 <p></p><hr><a id="method-RAVEPipelineAnalysis-@build_targets"></a><div class="section">
 <h3 id="ravepipelineanalysis-build-targets-"><code>RAVEPipelineAnalysis$@build_targets()</code><a class="anchor" aria-label="anchor" href="#ravepipelineanalysis-build-targets-"></a></h3>
 <p>Create the pipeline target specifications for this
 analysis; called when the pipeline is compiled</p><div class="section">
-<h4 id="usage-20">Usage<a class="anchor" aria-label="anchor" href="#usage-20"></a></h4>
+<h4 id="usage-23">Usage<a class="anchor" aria-label="anchor" href="#usage-23"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code>RAVEPipelineAnalysis$@build_targets(varname, format = NULL, cue = "thorough")</code></pre></div><p></p></div>
 </div><p></p><div class="section">
-<h4 id="arguments-20">Arguments<a class="anchor" aria-label="anchor" href="#arguments-20"></a></h4>
+<h4 id="arguments-23">Arguments<a class="anchor" aria-label="anchor" href="#arguments-23"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>varname</code></dt>
 <dd><p>name of the variable that holds this analysis in the
 pipeline environment; the generated code refers to it</p></dd>
@@ -644,7 +758,7 @@ results target</p></dd>
 
 </dl><p></p></div>
 </div><p></p><div class="section">
-<h4 id="returns-19">Returns<a class="anchor" aria-label="anchor" href="#returns-19"></a></h4>
+<h4 id="returns-22">Returns<a class="anchor" aria-label="anchor" href="#returns-22"></a></h4>
 <p>A list of target specifications: the cleaned-inputs target
 (only with a custom pipeline collector), then the results target</p>
 </div>

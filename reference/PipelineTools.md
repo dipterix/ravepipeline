@@ -51,7 +51,7 @@ Class definition for 'RAVE' pipelines
 
 - `task`:
 
-  shiny task object, see method `'run_ask_task'`
+  shiny task object, see method `'run_as_task'`
 
 ## Methods
 

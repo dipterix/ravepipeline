@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.4</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,8 +34,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="ravepipeline-development-version">ravepipeline (development version)<a class="anchor" aria-label="anchor" href="#ravepipeline-development-version"></a></h2>
-<ul><li>Added <code>RAVEPipelineAnalysis</code>, a small class for writing one analysis as plain functions (input, <code>shiny</code> server, <code>preprocess</code>, <code>analyze</code>, <code>visualize</code>) that the <code>RAVE</code> dashboard or a pipeline runs. The analysis never stores a pipeline: its inputs are saved to and restored from the pipeline settings <code>analysis_inputs_&lt;name&gt;</code>, prerequisite targets are declared with <code>set_preprocess()</code>, and options are set through <code>options</code> or <code>set_option()</code>. When a pipeline is compiled, each analysis defined in its <code>R/shared-*.R</code> scripts becomes the pipeline target <code>analysis_results_&lt;name&gt;</code>
-</li>
+<ul><li>Added <code>RAVEPipelineAnalysis</code>, a small class for writing one analysis as plain functions (input, <code>shiny</code> server, <code>preprocess</code>, <code>analyze</code>, <code>visualize</code>) that the <code>RAVE</code> dashboard or a pipeline runs. The analysis never stores a pipeline: its inputs are saved to and restored from the pipeline settings <code>analysis_inputs_&lt;name&gt;</code>, prerequisite targets are declared with <code>set_preprocess()</code>, and options are set through <code>options</code> or <code>set_option()</code>. When a pipeline is compiled, each analysis defined in its <code>R/shared-*.R</code> scripts becomes the pipeline target <code>analysis_results_&lt;name&gt;</code>, and <code>run()</code> runs an analysis with a pipeline, optionally rendering its visualization as an <code>HTML</code> fragment</li>
+<li>The logger works without <code>shiny</code> installed; it used to print “Cannot log the following call” instead of the message</li>
 <li>
 <code>PipelineTools$fork()</code> no longer replaces the pipeline root of the session with the folder of the fork, which dropped any root set earlier</li>
 <li>Fixed two long-standing faults in the internal program finder on <code>Linux</code>. It raised <code>invalid 'file' argument</code> when the program was absent and the machine had no <code>Homebrew</code>, and it reported every <em>installed</em> program as missing when one was found. Both affected <code><a href="../reference/vscode-extension.html">vscode_bridge_status()</a></code> and <code><a href="../reference/vscode-extension.html">install_vscode_extension()</a></code>, as well as the discovery of <code>npm</code> and <code>pandoc</code>. <code>macOS</code> and <code>Windows</code> take other branches and were never affected</li>
