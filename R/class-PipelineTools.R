@@ -1396,7 +1396,7 @@ PipelineTools <- R6::R6Class(
       unlist(re, recursive = FALSE, use.names = TRUE)
     },
 
-    #' @field task shiny task object, see method \code{'run_ask_task'}
+    #' @field task shiny task object, see method \code{'run_as_task'}
     task = function() {
       private$.task
     }

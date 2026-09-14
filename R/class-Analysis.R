@@ -98,17 +98,20 @@ RAVEPipelineAnalysis <- R6::R6Class(
       target_names <- private$.pipeline_targets
       missing_names <- target_names[!target_names %in% names(pipeline_targets)]
       if (length(missing_names)) {
-        stop(sprintf(
-          "Analysis '%s' requires the values of pipeline targets %s. The following targets are missing: %s",
-          private$.name, paste(sprintf("`%s`", target_names), collapse = ", "),
-          paste(sprintf("`%s`", missing_names), collapse = ", ")
-        ), call. = FALSE)
+        stop(
+          sprintf(
+            "Analysis '%s' requires the values of pipeline targets %s. The following targets are missing: %s",
+            private$.name,
+            paste(sprintf("`%s`", target_names), collapse = ", "),
+            paste(sprintf("`%s`", missing_names), collapse = ", ")
+          ),
+          call. = FALSE
+        )
       }
       as.list(pipeline_targets)[target_names]
     }
   ),
   public = list(
-
     #' @field description a short text describing the analysis
     description = character(0L),
 
@@ -140,13 +143,27 @@ RAVEPipelineAnalysis <- R6::R6Class(
     #' are rendered, usually the module ID; a single non-empty string
     #' @param description a short text describing the analysis; default is
     #' the name with underscores replaced by spaces
-    initialize = function(name, namespace, description = gsub("[_]+", " ", name)) {
-      if (!is.character(name) || length(name) != 1L ||
-          !grepl("^[a-zA-Z][a-zA-Z0-9_]*$", name)) {
-        stop("`name` must be a single string of letters, digits, and underscores, starting with a letter", call. = FALSE) # nolint: line_length_linter.
+    initialize = function(
+      name,
+      namespace,
+      description = gsub("[_]+", " ", name)
+    ) {
+      if (
+        !is.character(name) ||
+          length(name) != 1L ||
+          !grepl("^[a-zA-Z][a-zA-Z0-9_]*$", name)
+      ) {
+        stop(
+          "`name` must be a single string of letters, digits, and underscores, starting with a letter",
+          call. = FALSE
+        ) # nolint: line_length_linter.
       }
-      if (!is.character(namespace) || length(namespace) != 1L ||
-          is.na(namespace) || !nzchar(namespace)) {
+      if (
+        !is.character(namespace) ||
+          length(namespace) != 1L ||
+          is.na(namespace) ||
+          !nzchar(namespace)
+      ) {
         stop("`namespace` must be a single non-empty string", call. = FALSE)
       }
       private$.name <- name
@@ -178,13 +195,19 @@ RAVEPipelineAnalysis <- R6::R6Class(
     #' input element, or \code{NULL} to remove the input
     #' @returns The analysis object itself, invisibly
     set_input_ui = function(input_name, ui_func) {
-      if (!is.character(input_name) || length(input_name) != 1L ||
-          is.na(input_name) || !nzchar(input_name)) {
+      if (
+        !is.character(input_name) ||
+          length(input_name) != 1L ||
+          is.na(input_name) ||
+          !nzchar(input_name)
+      ) {
         stop("`input_name` must be a single non-empty string", call. = FALSE)
       }
       private$.ui[[input_name]] <- check_function_args(
-        ui_func, name = sprintf("`ui_func` for input '%s'", input_name),
-        allow_null = TRUE, arg_names = c("inputId", "restored_inputs")
+        ui_func,
+        name = sprintf("`ui_func` for input '%s'", input_name),
+        allow_null = TRUE,
+        arg_names = c("inputId", "restored_inputs")
       )
       invisible(self)
     },
@@ -207,6 +230,14 @@ RAVEPipelineAnalysis <- R6::R6Class(
         inputId = self$get_id(input_name, with_namespace = TRUE),
         restored_inputs = self$`@collect_inputs_from_pipeline`(pipeline)
       )
+    },
+
+    render_inputs = function(pipeline) {
+      stopifnot(package_installed("htmltools"))
+      htmltools <- asNamespace("htmltools")
+      htmltools$tagList(unname(lapply(self$input_names, function(name) {
+        self$`@render_input`(input_name = name, pipeline = pipeline)
+      })))
     },
 
     #' @description Register the function that collects the input values
@@ -329,10 +360,12 @@ RAVEPipelineAnalysis <- R6::R6Class(
       if (is.function(store_func)) {
         inputs <- store_func(inputs = inputs, pipeline = pipeline)
       }
-      pipeline$set_settings(.list = structure(
-        list(inputs),
-        names = self$inputs_settings_name
-      ))
+      pipeline$set_settings(
+        .list = structure(
+          list(inputs),
+          names = self$inputs_settings_name
+        )
+      )
       invisible(inputs)
     },
 
@@ -345,11 +378,14 @@ RAVEPipelineAnalysis <- R6::R6Class(
     #' original ones, otherwise \code{FALSE}
     `@test_roundtrip_pipeline_inputs` = function(pipeline) {
       tf <- tempfile()
-      on.exit({
-        if (file.exists(tf)) {
-          unlink(tf, recursive = TRUE)
-        }
-      }, add = TRUE)
+      on.exit(
+        {
+          if (file.exists(tf)) {
+            unlink(tf, recursive = TRUE)
+          }
+        },
+        add = TRUE
+      )
       # Create another pipeline with empty settings
       temporary_pipeline <- pipeline$fork(path = tf, temporary = TRUE)
       unlink(temporary_pipeline$settings_path)
@@ -362,17 +398,27 @@ RAVEPipelineAnalysis <- R6::R6Class(
       # temporary_pipeline$get_settings()
 
       # Get analysis inputs
-      inputs <- self$`@collect_inputs_from_pipeline`(pipeline_settings = pipeline$get_settings())
+      inputs <- self$`@collect_inputs_from_pipeline`(
+        pipeline_settings = pipeline$get_settings()
+      )
 
       # forward trip: store inputs to the temporary pipeline
-      self$`@store_inputs_to_pipeline`(inputs = inputs, pipeline = temporary_pipeline)
+      self$`@store_inputs_to_pipeline`(
+        inputs = inputs,
+        pipeline = temporary_pipeline
+      )
 
       # Reload settings and remove cache; without `dry_run = FALSE`, the
       # settings are only read, not applied
-      temporary_pipeline$import_settings(temporary_pipeline$settings_path, dry_run = FALSE)
+      temporary_pipeline$import_settings(
+        temporary_pipeline$settings_path,
+        dry_run = FALSE
+      )
 
       # backward trip: restore inputs from temporary settings
-      inputs2 <- self$`@collect_inputs_from_pipeline`(pipeline_settings = temporary_pipeline$get_settings())
+      inputs2 <- self$`@collect_inputs_from_pipeline`(
+        pipeline_settings = temporary_pipeline$get_settings()
+      )
 
       # Roundtrip should give identical inputs
       identical(inputs, inputs2)
@@ -419,11 +465,17 @@ RAVEPipelineAnalysis <- R6::R6Class(
     #' the \code{preprocess} step only. Default is \code{NULL} (none)
     #' @returns The analysis object itself, invisibly
     set_preprocess = function(preprocess_func, pipeline_targets = NULL) {
-      if (!is.null(pipeline_targets) && (
-        !is.character(pipeline_targets) || anyNA(pipeline_targets) ||
-        !all(nzchar(pipeline_targets)) || anyDuplicated(pipeline_targets) > 0
-      )) {
-        stop("`pipeline_targets` must be `NULL` or a character vector of unique non-empty target names", call. = FALSE) # nolint: line_length_linter.
+      if (
+        !is.null(pipeline_targets) &&
+          (!is.character(pipeline_targets) ||
+            anyNA(pipeline_targets) ||
+            !all(nzchar(pipeline_targets)) ||
+            anyDuplicated(pipeline_targets) > 0)
+      ) {
+        stop(
+          "`pipeline_targets` must be `NULL` or a character vector of unique non-empty target names",
+          call. = FALSE
+        ) # nolint: line_length_linter.
       }
       preprocess_func <- check_function_args(
         preprocess_func,
@@ -481,11 +533,18 @@ RAVEPipelineAnalysis <- R6::R6Class(
       if (!is.function(private$.analyze)) {
         return(value_processed)
       }
-      do.call(
+      results <- do.call(
         private$.analyze,
         list(
           value = value_processed,
           options = self$options
+        )
+      )
+      structure(
+        class = "RAVEPipelineAnalysis_results",
+        list(
+          analysis_name = private$.name,
+          results = results
         )
       )
     },
@@ -515,7 +574,114 @@ RAVEPipelineAnalysis <- R6::R6Class(
       if (!is.function(private$.visualize)) {
         return(invisible())
       }
+      if (inherits(value, "RAVEPipelineAnalysis_results")) {
+        analysis_name <- paste(
+          .subset2(value, "analysis_name") %||% "[Unknown]",
+          collapse = ""
+        )
+        if (!identical(private$.name, analysis_name)) {
+          stop(
+            "Inconsistent analysis for visualization: expected analysis: `",
+            private$.name,
+            "`, not `",
+            analysis_name,
+            "`."
+          )
+        }
+        value <- .subset2(value, "results")
+      }
+
       do.call(private$.visualize, list(value = value, options = self$options))
+    },
+
+    run = function(
+      pipeline,
+      step = c("all", "inputs", "preprocess", "analyze", "visualize"),
+      eval_method = c("run", "debug"),
+      session = NULL,
+      visualization_method = c("direct", "html"),
+      ...
+    ) {
+      # For running entire analysis from pipeline without shiny
+      # eval means do not rely on the pipeline target to build, for debugging
+      # when analysis is not yet baked into pipeline as targets
+
+      step <- match.arg(step)
+      eval_method <- match.arg(eval_method)
+      visualization_method <- match.arg(visualization_method)
+
+      
+      if (eval_method == "run" && !isTRUE(self$results_target_name %in% pipeline$target_table$Names)) {
+        stop("The analysis does not have build target in the pipeline. If you are debugging the module, use `eval_method='debug'`.")
+      }
+
+      # assumes the analysis is built into the pipeline
+      if (!is.null(session)) {
+        cleaned_inputs <- self$`@collect_inputs_from_shiny`(session)
+      } else {
+        cleaned_inputs <- self$`@collect_inputs_from_pipeline`(
+          pipeline_settings = pipeline$get_settings()
+        )
+      }
+
+      # This step saves inputs to pipeline
+      if (eval_method == "run") {
+        self$`@store_inputs_to_pipeline`(inputs = cleaned_inputs, pipeline = pipeline)
+      }
+
+      if (step == "inputs") {
+        return(inputs)
+      }
+
+      if (step == "preprocess") {
+        # preprocess
+        preprocessed <- self$`@preprocess_data`(
+          value = cleaned_inputs,
+          pipeline_targets = pipeline[self$pipeline_targets, simplify = FALSE]
+        )
+        return(preprocessed)
+      }
+
+      # analyze
+      if (eval_method == "run") {
+        analysis_results <- pipeline$run(names = self$results_target_name, ...)
+      } else {
+        preprocessed <- self$`@preprocess_data`(
+          value = cleaned_inputs,
+          pipeline_targets = pipeline[self$pipeline_targets, simplify = FALSE]
+        )
+        analysis_results <- self$`@analyze_data`(value_processed = preprocessed)
+      }
+      
+      re <- .subset2(analysis_results, "results")
+      if (step == "analyze") {
+        return(re)
+      }
+
+      # visualize
+      switch(
+        visualization_method,
+        "direct" = {
+          self$`@visualize_data`(value = analysis_results)
+        },
+        "html" = {
+          render_as_html_fragment(pipeline, self)
+        }
+      )
+    },
+
+    run_as_task = function(pipeline, session = NULL, ...) {
+      if (!is.null(session)) {
+        inputs <- self$`@collect_inputs_from_shiny`(session)
+      } else {
+        inputs <- self$`@collect_inputs_from_pipeline`(
+          pipeline_settings = pipeline$get_settings()
+        )
+      }
+      self$`@store_inputs_to_pipeline`(inputs = inputs, pipeline = pipeline)
+
+      name <- self$results_target_name
+      pipeline$run_as_task(names = name, ...)
     },
 
     #' @description Create the pipeline target specifications for this
@@ -535,13 +701,19 @@ RAVEPipelineAnalysis <- R6::R6Class(
       # expr, export, format, deps = NULL,
       # cue = "thorough", pattern = NULL, quoted = TRUE)
 
-      
       if (is.function(private$.collect_from_pipeline)) {
         # target 1: cleaned target, only needed when the analysis has custom function to collect inputs from pipeline
         # cleaned-input target is needed
 
-        cleaned_target_name <- sprintf("analysis_cleaned_inputs_%s", private$.name)
-        cleaned_target_expr <- sprintf("%s <- %s[[\"@collect_inputs_from_pipeline\"]](settings)", cleaned_target_name, varname)
+        cleaned_target_name <- sprintf(
+          "analysis_cleaned_inputs_%s",
+          private$.name
+        )
+        cleaned_target_expr <- sprintf(
+          "%s <- %s[[\"@collect_inputs_from_pipeline\"]](settings)",
+          cleaned_target_name,
+          varname
+        )
 
         # will eventually goes to rave_knitr_build -> rave_knit_r, but some extras are needed
         targets[[length(targets) + 1]] <- list(
@@ -553,7 +725,6 @@ RAVEPipelineAnalysis <- R6::R6Class(
           cue = "thorough",
           format = NULL
         )
-
       } else {
         # self$inputs_settings_name -> this target is built by pipeline
         cleaned_target_name <- self$inputs_settings_name
@@ -567,7 +738,10 @@ RAVEPipelineAnalysis <- R6::R6Class(
           sprintf("%s <- local({", self$results_target_name),
           sprintf("  self <- %s", varname),
           sprintf("  cleaned_inputs <- %s", cleaned_target_name),
-          sprintf("  dep_vars <- list(%s)", paste(sprintf("%s = %s", dep_names, dep_names), collapse = ", ")),
+          sprintf(
+            "  dep_vars <- list(%s)",
+            paste(sprintf("%s = %s", dep_names, dep_names), collapse = ", ")
+          ),
           "  value_processed <- self$`@preprocess_data`(value = cleaned_inputs, pipeline_targets = dep_vars)",
           "  self$`@analyze_data`(value_processed = value_processed)",
           "})"
@@ -587,14 +761,15 @@ RAVEPipelineAnalysis <- R6::R6Class(
 
       targets
     }
-
   ),
   active = list(
-
     #' @field name analysis name, read-only
     name = function(v) {
       if (!missing(v)) {
-        stop("`name` is read-only; create a new analysis instead", call. = FALSE)
+        stop(
+          "`name` is read-only; create a new analysis instead",
+          call. = FALSE
+        )
       }
       private$.name
     },
@@ -651,7 +826,63 @@ RAVEPipelineAnalysis <- R6::R6Class(
         }
       }
     }
-
   )
 )
 
+render_as_html_fragment <- function(pipeline, analysis) {
+  
+  # Assume the results is calculated
+  # must run pipeline$run(analysis$results_target_name) first
+  results <- pipeline$read(analysis$results_target_name)
+
+  render_env <- new.env(parent = globalenv())
+  render_env$pipeline <- pipeline
+  render_env$analysis <- analysis
+  render_env$results <- results
+
+  # Create a template
+  frag_template_str <- r"(
+#' ---
+#' title: "`r analysis$description`"
+#' description: "Generated by RAVE"
+#' date: "`r date()`"
+#' ---
+
+#+ setup, include=FALSE, message=FALSE, echo=FALSE, results='hide'
+knitr::opts_knit$set(upload.fun = knitr::image_uri)
+
+# Get results
+results <- pipeline$read(analysis$results_target_name)
+
+if (!inherits(results, "RAVEPipelineAnalysis_results")) {
+  results <- pipeline$run(names = analysis$results_target_name)
+}
+
+#+ echo=FALSE, eval=TRUE, 
+analysis$`@visualize_data`(results)
+)"
+  tf_r <- tempfile(fileext = ".r")
+  tf_html <- tempfile(fileext = ".html")
+
+  on.exit(
+    {
+      unlink(tf_r)
+      unlink(tf_html)
+    },
+    add = TRUE
+  )
+
+  writeLines(frag_template_str, tf_r)
+
+  rmarkdown <- asNamespace("rmarkdown")
+
+  rmarkdown$render(
+    input = tf_r,
+    output_file = tf_html,
+    output_format = rmarkdown$html_fragment(),
+    envir = render_env
+  )
+
+  html_str <- readLines(tf_html)
+  asNamespace("htmltools")$HTML(paste(html_str, collapse = "\n"))
+}

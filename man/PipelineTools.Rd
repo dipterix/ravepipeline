@@ -117,7 +117,7 @@ signatures of data and commands}
 
     \item{\code{available_reports}}{available reports and their configurations}
 
-    \item{\code{task}}{shiny task object, see method \code{'run_ask_task'}}
+    \item{\code{task}}{shiny task object, see method \code{'run_as_task'}}
   }
   \if{html}{\out{</div>}}
 }
