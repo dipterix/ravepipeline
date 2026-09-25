@@ -103,6 +103,22 @@ expect_brain_round_trip <- function(original, restored) {
   expect_equal(annotation_key(restored), annotation_key(original))
   expect_equal(restored$electrodes$raw_table, original$electrodes$raw_table)
   expect_equal(restored$electrodes$value_table, original$electrodes$value_table)
+  expect_setequal(geom_names(restored$electrodes$geometries),
+                  geom_names(original$electrodes$geometries))
+}
+
+# First builtin prototype with model control points, so a placement (world
+# control points) can be recorded on it
+test_prototype_name <- function() {
+  threeBrain <- asNamespace("threeBrain")
+  for (pname in names(threeBrain$list_electrode_prototypes())) {
+    proto <- tryCatch(
+      threeBrain$new_electrode_prototype(base_prototype = pname),
+      error = function(e) { NULL }
+    )
+    if (is.data.frame(proto$control_points)) { return(pname) }
+  }
+  skip("`threeBrain` ships no electrode prototype with control points")
 }
 
 refhook_round_trip <- function(object) {
@@ -149,6 +165,54 @@ test_that("electrode values survive the round trip", {
   expect_brain_round_trip(brain, restored)
   expect_true(is.data.frame(restored$electrodes$value_table))
   expect_setequal(restored$electrodes$value_table$MyValue, c(0.1, 0.2, 0.3, 0.4))
+})
+
+test_that("electrode prototypes keep their placement across the round trip", {
+  skip_unless_brain_available()
+  pname <- test_prototype_name()
+  electrodes <- test_brain()$electrodes
+  on.exit({
+    electrodes$remote_geometry(c("TSTA", "TSTB"), prototype_name = pname)
+  }, add = TRUE)
+
+  # a shaft placed by rotating about z, then shifting
+  angle <- pi / 6
+  m44 <- matrix(c(
+    cos(angle), -sin(angle), 0, 10.25,
+    sin(angle), cos(angle), 0, -20.5,
+    0, 0, 1, 30.125,
+    0, 0, 0, 1
+  ), nrow = 4L, byrow = TRUE)
+
+  placed <- electrodes$add_geometry("TSTA", pname)
+  cp <- placed$control_points
+  world <- m44 %*% rbind(cp$model_x, cp$model_y, cp$model_z, 1)
+  placed$set_transform_from_points(x = world[1, ], y = world[2, ], z = world[3, ])
+  placed$set_contact_channels(seq_len(placed$n_channels) + 100L)
+
+  # callers such as the localization module rename a prototype after adding
+  # it, while `add_geometry()` keeps looking it up by its original slot
+  renamed <- electrodes$add_geometry("TSTB", pname)
+  renamed$name <- toupper(pname)
+
+  slot_placed <- toupper(sprintf("%s_TSTA", pname))
+  slot_renamed <- toupper(sprintf("%s_TSTB", pname))
+
+  for (restored in list(refhook_round_trip(test_brain()), format_round_trip(test_brain()))) {
+    geometries <- restored$electrodes$geometries
+    expect_true(all(c(slot_placed, slot_renamed) %in% names(geometries)))
+
+    # `add_geometry()` must hand back the restored prototype, not a template
+    restored_placed <- restored$electrodes$add_geometry("TSTA", pname)
+    expect_identical(restored_placed, geometries[[slot_placed]])
+    expect_identical(restored_placed$name, placed$name)
+    expect_equal(restored_placed$transform, placed$transform)
+    expect_equal(restored_placed$channel_numbers, placed$channel_numbers)
+    expect_equal(restored_placed$control_points, placed$control_points)
+    expect_false(anyNA(restored_placed$control_points$tkr_R))
+
+    expect_identical(geometries[[slot_renamed]]$name, toupper(pname))
+  }
 })
 
 test_that("multi brain round-trips through both paths", {

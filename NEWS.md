@@ -48,6 +48,12 @@
   log file is still written in full, so `resolve_job()` and the
   `ravepipeline.log_maxline` option are unaffected. Jobs run through `callr` or
   `mirai` are unchanged, neither having a console the output could reach
+* A saved `rave-brain` now keeps its electrode prototypes: where each shaft or
+  grid was placed and which channels its contacts carry. They used to be
+  dropped on save and rebuilt from the bare templates on read, so electrodes
+  placed but not yet finalized, such as those staged by the electrode
+  localization module, were lost whenever the brain was read back from a
+  pipeline
 
 # ravepipeline 0.2.0
 

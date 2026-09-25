@@ -49,6 +49,7 @@ brain_marshal <- function(brain) {
   params$electrode_table <- brain$electrodes$raw_table
   params$electrode_values <- brain$electrodes$value_table
   params$has_prototypes <- length(brain$electrodes$objects2) > 0
+  params$electrode_prototypes <- brain_prototype_list(brain)
 
   params$threeBrain_version <- threeBrain_version()
   params
@@ -119,6 +120,21 @@ brain_atlas_list <- function(brain) {
   atlases[!vapply(atlases, is.null, FUN.VALUE = logical(1))]
 }
 
+# `list(<slot name> = <prototype$as_list()>)` of every electrode prototype
+# (shaft placement, contact channels). Keyed by the `geometries` slot rather
+# than `prototype$name`: callers may rename a prototype after adding it, while
+# `add_geometry()` keeps looking it up by slot. `as_list()` rather than
+# `as_json()`, which rounds the coordinates.
+brain_prototype_list <- function(brain) {
+  geometries <- tryCatch(brain$electrodes$geometries, error = function(e) { NULL })
+  geometries <- geometries[vapply(geometries, inherits, FUN.VALUE = logical(1),
+                                  what = "ElectrodePrototype")]
+  prototypes <- lapply(geometries, function(proto) {
+    tryCatch(proto$as_list(), error = function(e) { NULL })
+  })
+  drop_nulls(prototypes)
+}
+
 brain_atlas_color_format <- function(atlas) {
   color_format <- tryCatch(atlas$object$color_format, error = function(e) { NULL })
   if (length(color_format) != 1 || is.na(color_format)) { return("RGBAFormat") }
@@ -155,6 +171,9 @@ brain_unmarshal <- function(params, brain = NULL) {
       return(NULL)
     }
     brain_restore_geometries(brain, params)
+    # before the electrodes: `set_electrodes()` fetches prototypes through the
+    # `add_geometry()` cache and would otherwise build fresh templates
+    brain_restore_prototypes(brain, params)
     brain_restore_electrodes(brain, params)
     brain
   }, error = function(e) {
@@ -386,6 +405,30 @@ brain_add_atlas <- function(brain, atlas) {
   brain$add_atlas(atlas = atlas_instance)
 
   invisible()
+}
+
+# Puts each prototype back into its `geometries` slot, where `add_geometry()`
+# finds it instead of rebuilding the template. Each prototype is isolated so
+# one that no longer validates does not cost the others.
+brain_restore_prototypes <- function(brain, params) {
+  prototypes <- params$electrode_prototypes
+  electrodes <- brain$electrodes
+  if (!length(prototypes) || is.null(electrodes)) { return(invisible(brain)) }
+
+  new_prototype <- call_pkg_fun("threeBrain", "new_electrode_prototype",
+                                .if_missing = "none", .call_pkg_function = FALSE)
+  if (!is.function(new_prototype)) { return(invisible(brain)) }
+
+  for (slot in names(prototypes)) {
+    tryCatch({
+      li <- prototypes[[slot]]
+      proto <- new_prototype(base_prototype = li)
+      # `from_list()` does not restore the name
+      proto$name <- if (length(li$name) == 1) { li$name } else { slot }
+      electrodes$geometries[[slot]] <- proto
+    }, error = function(e) {})
+  }
+  invisible(brain)
 }
 
 brain_restore_electrodes <- function(brain, params) {
