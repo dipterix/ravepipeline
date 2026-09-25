@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,7 @@
 <li>Added <code><a href="../reference/vscode_notify.html">vscode_notify()</a></code>, which raises a <code>VSCode</code> or <code>Positron</code> notification from R through the companion extension, optionally with buttons whose answer is returned to R. It returns at once when no editor window is listening, so it is safe to call anywhere</li>
 <li>A job started with <code>start_job(method = "vscode_task")</code> is now always shown as <code>RAVE-Task [ID: name]</code>, rather than whatever <code>name</code> was passed. The name is also the task’s identity, so two jobs sharing one now reuse a single terminal instead of opening a new one for every run; a name still in use by a running task is suffixed so both jobs run. A job left unnamed gets a terminal that closes itself once the job ends, whether it succeeded or not, so name any job whose output is worth reading afterwards</li>
 <li>A job started with <code>start_job(method = "rs_job")</code> or <code>start_job(method = "vscode_task")</code> now streams its console output to the <code>RStudio</code> Jobs pane or the editor terminal while it runs, rather than redirecting everything into a log file the caller only sees afterwards. The log file is still written in full, so <code><a href="../reference/rave-pipeline-jobs.html">resolve_job()</a></code> and the <code>ravepipeline.log_maxline</code> option are unaffected. Jobs run through <code>callr</code> or <code>mirai</code> are unchanged, neither having a console the output could reach</li>
+<li>A saved <code>rave-brain</code> now keeps its electrode prototypes: where each shaft or grid was placed and which channels its contacts carry. They used to be dropped on save and rebuilt from the bare templates on read, so electrodes placed but not yet finalized, such as those staged by the electrode localization module, were lost whenever the brain was read back from a pipeline</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.2.0" id="ravepipeline-020">ravepipeline 0.2.0<a class="anchor" aria-label="anchor" href="#ravepipeline-020"></a></h2><p class="text-muted">CRAN release: 2026-08-22</p>
