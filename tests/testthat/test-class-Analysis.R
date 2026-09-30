@@ -48,7 +48,8 @@ testthat::test_that("identifiers derive from the analysis name and namespace", {
 
 testthat::test_that("step functions are checked", {
   analysis <- RAVEPipelineAnalysis$new("demo", "module")
-  expect_error(analysis$set_input_ui("x", function(inputId, pipeline) NULL), "missing: `restored_inputs`")
+  expect_error(analysis$set_input_ui("x", function(inputId, pipeline) NULL), "missing: `ns`, `restored_inputs`")
+  expect_error(analysis$set_input_ui("x", function(inputId, restored_inputs) NULL), "missing: `ns`")
   expect_error(analysis$set_input_ui("x", "text"), "either `NULL` or a function")
   expect_error(analysis$set_input_ui(c("x", "y"), function(...) NULL), "single non-empty string")
   expect_error(analysis$set_collect_inputs_from_shiny(function(input) NULL), "missing: `session`")
@@ -86,15 +87,17 @@ testthat::test_that("pipeline targets are unique non-empty names, cleared with t
 
 testthat::test_that("inputs are stored to and restored from the pipeline settings", {
   analysis <- RAVEPipelineAnalysis$new("roundtrip", "module")
-  analysis$set_input_ui("n", function(inputId, restored_inputs) {
-    list(id = inputId, restored_inputs = restored_inputs)
+  # the input function gets the identifier without namespace, and `ns` to
+  # add it
+  analysis$set_input_ui("n", function(inputId, ns, restored_inputs) {
+    list(id = inputId, ns_id = ns(inputId), restored_inputs = restored_inputs)
   })
 
   # nothing stored yet
   expect_identical(analysis$`@collect_inputs_from_pipeline`(demo_pipeline), list())
   expect_equal(
     analysis$`@render_input`("n", demo_pipeline),
-    list(id = "module-roundtrip__n", restored_inputs = list())
+    list(id = "roundtrip__n", ns_id = "module-roundtrip__n", restored_inputs = list())
   )
   expect_null(analysis$`@render_input`("missing", demo_pipeline))
 
@@ -113,13 +116,16 @@ testthat::test_that("inputs are stored to and restored from the pipeline setting
   )
   expect_equal(
     analysis$`@render_input`("n", reloaded),
-    list(id = "module-roundtrip__n", restored_inputs = list(n = 5L, col = "red"))
+    list(
+      id = "roundtrip__n", ns_id = "module-roundtrip__n",
+      restored_inputs = list(n = 5L, col = "red")
+    )
   )
 })
 
 testthat::test_that("a pipeline is required to render and store inputs", {
   analysis <- RAVEPipelineAnalysis$new("demo", "module")
-  analysis$set_input_ui("n", function(inputId, restored_inputs) inputId)
+  analysis$set_input_ui("n", function(inputId, ns, restored_inputs) inputId)
   expect_error(analysis$`@render_input`("n"), "pipeline")
   expect_error(analysis$`@render_input`("n", list()), "PipelineTools")
   expect_error(analysis$`@store_inputs_to_pipeline`(list(n = 1), list()), "PipelineTools")
@@ -183,8 +189,8 @@ testthat::test_that("custom hooks save extra settings and collect them back", {
 testthat::test_that("shiny inputs are collected from the module scope", {
   testthat::skip_if_not_installed("shiny")
   analysis <- RAVEPipelineAnalysis$new("demo", "module")
-  analysis$set_input_ui("n", function(inputId, restored_inputs) NULL)
-  analysis$set_input_ui("col", function(inputId, restored_inputs) NULL)
+  analysis$set_input_ui("n", function(inputId, ns, restored_inputs) NULL)
+  analysis$set_input_ui("col", function(inputId, ns, restored_inputs) NULL)
 
   session <- shiny::MockShinySession$new()
   session$setInputs(`module-demo__n` = 5, demo__col = "unscoped", other = 1)
@@ -419,11 +425,11 @@ testthat::test_that("visualize unwraps the results of the same analysis only", {
 testthat::test_that("render_inputs renders every registered input", {
   testthat::skip_if_not_installed("htmltools")
   analysis <- RAVEPipelineAnalysis$new("render_all", "module")
-  analysis$set_input_ui("n", function(inputId, restored_inputs) {
-    htmltools::tags$input(id = inputId)
+  analysis$set_input_ui("n", function(inputId, ns, restored_inputs) {
+    htmltools::tags$input(id = ns(inputId))
   })
-  analysis$set_input_ui("col", function(inputId, restored_inputs) {
-    htmltools::tags$input(id = inputId)
+  analysis$set_input_ui("col", function(inputId, ns, restored_inputs) {
+    htmltools::tags$input(id = ns(inputId))
   })
   ui <- analysis$render_inputs(demo_pipeline)
   expect_s3_class(ui, "shiny.tag.list")

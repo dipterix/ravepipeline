@@ -73,6 +73,97 @@ get_shiny_root_session <- function(session) {
 #' pipeline collector. The pipeline settings file must contain the key
 #' \code{inputs_settings_name}; its value can start as an empty list.
 #'
+#' @examples
+#' \dontrun{
+#'
+#' # 1. R/shared-analysis.R -- define the analysis; adapted from the
+#' #    streamline collision detection of the 'RAVE' 3D viewer module
+#' analysis <- RAVEPipelineAnalysis$new(
+#'   name = "streamline_collision_detection",
+#'   namespace = "custom_3d_viewer",
+#'   description = "Streamline collision detection"
+#' )
+#'
+#' # An input function receives `inputId` without the namespace, and gives
+#' # the input `ns(inputId)`
+#' analysis$set_input_ui("mode_x", function(inputId, ns, restored_inputs) {
+#'   shiny::selectInput(
+#'     inputId = ns(inputId),
+#'     label = "Mode for ROI objects",
+#'     choices = c("auto", "volume", "pointcloud", "surface"),
+#'     selected = restored_inputs$mode_x %||% "auto"
+#'   )
+#' })
+#' analysis$set_input_ui("radius", function(inputId, ns, restored_inputs) {
+#'   shiny::tagList(
+#'     shiny::numericInput(
+#'       inputId = ns(inputId),
+#'       label = "Radius (mm)",
+#'       value = restored_inputs$radius %||% 0,
+#'       min = 0,
+#'       step = 0.1
+#'     ),
+#'     # `conditionalPanel()` adds the namespace itself, so its condition
+#'     # refers to the input by `inputId`
+#'     shiny::conditionalPanel(
+#'       condition = sprintf("input['%s'] > 0", inputId),
+#'       ns = ns,
+#'       shiny::helpText("ROI objects are expanded by this radius.")
+#'     )
+#'   )
+#' })
+#'
+#' # The module server uses the same identifiers
+#' analysis$set_shiny_server(function(input, output, session) {
+#'   shiny::observeEvent(input[[analysis$get_id("mode_x")]], {
+#'     # a point cloud has no volume, so give it a positive radius
+#'     if (input[[analysis$get_id("mode_x")]] == "pointcloud") {
+#'       shiny::updateNumericInput(session, analysis$get_id("radius"), value = 1)
+#'     }
+#'   })
+#' })
+#'
+#' # The preprocess step gathers what the analysis needs, including the
+#' # pipeline targets it declares
+#' analysis$set_preprocess(
+#'   pipeline_targets = c("loaded_brain_info", "analysis_objects"),
+#'   preprocess_func = function(value, pipeline_targets) {
+#'     list(
+#'       brain = pipeline_targets$loaded_brain_info$brain,
+#'       objects = pipeline_targets$analysis_objects,
+#'       mode_x = value$mode_x %||% "auto",
+#'       radius = value$radius %||% 0
+#'     )
+#'   }
+#' )
+#'
+#' # `detect_collision()` stands for the detection code, which lives in
+#' # another `R/shared-*.R` script of the module
+#' analysis$set_analyze(function(value, options) {
+#'   detect_collision(value$brain, value$objects,
+#'                    mode_x = value$mode_x, radius = value$radius)
+#' })
+#' analysis$set_visualize(function(value, options) {
+#'   print(value)
+#' })
+#'
+#' # 2. settings.yaml -- the key that holds the saved inputs, empty at first
+#' #    analysis_inputs_streamline_collision_detection: []
+#'
+#' # 3. The dashboard -- render the inputs with the values saved in the
+#' #    pipeline
+#' pipeline <- pipeline("custom_3d_viewer")
+#' analysis$render_inputs(pipeline)
+#'
+#' # In the dashboard server function: start the analysis server; to run,
+#' # save the inputs from the session and build the analysis result
+#' analysis$`@shiny_server`(session)
+#' analysis$run(pipeline, session = session, visualization_method = "html")
+#'
+#' # Without the dashboard, run with the inputs saved in the pipeline
+#' analysis$run(pipeline)
+#' }
+#'
 #' @export
 RAVEPipelineAnalysis <- R6::R6Class(
   classname = "RAVEPipelineAnalysis",
@@ -191,8 +282,12 @@ RAVEPipelineAnalysis <- R6::R6Class(
     #' @description Register the function that renders an input
     #' @param input_name input name, a single string; the collected value
     #' uses this name
-    #' @param ui_func \code{function(inputId, restored_inputs)} returning the
-    #' input element, or \code{NULL} to remove the input
+    #' @param ui_func \code{function(inputId, ns, restored_inputs)} returning
+    #' the input element, or \code{NULL} to remove the input. \code{inputId}
+    #' is the identifier without the \pkg{shiny} namespace (the same as
+    #' \code{get_id(input_name)}), and \code{ns} is the namespace function
+    #' \code{@ns}: give the element the identifier \code{ns(inputId)}, and use
+    #' \code{inputId} as is wherever the namespace is added separately
     #' @returns The analysis object itself, invisibly
     set_input_ui = function(input_name, ui_func) {
       if (
@@ -207,7 +302,7 @@ RAVEPipelineAnalysis <- R6::R6Class(
         ui_func,
         name = sprintf("`ui_func` for input '%s'", input_name),
         allow_null = TRUE,
-        arg_names = c("inputId", "restored_inputs")
+        arg_names = c("inputId", "ns", "restored_inputs")
       )
       invisible(self)
     },
@@ -218,8 +313,9 @@ RAVEPipelineAnalysis <- R6::R6Class(
     #' saved input values are restored, see
     #' \code{@collect_inputs_from_pipeline}
     #' @returns The value returned by the input function, which receives the
-    #' identifier with namespace and the restored input values; \code{NULL}
-    #' invisibly if the input is not registered
+    #' identifier without namespace, the namespace function \code{@ns}, and
+    #' the restored input values; \code{NULL} invisibly if the input is not
+    #' registered
     `@render_input` = function(input_name, pipeline) {
       check_is_pipeline(pipeline)
       ui_func <- private$.ui[[input_name]]
@@ -227,7 +323,8 @@ RAVEPipelineAnalysis <- R6::R6Class(
         return(invisible())
       }
       ui_func(
-        inputId = self$get_id(input_name, with_namespace = TRUE),
+        inputId = self$get_id(input_name, with_namespace = FALSE),
+        ns = self$`@ns`,
         restored_inputs = self$`@collect_inputs_from_pipeline`(pipeline)
       )
     },
