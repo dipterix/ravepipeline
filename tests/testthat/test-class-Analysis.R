@@ -1,12 +1,14 @@
 # A bare pipeline shared by the tests below; removed at the end of this file.
-# Its settings are `n` (100), `pch` (16), and `col` ("steelblue")
+# Its settings are `n` (100), `pch` (16), and `col` ("steelblue"). A pipeline
+# object also opens the preference store in the user configuration directory,
+# so the tests that use it skip on CRAN, and it is only created on first use
 demo_root <- tempfile()
-demo_pipeline <- local({
+delayedAssign("demo_pipeline", local({
   pipeline_path <- pipeline_create_template(
     root_path = demo_root, pipeline_name = "analysis_demo",
     overwrite = TRUE, activate = FALSE, template_type = "rmd-bare")
   pipeline_from_path(pipeline_path)
-})
+}))
 
 testthat::test_that("constructor requires a valid name and namespace", {
   expect_error(RAVEPipelineAnalysis$new("my-analysis", "module"), "`name` must be")
@@ -86,6 +88,7 @@ testthat::test_that("pipeline targets are unique non-empty names, cleared with t
 })
 
 testthat::test_that("inputs are stored to and restored from the pipeline settings", {
+  testthat::skip_on_cran()
   analysis <- RAVEPipelineAnalysis$new("roundtrip", "module")
   # the input function gets the identifier without namespace, and `ns` to
   # add it
@@ -142,6 +145,9 @@ testthat::test_that("inputs are collected from a pipeline or from its settings",
     list(is_list = is.list(pipeline_settings), n = pipeline_settings$n)
   })
   expect_equal(analysis$`@collect_inputs_from_pipeline`(settings), list(is_list = TRUE, n = 3))
+
+  # the rest uses the demo pipeline
+  testthat::skip_on_cran()
   expect_equal(
     analysis$`@collect_inputs_from_pipeline`(demo_pipeline),
     list(is_list = TRUE, n = demo_pipeline$get_settings("n"))
@@ -149,6 +155,7 @@ testthat::test_that("inputs are collected from a pipeline or from its settings",
 })
 
 testthat::test_that("custom hooks save extra settings and collect them back", {
+  testthat::skip_on_cran()
   analysis <- RAVEPipelineAnalysis$new("hooks", "module")
 
   # the store hook saves `objects` to its own settings and returns the rest
@@ -187,6 +194,7 @@ testthat::test_that("custom hooks save extra settings and collect them back", {
 })
 
 testthat::test_that("shiny inputs are collected from the module scope", {
+  testthat::skip_on_cran()
   testthat::skip_if_not_installed("shiny")
   analysis <- RAVEPipelineAnalysis$new("demo", "module")
   analysis$set_input_ui("n", function(inputId, ns, restored_inputs) NULL)
@@ -228,6 +236,7 @@ testthat::test_that("shiny inputs are collected from the module scope", {
 })
 
 testthat::test_that("shiny server runs under the analysis namespace", {
+  testthat::skip_on_cran()
   testthat::skip_if_not_installed("shiny")
   analysis <- RAVEPipelineAnalysis$new("demo", "module")
   session <- shiny::MockShinySession$new()
@@ -423,6 +432,7 @@ testthat::test_that("visualize unwraps the results of the same analysis only", {
 })
 
 testthat::test_that("render_inputs renders every registered input", {
+  testthat::skip_on_cran()
   testthat::skip_if_not_installed("htmltools")
   analysis <- RAVEPipelineAnalysis$new("render_all", "module")
   analysis$set_input_ui("n", function(inputId, ns, restored_inputs) {
@@ -438,6 +448,7 @@ testthat::test_that("render_inputs renders every registered input", {
 })
 
 testthat::test_that("the roundtrip check reads the inputs back from a settings file", {
+  testthat::skip_on_cran()
   analysis <- RAVEPipelineAnalysis$new("round_trip", "module")
   root <- pipeline_root()
 

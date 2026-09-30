@@ -21,10 +21,10 @@ compile_module <- function(module) {
 demo_analysis <- c(
   'top_level_n <- pipeline$get_settings("n")',
   'demo_analyzer <- ravepipeline::RAVEPipelineAnalysis$new("demo", namespace = "demo_mod")',
-  'demo_analyzer$set_preprocess(function(value, pipeline_targets) {',
-  '  list(k = if (length(value$k)) value$k else 2, data = pipeline_targets$input_data)',
+  "demo_analyzer$set_preprocess(function(value, pipeline_targets) {",
+  "  list(k = if (length(value$k)) value$k else 2, data = pipeline_targets$input_data)",
   '}, pipeline_targets = "input_data")',
-  'demo_analyzer$set_analyze(function(value, options) nrow(value$data) * value$k)'
+  "demo_analyzer$set_analyze(function(value, options) nrow(value$data) * value$k)"
 )
 
 testthat::test_that("an analysis is compiled into a pipeline target", {
