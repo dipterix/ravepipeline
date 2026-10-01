@@ -260,8 +260,18 @@ sanitize_target_error <- function(e) {
       }
       tryCatch({
         err_table <- targets::tar_meta(fields = "error", complete_only = TRUE)
-        if (length(err_table$error)) {
-          e$message <- sprintf("Possible issue: %s", paste(err_table$error, collapse = "; "))
+        # The metadata keeps each target's last error until it runs again:
+        # keep only the targets that errored in this run
+        progress <- targets::tar_progress(fields = "progress")
+        errors <- err_table$error
+        if (length(errors)) {
+
+          sel <- err_table$name %in% progress$name[progress$progress == "errored"]
+          if (any(sel)) {
+            errors <- errors[sel]
+          }
+          
+          e$message <- sprintf("Possible issue: %s", paste(errors, collapse = "; "))
         }
       }, error = function(...) {})
 
