@@ -181,14 +181,16 @@ pipeline_report_generate <- function(
     custom_js <- NULL
   }
 
+  # The style sheet reaches the report through the dependency below, by its
+  # absolute path. Not as the `css` option: `rmarkdown` runs `pandoc` in
+  # `intermediates_dir`, which has no copy of the file
   output_options <- list(
     theme = theme,
     code_folding = code_folding,
     self_contained = self_contained,
     toc = toc,
     toc_depth = as.integer(toc_depth),
-    toc_float = toc_float,
-    css = custom_css
+    toc_float = toc_float
   )
 
 
