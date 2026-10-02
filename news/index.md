@@ -71,6 +71,12 @@
   read, so electrodes placed but not yet finalized, such as those staged
   by the electrode localization module, were lost whenever the brain was
   read back from a pipeline
+- A report from a pipeline that ships `report_styles.css` no longer
+  links that style sheet by a relative path. `rmarkdown` runs `pandoc`
+  in the intermediate folder, where the file is missing, so every such
+  report logged “Could not fetch resource report_styles.css” and kept a
+  link that browsers could not load. The style sheet was, and still is,
+  embedded through the report’s own dependency, so reports look the same
 
 ## ravepipeline 0.2.0
 
