@@ -41,9 +41,15 @@ save_job_status <- function(status, path) {
   tmp <- file.path(dir, sprintf("tmp-%s-%s.rds", basename(path), Sys.getpid()))
   saveRDS(status, tmp)
 
+  # Replace the status file in one step: `file.rename()` swaps it at once,
+  # while `file.copy()` empties it before writing, so a process reading the
+  # status could find an empty file. Copy only when the rename fails (e.g. on
+  # Windows while another process has the file open)
   ok <- FALSE
   for (retry in seq_len(5)) {
-    suppressWarnings({ ok <- file.copy(tmp, path, overwrite = TRUE) })
+    suppressWarnings({
+      ok <- file.rename(tmp, path) || file.copy(tmp, path, overwrite = TRUE)
+    })
     if (ok) {
       break
     }
@@ -378,7 +384,11 @@ get_job_status <- function(job_id) {
   )
 
   if (file.exists(status_path)) {
-    for (retry in seq_len(5)) {
+    # The job may be replacing the file right now (when the replacement is a
+    # copy, the file is empty for a moment, see `save_job_status`): keep
+    # trying for two seconds before calling the file corrupted
+    deadline <- Sys.time() + 2
+    repeat {
 
       status_read <- tryCatch({
         readRDS(status_path)
@@ -388,6 +398,16 @@ get_job_status <- function(job_id) {
 
       if (!is.null(status_read)) {
         status <- status_read
+        break
+      }
+
+      if (!file.exists(status_path)) {
+        break
+      }
+
+      if (Sys.time() > deadline) {
+        status$error <- simpleError(sprintf(
+          "Job [%s] has a corrupted status file.", job_id))
         break
       }
 
@@ -479,6 +499,13 @@ start_job_callr <- function(fun, fun_args = list(), packages = NULL,
     ),
     package = FALSE,
     poll_connection = FALSE,
+
+    # The job's own R output is sunk into its log file, but a program it
+    # starts (e.g. `zip` through `utils::zip()`) writes to the process's real
+    # stdout and stderr. The default pipes are drained by nobody here, so such
+    # a program would block once a pipe fills: send both to a file instead
+    stdout = file.path(job_root, "process_outputs.txt"),
+    stderr = "2>&1",
 
     # Do not supervise when during the checks as the opened supervisor
     # will trigger alerts
