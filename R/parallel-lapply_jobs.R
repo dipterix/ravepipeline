@@ -243,6 +243,16 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
     }
   } else {
 
+    # A function's name works, as it always has here; a primitive has no
+    # body to send, so each worker would run `function() NULL`
+    if (is.character(fun)) {
+      fun <- match.fun(fun)
+    }
+    if (is.primitive(fun)) {
+      stop("`lapply_jobs()` cannot send a primitive such as `sqrt` to its ",
+           "workers: wrap it, as in `function(x) sqrt(x)`")
+    }
+
     progress$inc("Preparing...", message = default_progress_title)
 
     job_ids <- fastmap2()
@@ -283,9 +293,11 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
     on.exit({
       unlink(cache_path, force = TRUE)
       # clear up jobs, kill processes and remove resources
-      # A list, not `unlist()`ed: each ID keeps the process it holds, which
-      # `remove_job` needs to stop a worker that is still running
-      job_ids_c <- c(job_finished$as_list(), as.list(job_ids))
+      # Jobs still in `job_ids` keep the process they hold, which `remove_job`
+      # needs to stop a worker that is still running. Finished jobs go as bare
+      # IDs: their scripts ran to the end, and stopping a process costs a scan
+      # of every process on the machine, once per job
+      job_ids_c <- c(lapply(job_finished$as_list(), as.character), as.list(job_ids))
       lapply(job_ids_c, function(job_id) {
         try({
           remove_job(job_id)
