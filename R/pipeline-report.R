@@ -235,7 +235,8 @@ pipeline_report_generate <- function(
   )
 
   envvars <- list(
-    TAR_WARN = "false"
+    TAR_WARN = "false",
+    SHIDASHI_USING_MCP = Sys.getenv("SHIDASHI_USING_MCP", unset = "")
   )
   try(silent = TRUE, {
     envvars$RSTUDIO_PANDOC <- register_pandoc()
@@ -250,8 +251,24 @@ pipeline_report_generate <- function(
       Sys.setenv("RAVE_REPORT_ACTIVE" = "true")
       on.exit({ Sys.unsetenv("RAVE_REPORT_ACTIVE") }, add = TRUE, after = FALSE)
 
-      cat("==== System environment =============\n")
-      print(Sys.getenv())
+      # Print system environment, but avoid it when MCP tool is called by shidashi
+      if (!identical(tolower(Sys.getenv("SHIDASHI_USING_MCP", unset = "")), "true")) {
+        cat("==== System environment =============\n")
+        sys_env <- Sys.getenv()
+        sys_nms <- names(sys_env)
+        sys_env <- sys_env[
+          grepl(
+            "^(RAVE|SHIDASHI|DIPSAUS|RPYMAT|RETICULATE|RSTUDIO_PANDOC|TAR_)",
+            sys_nms,
+            ignore.case = TRUE
+          ) & !grepl(
+            "(KEY|TOKEN|SECRET|PASS|AUTH|CRED)",
+            sys_nms,
+            ignore.case = TRUE
+          )
+        ]
+        print(sys_env)
+      }
 
       cat("=====================================\n")
 
