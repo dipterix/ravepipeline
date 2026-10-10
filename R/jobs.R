@@ -71,6 +71,18 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
                         digest_key = NULL, envvars = NULL, log_path = NULL,
                         tee_console = FALSE) {
 
+  # A function's name works too, as it always has: `formals()` and `body()`
+  # accept one
+  if (is.character(fun)) {
+    fun <- match.fun(fun)
+  }
+  # A primitive has no body to send, so the job would run `function() NULL`
+  if (!is.function(fun) || is.primitive(fun)) {
+    stop("A job needs a function written in R. A primitive such as `sum` ",
+         "cannot be sent to another process: wrap it, as in ",
+         "`function(...) sum(...)`")
+  }
+
   if (
     length(workdir) == 1 &&
       is.character(workdir) &&
@@ -179,14 +191,11 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
     save_job_status <- .(utils::removeSource(save_job_status))
 
     # Records a failure as the job's final status. It must not fail itself,
-    # or the job ends without a final status and is waited on forever
+    # or the job ends without a final status and is waited on forever. Not
+    # printed: `resolve_job()` raises the error from the status, and a copy in
+    # the job's log, which `resolve_job()` prints, would show it twice
     report_failure <- function(e) {
       msg <- tryCatch(conditionMessage(e), error = function(e2) { "unknown error" })
-      # Printed too, which works even when the status cannot be written: it
-      # reaches the job's log once that is open, its console otherwise
-      try(silent = TRUE, {
-        cat("Job failed: ", msg, "\n", sep = "", file = stderr())
-      })
       job_status$current_time <- Sys.time()
       job_status$status <- -1
       job_status$error <- e
@@ -521,6 +530,12 @@ job_status_ended <- function(job_id, status, status_path, reason) {
   # Read once more before calling it failed: a job writes its final status
   # before it exits, so once the exit has been seen that write is visible
   again <- tryCatch({ readRDS(status_path) }, error = function(e) { NULL })
+  if (is.null(again)) {
+    # Unreadable just now (held by a virus scanner, say) is not a missing
+    # final status: report what was read before, and the next check retries
+    # through `get_job_status`
+    return(status)
+  }
   if (is.list(again) && length(again$status) == 1 &&
       !isTRUE(again$status %in% c(0, 1, 2))) {
     return(again)
