@@ -97,7 +97,12 @@ attached to the result as attribute \code{"rave_logs"} if non-empty.}
 \value{
 For \code{start_job}, a string of job identification number;
 \code{check_job} returns the job status; \code{resolve_job} returns
-the function result.
+the function result. With \code{method = 'callr'}, the identification
+number that \code{start_job} returns also holds the background process:
+keep it while the job runs. \code{c()}, \code{unlist()},
+\code{as.character()}, and indexing return a plain string without the
+process; once nothing holds the process, the job is stopped and reported
+as failed. Use \code{remove_job} to stop a job yourself.
 }
 \description{
 Run a function (job) in another session

@@ -60,6 +60,32 @@
   "Could not fetch resource report_styles.css" and kept a link that browsers
   could not load. The style sheet was, and still is, embedded through the
   report's own dependency, so reports look the same
+* A background job that cannot load its packages no longer leaves
+  `start_job()` waiting forever. When a package in `packages` could not be
+  loaded, including `ravepipeline` itself while it was being reinstalled, the
+  job's error handler failed too: the job stayed "initialized" for good and
+  its error was lost behind `could not find function "save_job_status"`. The
+  job now fails, and `resolve_job()` raises the original error
+* A `callr` or `mirai` job whose process ends without reporting a result,
+  for example because it was killed or crashed, is now reported as failed,
+  with the exit status and the last output of the process. `start_job()`,
+  `resolve_job()`, `lapply_jobs()`, and promises from `as.promise()` used to
+  wait for it forever, or until `timeout` and then call it still running. A
+  job interrupted with `Ctrl+C` now fails with "The job was interrupted", and
+  a promise for a job that was removed now rejects instead of never settling
+* When `lapply_jobs()` fails, it now stops the workers still running; they
+  used to carry on in the background
+* A `callr` job is still stopped once nothing holds the object `start_job()`
+  returned, but it is now reported as failed rather than running forever to
+  whoever checks it by a bare identifier. Keep that object while the job
+  runs: `c()`, `unlist()`, `as.character()`, and indexing return a plain
+  string without the process it holds
+* `resolve_job()` with a finite `timeout` no longer keeps a processor core
+  busy while it waits on a job that started more than `timeout` seconds
+  earlier
+* `start_job()` and parallel `lapply_jobs()` now accept a function whose
+  body is a single value, such as `function() 42`, which failed with
+  "argument is not a function or language object"
 
 # ravepipeline 0.2.0
 

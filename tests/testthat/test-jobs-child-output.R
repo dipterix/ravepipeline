@@ -2,6 +2,9 @@
 # be asked to do.
 testthat::test_that("a callr job whose child program prints a lot finishes", {
   testthat::skip_on_cran()
+  # A wait on the job that never ends must fail this test, not hang the suite
+  setTimeLimit(elapsed = 180, transient = TRUE)
+  on.exit({ setTimeLimit() }, add = TRUE)
 
   # A program the job starts writes to the job process's stdout, not to the
   # job's log: with an undrained pipe there, this job would never finish

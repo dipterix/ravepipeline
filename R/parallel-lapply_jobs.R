@@ -253,7 +253,9 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
     serialize_packet <- list(
       fun = list(
         formal = formals(fun),
-        body = utils::removeSource(body(fun))
+        # From the whole function: `removeSource()` rejects a body that is a
+        # single value, as in `function(x) 42`
+        body = body(utils::removeSource(fun))
       ),
       args = list(...),
       globals = as.list(.globals),
@@ -281,7 +283,9 @@ lapply_jobs <- function(x, fun, ..., .globals = list(), .workers = 0, .always = 
     on.exit({
       unlink(cache_path, force = TRUE)
       # clear up jobs, kill processes and remove resources
-      job_ids_c <- unlist(c(job_finished$as_list(), as.list(job_ids)))
+      # A list, not `unlist()`ed: each ID keeps the process it holds, which
+      # `remove_job` needs to stop a worker that is still running
+      job_ids_c <- c(job_finished$as_list(), as.list(job_ids))
       lapply(job_ids_c, function(job_id) {
         try({
           remove_job(job_id)

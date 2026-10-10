@@ -32,6 +32,9 @@ clean_job_path <- function(job_id) {
 
 save_job_status <- function(status, path) {
 
+  # Also inlined into every job script (see `prepare_job`), where it runs
+  # before any package is loaded: keep it to base R
+
   # If the job is deleted, then this function should not try to write to disk anymore
   # the process is stopped
   path <- normalizePath(path, winslash = "/", mustWork = TRUE)
@@ -117,7 +120,9 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
     id = job_id,
     fun = list(
       formals = formals(fun),
-      body = utils::removeSource(body(fun))
+      # From the whole function: `removeSource()` rejects a body that is a
+      # single value, as in `function() 42`
+      body = body(utils::removeSource(fun))
     ),
     args = as.list(fun_args),
     packages = packages,
@@ -162,6 +167,46 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
   # Generate script for RStudio
   script <- bquote(local({
 
+    # Bound first, before anything that can fail, so that the job can always
+    # record how it ended. They used to come from the job's `ravepipeline`
+    # after the packages loaded, so when a package could not be loaded
+    # (`ravepipeline` itself, e.g. while it was being reinstalled) the error
+    # handler failed as well: the job stayed "initialized" forever and its
+    # error was lost. The writer is this session's `save_job_status`, inlined
+    # as code, so it needs no package
+    job_root <- .(job_root)
+    status_path <- file.path(job_root, "status.rds")
+    save_job_status <- .(utils::removeSource(save_job_status))
+
+    # Records a failure as the job's final status. It must not fail itself,
+    # or the job ends without a final status and is waited on forever
+    report_failure <- function(e) {
+      msg <- tryCatch(conditionMessage(e), error = function(e2) { "unknown error" })
+      # Printed too, which works even when the status cannot be written: it
+      # reaches the job's log once that is open, its console otherwise
+      try(silent = TRUE, {
+        cat("Job failed: ", msg, "\n", sep = "", file = stderr())
+      })
+      job_status$current_time <- Sys.time()
+      job_status$status <- -1
+      job_status$error <- e
+      saved <- tryCatch(
+        {
+          save_job_status(job_status, status_path)
+          TRUE
+        },
+        error = function(e2) { FALSE }
+      )
+      if (!saved) {
+        # The condition may hold something that cannot be saved: keep its
+        # message. Nothing is written once the job was removed, because
+        # `save_job_status` needs the status file to exist
+        job_status$error <- simpleError(msg)
+        try(silent = TRUE, { save_job_status(job_status, status_path) })
+      }
+      invisible()
+    }
+
     preparation_ok <- FALSE
     job_status <- list(
       # 0: ready
@@ -200,11 +245,7 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
           do.call("loadNamespace", list(package = pkg))
         })
 
-        job_root <- .(job_root)
-        status_path <- file.path(job_root, "status.rds")
-
         ravepipeline <- asNamespace("ravepipeline")
-        save_job_status <- ravepipeline$save_job_status
         rave_unserialize_refhook <- ravepipeline$rave_unserialize_refhook
         rave_serialize_refhook <- ravepipeline$rave_serialize_refhook
 
@@ -217,6 +258,11 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
       },
       error = function(e) {
         preparation_ok <<- e
+      },
+      # Ctrl+C in the job's console or terminal: without this the job would
+      # end with no final status, which nobody waiting for it can tell
+      interrupt = function(e) {
+        preparation_ok <<- simpleError("The job was interrupted while starting")
       }
     )
 
@@ -350,11 +396,9 @@ prepare_job <- function(fun, fun_args = list(), packages = NULL, workdir = NULL,
         }
 
       },
-      error = function(e) {
-        job_status$current_time <- Sys.time()
-        job_status$status <- -1
-        job_status$error <- e
-        save_job_status(job_status, status_path)
+      error = report_failure,
+      interrupt = function(e) {
+        report_failure(simpleError("The job was interrupted"))
       }
     )
 
@@ -416,9 +460,114 @@ get_job_status <- function(job_id) {
     }
   }
 
+  # A job whose process has ended without writing a final status (killed,
+  # crashed, quit, or R never started) would read "initialized" or "running"
+  # forever, and so would every wait on it: `start_job`, `resolve_job`,
+  # `lapply_jobs`, and `as.promise`
+  if (isTRUE(status$status %in% c(0, 1, 2))) {
+    reason <- job_ended_reason(job_id)
+    if (length(reason)) {
+      status <- job_status_ended(job_id, status, status_path, reason)
+    }
+  }
+
   status$ID <- job_id
 
   structure(status, class = "ravepipeline_job_status")
+}
+
+# Why the process running a job has ended, or `NULL` while it runs or when
+# this session cannot tell. Only the ID `start_job()` returned carries a
+# handle, and only for `callr` and `mirai`: `rs_job` and `vscode_task` jobs,
+# and IDs rebuilt from a string, always give `NULL`
+job_ended_reason <- function(job_id) {
+  callr_process <- attr(job_id, "callr_process", exact = TRUE)
+  mirai_task <- attr(job_id, "mirai_process", exact = TRUE)
+  tryCatch(
+    {
+      if (inherits(callr_process, "process")) {
+        # `NULL` while it runs. `NA` when this session cannot know, e.g. in a
+        # forked worker that inherited the handle: never taken as ended
+        code <- callr_process$get_exit_status()
+        if (length(code) == 1 && !is.na(code)) {
+          if (code < 0) {
+            # `processx` reports a death by signal as minus the signal number
+            sprintf("its process was killed by signal %d", as.integer(-code))
+          } else {
+            sprintf("its process exited with status %d", as.integer(code))
+          }
+        }
+      } else if (inherits(mirai_task, "mirai")) {
+        mirai <- asNamespace("mirai")
+        # Only a failed task counts: one that ran the script to its end wrote
+        # the final status itself, which, with a daemon on another machine,
+        # may just not be visible here yet
+        if (!mirai$unresolved(mirai_task) &&
+            mirai$is_error_value(mirai_task$data)) {
+          sprintf(
+            "its mirai task failed (%s)",
+            paste(utils::capture.output(print(mirai_task$data)), collapse = " ")
+          )
+        }
+      }
+    },
+    # Asking must never break reading the status
+    error = function(e) { NULL }
+  )
+}
+
+# The status of a job whose process ended without writing a final status
+job_status_ended <- function(job_id, status, status_path, reason) {
+  # Read once more before calling it failed: a job writes its final status
+  # before it exits, so once the exit has been seen that write is visible
+  again <- tryCatch({ readRDS(status_path) }, error = function(e) { NULL })
+  if (is.list(again) && length(again$status) == 1 &&
+      !isTRUE(again$status %in% c(0, 1, 2))) {
+    return(again)
+  }
+  msg <- sprintf("Job [%s] ended without reporting a result: %s.", job_id, reason)
+  # What the process printed outside the job's log (under `callr`), such as
+  # an error while R started. Read now: removing the job deletes it
+  output <- read_file_tail(file.path(dirname(status_path), "process_outputs.txt"))
+  if (length(output)) {
+    msg <- paste(c(msg, "Last output of the job process:", output), collapse = "\n")
+  }
+  status$status <- -1
+  status$current_time <- Sys.time()
+  status$error <- simpleError(msg)
+  # Saved, so the job's status says what happened, and a check without the
+  # handle (an ID rebuilt from a string, another session) finds a failed job
+  # rather than a running one. The process is gone, so nothing else writes
+  # this file now; once `remove_job` has deleted the job, nothing is written
+  try(silent = TRUE, { save_job_status(status, status_path) })
+  status
+}
+
+# The last lines of a text file that may be large, or `character(0)`
+read_file_tail <- function(path, max_lines = 20L, max_bytes = 4096L) {
+  size <- file.size(path)
+  if (length(size) != 1 || is.na(size) || size <= 0) {
+    return(character(0L))
+  }
+  tryCatch(
+    {
+      con <- file(path, open = "rb")
+      on.exit({ close(con) }, add = TRUE)
+      cut <- size > max_bytes
+      if (cut) {
+        seek(con, where = size - max_bytes)
+      }
+      bytes <- readBin(con, what = "raw", n = max_bytes)
+      text <- rawToChar(bytes[bytes != as.raw(0L)])
+      lines <- strsplit(text, "\r?\n", useBytes = TRUE)[[1]]
+      if (cut) {
+        # The first line was probably cut short
+        lines <- lines[-1L]
+      }
+      utils::tail(lines[nzchar(lines)], max_lines)
+    },
+    error = function(e) { character(0L) }
+  )
 }
 
 start_job_rs <- function(fun, fun_args = list(), packages = NULL, workdir = NULL, name = NULL, digest_key = NULL, envvars = NULL, log_path = NULL) {
@@ -513,7 +662,44 @@ start_job_callr <- function(fun, fun_args = list(), packages = NULL,
     error = "error"
   )
 
+  # The returned ID holds the process, and the process is stopped once
+  # nothing holds it. Record that, or the job would read "running" forever
+  # to whoever checks it by a bare ID
+  reg.finalizer(process, job_stopped_by_gc(job_id, job_root))
+
   return(structure(job_id, path = job_root, callr_process = process))
+}
+
+# Finalizer for a `callr` job's process. It must not refer to the process: a
+# finalizer whose environment holds its object keeps that object alive, so it
+# would never run
+job_stopped_by_gc <- function(job_id, job_root) {
+  job_id <- as.character(job_id)
+  force(job_root)
+  function(process) {
+    # Stopped first, so the job cannot write its status after this does
+    try(silent = TRUE, { process$kill() })
+    status_path <- file.path(job_root, "status.rds")
+    try(silent = TRUE, {
+      if (file.exists(status_path)) {
+        status <- readRDS(status_path)
+        if (isTRUE(status$status %in% c(0, 1, 2))) {
+          status$status <- -1
+          status$current_time <- Sys.time()
+          status$error <- simpleError(sprintf(
+            paste(
+              "Job [%s] was stopped because the object returned by",
+              "`start_job()` was garbage-collected; keep that object while",
+              "the job runs"
+            ),
+            job_id
+          ))
+          save_job_status(status, status_path)
+        }
+      }
+    })
+    invisible()
+  }
 }
 
 start_job_mirai <- function(fun, fun_args = list(), packages = NULL,
@@ -594,7 +780,12 @@ start_job_mirai <- function(fun, fun_args = list(), packages = NULL,
 #' default is true
 #' @returns For \code{start_job}, a string of job identification number;
 #' \code{check_job} returns the job status; \code{resolve_job} returns
-#' the function result.
+#' the function result. With \code{method = 'callr'}, the identification
+#' number that \code{start_job} returns also holds the background process:
+#' keep it while the job runs. \code{c()}, \code{unlist()},
+#' \code{as.character()}, and indexing return a plain string without the
+#' process; once nothing holds the process, the job is stopped and reported
+#' as failed. Use \code{remove_job} to stop a job yourself.
 #'
 #' @examples
 #'
@@ -707,6 +898,9 @@ start_job <- function(
   )
 
   if ( ensure_init ) {
+    # Ends once the job writes a status, a failure included. `check_job`
+    # reports a job whose `callr` or `mirai` process ended without writing
+    # one as failed; `rs_job` and `vscode_task` jobs give no process to check
     while ({
       info <- as.list(check_job(job_id))
       isTRUE(info$status == 0)
@@ -886,8 +1080,11 @@ resolve_job <- function(
       return(results)
     }
 
+    # The job's age sets how often to check, but the time left counts from
+    # this call: counted from the job's start, it went negative for a job
+    # older than `timeout`, and the loop never slept
     elapsed <- as.numeric(now - status$start_time, units = "secs")
-    time_left <- timeout - elapsed
+    time_left <- timeout - as.numeric(now - start_time, units = "secs")
 
     if (elapsed < 5) {
       wait_time <- min(time_left, 0.001)
@@ -997,7 +1194,10 @@ as.promise.ravepipeline_jobid <- function(x) {
 
   job <- check_job(x)
 
-  if ( isTRUE(job$status %in% c(-1, 3)) ) {
+  # Any status below 0 is final: -1 failed, -2 removed or unreadable. The
+  # promise used to wait on -2 forever, and a `shiny::ExtendedTask` waiting
+  # on it never ran another task
+  if ( isTRUE(job$status < 0) || isTRUE(job$status == 3) ) {
     # resolved, either errored or finished
     promise <- promises::promise(function(resolve, reject) {
       tryCatch(
@@ -1015,7 +1215,7 @@ as.promise.ravepipeline_jobid <- function(x) {
       poll_interval <- 0.1
       check <- function() {
         job <- check_job(x)
-        if ( isTRUE(job$status %in% c(-1, 3)) ) {
+        if ( isTRUE(job$status < 0) || isTRUE(job$status == 3) ) {
           tryCatch(
             {
               resolve(resolve_job(x))
