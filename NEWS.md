@@ -85,7 +85,8 @@
   earlier
 * `start_job()` and parallel `lapply_jobs()` now accept a function whose
   body is a single value, such as `function() 42`, which failed with
-  "argument is not a function or language object"
+  "argument is not a function or language object". A primitive such as `sum`
+  is still refused, now with a message saying how to wrap it
 
 # ravepipeline 0.2.0
 

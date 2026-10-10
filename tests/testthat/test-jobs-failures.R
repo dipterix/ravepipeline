@@ -93,6 +93,32 @@ testthat::test_that("a job that finished is not reported as failed once its proc
   )
 })
 
+testthat::test_that("a failed job's error is raised once, not also printed", {
+  testthat::skip_on_cran()
+  setTimeLimit(elapsed = 60, transient = TRUE)
+  on.exit({ setTimeLimit() }, add = TRUE)
+
+  # Fails while `resolve_job()` is already waiting, so it reads the job's log
+  # after the failure. The job used to copy its error into that log, which
+  # `resolve_job()` prints: the error showed up twice
+  job_id <- start_job(
+    fun = function() {
+      Sys.sleep(1)
+      stop("ravepipeline test failure")
+    },
+    method = "callr"
+  )
+  on.exit({ try(remove_job(job_id), silent = TRUE) }, add = TRUE)
+
+  printed <- utils::capture.output(type = "message", {
+    testthat::expect_error(
+      resolve_job(job_id, timeout = 30, auto_remove = FALSE, unresolved = "error"),
+      "ravepipeline test failure"
+    )
+  })
+  testthat::expect_false(any(grepl("ravepipeline test failure", printed, fixed = TRUE)))
+})
+
 testthat::test_that("an interrupted job is reported as interrupted", {
   testthat::skip_on_cran()
   # An interrupt reaches a background process on Windows only through its
@@ -142,6 +168,13 @@ testthat::test_that("lapply_jobs stops its other workers when it fails", {
   testthat::skip_on_cran()
   setTimeLimit(elapsed = 60, transient = TRUE)
   on.exit({ setTimeLimit() }, add = TRUE)
+
+  # Two workers whatever this machine's `max_worker` setting is: with one, the
+  # second element would never start, and the test would pass without testing
+  # anything. Set for this session only, never saved
+  max_worker <- raveio_getopt("max_worker")
+  raveio_setopt("max_worker", 2L, .save = FALSE)
+  on.exit({ raveio_setopt("max_worker", max_worker, .save = FALSE) }, add = TRUE)
 
   # The first worker fails while the second keeps writing a heartbeat. The
   # third element waits for a free worker, which checks every running job, so
