@@ -118,7 +118,8 @@
   [`lapply_jobs()`](http://dipterix.org/ravepipeline/reference/with_rave_parallel.md)
   now accept a function whose body is a single value, such as
   `function() 42`, which failed with “argument is not a function or
-  language object”
+  language object”. A primitive such as `sum` is still refused, now with
+  a message saying how to wrap it
 
 ## ravepipeline 0.2.0
 
