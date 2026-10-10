@@ -124,7 +124,15 @@ remove_job(job_id)
 ## Value
 
 For `start_job`, a string of job identification number; `check_job`
-returns the job status; `resolve_job` returns the function result.
+returns the job status; `resolve_job` returns the function result. With
+`method = 'callr'`, the identification number that `start_job` returns
+also holds the background process: keep it while the job runs.
+[`c()`](https://rdrr.io/r/base/c.html),
+[`unlist()`](https://rdrr.io/r/base/unlist.html),
+[`as.character()`](https://rdrr.io/r/base/character.html), and indexing
+return a plain string without the process; once nothing holds the
+process, the job is stopped and reported as failed. Use `remove_job` to
+stop a job yourself.
 
 ## Examples
 

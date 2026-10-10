@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ravepipeline</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.10</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0.13</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -165,7 +165,12 @@ attached to the result as attribute <code>"rave_logs"</code> if non-empty.</p></
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>For <code>start_job</code>, a string of job identification number;
 <code>check_job</code> returns the job status; <code>resolve_job</code> returns
-the function result.</p>
+the function result. With <code>method = 'callr'</code>, the identification
+number that <code>start_job</code> returns also holds the background process:
+keep it while the job runs. <code><a href="https://rdrr.io/r/base/c.html" class="external-link">c()</a></code>, <code><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist()</a></code>,
+<code><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character()</a></code>, and indexing return a plain string without the
+process; once nothing holds the process, the job is stopped and reported
+as failed. Use <code>remove_job</code> to stop a job yourself.</p>
     </div>
 
     <div class="section level2">
